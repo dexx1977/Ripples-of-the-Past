@@ -81,3 +81,49 @@ results for each executed case. An unexecuted case is not a passing case.
 
 No runtime tests have been performed at project creation. Build logs are kept
 locally in `.porting/`; concise verified outcomes belong in `STATUS.md`.
+
+## Progress log (updated while porting)
+
+Compilation is the current gate; the counts below are javac errors from
+`./gradlew compileJava` and show how much of the source still has to be ported.
+
+| Milestone | Errors after |
+| --- | --- |
+| First compile against 1.20.1 (after namespace/type relocations) | 6,927 |
+| Access transformers for the private vanilla members the mod touches | 6,927 |
+| Batch of verified relocations (JOML, Component factories, nested types) | 5,840 |
+| Capability system (tokens, RegisterCapabilitiesEvent, clone handling) | 5,658 |
+| Networking (SimpleChannel factory, registry ids, spawn data) | 5,540 |
+| Materials/blocks/tool tags and small API changes | 5,540 |
+| Model layer rebuilt on the 1.20.1 geometry API | 3,546 |
+| Client registration, widgets, render state calls | 3,181 |
+
+Committed systems: build toolchain, namespace/type relocation, capability,
+networking, materials/blocks, model layer, client registration/widgets.
+
+Known remaining work, roughly in the order it should be tackled:
+
+1. GUI/HUD drawing: `AbstractGui` is gone, drawing goes through `GuiGraphics`
+   (blit/fill/drawString and the tooltip calls), and the HUD/screen code passes
+   `PoseStack` today. This is the largest remaining cluster (~700 errors).
+2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
+   and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
+   the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
+3. Damage: `EntityDamageSource`/`IndirectEntityDamageSource` were removed in 1.20;
+   custom sources need a `Holder<DamageType>` from the damage type registry.
+4. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
+   registration changed, `WorldGenRegistries`/`DimensionStructuresSettings` are
+   gone (datapack worldgen), and the AT that strips `final` from `StructureStart`
+   still has to be added.
+5. Creative tabs: `Item.Properties#tab` is gone; the mod's tab has to be built
+   with `CreativeModeTab.builder()` and filled via `BuildCreativeModeTabContentsEvent`.
+6. Mixins and access transformers: targets, descriptors and SRG names still need
+   a pass, plus `ObfuscationReflectionHelper` strings.
+7. Optional integrations: bendy-lib's `IBendHelper` API changed, JEI/Vampirism
+   entry points need their 1.20.1 shapes.
+
+Runtime testing has not started: the build does not compile yet, so nothing has
+been run in the client, a singleplayer world or a dedicated server. The local game
+instance the user provided is `versions/1.20.1-Forge` (Forge 1.20.1, BootstrapLauncher)
+with an empty `mods` directory; testing it will also need playerAnimator and
+bendy-lib, which are the same libraries the mod already depends on.
