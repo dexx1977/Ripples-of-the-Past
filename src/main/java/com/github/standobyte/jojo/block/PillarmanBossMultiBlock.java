@@ -180,7 +180,15 @@ public class PillarmanBossMultiBlock extends Block {
     }
     
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return ModTileEntities.SLUMBERING_PILLARMAN.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModTileEntities.SLUMBERING_PILLARMAN.get().create(pos, state);
+    }
+
+    @Override
+    public <T extends BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(
+            Level level, BlockState state, BlockEntityType<T> type) {
+        return type == ModTileEntities.SLUMBERING_PILLARMAN.get()
+                ? (lvl, pos, st, blockEntity) -> ((PillarmanBossTileEntity) blockEntity).tick()
+                : null;
     }
 }

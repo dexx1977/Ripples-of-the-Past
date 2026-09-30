@@ -31,8 +31,8 @@ public abstract class PlayerPredicateRecipeWrapper<R extends CraftingRecipe> imp
     protected abstract boolean playerMatches(Player player);
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
-        return recipe.assemble(inventory);
+    public ItemStack assemble(CraftingContainer inventory, net.minecraft.core.RegistryAccess registryAccess) {
+        return recipe.assemble(inventory, registryAccess);
     }
 
     @Override
@@ -41,8 +41,8 @@ public abstract class PlayerPredicateRecipeWrapper<R extends CraftingRecipe> imp
     }
 
     @Override
-    public ItemStack getResultItem() {
-        return recipe.getResultItem();
+    public ItemStack getResultItem(net.minecraft.core.RegistryAccess registryAccess) {
+        return recipe.getResultItem(registryAccess);
     }
 
     @Override

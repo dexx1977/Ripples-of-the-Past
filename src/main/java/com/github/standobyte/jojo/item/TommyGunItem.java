@@ -199,7 +199,7 @@ public class TommyGunItem extends Item {
     }
 
     @Override
-    public boolean showDurabilityBar(ItemStack stack) {
+    public boolean isBarVisible(ItemStack stack) {
         return getAmmo(stack) < MAX_AMMO;
     }
 

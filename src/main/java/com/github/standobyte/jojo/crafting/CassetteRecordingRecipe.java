@@ -40,7 +40,7 @@ public class CassetteRecordingRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, net.minecraft.core.RegistryAccess registryAccess) {
         TrackRecording result = originalRecordingsAndCopyCount(inventory);
         if (result != null && !result.trackSources.isEmpty() && result.copiesCount > 0) {
             ItemStack copies = new ItemStack(ModItems.CASSETTE_RECORDED.get(), result.copiesCount);

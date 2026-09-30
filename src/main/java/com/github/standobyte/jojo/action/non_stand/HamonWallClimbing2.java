@@ -246,7 +246,7 @@ public class HamonWallClimbing2 extends HamonAction {
         @Override public boolean isDescending() { return false; }
         @Override public boolean isAbove(VoxelShape pShape, BlockPos pPos, boolean pCanAscend) { return false; }
         @Override public boolean isHoldingItem(Item pItem) { return false; }
-        @Override public boolean canStandOnFluid(FluidState pState, FlowingFluid pFlowing) { return false; }
+        @Override public boolean canStandOnFluid(FluidState pState, FluidState pFlowing) { return false; }
     };
     
     private static Vec3 collide(Entity entity, AABB collisionBox, Vec3 offsetVec, boolean excludeBarriers) {

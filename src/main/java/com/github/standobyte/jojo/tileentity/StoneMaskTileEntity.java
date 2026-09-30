@@ -37,7 +37,6 @@ public class StoneMaskTileEntity extends BlockEntity {
         compound.putInt("ActivationTicks", activationTicks);
     }
     
-    @Override
     public void tick() {
         if (activationTicks > 0) {
             activationTicks--;

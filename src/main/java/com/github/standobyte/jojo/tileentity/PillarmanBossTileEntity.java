@@ -19,20 +19,19 @@ public class PillarmanBossTileEntity extends BlockEntity implements ITickableTil
     }
     
     @Override
-    public void load(BlockState state, CompoundTag compound) {
-        super.load(state, compound);
+    public void load(CompoundTag compound) {
+        super.load(compound);
         absorbedLife = compound.getInt("AbsorbedLife");
     }
     
     @Override
-    public CompoundTag save(CompoundTag compound) {
+    protected void saveAdditional(CompoundTag compound) {
         super.saveAdditional(compound);
         compound.putInt("AbsorbedLife", absorbedLife);
         return compound;
     }
 
-    @Override
-    public void tick() {
+        public void tick() {
     }
     
     public void incAbsorbed() {

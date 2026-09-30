@@ -111,11 +111,6 @@ public class StoneMaskBlock extends FaceAttachedHorizontalDirectionalBlock imple
     }
     
     @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
-    }
-    
-    @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModTileEntities.STONE_MASK.get().create(pos, state);
     }

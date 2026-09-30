@@ -15,14 +15,31 @@ public class CustomModelArmorItem extends ArmorItem {
     protected String textureStr;
 
     public CustomModelArmorItem(ArmorMaterial material, EquipmentSlot slot, Properties builder) {
-        super(material, slot, builder);
+        super(material, typeForSlot(slot), builder);
+    }
+
+    /** 1.20.1 describes the armour piece with a type instead of the slot. */
+    private static net.minecraft.world.item.ArmorItem.Type typeForSlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case HEAD -> net.minecraft.world.item.ArmorItem.Type.HELMET;
+            case CHEST -> net.minecraft.world.item.ArmorItem.Type.CHESTPLATE;
+            case LEGS -> net.minecraft.world.item.ArmorItem.Type.LEGGINGS;
+            case FEET -> net.minecraft.world.item.ArmorItem.Type.BOOTS;
+            default -> throw new IllegalArgumentException("Not an armour slot: " + slot);
+        };
     }
     
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends HumanoidModel<?>> A getArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot armorSlot, A _default) {
-        A model = (A) ArmorModelRegistry.getModel(this);
-        return model;
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(new net.minecraftforge.client.extensions.common.IClientItemExtensions() {
+            @Override
+            public net.minecraft.client.model.HumanoidModel<?> getHumanoidArmorModel(
+                    net.minecraft.world.entity.LivingEntity entity, ItemStack stack, net.minecraft.world.entity.EquipmentSlot slot,
+                    net.minecraft.client.model.HumanoidModel<?> original) {
+                return com.github.standobyte.jojo.client.render.armor.ArmorModelRegistry.getModel(CustomModelArmorItem.this);
+            }
+        });
     }
     
     @Override

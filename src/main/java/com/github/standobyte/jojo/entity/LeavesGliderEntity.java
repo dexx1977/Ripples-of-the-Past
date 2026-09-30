@@ -360,7 +360,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    public Entity getControllingPassenger() {
+    public LivingEntity getControllingPassenger() {
         return isVehicle() ? getPassengers().get(0) : null;
     }
 

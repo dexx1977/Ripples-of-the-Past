@@ -37,7 +37,7 @@ public class CassetteCopyRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, net.minecraft.core.RegistryAccess registryAccess) {
         Pair<ItemStack, Integer> result = originalRecordingAndCopyCount(inventory);
         if (result != null && !result.getLeft().isEmpty() && result.getRight() > 0) {
             Optional<CassetteCap> cassetteCap = CassetteRecordedItem.getCassetteData(result.getLeft());

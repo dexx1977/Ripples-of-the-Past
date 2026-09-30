@@ -125,11 +125,6 @@ public class StandDiscItem extends Item {
         }
     }
     
-    @Override
-    public boolean allowdedIn(CreativeModeTab creativeTab) {
-        return super.allowdedIn(creativeTab);
-    }
-    
     
     public static ItemStack withStand(ItemStack discStack, StandInstance standInstance) {
         discStack.getOrCreateTag().put(STAND_TAG, standInstance.writeNBT());

@@ -66,14 +66,14 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         Matrix3f matrix3f = pose.normal();
         
         Vector3f normalVec = new Vector3f(0, 0, -1);
-        normalVec.transform(matrix3f);
+        normalVec.mul(matrix3f);
 
         for (ModelPart.Vertex vertex : VERTICES) {
             float vertexX = vertex.pos.x();
             float vertexY = vertex.pos.y();
             float vertexZ = vertex.pos.z();
             Vector4f vector4f = new Vector4f(vertexX, vertexY, vertexZ, 1.0F);
-            vector4f.transform(matrix4f);
+            vector4f.mul(matrix4f);
 
             vertexBuilder.vertex(
                     vector4f.x(), vector4f.y(), vector4f.z(), 

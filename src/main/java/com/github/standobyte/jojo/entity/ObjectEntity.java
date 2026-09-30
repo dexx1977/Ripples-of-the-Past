@@ -58,13 +58,6 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
         return super.getTypeName();
     }
 
-
-
-    @Override
-    protected boolean isMovementNoisy() {
-        return false;
-    }
-
     @Override
     public void tick() {
         super.tick();
@@ -109,7 +102,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
             this.move(MoverType.SELF, this.getDeltaMovement());
             float f1 = 0.98F;
             if (this.onGround) {
-                f1 = this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ())).getSlipperiness(level, BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ()), this) * 0.98F;
+                f1 = this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ())).getFriction(level, BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ()), this) * 0.98F;
             }
 
             this.setDeltaMovement(this.getDeltaMovement().multiply((double)f1, 0.98D, (double)f1));
