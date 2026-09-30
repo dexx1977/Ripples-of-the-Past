@@ -442,14 +442,14 @@ public class TimeStopHandler {
 
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onServerWorldTick(WorldTickEvent event) {
+    public static void onServerWorldTick(net.minecraftforge.event.TickEvent.LevelTickEvent event) {
         if (event.phase != TickEvent.Phase.START) {
             return;
         }
-        event.world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> {
+        event.level.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> {
             cap.tick();
         });
-        if (event.world.dimension() == Level.OVERWORLD) {
+        if (event.level.dimension() == Level.OVERWORLD) {
             event.world.getCapability(SaveFileUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.tick();
             });

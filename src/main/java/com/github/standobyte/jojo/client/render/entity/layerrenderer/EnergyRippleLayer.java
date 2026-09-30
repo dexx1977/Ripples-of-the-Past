@@ -61,7 +61,7 @@ import org.joml.Vector3f;
 import com.mojang.math.Axis;
 
 public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
-    private static final Random RANDOM = new Random();
+    private static final net.minecraft.util.RandomSource RANDOM = net.minecraft.util.RandomSource.create();
 
     public EnergyRippleLayer(RenderLayerParent<T, M> renderer) {
         super(renderer);

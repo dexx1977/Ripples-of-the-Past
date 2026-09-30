@@ -43,9 +43,9 @@ public class StandEntityType<T extends StandEntity> extends EntityType<T> {
     protected StandEntityType(IStandFactory<T> factory, 
             boolean immuneToFire, float width, float height,
             Predicate<EntityType<?>> velocityUpdateSupplier, ToIntFunction<EntityType<?>> trackingRangeSupplier,
-            ToIntFunction<EntityType<?>> updateIntervalSupplier, BiFunction<SpawnEntity, Level, T> customClientFactory) {
+            ToIntFunction<EntityType<?>> updateIntervalSupplier, BiFunction<net.minecraftforge.network.PlayMessages.SpawnEntity, Level, T> customClientFactory) {
         super(null, MobCategory.MISC, true, false, immuneToFire, false, null, EntityDimensions.scalable(width, height),
-                -1, -1, velocityUpdateSupplier, trackingRangeSupplier, updateIntervalSupplier, customClientFactory);
+                -1, -1, null, velocityUpdateSupplier, trackingRangeSupplier, updateIntervalSupplier, customClientFactory);
         this.factory = factory;
     }
     

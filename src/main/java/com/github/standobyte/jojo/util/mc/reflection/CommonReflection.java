@@ -50,7 +50,6 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
@@ -319,8 +318,8 @@ public class CommonReflection {
     
     
     
-    private static final Method GAME_RULES_BOOLEAN_VALUE_CREATE = ObfuscationReflectionHelper.findMethod(GameRules.BooleanValue.class, "func_223568_b", boolean.class);
-    public static GameRules.RuleType<GameRules.BooleanValue> createBooleanGameRule(boolean defaultValue) {
+    private static final Method GAME_RULES_BOOLEAN_VALUE_CREATE = ObfuscationReflectionHelper.findMethod(GameRules.BooleanValue.class, "m_46250_", boolean.class);
+    public static GameRules.Type<GameRules.BooleanValue> createBooleanGameRule(boolean defaultValue) {
         return ReflectionUtil.invokeMethod(GAME_RULES_BOOLEAN_VALUE_CREATE, null, defaultValue);
     }
 }

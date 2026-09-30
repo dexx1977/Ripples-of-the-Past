@@ -11,7 +11,7 @@ import net.minecraft.world.level.BlockGetter;
 
 public class LiquidOnlyRayTraceContext extends ClipContext {
 
-    public LiquidOnlyRayTraceContext(Vec3 from, Vec3 to, FluidMode liquid,
+    public LiquidOnlyRayTraceContext(Vec3 from, Vec3 to, ClipContext.Fluid liquid,
             Entity collidingEntity) {
         super(from, to, null, liquid, collidingEntity);
     }

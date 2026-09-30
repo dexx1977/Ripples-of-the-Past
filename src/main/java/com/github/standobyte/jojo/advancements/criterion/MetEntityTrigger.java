@@ -48,8 +48,8 @@ public class MetEntityTrigger extends SimpleCriterionTrigger<MetEntityTrigger.In
             this.entity = entity;
         }
 
-        public static SummonedEntityTrigger.Instance metEntity(EntityPredicate.Builder entityBuilder) {
-            return new SummonedEntityTrigger.Instance(ContextAwarePredicate.ANY, ContextAwarePredicate.wrap(entityBuilder.build()));
+        public static SummonedEntityTrigger.TriggerInstance metEntity(EntityPredicate.Builder entityBuilder) {
+            return new SummonedEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, ContextAwarePredicate.wrap(entityBuilder.build()));
         }
         
         public boolean matches(LootContext pLootContext) {

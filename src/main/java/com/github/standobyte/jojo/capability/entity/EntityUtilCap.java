@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -206,9 +207,9 @@ public class EntityUtilCap {
             if (entity instanceof ServerPlayer) {
                 ((ServerPlayer) entity).connection.send(
                         new ClientboundPlayerPositionPacket(pos.x, pos.y, pos.z, 
-                                0, 0, Util.make(EnumSet.noneOf(ClientboundPlayerPositionPacket.RelativeArgument.class), set -> {
-                                    set.add(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT);
-                                    set.add(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT);
+                                0, 0, Util.make(EnumSet.noneOf(RelativeMovement.class), set -> {
+                                    set.add(RelativeMovement.X_ROT);
+                                    set.add(RelativeMovement.Y_ROT);
                                 }), -1));
             }
         }

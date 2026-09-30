@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class JojoModConfig {
@@ -665,7 +666,7 @@ public class JojoModConfig {
     }
     
     @SubscribeEvent
-    public static void onConfigLoad(ModConfig.ModConfigEvent event) {
+    public static void onConfigLoad(ModConfigEvent event) {
         ModConfig config = event.getConfig();
         if (JojoMod.MOD_ID.equals(config.getModId()) && config.getType() == ModConfig.Type.COMMON) {
             COMMON_FROM_FILE.onLoadOrReload();
@@ -673,7 +674,7 @@ public class JojoModConfig {
     }
     
     @SubscribeEvent
-    public static void onConfigReload(ModConfig.Reloading event) {
+    public static void onConfigReload(ModConfigEvent.Reloading event) {
         ModConfig config = event.getConfig();
         if (JojoMod.MOD_ID.equals(config.getModId()) && config.getType() == ModConfig.Type.COMMON) {
             // FIXME sync the config to all players on the server

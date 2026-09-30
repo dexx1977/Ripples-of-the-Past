@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Style;
+import java.util.List;
 
 public class ShortKeybindTextComponent implements Component {
     protected static final Map<String, Component> SHORT_NAMES = new HashMap<>();
