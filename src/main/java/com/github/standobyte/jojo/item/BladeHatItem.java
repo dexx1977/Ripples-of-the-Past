@@ -38,7 +38,7 @@ public class BladeHatItem extends CustomModelArmorItem {
                 Position position = DispenserBlock.getDispensePosition(blockSource);
                 Direction direction = blockSource.getBlockState().getValue(DispenserBlock.FACING);
                 BladeHatEntity hat = new BladeHatEntity(world, position.x(), position.y(), position.z(), itemStack.copy());
-                hat.pickup = AbstractArrow.PickupStatus.ALLOWED;
+                hat.pickup = AbstractArrow.Pickup.ALLOWED;
                 hat.shoot(direction.getStepX(), direction.getStepY() + 0.1, direction.getStepZ(), 1.1F, 6.0F);
                 world.addFreshEntity(hat);
                 itemStack.shrink(1);

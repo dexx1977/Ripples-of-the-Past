@@ -178,7 +178,6 @@ public class FirstPersonHamonAura {
             RenderSystem.enableDepthTest();
             RenderSystem.enableFog();
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
-            RenderSystem.enableTexture();
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
         };
         RenderSystem.pushMatrix();

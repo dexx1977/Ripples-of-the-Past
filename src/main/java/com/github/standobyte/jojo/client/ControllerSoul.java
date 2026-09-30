@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.SoulEntity;
@@ -8,7 +9,6 @@ import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -110,9 +110,9 @@ public class ControllerSoul {
                 int yPos = mc.getWindow().getGuiScaledHeight() - 32 + 3;
                 int width = 182;
                 int fill = (int)((1.0F - ((float) playerSoulEntity.tickCount / playerSoulEntity.lifeSpan)) * (width + 1));
-                AbstractGui.blit(matrixStack, xPos, yPos, 0, 0, 208, width, 5, 256, 256);
+                GuiDraw.blit(matrixStack, xPos, yPos, 0, 0, 208, width, 5, 256, 256);
                 if (fill > 0) {
-                    AbstractGui.blit(matrixStack, xPos, yPos, 0, 0, 213, fill, 5, 256, 256);
+                    GuiDraw.blit(matrixStack, xPos, yPos, 0, 0, 213, fill, 5, 256, 256);
                 }
             }
             

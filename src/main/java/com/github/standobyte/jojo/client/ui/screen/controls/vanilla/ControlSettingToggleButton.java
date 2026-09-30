@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.controls.vanilla;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
+import net.minecraft.client.gui.GuiGraphics;
 import java.util.function.Supplier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,7 +13,7 @@ public class ControlSettingToggleButton extends Button {
     private final Supplier<Boolean> settingGetter;
 
     public ControlSettingToggleButton(int pWidth, int pHeight, 
-            Button.Button.OnPress onPress, Supplier<Boolean> settingGetter) {
+            Button.OnPress onPress, Supplier<Boolean> settingGetter) {
         super(-1, -1, pWidth, pHeight, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.settingGetter = settingGetter;
         setMessageFromSetting(settingGetter.get());
@@ -22,7 +24,9 @@ public class ControlSettingToggleButton extends Button {
     }
     
     @Override
-    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         setMessageFromSetting(settingGetter.get());
         super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
     }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_UPPER_BORDER;
 
@@ -86,7 +87,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     
     private void renderSkillTrees(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY) {
         // skill squares
-        RenderSystem.setShaderTexture(0, HAMON_SKILLS);
+        GuiDraw.bind(HAMON_SKILLS);
         HamonSkillElementLearnable hovered = null;
         for (HamonSkillElementLearnable skillElement : skills.values()) {
             skillElement.blitBgSquare(matrixStack, intScrollX, intScrollY);
@@ -111,7 +112,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
             !screen.hamon.isSkillLearned(skill)).collect(Collectors.toList());
             for (AbstractHamonSkill skill : missingSkills) {
                 if (!GeneralUtil.orElseFalse(findSkillSquare(skill), skillElement -> {
-                    RenderSystem.setShaderTexture(0, HAMON_SKILLS);
+                    GuiDraw.bind(HAMON_SKILLS);
                     skillElement.blitBgSquareRequirement(matrixStack, intScrollX, intScrollY);
                     return true;
                 })) {
@@ -124,7 +125,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
                     });
                 }
 //                findSkillSquare(skill).ifPresent(skillElement -> {
-//                    RenderSystem.setShaderTexture(0, HAMON_SKILLS);
+//                    GuiDraw.bind(HAMON_SKILLS);
 //                    skillElement.blitBgSquareRequirement(matrixStack, intScrollX, intScrollY);
 //                });
             }
@@ -158,7 +159,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     public static void renderHamonSkillIcon(PoseStack matrixStack, AbstractHamonSkill skill, int x, int y) {
         TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
         Minecraft.getInstance().getTextureManager().bind(textureAtlasSprite.atlas().location());
-        blit(matrixStack, x, y, 0, 16, 16, textureAtlasSprite);
+        GuiDraw.blit(matrixStack, x, y, 0, 16, 16, textureAtlasSprite);
     }
     
     public Optional<HamonSkillElementLearnable> findSkillSquare(AbstractHamonSkill skill) {

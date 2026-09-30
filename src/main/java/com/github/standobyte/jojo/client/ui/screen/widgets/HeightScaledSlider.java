@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -20,48 +21,48 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         Font fontrenderer = minecraft.font;
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         int texY = 46 + getYImage(isHovered()) * 20;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x, y,            
                 0, texY, 
                 width / 2, height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + width / 2, y,            
                 200 - width / 2, texY, 
                 width - width / 2, height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x, y + height / 2,            
                 0, texY + 20 - height / 2, 
                 width / 2, height - height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + width / 2, y + height / 2,            
                 200 - width / 2, texY + 20 - height / 2, 
                 width - width / 2, height - height / 2);
         this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
         int j = getFGColor();
-        drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
+        GuiDraw.drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
     }
     
     @Override
     protected void renderBg(PoseStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY) {
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (isHovered() ? 2 : 1) * 20;
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + (int)(value * (width - 8)), y, 
                 0, 46 + i, 4, height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + (int)(value * (width - 8)) + 4, y, 
                 196, 46 + i, 4, height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + (int)(value * (width - 8)), y + height / 2, 
                 0, 46 + i + 20 - height / 2, 4, height - height / 2);
-        blit(pMatrixStack, 
+        GuiDraw.blit(pMatrixStack, 
                 x + (int)(value * (width - 8)) + 4, y + height / 2, 
                 196, 46 + i + 20 - height / 2, 4, height - height / 2);
     }

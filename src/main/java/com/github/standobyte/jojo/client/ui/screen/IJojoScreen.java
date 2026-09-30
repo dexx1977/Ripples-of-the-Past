@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.entity.HumanoidArm;
@@ -124,8 +124,8 @@ public interface IJojoScreen {
         
         protected void renderIcon(PoseStack matrixStack, int x, int y) {
             if (icon != null) {
-                Minecraft.getInstance().RenderSystem.setShaderTexture(0, icon);
-                AbstractGui.blit(matrixStack, x + 2, y + 6, texX, texY, 16, 16, texSizeX, texSizeY);
+                Minecraft.getInstance().GuiDraw.bind(icon);
+                GuiDraw.blit(matrixStack, x + 2, y + 6, texX, texY, 16, 16, texSizeX, texSizeY);
             }
         }
         
@@ -156,8 +156,8 @@ public interface IJojoScreen {
             boolean isSelected = i == selectedIndex;
             int texX = (isSelected ? 0 : 168) + (i == 0 ? 0 : 28);
             int texY = isSelected ? 32 : 2;
-            RenderSystem.setShaderTexture(0, TABS);
-            AbstractGui.blit(matrixStack, x, y, texX, texY, 28, 32, 256, 256);
+            GuiDraw.bind(TABS);
+            GuiDraw.blit(matrixStack, x, y, texX, texY, 28, 32, 256, 256);
             x += 28;
         }
         
@@ -174,7 +174,7 @@ public interface IJojoScreen {
         x = x0;
         int tooltipTab = upperTabMouseOver(mouseX, mouseY, x, y, activeTabs.length);
         if (tooltipTab >= 0) {
-            screen.renderTooltip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
+            screen.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
         }
     }
     
@@ -192,8 +192,8 @@ public interface IJojoScreen {
             boolean isSelected = i == selectedIndex;
             int texX = atTheTop && i == 0 ? 96 : 128;
             int texY = isSelected ? 92 : 64;
-            RenderSystem.setShaderTexture(0, TABS);
-            AbstractGui.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
+            GuiDraw.bind(TABS);
+            GuiDraw.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
             y += 28;
         }
         
@@ -210,7 +210,7 @@ public interface IJojoScreen {
         y = y0;
         int tooltipTab = getTabMouseOver(mouseX, mouseY, x, y, HumanoidArm.RIGHT, activeTabs.length);
         if (tooltipTab >= 0) {
-            screen.renderTooltip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
+            screen.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
         }
     }
     
@@ -295,8 +295,8 @@ public interface IJojoScreen {
                 return;
             }
             int texY = isSelected ? 92 : 64;
-            RenderSystem.setShaderTexture(0, TABS);
-            AbstractGui.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
+            GuiDraw.bind(TABS);
+            GuiDraw.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
             y += 28;
         }
         
@@ -317,7 +317,7 @@ public interface IJojoScreen {
         y = y0;
         int tooltipTab = getTabMouseOver(mouseX, mouseY, x, y, tabsSide, activeTabs.length);
         if (tooltipTab >= 0) {
-            screen.renderTooltip(matrixStack, activeTabs[tooltipTab].name, mouseX, mouseY);
+            GuiDraw.renderToolTip(matrixStack, activeTabs[tooltipTab].name, mouseX, mouseY);
         }
     }
     
@@ -466,7 +466,7 @@ public interface IJojoScreen {
             if (power != null) {
                 ResourceLocation icon = InputHandler.getInstance().getPowerCache(power).clGetPowerTypeIcon(); 
                 Minecraft.getInstance().getTextureManager().bind(icon);
-                AbstractGui.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+                GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             }
         }
         

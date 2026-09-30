@@ -36,7 +36,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
     protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, LivingEntity thrower, Level world) {
         super(type, thrower, world);
         if (thrower instanceof Player && ((Player) thrower).abilities.instabuild) {
-            pickup = AbstractArrow.PickupStatus.CREATIVE_ONLY;
+            pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
             yRotO += 180.0F;
             if (!level.isClientSide() && getDeltaMovement().lengthSqr() < 1.0E-7D) {
                 if (isRemovedOnEntityHit()) {
-                    if (pickup == AbstractArrow.PickupStatus.ALLOWED) {
+                    if (pickup == AbstractArrow.Pickup.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
                     remove();
@@ -150,10 +150,10 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
         if (!level.isClientSide()) {
             Entity shooter = getOwner();
             if (inGround || shooter == null || shooter.getUUID() == player.getUUID()) {
-                boolean canPickUp = (pickup == AbstractArrow.PickupStatus.ALLOWED 
-                        || pickup == AbstractArrow.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild)
+                boolean canPickUp = (pickup == AbstractArrow.Pickup.ALLOWED 
+                        || pickup == AbstractArrow.Pickup.CREATIVE_ONLY && player.abilities.instabuild)
                         && (inGround || isNoPhysics() || throwerCanCatch());
-                if (canPickUp && pickup == AbstractArrow.PickupStatus.ALLOWED && !player.inventory.add(getPickupItem())) {
+                if (canPickUp && pickup == AbstractArrow.Pickup.ALLOWED && !player.inventory.add(getPickupItem())) {
                     canPickUp = false;
                 }
                 if (canPickUp) {

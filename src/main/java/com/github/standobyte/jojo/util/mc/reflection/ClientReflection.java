@@ -126,13 +126,13 @@ public class ClientReflection {
     }
     
     
-    private static final Field RENDER_TYPE_BUFFER_IMPL_BUILDER = ObfuscationReflectionHelper.findField(MultiBufferSource.Impl.class, "field_228457_a_");
-    public static BufferBuilder getBuilder(MultiBufferSource.Impl buffers) {
+    private static final Field RENDER_TYPE_BUFFER_IMPL_BUILDER = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "field_228457_a_");
+    public static BufferBuilder getBuilder(MultiBufferSource.BufferSource buffers) {
         return ReflectionUtil.getFieldValue(RENDER_TYPE_BUFFER_IMPL_BUILDER, buffers);
     }
     
-    private static final Field RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS = ObfuscationReflectionHelper.findField(MultiBufferSource.Impl.class, "field_228458_b_");
-    public static Map<RenderType, BufferBuilder> getFixedBuffers(MultiBufferSource.Impl buffers) {
+    private static final Field RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "field_228458_b_");
+    public static Map<RenderType, BufferBuilder> getFixedBuffers(MultiBufferSource.BufferSource buffers) {
         return ReflectionUtil.getFieldValue(RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS, buffers);
     }
     

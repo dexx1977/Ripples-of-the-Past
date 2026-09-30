@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.toasts;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -38,7 +40,9 @@ public class ActionToast implements Toast {
     
     @SuppressWarnings("deprecation")
     @Override
-    public Toast.Visibility render(PoseStack matrixStack, ToastComponent toastGui, long timeMs) {
+    public Toast.Visibility render(GuiGraphics guiGraphics, ToastComponent toastGui, long timeMs) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         if (changed) {
             lastChanged = (int) timeMs;
             changed = false;
@@ -48,16 +52,16 @@ public class ActionToast implements Toast {
             return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
-            RenderSystem.setShaderTexture(0, TEXTURE);
+            GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-            toastGui.blit(matrixStack, 0, 0, 0, 32, 160, 32);
+            GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
             mc.font.draw(matrixStack, description, 30.0F, 18.0F, -16777216);
             matrixStack.pushPose();
             matrixStack.scale(0.5F, 0.5F, 1.0F);
             
-            RenderSystem.setShaderTexture(0, powerTypeIcon);
-            ToastComponent.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(powerTypeIcon);
+            GuiDraw.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
             
             matrixStack.popPose();
             renderIcon(matrixStack, toastGui, (int) timeMs);
@@ -72,7 +76,7 @@ public class ActionToast implements Toast {
         
         ResourceLocation actionIcon = actionIcons.get(actionIndex);
         toastGui.getMinecraft().getTextureManager().bind(actionIcon);
-        ToastComponent.blit(matrixStack, 8, 8, 0, 0, 16, 16, 16, 16);
+        GuiDraw.blit(matrixStack, 8, 8, 0, 0, 16, 16, 16, 16);
     }
     
     protected void addAction(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {

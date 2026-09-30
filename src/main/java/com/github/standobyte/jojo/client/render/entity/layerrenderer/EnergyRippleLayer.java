@@ -173,7 +173,6 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
         RenderSystem.defaultAlphaFunc();
         RenderSystem.enableDepthTest();
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
-        RenderSystem.enableTexture();
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
         
         

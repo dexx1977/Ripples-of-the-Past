@@ -34,7 +34,7 @@ import net.minecraftforge.client.model.data.IModelData;
 // MultiblockVisualizationHandler class from Vazkii's Patchouli mod
 // (licensed under CC BY-NC-SA 3.0)
 public class TranslucentBlockRenderHelper {
-    private static MultiBufferSource.Impl buffers = null;
+    private static MultiBufferSource.BufferSource buffers = null;
 
     public static void renderCDRestorationTranslucentBlocks(PoseStack matrixStack, Minecraft mc, 
             Stream<PrevBlockInfo> blocks, Predicate<PrevBlockInfo> inAbilityRange) {

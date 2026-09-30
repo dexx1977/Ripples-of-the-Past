@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
@@ -89,18 +90,18 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
 
     @Override
     void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
-        RenderSystem.setShaderTexture(0, HamonSkillsTabGui.HAMON_SKILLS);
+        GuiDraw.bind(HamonSkillsTabGui.HAMON_SKILLS);
         int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
         
         int texY = skillsType == HamonStat.STRENGTH ? 0 : 64;
-        blit(matrixStack, x, y, 16, 16, 128, texY, 64, 64, 256, 256);
+        GuiDraw.blit(matrixStack, x, y, 16, 16, 128, texY, 64, 64, 256, 256);
         
         int points = screen.hamon.getSkillPoints(skillsType);
         if (points > 0) {
-            RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
+            GuiDraw.bind(HamonScreen.WINDOW);
             int textureX = screen.isTeacherNearby ? 248 : 239;
-            blit(matrixStack, x - 6, y - 3, textureX, 206, 8, 8);
+            GuiDraw.blit(matrixStack, x - 6, y - 3, textureX, 206, 8, 8);
         }
     }
 
@@ -135,7 +136,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
         else {
             Component lvl = skillsType == HamonStat.STRENGTH ? Component.translatable("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL) : 
                 Component.translatable("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL);
-            drawString(matrixStack, minecraft.font, lvl, intScrollX + 6, intScrollY + 5, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, lvl, intScrollX + 6, intScrollY + 5, 0xFFFFFF);
             ClientUtil.drawRightAlignedString(matrixStack, minecraft.font, Component.translatable("hamon.skill_points", 
                     Component.literal(String.valueOf(points)).withStyle(points > 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED)),
                     intScrollX + WINDOW_WIDTH - 15 - WINDOW_THIN_BORDER, intScrollY + 5, 0xFFFFFF);

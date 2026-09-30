@@ -63,7 +63,7 @@ public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
     @Override
     public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
-            double reach = standEntity.getAttributeValue(ForgeMod.REACH_DISTANCE.get());
+            double reach = standEntity.getAttributeValue(ForgeMod.ENTITY_REACH.get());
             world.getEntities(standEntity, standEntity.getBoundingBox().inflate(reach, 0, reach), 
                     e -> !e.isSpectator() && e.isPickable() && standEntity.canHarm(e)).forEach(targetEntity -> {
                         Vec3 standLookVec = standEntity.getLookAngle();

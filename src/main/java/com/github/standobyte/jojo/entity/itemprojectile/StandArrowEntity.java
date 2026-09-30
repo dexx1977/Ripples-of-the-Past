@@ -218,7 +218,7 @@ public class StandArrowEntity extends AbstractArrow {
             int loyalty = entityData.get(LOYALTY);
             if (loyalty > 0) {
                 if (!owner.isAlive() || owner instanceof Player && JojoModUtil.getGameModeConsiderPossessing((Player) owner) == GameType.SPECTATOR) {
-                    if (!level.isClientSide && pickup == AbstractArrow.PickupStatus.ALLOWED) {
+                    if (!level.isClientSide && pickup == AbstractArrow.Pickup.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
                     remove();
@@ -247,7 +247,7 @@ public class StandArrowEntity extends AbstractArrow {
 
     @Override
     public void tickDespawn() {
-        if (pickup != AbstractArrow.PickupStatus.ALLOWED || entityData.get(LOYALTY) <= 0) {
+        if (pickup != AbstractArrow.Pickup.ALLOWED || entityData.get(LOYALTY) <= 0) {
             super.tickDespawn();
         }
     }

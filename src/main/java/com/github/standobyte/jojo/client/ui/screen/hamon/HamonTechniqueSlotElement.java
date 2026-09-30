@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +14,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.network.chat.Component;
 
 public class HamonTechniqueSlotElement {
@@ -72,17 +72,17 @@ public class HamonTechniqueSlotElement {
         x += this.x;
         y += this.y;
         Minecraft.getInstance().getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
-        AbstractGui.blit(matrixStack, x, y, 0, 156, 28, 28, 256, 256);
+        GuiDraw.blit(matrixStack, x, y, 0, 156, 28, 28, 256, 256);
         
         x++;
         y++;
         switch (state) {
         case LOCKED:
-            AbstractGui.blit(matrixStack, x, y, 
+            GuiDraw.blit(matrixStack, x, y, 
                     52, 0, 26, 26, 256, 256);
             break;
         case EMPTY_NEXT:
-            AbstractGui.blit(matrixStack, x, y, 
+            GuiDraw.blit(matrixStack, x, y, 
                     0, 26, 26, 26, 256, 256);
             break;
         case HAS_SKILL:
@@ -93,7 +93,7 @@ public class HamonTechniqueSlotElement {
             skillIcon.renderSkillIcon(matrixStack, x + 5, y + 5);
             break;
         case EMPTY:
-            AbstractGui.blit(matrixStack, x, y, 
+            GuiDraw.blit(matrixStack, x, y, 
                     0, 0, 26, 26, 256, 256);
             break;
         }
@@ -105,12 +105,12 @@ public class HamonTechniqueSlotElement {
         if (isMouseOver(scrollX, scrollY, mouseX, mouseY)) {
             switch (state) {
             case LOCKED:
-                screen.renderTooltip(matrixStack, screen.getMinecraft().font.split(
+                screen.renderToolTip(matrixStack, screen.getMinecraft().font.split(
                         Component.translatable("hamon.technique_slot.locked", HamonTechniqueManager.techniqueSkillRequirement(index, true)), 
                         170), mouseX, mouseY);
                 break;
             case EMPTY_NEXT:
-                screen.renderTooltip(matrixStack, Component.translatable("hamon.technique_slot.free"), mouseX, mouseY);
+                screen.renderToolTip(matrixStack, Component.translatable("hamon.technique_slot.free"), mouseX, mouseY);
                 break;
             case HAS_SKILL:
                 getSkillElement().ifPresent(skill -> {

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_UPPER_BORDER;
@@ -26,7 +27,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.ItemStack;
@@ -100,7 +100,7 @@ public class HamonStatsTabGui extends HamonTabGui {
 
     @Override
     protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
+        GuiDraw.bind(HamonScreen.WINDOW);
         float breathingTraining = screen.hamon.getBreathingLevel();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -116,11 +116,11 @@ public class HamonStatsTabGui extends HamonTabGui {
             int ptsAtLvl = HamonData.pointsAtLevel(level);
             pts = ((float) (screen.hamon.getHamonStrengthPoints() - ptsAtLvl)) / (HamonData.pointsAtLevel(level + 1) - ptsAtLvl);
         }
-        blit(matrixStack, intScrollX + 154, strengthStatY + 1, 203, 234, (int) (50 * pts), 5);
-        blit(matrixStack, intScrollX + 153, strengthStatY, 202, 227, 52, 7);
+        GuiDraw.blit(matrixStack, intScrollX + 154, strengthStatY + 1, 203, 234, (int) (50 * pts), 5);
+        GuiDraw.blit(matrixStack, intScrollX + 153, strengthStatY, 202, 227, 52, 7);
         if (hamonStrengthLimited = level < HamonData.MAX_STAT_LEVEL
                 && level >= screen.hamon.getStatLevelLimit(true)) {
-            blit(matrixStack, intScrollX + 142, strengthStatY, 230, 206, 8, 8);
+            GuiDraw.blit(matrixStack, intScrollX + 142, strengthStatY, 230, 206, 8, 8);
         }
 
         // hamon control bar
@@ -132,18 +132,18 @@ public class HamonStatsTabGui extends HamonTabGui {
             int ptsAtLevel = HamonData.pointsAtLevel(level);
             pts = ((float) (screen.hamon.getHamonControlPoints() - ptsAtLevel)) / (HamonData.pointsAtLevel(level + 1) - ptsAtLevel);
         }
-        blit(matrixStack, intScrollX + 154, controlStatY + 1, 203, 239, (int) (50 * pts), 5);
-        blit(matrixStack, intScrollX + 153, controlStatY, 202, 227, 52, 7);
+        GuiDraw.blit(matrixStack, intScrollX + 154, controlStatY + 1, 203, 239, (int) (50 * pts), 5);
+        GuiDraw.blit(matrixStack, intScrollX + 153, controlStatY, 202, 227, 52, 7);
         if (hamonControlLimited = level < HamonData.MAX_STAT_LEVEL
                 && level >= screen.hamon.getStatLevelLimit(true)) {
-            blit(matrixStack, intScrollX + 142, controlStatY, 230, 206, 8, 8);
+            GuiDraw.blit(matrixStack, intScrollX + 142, controlStatY, 230, 206, 8, 8);
         }
 
         // breathing training stat bar
         boolean fullTraining = breathingTraining == HamonData.MAX_BREATHING_LEVEL;
         pts = fullTraining ? 1.0F : breathingTraining - (int)breathingTraining;
-        blit(matrixStack, intScrollX + 154, breathingStatY + 1, 203, fullTraining ? 249 : 244, (int) (50 * pts), 5);
-        blit(matrixStack, intScrollX + 153, breathingStatY, 202, 227, 52, 7);
+        GuiDraw.blit(matrixStack, intScrollX + 154, breathingStatY + 1, 203, fullTraining ? 249 : 244, (int) (50 * pts), 5);
+        GuiDraw.blit(matrixStack, intScrollX + 153, breathingStatY, 202, 227, 52, 7);
         if (fullTraining) {
             float ticks = screen.tickCount + partialTick;
             float length = 7;
@@ -181,16 +181,16 @@ public class HamonStatsTabGui extends HamonTabGui {
         int exercisedCompleted = Math.min(screen.hamon.getCompleteExercisesCount(), HamonData.MAX_EXERCISES_NEEDED);
         float maxIncompleteExercise = screen.hamon.getMaxIncompleteExercise();
         int length = 48 * exercisedCompleted;
-        blit(matrixStack, intScrollX + 13,          exercisesAvgY + 1,  1,          234,  length,       5);
+        GuiDraw.blit(matrixStack, intScrollX + 13,          exercisesAvgY + 1,  1,          234,  length,       5);
         int length2 = (int) (48 * maxIncompleteExercise);
-        blit(matrixStack, intScrollX + 13 + length, exercisesAvgY + 1,  1 + length, 239,  length2,      5);
+        GuiDraw.blit(matrixStack, intScrollX + 13 + length, exercisesAvgY + 1,  1 + length, 239,  length2,      5);
         length += length2;
-        blit(matrixStack, intScrollX + 13 + length, exercisesAvgY + 1,  1 + length, 244,  192 - length, 5);
-        blit(matrixStack, intScrollX + 12,          exercisesAvgY,      0,          227,  194,          7);
+        GuiDraw.blit(matrixStack, intScrollX + 13 + length, exercisesAvgY + 1,  1 + length, 244,  192 - length, 5);
+        GuiDraw.blit(matrixStack, intScrollX + 12,          exercisesAvgY,      0,          227,  194,          7);
         // bonus icon
         if (screen.hamon.getTrainingBonus(false) > 0) {
             boolean bonusWillAddUp = screen.hamon.getBreathingIncrease(minecraft.player, false) > 0;
-            blit(matrixStack, intScrollX + 3, exercisesAvgY - 1, bonusWillAddUp ? 230 : 239, 216, 8, 8);
+            GuiDraw.blit(matrixStack, intScrollX + 3, exercisesAvgY - 1, bonusWillAddUp ? 230 : 239, 216, 8, 8);
         }
         
         // all exercises checkmark
@@ -199,7 +199,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (!screen.hamon.has4ExercisesBonus()) {
             RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
         }
-        blit(matrixStack, (intScrollX + 198) * 2, (exercisesAvgY - 1) * 2, 230, 188, 16, 16);
+        GuiDraw.blit(matrixStack, (intScrollX + 198) * 2, (exercisesAvgY - 1) * 2, 230, 188, 16, 16);
         matrixStack.popPose();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -211,19 +211,19 @@ public class HamonStatsTabGui extends HamonTabGui {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int ticks = hamon.getExerciseTicks(exercise);
         int ticksMax = exercise.getMaxTicks(hamon);
-        gui.blit(matrixStack, x + 1, y + 1, 93, 250, 90 * ticks / ticksMax, 5);
-        gui.blit(matrixStack, x, y, 0, 249, 92, 7);
+        GuiDraw.blit(matrixStack, x + 1, y + 1, 93, 250, 90 * ticks / ticksMax, 5);
+        GuiDraw.blit(matrixStack, x, y, 0, 249, 92, 7);
         
         matrixStack.pushPose();
         matrixStack.scale(0.5F, 0.5F, 0.5F);
 
-        gui.blit(matrixStack, (x - 3) * 2, (y - 1) * 2, 230, 92 + exercise.ordinal() * 16, 16, 16);
+        GuiDraw.blit(matrixStack, (x - 3) * 2, (y - 1) * 2, 230, 92 + exercise.ordinal() * 16, 16, 16);
         
         if (renderShadowCheckmark || ticks >= ticksMax) {
             if (ticks < ticksMax) {
                 RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha);
             }
-            gui.blit(matrixStack, (x + 85) * 2, (y - 1) * 2, 230, 188, 16, 16);
+            GuiDraw.blit(matrixStack, (x + 85) * 2, (y - 1) * 2, 230, 188, 16, 16);
         }
         
         matrixStack.popPose();
@@ -236,7 +236,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         int textY = intScrollY + 6;
         strengthStatY = textY;
         
-        drawString(matrixStack, minecraft.font, Component.translatable("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, Component.translatable("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (int i = 0; i < strengthDescLines.size(); i++) {
@@ -247,7 +247,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         textY += 15;
         controlStatY = textY;
         
-        drawString(matrixStack, minecraft.font, Component.translatable("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, Component.translatable("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
         textY += 2;
         for (int i = 0; i < controlDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
@@ -256,7 +256,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         
         textY += 15;
         breathingStatY = textY;
-        drawString(matrixStack, minecraft.font, Component.translatable("hamon.breathing_level", (int) screen.hamon.getBreathingLevel(), (int) HamonData.MAX_BREATHING_LEVEL), textX - 3, textY, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, Component.translatable("hamon.breathing_level", (int) screen.hamon.getBreathingLevel(), (int) HamonData.MAX_BREATHING_LEVEL), textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (int i = 0; i < breathingDescLines.size(); i++) {
@@ -266,17 +266,17 @@ public class HamonStatsTabGui extends HamonTabGui {
         
         textY += 11;
         exerciseBarsY[0] = textY;
-        AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.MINING.getName(), intScrollX + 60, textY, 0xFFFFFF);
-        AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.RUNNING.getName(), intScrollX + 156, textY, 0xFFFFFF);
+        GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.MINING.getName(), intScrollX + 60, textY, 0xFFFFFF);
+        GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.RUNNING.getName(), intScrollX + 156, textY, 0xFFFFFF);
         textY += 9;
         exerciseBarsY[1] = textY;
-        AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.SWIMMING.getName(), intScrollX + 60, textY, 0xFFFFFF);
-        AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.MEDITATION.getName(), intScrollX + 156, textY, 0xFFFFFF);
+        GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.SWIMMING.getName(), intScrollX + 60, textY, 0xFFFFFF);
+        GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.MEDITATION.getName(), intScrollX + 156, textY, 0xFFFFFF);
         if (!Exercise.TMP_HAS_PLACEHOLDERS) {
             textY += 9;
             exerciseBarsY[2] = textY;
-            AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.PLACEHOLDER_1.getName(), intScrollX + 60, textY, 0xFFFFFF);
-            AbstractGui.drawCenteredString(matrixStack, minecraft.font, Exercise.PLACEHOLDER_2.getName(), intScrollX + 156, textY, 0xFFFFFF);
+            GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.PLACEHOLDER_1.getName(), intScrollX + 60, textY, 0xFFFFFF);
+            GuiDraw.drawCenteredString(matrixStack, minecraft.font, Exercise.PLACEHOLDER_2.getName(), intScrollX + 156, textY, 0xFFFFFF);
         }
         
         textY += 11;
@@ -327,14 +327,14 @@ public class HamonStatsTabGui extends HamonTabGui {
 //        int iconY = windowY + getTabY() + 6;
         int iconX = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int iconY = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
-        RenderSystem.setShaderTexture(0, HamonSkillsTabGui.HAMON_SKILLS);
+        GuiDraw.bind(HamonSkillsTabGui.HAMON_SKILLS);
         float barRatio = (float) screen.hamon.getHamonStrengthLevel() / (float) HamonData.MAX_STAT_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 0, 22, 32, 256, 256);
+        GuiDraw.blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 0, 22, 32, 256, 256);
         barRatio = (float) screen.hamon.getHamonControlLevel() / (float) HamonData.MAX_STAT_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 32, 22, 32, 256, 256);
+        GuiDraw.blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 32, 22, 32, 256, 256);
         barRatio = screen.hamon.getBreathingLevel() / HamonData.MAX_BREATHING_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 64, 22, 32, 256, 256);
-        blit(matrixStack, iconX, iconY, 16, 16, 192, 0, 32, 32, 256, 256);
+        GuiDraw.blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 64, 22, 32, 256, 256);
+        GuiDraw.blit(matrixStack, iconX, iconY, 16, 16, 192, 0, 32, 32, 256, 256);
     }
 
     @Override
@@ -356,12 +356,12 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (mouseX >= 142 && mouseX <= 149) {
             int y = strengthStatY;
             if (hamonStrengthLimited && mouseY >= y && mouseY <= y + 7) {
-                screen.renderTooltip(matrixStack, statLimitTooltip, mouseX, mouseY);
+                GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
             }
             else {
                 y = controlStatY;
                 if (hamonControlLimited && mouseY >= y && mouseY <= y + 7) {
-                    screen.renderTooltip(matrixStack, statLimitTooltip, mouseX, mouseY);
+                    GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
                 }
             }
         }
@@ -370,13 +370,13 @@ public class HamonStatsTabGui extends HamonTabGui {
             if (mouseY >= y && mouseY <= y + 6) {
                 int level = screen.hamon.getHamonStrengthLevel();
                 if (level == HamonData.MAX_STAT_LEVEL) {
-                    screen.renderTooltip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
+                    screen.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                 }
                 else {
                     int ptsAtLvl = HamonData.pointsAtLevel(level);
                     int pts = screen.hamon.getHamonStrengthPoints() - ptsAtLvl;
                     int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                    screen.renderTooltip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
+                    screen.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                 }
             }
             else {
@@ -384,13 +384,13 @@ public class HamonStatsTabGui extends HamonTabGui {
                 if (mouseY >= y && mouseY <= y + 6) {
                     int level = screen.hamon.getHamonControlLevel();
                     if (level == HamonData.MAX_STAT_LEVEL) {
-                        screen.renderTooltip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
+                        screen.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                     }
                     else {
                         int ptsAtLvl = HamonData.pointsAtLevel(level);
                         int pts = screen.hamon.getHamonControlPoints() - ptsAtLvl;
                         int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                        screen.renderTooltip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
+                        screen.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                     }
                 }
             }
@@ -408,11 +408,11 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (breathingBonus > 0 && 
                 mouseX >= 3 && mouseX <= 11 && 
                 mouseY >= exercisesAvgY && mouseY <= exercisesAvgY + 7) {
-            screen.renderTooltip(matrixStack, minecraft.font.split(bonusTooltip, 150), mouseX, mouseY);
+            screen.renderToolTip(matrixStack, minecraft.font.split(bonusTooltip, 150), mouseX, mouseY);
         }
         
         else if (mouseX >= 199 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
-            screen.renderTooltip(matrixStack, completedExerciseTooltip(null), mouseX, mouseY);
+            screen.renderToolTip(matrixStack, completedExerciseTooltip(null), mouseX, mouseY);
         }
         
         else if (mouseX >= 12 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
@@ -445,7 +445,7 @@ public class HamonStatsTabGui extends HamonTabGui {
                 totalExercisesTooltip.add(Component.empty().getVisualOrderText());
                 totalExercisesTooltip.addAll(minecraft.font.split(totalExercises2, 120));
             }
-            screen.renderTooltip(matrixStack, totalExercisesTooltip, mouseX, mouseY);
+            GuiDraw.renderToolTip(matrixStack, totalExercisesTooltip, mouseX, mouseY);
         }
         
         else {
@@ -454,13 +454,13 @@ public class HamonStatsTabGui extends HamonTabGui {
                 int x = intScrollX + 100 + exercise.ordinal() % 2 * 96;
                 int y = exerciseBarsY[exercise.ordinal() / 2] - 1;
                 if (mouseX >= x && mouseX < x + 8 && mouseY >= y && mouseY < y + 8) {
-                    screen.renderTooltip(matrixStack, completedExerciseTooltip(exercise), mouseX, mouseY);
+                    screen.renderToolTip(matrixStack, completedExerciseTooltip(exercise), mouseX, mouseY);
                     return;
                 }
             }
             
             if (mouseAtMeditationBar(mouseX, mouseY)) {
-                screen.renderTooltip(matrixStack, meditationTooltip, mouseX, mouseY);
+                GuiDraw.renderToolTip(matrixStack, meditationTooltip, mouseX, mouseY);
             }
         }
         

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.actionshud;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer.BARS_WIDTH_PX;
 
 import java.util.ArrayList;
@@ -68,7 +69,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -753,7 +753,7 @@ public class ActionsOverlayGui extends AbstractGui {
         int x = pos.x;
         int y = pos.y;
         if (renderer != null) {
-            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+            GuiDraw.bind(OVERLAY_LOCATION);
             renderer.render(matrixStack, x, y, pos.alignment, 
                     currentMode, nonStandUiMode, standUiMode, 
                     tickCount, partialTick, mc);
@@ -794,7 +794,7 @@ public class ActionsOverlayGui extends AbstractGui {
         float alpha = selected < 0 || !hotbarsEnabled ? 0.25F : 1.0F;
         // mouse button icon
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+        GuiDraw.bind(OVERLAY_LOCATION);
         switch (position.alignment) {
         case LEFT:
             renderMouseIcon(matrixStack, x, y + 2, actionKey);
@@ -844,7 +844,7 @@ public class ActionsOverlayGui extends AbstractGui {
             if (selectedActionTargetIcon != null) {
                 int[] tex = selectedActionTargetIcon.getIconTex();
                 if (tex != null) {
-                    RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+                    GuiDraw.bind(OVERLAY_LOCATION);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                     int texX = tex[0];
                     int texY = tex[1];
@@ -862,12 +862,12 @@ public class ActionsOverlayGui extends AbstractGui {
         // hotbar controls lock icon
         if (actionHotbar != null) {
             if (InputHandler.getInstance().areControlsLockedForHotbar(actionHotbar)) {
-                RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+                GuiDraw.bind(OVERLAY_LOCATION);
                 if (position.alignment == Alignment.LEFT) {
-                    blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
+                    GuiDraw.blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
                 }
                 else {
-                    blit(matrixStack, x - 20, y, 240, 240, 16, 16);
+                    GuiDraw.blit(matrixStack, x - 20, y, 240, 240, 16, 16);
                 }
             }
         }
@@ -901,12 +901,12 @@ public class ActionsOverlayGui extends AbstractGui {
         // hotbar controls lock icon
         if (actionHotbar != null) {
             if (InputHandler.getInstance().areControlsLockedForHotbar(actionHotbar)) {
-                RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+                GuiDraw.bind(OVERLAY_LOCATION);
                 if (position.alignment == Alignment.LEFT) {
-                    blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
+                    GuiDraw.blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
                 }
                 else {
-                    blit(matrixStack, x - 20, y, 240, 240, 16, 16);
+                    GuiDraw.blit(matrixStack, x - 20, y, 240, 240, 16, 16);
                 }
             }
         }
@@ -993,7 +993,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
 
             int width = mc.font.width(keyName);
-            RenderSystem.pushMatrix();
+            GuiDraw.pushMatrix();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             
@@ -1006,10 +1006,10 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             int textX = x + textOffset;
             drawBackdrop(matrixStack, textX, y, width, position.alignment, null, alpha, 0);
-            drawString(matrixStack, mc.font, keyName, textX, y, position.alignment, color, alpha);
+            GuiDraw.drawString(matrixStack, mc.font, keyName, textX, y, position.alignment, color, alpha);
             
             RenderSystem.disableBlend();
-            RenderSystem.popMatrix();
+            GuiDraw.popMatrix();
             x += nextOffset - offset;
         }
     }
@@ -1065,7 +1065,7 @@ public class ActionsOverlayGui extends AbstractGui {
         // target type icon
         int[] tex = targetIcon.getIconTex();
         if (tex != null) {
-            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+            GuiDraw.bind(OVERLAY_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             int texX = tex[0];
             int texY = tex[1];
@@ -1074,7 +1074,7 @@ public class ActionsOverlayGui extends AbstractGui {
             matrixStack.pushPose();
             matrixStack.scale(0.5F, 0.5F, 1F);
             matrixStack.translate(iconX, iconY, 0);
-            blit(matrixStack, iconX, iconY, texX, texY, 32, 32);
+            GuiDraw.blit(matrixStack, iconX, iconY, texX, texY, 32, 32);
             matrixStack.popPose();
         }
         
@@ -1117,7 +1117,7 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     protected void renderMouseIcon(PoseStack matrixStack, int x, int y, InputHandler.MouseButton button) {
-        blit(matrixStack, x, y, 216 + button.ordinal() * 10, 128, 9, 16);
+        GuiDraw.blit(matrixStack, x, y, 216 + button.ordinal() * 10, 128, 9, 16);
     }
     
     protected int getHotbarsYDiff() {
@@ -1195,7 +1195,6 @@ public class ActionsOverlayGui extends AbstractGui {
         float learningProgress = power.getLearningProgressRatio(action);
         if (learningProgress >= 0 && learningProgress < 1) {
             RenderSystem.disableDepthTest();
-            RenderSystem.disableTexture();
             RenderSystem.disableAlphaTest();
             RenderSystem.disableBlend();
             float barX = x + 2;
@@ -1204,7 +1203,6 @@ public class ActionsOverlayGui extends AbstractGui {
             ClientUtil.fillRect(Tesselator.getInstance().getBuilder(), barX, barY, learningProgress * 13.0F, 1, 0, 255, 0, 255);
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
-            RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
         // slot selection
@@ -1244,7 +1242,7 @@ public class ActionsOverlayGui extends AbstractGui {
 //        
 //        if (!specialRender) {
 //            ResourceLocation icon = action.getIconTexture(power);
-//            RenderSystem.setShaderTexture(0, icon);
+//            GuiDraw.bind(icon);
 //            BlitFloat.blitFloat(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
 //        }
 //        
@@ -1342,15 +1340,15 @@ public class ActionsOverlayGui extends AbstractGui {
             if (alpha > 0) {
                 if (!hotbarsEnabled) alpha = mulAlpha(alpha, 0.25F);
                 int width = mc.font.width(actionName);
-                RenderSystem.pushMatrix();
+                GuiDraw.pushMatrix();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
                 drawBackdrop(matrixStack, x, y, width, position.alignment, null, alpha, 0);
-                drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
+                GuiDraw.drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
                 
                 RenderSystem.disableBlend();
-                RenderSystem.popMatrix();
+                GuiDraw.popMatrix();
             }
         }
         else {
@@ -1413,15 +1411,15 @@ public class ActionsOverlayGui extends AbstractGui {
             if (alpha > 0) {
                 if (!hotbarsEnabled) alpha = mulAlpha(alpha, 0.25F);
                 int width = mc.font.width(actionName);
-                RenderSystem.pushMatrix();
+                GuiDraw.pushMatrix();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
                 drawBackdrop(matrixStack, x, y, width, position.alignment, null, alpha, 0);
-                drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
+                GuiDraw.drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
                 
                 RenderSystem.disableBlend();
-                RenderSystem.popMatrix();
+                GuiDraw.popMatrix();
             }
         }
     }
@@ -1469,8 +1467,8 @@ public class ActionsOverlayGui extends AbstractGui {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             }
             
-            RenderSystem.setShaderTexture(0, mode.getPower().clGetPowerTypeIcon());
-            blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(mode.getPower().clGetPowerTypeIcon());
+            GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             
             if (alpha < 1.0F) {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -1486,18 +1484,18 @@ public class ActionsOverlayGui extends AbstractGui {
             IPower<?, ?> power = mode.getPower();
             Component name = power.getName();
             drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, null, alpha, 0);
-            drawString(matrixStack, mc.font, name, x, y, position.alignment, color, alpha);
+            GuiDraw.drawString(matrixStack, mc.font, name, x, y, position.alignment, color, alpha);
         }
     }
 
 
 
     protected void renderWarningIcons(PoseStack matrixStack, ElementPosition position, List<Component> warningLines) {
-        RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+        GuiDraw.bind(OVERLAY_LOCATION);
         int x = position.x;
         int y = position.y - 4;
         for (int line = 0; line < warningLines.size(); line++) {
-            blit(matrixStack, x, y, 132, 240, 16, 16);
+            GuiDraw.blit(matrixStack, x, y, 132, 240, 16, 16);
             y += 16;
         }
     }
@@ -1515,7 +1513,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
         for (Component line : warningLines) {
             drawBackdrop(matrixStack, x, y, mc.font.width(line), position.alignment, null, 1.0F, 0);
-            drawString(matrixStack, mc.font, line, x, y, position.alignment, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, mc.font, line, x, y, position.alignment, 0xFFFFFF);
             y += 16;
         }
     }
@@ -1526,12 +1524,12 @@ public class ActionsOverlayGui extends AbstractGui {
         Alignment alignment = standStrengthPosition.alignment;
         Component distanceString = Component.literal(String.format("%.2f m", distance));
         drawBackdrop(matrixStack, x, y, mc.font.width(distanceString), alignment, null, 1.0F, 0);
-        drawString(matrixStack, mc.font, distanceString, x, y, alignment, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, mc.font, distanceString, x, y, alignment, 0xFFFFFF);
         if (damageFactor < 1) {
             y += 12;
             Component strength = Component.translatable("jojo.overlay.stand_strength", String.format("%.2f%%", damageFactor * 100F));
             drawBackdrop(matrixStack, x, y, mc.font.width(strength), alignment, null, 1.0F, 0);
-            drawString(matrixStack, mc.font, strength, x, y, alignment, 0xFF4040);
+            GuiDraw.drawString(matrixStack, mc.font, strength, x, y, alignment, 0xFF4040);
         }
     }
     
@@ -1586,7 +1584,7 @@ public class ActionsOverlayGui extends AbstractGui {
             HotbarRenderer.renderHotbar(matrixStack, mc, x, y, modes.size(), modeSelectorTransparency.getAlpha(partialTick));
             int selectedMode = modes.indexOf(currentMode);
             if (selectedMode > -1) {
-                blit(matrixStack, x + selectedMode * 20 - 1, y - 1, 0, 22, 24, 24, 512, 512);
+                GuiDraw.blit(matrixStack, x + selectedMode * 20 - 1, y - 1, 0, 22, 24, 24, 512, 512);
             }
             matrixStack.popPose();
             renderModeSelectorIcons(matrixStack, x + 3, y + 3, partialTick);
@@ -1601,8 +1599,8 @@ public class ActionsOverlayGui extends AbstractGui {
             if (mode != null) {
                 IPower<?, ?> power = mode.getPower();
                 if (power.hasPower()) {
-                    RenderSystem.setShaderTexture(0, power.clGetPowerTypeIcon());
-                    blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+                    GuiDraw.bind(power.clGetPowerTypeIcon());
+                    GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
                 }
             }
             y += 20;
@@ -1617,7 +1615,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 Component name = getModeNameForSelector(mode);
                 if (name != null) {
                     drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, modeSelectorTransparency, 0, partialTick);
-                    drawString(matrixStack, mc.font, name, x, y, position.alignment, modeSelectorTransparency.makeTextColorTranclucent(color, partialTick));
+                    GuiDraw.drawString(matrixStack, mc.font, name, x, y, position.alignment, modeSelectorTransparency.makeTextColorTranclucent(color, partialTick));
                 }
                 y += 22;
             }
@@ -1670,7 +1668,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected void renderLeapIcon(PoseStack matrixStack, @Nonnull ActionsModeConfig<?> mode, int screenWidth, int screenHeight) {
         IPower<?, ?> power = mode.getPower();
         if (power.isLeapUnlocked()) {
-            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+            GuiDraw.bind(OVERLAY_LOCATION);
             boolean rightSide = mc.player.getMainArm() == HumanoidArm.RIGHT;
             int iconX = rightSide ? screenWidth / 2 + 91 + 6 : screenWidth / 2 - 91 - 22;
             if (mc.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
@@ -1716,7 +1714,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 boolean isFinisherMechanicUnlocked = isFinisherVariationUnlocked || 
                         StandUtil.isFinisherMechanicUnlocked(standPower);
                 if (isFinisherMechanicUnlocked) {
-                    RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+                    GuiDraw.bind(OVERLAY_LOCATION);
                     IStandManifestation stand = standPower.getStandManifestation();
                     if (stand instanceof StandEntity) {
                         float finisherValue = ((StandEntity) stand).getFinisherMeter(partialTick);
@@ -1733,7 +1731,7 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     protected <P extends IPower<P, ?>> void renderCrosshair(PoseStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
-        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
+        GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
         matrixStack.pushPose();
         float x = (screenWidth - 15) / 2;
         float y = (screenHeight - 15) / 2;
@@ -1786,7 +1784,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     protected boolean renderBowChargeIcon(PoseStack matrixStack, BowChargeEffectInstance<?, ?> bowCharge, float partialTick, int x, int y) {
         if (bowCharge != null && bowCharge.isBeingCharged()) {
-            RenderSystem.setShaderTexture(0, bowCharge.getPower().clGetPowerTypeIcon());
+            GuiDraw.bind(bowCharge.getPower().clGetPowerTypeIcon());
             float fill = bowCharge.getProgress(partialTick);
             if (fill < 1) {
                 RenderSystem.setShaderColor(0, 0, 0, 1);
@@ -1796,7 +1794,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 BlitFloat.blitFloat(matrixStack, x, y + 16 - px, 0, 16 - px, 16, px, 16, 16);
             }
             else {
-                blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+                GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
                 float chargeCompletionTicks = bowCharge.getTicksAfterFullCharge() + partialTick;
                 if (chargeCompletionTicks < 10) {
                     float whiteHighlight;
@@ -1817,7 +1815,7 @@ public class ActionsOverlayGui extends AbstractGui {
                             GlStateManager.DestFactor.ZERO);
                     RenderSystem.setShaderColor(whiteHighlight, whiteHighlight, whiteHighlight, 1.0F);
                     
-                    blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+                    GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
                     
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.defaultBlendFunc();
@@ -1830,7 +1828,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
     protected void renderFilledIcon(PoseStack matrixStack, int x, int y, boolean translucent, float fill, 
             int texX, int texY, int fillTexX, int fillTexY, int texWidth, int texHeight, int color) {
-        blit(matrixStack, x, y, texX, texY, texWidth, texHeight);
+        GuiDraw.blit(matrixStack, x, y, texX, texY, texWidth, texHeight);
         float[] rgb = ClientUtil.rgb(color);
         float alpha = 1.0F;
         if (translucent) {
@@ -1880,7 +1878,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
         }
         
-        RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
+        GuiDraw.bind(HamonScreen.WINDOW);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         for (Exercise exercise : Exercise.values()) {
@@ -1896,7 +1894,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     void drawString(PoseStack matrixStack, Font font, Component text, int x, int y, Alignment alignment, int color, float alpha) {
         if (alpha > 0) {
-            drawString(matrixStack, font, text, x, y, alignment, color + ((int) (Math.min(alpha, 1F) * 256F) << 24));
+            GuiDraw.drawString(matrixStack, font, text, x, y, alignment, color + ((int) (Math.min(alpha, 1F) * 256F) << 24));
         }
     }
     
@@ -1904,7 +1902,7 @@ public class ActionsOverlayGui extends AbstractGui {
         if (alignment == Alignment.RIGHT) {
             x -= font.width(text);
         }
-        drawString(matrixStack, font, text, x, y, color);
+        GuiDraw.drawString(matrixStack, font, text, x, y, color);
     }
     
     void drawBackdrop(PoseStack matrixStack, int x, int y, int width, Alignment alignment, 
@@ -2236,8 +2234,8 @@ public class ActionsOverlayGui extends AbstractGui {
     protected void renderOutOfBreathSprite(PoseStack matrixStack, float partialTick, int windowWidth, int windowHeight) {
         if (outOfBreathSpriteTicks > 0) {
             boolean bubblePopped = outOfBreathSpriteTicks < 11;
-            RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-            blit(matrixStack, windowWidth / 2 - 16, windowHeight / 2 - 16, bubblePopped ? 160 : 128, outOfBreathMaskSprite ? 32 : 0, 32, 32);
+            GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
+            GuiDraw.blit(matrixStack, windowWidth / 2 - 16, windowHeight / 2 - 16, bubblePopped ? 160 : 128, outOfBreathMaskSprite ? 32 : 0, 32, 32);
         }
     }
     
@@ -2267,7 +2265,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
         double screenWidth = mc.getWindow().getGuiScaledWidth();
         double screenHeight = mc.getWindow().getGuiScaledHeight();
-        RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
+        GuiDraw.bind(VIGNETTE_LOCATION);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX);

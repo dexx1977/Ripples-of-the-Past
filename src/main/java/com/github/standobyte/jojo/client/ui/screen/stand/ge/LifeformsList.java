@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -215,7 +217,9 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
     }
     
     @Override
-    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         // Ctrl + C, Ctrl + V
         this.renderBackground(pMatrixStack);
         int i = this.getScrollbarPosition();
@@ -223,7 +227,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 //        if (this.renderBackground) {
-//            RenderSystem.setShaderTexture(0, AbstractGui.BACKGROUND_LOCATION);
+//            GuiDraw.bind(GuiDraw.BACKGROUND_LOCATION);
 //            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 //            float f = 32.0F;
 //            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -241,7 +245,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
 //        }
 
 //        if (this.renderTopAndBottom) {
-//            RenderSystem.setShaderTexture(0, AbstractGui.BACKGROUND_LOCATION);
+//            GuiDraw.bind(GuiDraw.BACKGROUND_LOCATION);
 //            RenderSystem.enableDepthTest();
 //            RenderSystem.depthFunc(519);
 //            float f1 = 32.0F;
@@ -279,7 +283,6 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         int k1 = this.getMaxScroll();
         if (k1 > 0) {
             int scrollBarAlpha = 127;
-            RenderSystem.disableTexture();
             int l1 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
             l1 = Mth.clamp(l1, 32, this.y1 - this.y0 - 8);
             int i2 = (int)this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
@@ -307,7 +310,6 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
 
             RenderSystem.disableBlend();
         }
-        RenderSystem.enableTexture();
 
         // moved it lower to render tooltips on top of the scroll bar
         this.renderList(pMatrixStack, j1, k, pMouseX, pMouseY, pPartialTicks);
@@ -369,7 +371,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = isExpanded.get() ? Component.translatable("jojo.ui.list_collapse") : Component.translatable("jojo.ui.list_expand");
-                            screen.renderTooltip(matrixStack, text, mouseX, mouseY);
+                            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
                         });
                 this.isExpanded = isExpanded;
             }
@@ -377,7 +379,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             @Override
             public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                RenderSystem.setShaderTexture(0, ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
+                GuiDraw.bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 
                 int texX = isHovered ? 118 : 108;
@@ -386,7 +388,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
-                blit(matrixStack, x, y, texX, texY, width, height, 128, 128);
+                GuiDraw.blit(matrixStack, x, y, texX, texY, width, height, 128, 128);
                 
                 if (isHovered()) {
                     renderToolTip(matrixStack, mouseX, mouseY);
@@ -441,7 +443,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = ((FavoriteButton) button).isFavorited ? Component.translatable("jojo.ui.favorite_remove") : Component.translatable("jojo.ui.favorite");
-                            screen.renderTooltip(matrixStack, text, mouseX, mouseY);
+                            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
                         });
             }
 
@@ -450,10 +452,10 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 if (!(isFavorited || isHovered())) return;
                 
                 Minecraft mc = Minecraft.getInstance();
-                RenderSystem.setShaderTexture(0, ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
+                GuiDraw.bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
                 int texY = isFavorited ? 9 : 0;
                 RenderSystem.enableDepthTest();
-                blit(pMatrixStack, x, y, 119, texY, width, height, 128, 128);
+                GuiDraw.blit(pMatrixStack, x, y, 119, texY, width, height, 128, 128);
                 
                 if (isHovered()) {
                     renderToolTip(pMatrixStack, pMouseX, pMouseY);

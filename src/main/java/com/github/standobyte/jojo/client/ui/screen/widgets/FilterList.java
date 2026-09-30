@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -79,8 +79,8 @@ public class FilterList<T extends FilterList.Entry> implements GuiEventListener 
             int mouseX, int mouseY, float partialTick) {
         if (!visible) return;
         
-        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-        AbstractGui.blit(matrixStack, x + width / 2, y, 
+        GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
+        GuiDraw.blit(matrixStack, x + width / 2, y, 
                 16, getScrollUpState(mouseX, mouseY).texY, 16, 16, 256, 256);
         
         for (int i = 0; i < entriesRenderedCount && i + topEntry < renderedEntries.size(); i++) {
@@ -88,8 +88,8 @@ public class FilterList<T extends FilterList.Entry> implements GuiEventListener 
             entry.render(matrixStack, mc, mouseX, mouseY, partialTick);
         }
 
-        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-        AbstractGui.blit(matrixStack, x + width / 2, this.y + height - 16, 
+        GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
+        GuiDraw.blit(matrixStack, x + width / 2, this.y + height - 16, 
                 0, getScrollDownState(mouseX, mouseY).texY, 16, 16, 256, 256);
     }
     

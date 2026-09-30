@@ -39,7 +39,7 @@ public class KnifeRenderer extends ArrowRenderer<KnifeEntity> {
         matrixStack.scale(scale, scale, scale);
         matrixStack.translate(1, 0, 0);
         VertexConsumer ivertexbuilder = buffer.getBuffer(RenderType.entityCutout(getTextureLocation(entity)));
-        PoseStack.Entry matrixstack$entry = matrixStack.last();
+        PoseStack.Pose matrixstack$entry = matrixStack.last();
         Matrix4f matrix4f = matrixstack$entry.pose();
         Matrix3f matrix3f = matrixstack$entry.normal();
         

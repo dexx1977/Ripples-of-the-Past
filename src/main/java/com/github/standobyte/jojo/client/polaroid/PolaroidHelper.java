@@ -122,7 +122,6 @@ public class PolaroidHelper {
         RenderSystem.clear(16640, Minecraft.ON_OSX);
         remoteRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
-        RenderSystem.enableTexture();
         RenderSystem.enableCull();
         if (!mc.noRender) {
             float partialTick = mc.isPaused() ? ClientReflection.getPausePartialTick(mc) : mc.getFrameTime();

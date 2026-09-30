@@ -298,7 +298,7 @@ public class TommyGunItem extends Item {
         if (slot == EquipmentSlot.MAINHAND) {
             if (attributeModifiers == null) {
                 Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-                builder.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(UUID.fromString("9b14156e-7ba3-446a-b18b-4c81a7d47a8b"), 
+                builder.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier(UUID.fromString("9b14156e-7ba3-446a-b18b-4c81a7d47a8b"), 
                         "Weapon modifier", 0.5, AttributeModifier.Operation.ADDITION));
                 builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, 
                         "Weapon modifier", -2, AttributeModifier.Operation.ADDITION));

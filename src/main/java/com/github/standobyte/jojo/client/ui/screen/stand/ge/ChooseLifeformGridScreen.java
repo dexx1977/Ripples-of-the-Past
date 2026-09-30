@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -155,7 +157,9 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         updateHoveredElement(mouseX, mouseY);
         entityIconsGrid.renderGrid(matrixStack, mouseX, mouseY, partialTicks);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -345,10 +349,10 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             }
             
             if (isNew) {
-                blit(matrixStack, x, y, 24, 24, 24, 24, 128, 128);
+                GuiDraw.blit(matrixStack, x, y, 24, 24, 24, 24, 128, 128);
             }
             else {
-                blit(matrixStack, x, y, 0, 0, 24, 24, 128, 128);
+                GuiDraw.blit(matrixStack, x, y, 0, 0, 24, 24, 128, 128);
             }
 
             EntityTypeIcon.renderIcon(entityType.getCurrentSubtype(), matrixStack, x + 4, y + 4);
@@ -358,17 +362,17 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             }
             
             if (isSelected) {
-                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
-                blit(matrixStack, x, y, 24, 0, 24, 24, 128, 128);
+                GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
+                GuiDraw.blit(matrixStack, x, y, 24, 0, 24, 24, 128, 128);
             }
             else if (this.entityType.getCurrentSubtype() == playerUISettings.getGEChosenLifeformType()) {
-                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
-                blit(matrixStack, x, y, 0, 24, 24, 24, 128, 128);
+                GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
+                GuiDraw.blit(matrixStack, x, y, 0, 24, 24, 24, 128, 128);
             }
             
             if (isInFavorite) {
-                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
-                blit(matrixStack, x + width - 5, y - 3, 119, 9, 9, 9, 128, 128);
+                GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
+                GuiDraw.blit(matrixStack, x + width - 5, y - 3, 119, 9, 9, 9, 128, 128);
             }
         }
         

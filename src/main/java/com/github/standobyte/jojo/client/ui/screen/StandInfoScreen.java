@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,7 +38,9 @@ public class StandInfoScreen extends Screen implements IJojoScreen {
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         renderBackground(matrixStack, 0);
         renderWindow(matrixStack);
         defaultRenderTabs(matrixStack, mouseX, mouseY, this);
@@ -47,8 +51,8 @@ public class StandInfoScreen extends Screen implements IJojoScreen {
     
     private void renderWindow(PoseStack matrixStack) {
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, WINDOW);
-        blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        GuiDraw.bind(WINDOW);
+        GuiDraw.blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     
     @Override

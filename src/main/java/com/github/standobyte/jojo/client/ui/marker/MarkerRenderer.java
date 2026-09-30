@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.world.item.ItemDisplayContext;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +23,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -128,12 +128,12 @@ public abstract class MarkerRenderer {
         renderIcon(matrixStack, marker, partialTick);
         matrixStack.popPose();
         
-        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
+        GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
         RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], 1.0F);
-        AbstractGui.blit(matrixStack, -16, -32, 0, 0, 32, 32, 256, 256);
+        GuiDraw.blit(matrixStack, -16, -32, 0, 0, 32, 32, 256, 256);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (marker.outlined) {
-            AbstractGui.blit(matrixStack, -16, -32, 32, 0, 32, 32, 256, 256);
+            GuiDraw.blit(matrixStack, -16, -32, 32, 0, 32, 32, 256, 256);
         }
 
         matrixStack.pushPose();
@@ -149,8 +149,8 @@ public abstract class MarkerRenderer {
     protected void renderIcon(PoseStack matrixStack, MarkerInstance marker, float partialTick) {
         ResourceLocation icon = getIcon();
         if (icon != null) {
-            RenderSystem.setShaderTexture(0, icon);
-            AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(icon);
+            GuiDraw.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
         }
     }
     
@@ -159,7 +159,7 @@ public abstract class MarkerRenderer {
         ItemRenderer itemRenderer = mc.getItemRenderer();
         TextureManager textureManager = mc.textureManager;
         
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        GuiDraw.bind(TextureAtlas.LOCATION_BLOCKS);
         textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
@@ -179,7 +179,7 @@ public abstract class MarkerRenderer {
 
 //        RenderSystem.disableDepthTest();
 //        RenderSystem.disableCull();
-        MultiBufferSource.Impl buffer = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         // FIXME the item model isn't rendered behind blocks/entities
         itemRenderer.renderStatic(item, ItemDisplayContext.GUI, 
                 ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
@@ -246,7 +246,6 @@ public abstract class MarkerRenderer {
             if (!mc.options.hideGui) {
                 RenderSystem.disableDepthTest();
                 if (mc.options.graphicsMode == GraphicsStatus.FABULOUS) { // it just works
-                    RenderSystem.enableTexture();
                 }
 
                 PoseStack matrixStack = event.getMatrixStack();

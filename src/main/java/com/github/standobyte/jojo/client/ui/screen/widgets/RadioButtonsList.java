@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,9 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
     }
     
     
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         for (Button button : radioButtons) {
             button.render(matrixStack, mouseX, mouseY, partialTicks);
         }
@@ -74,9 +78,9 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
         @Override
         public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
             Minecraft minecraft = Minecraft.getInstance();
-            RenderSystem.setShaderTexture(0, ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
+            GuiDraw.bind(ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
             int texY = list.getSelectedValue() == value ? 40 : 53;
-            blit(pMatrixStack, x, y, 115, texY, width, height, 128, 128);
+            GuiDraw.blit(pMatrixStack, x, y, 115, texY, width, height, 128, 128);
             minecraft.font.drawShadow(pMatrixStack, getMessage(), x + 16, y + (height - minecraft.font.lineHeight) / 2, 0xFFFFFF);
             if (isHovered()) {
                 renderToolTip(pMatrixStack, pMouseX, pMouseY);

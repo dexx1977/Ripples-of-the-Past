@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.AIR;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.EXPERIENCE;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.FOOD;
@@ -121,7 +122,6 @@ import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -868,7 +868,7 @@ public class ClientEventHandler {
     private long healthUpdateCounter;
     public void renderHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
             RenderGameOverlayEvent event, int width, int height) {
-        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
         mc.getProfiler().push("health");
         RenderSystem.enableBlend();
 
@@ -936,41 +936,41 @@ public class ClientEventHandler {
             if (health <= 4) y += this.rand.nextInt(2);
             if (i == regen) y -= 2;
 
-            gui.blit(matrixStack, x, y, BACKGROUND, TOP, 9, 9);
+            GuiDraw.blit(matrixStack, x, y, BACKGROUND, TOP, 9, 9);
 
             if (highlight)
             {
                 if (i * 2 + 1 < healthLast)
-                    gui.blit(matrixStack, x, y, MARGIN + 54, TOP, 9, 9); //6
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 54, TOP, 9, 9); //6
                 else if (i * 2 + 1 == healthLast)
-                    gui.blit(matrixStack, x, y, MARGIN + 63, TOP, 9, 9); //7
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 63, TOP, 9, 9); //7
             }
 
             if (absorbRemaining > 0.0F)
             {
                 if (absorbRemaining == absorb && absorb % 2.0F == 1.0F)
                 {
-                    gui.blit(matrixStack, x, y, MARGIN + 153, TOP, 9, 9); //17
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 153, TOP, 9, 9); //17
                     absorbRemaining -= 1.0F;
                 }
                 else
                 {
-                    gui.blit(matrixStack, x, y, MARGIN + 144, TOP, 9, 9); //16
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 144, TOP, 9, 9); //16
                     absorbRemaining -= 2.0F;
                 }
             }
             else
             {
                 if (i * 2 + 1 < health)
-                    gui.blit(matrixStack, x, y, MARGIN + 36, TOP, 9, 9); //4
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 36, TOP, 9, 9); //4
                 else if (i * 2 + 1 == health)
-                    gui.blit(matrixStack, x, y, MARGIN + 45, TOP, 9, 9); //5
+                    GuiDraw.blit(matrixStack, x, y, MARGIN + 45, TOP, 9, 9); //5
                 
                 // !
                 if (i * 2 + 1 >= healthMax) {
                     RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-                    gui.blit(matrixStack, x, y, 64, 0, 9, 9);
-                    RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
+                    GuiDraw.blit(matrixStack, x, y, 64, 0, 9, 9);
+                    RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
                 }
             }
         }
@@ -981,7 +981,7 @@ public class ClientEventHandler {
     
     public void renderMountHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
             RenderGameOverlayEvent event, int width, int height) {
-        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
 
         boolean unused = false;
         int left_align = width / 2 + 91;
@@ -1010,18 +1010,18 @@ public class ClientEventHandler {
             for (int i = 0; i < rowCount; ++i)
             {
                 int x = left_align - i * 8 - 9;
-                gui.blit(matrixStack, x, top, BACKGROUND, 9, 9, 9);
+                GuiDraw.blit(matrixStack, x, top, BACKGROUND, 9, 9, 9);
 
                 if (i * 2 + 1 + heart < health)
-                    gui.blit(matrixStack, x, top, FULL, 9, 9, 9);
+                    GuiDraw.blit(matrixStack, x, top, FULL, 9, 9, 9);
                 else if (i * 2 + 1 + heart == health)
-                    gui.blit(matrixStack, x, top, HALF, 9, 9, 9);
+                    GuiDraw.blit(matrixStack, x, top, HALF, 9, 9, 9);
                 
                 // !
                 if (i * 2 + 1 + heart >= healthMax) {
                     RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-                    gui.blit(matrixStack, x, top, 73, 0, 9, 9);
-                    RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
+                    GuiDraw.blit(matrixStack, x, top, 73, 0, 9, 9);
+                    RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
                 }
             }
 
@@ -1050,9 +1050,9 @@ public class ClientEventHandler {
                     RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
                     gui.setBlitOffset(-90);
                     if (offHand == HumanoidArm.LEFT) {
-                        gui.blit(matrixStack, halfWidth - 91 - 29, screenHeight - 23, 24, 22, 29, 24);
+                        GuiDraw.blit(matrixStack, halfWidth - 91 - 29, screenHeight - 23, 24, 22, 29, 24);
                     } else {
-                        gui.blit(matrixStack, halfWidth + 91,      screenHeight - 23, 53, 22, 29, 24);
+                        GuiDraw.blit(matrixStack, halfWidth + 91,      screenHeight - 23, 53, 22, 29, 24);
                     }
                     
                     gui.setBlitOffset(blitOffs);
@@ -1081,14 +1081,14 @@ public class ClientEventHandler {
         RenderSystem.disableBlend();
         
         mc.getProfiler().push("expBar");
-        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
         int i = mc.player.getXpNeededForNextLevel();
         if (i > 0) {
             int k = (int)(mc.player.experienceProgress * 183.0F);
             int yPos = screenHeight - 32 + 3;
-            mc.gui.blit(matrixStack, xPos, yPos, 0, 64, 182, 5);
+            mc.GuiDraw.blit(matrixStack, xPos, yPos, 0, 64, 182, 5);
             if (k > 0) {
-                mc.gui.blit(matrixStack, xPos, yPos, 0, 69, k, 5);
+                mc.GuiDraw.blit(matrixStack, xPos, yPos, 0, 69, k, 5);
             }
         }
         
@@ -1364,8 +1364,8 @@ public class ClientEventHandler {
         int x = screenWidth - 5 - (int) ((screenWidth - 10) * Math.min(deathScreenTick + partialTick, 20F) / 20F);
         int y = screenHeight - 29;
         RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
-        ui.blit(matrixStack, x, y, 0, 231, 130, 25);
-        AbstractGui.drawCenteredString(matrixStack, mc.font, Component.translatable("jojo.to_be_continued"), x + 61, y + 8, 0x525544);
+        GuiDraw.blit(matrixStack, x, y, 0, 231, 130, 25);
+        GuiDraw.drawCenteredString(matrixStack, mc.font, Component.translatable("jojo.to_be_continued"), x + 61, y + 8, 0x525544);
     }
     
     @SubscribeEvent
@@ -1438,7 +1438,7 @@ public class ClientEventHandler {
                                 Component message = doStandStatsRender(screen) ? 
                                         Component.translatable("jojo.stand_stat.button.hide")
                                         : Component.translatable("jojo.stand_stat.button.show");
-                                screen.renderTooltip(matrixStack, message, x, y);
+                                GuiDraw.renderToolTip(matrixStack, message, x, y);
                             }, 
                             Component.empty());
                     event.addWidget(standStatsToggleButton);
@@ -1519,7 +1519,7 @@ public class ClientEventHandler {
                                     HudLayoutEditingScreen hudScreen = new HudLayoutEditingScreen(PowerClassification.STAND);
                                     mc.setScreen(hudScreen);
                                 }, 
-                                (button, matrixStack, mouseX, mouseY) -> screen.renderTooltip(matrixStack, tooltip, mouseX, mouseY),
+                                (button, matrixStack, mouseX, mouseY) -> GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY),
                                 tooltip);
                     }
                     if (nonStandPower.hasPower()) {
@@ -1531,7 +1531,7 @@ public class ClientEventHandler {
                                     HudLayoutEditingScreen hudScreen = new HudLayoutEditingScreen(PowerClassification.NON_STAND);
                                     mc.setScreen(hudScreen);
                                 }, 
-                                (button, matrixStack, mouseX, mouseY) -> screen.renderTooltip(matrixStack, tooltip, mouseX, mouseY),
+                                (button, matrixStack, mouseX, mouseY) -> GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY),
                                 tooltip);
                     }
                     

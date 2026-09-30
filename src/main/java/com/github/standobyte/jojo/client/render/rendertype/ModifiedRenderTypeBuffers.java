@@ -11,10 +11,10 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-public class ModifiedRenderTypeBuffers extends MultiBufferSource.Impl {
+public class ModifiedRenderTypeBuffers extends MultiBufferSource.BufferSource {
     private final Map<RenderType, RenderType> renderTypesRemapped;
     
-    public static MultiBufferSource.Impl create(MultiBufferSource.Impl originalBuffers, UnaryOperator<RenderType> renderTypeRemapper) {
+    public static MultiBufferSource.BufferSource create(MultiBufferSource.BufferSource originalBuffers, UnaryOperator<RenderType> renderTypeRemapper) {
         BufferBuilder originalBuilder = ClientReflection.getBuilder(originalBuffers);
         Map<RenderType, BufferBuilder> fixedBuffersOriginal = ClientReflection.getFixedBuffers(originalBuffers);
         

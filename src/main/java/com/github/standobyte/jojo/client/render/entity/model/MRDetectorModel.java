@@ -121,7 +121,7 @@ public class MRDetectorModel extends EntityModel<MRDetectorEntity> {
         int i = 0;
         VertexConsumer vertexBuilder = buffer.getBuffer(Sheets.translucentCullBlockSheet());
 
-        for (PoseStack.Entry matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
+        for (PoseStack.Pose matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
             TextureAtlasSprite sprite = i % 2 == 0 ? spriteFire0 : spriteFire1;
             float texU0 = sprite.getU0();
             float texV0 = sprite.getV0();

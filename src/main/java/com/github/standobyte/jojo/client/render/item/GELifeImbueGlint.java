@@ -8,7 +8,7 @@ import com.github.standobyte.jojo.action.stand.effect.GEItemMarkEffect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
-import com.mojang.blaze3d.vertex.VertexBuilderUtils;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
@@ -24,8 +24,8 @@ public abstract class GELifeImbueGlint extends RenderType {
     private static final ResourceLocation GLINT_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/item_imbued_with_life.png");
     
     private static final RenderType GLINT_TRANSLUCENT = create("glint_translucent", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GLINT_LOCATION, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -34,8 +34,8 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setOutputState(ITEM_ENTITY_TARGET)
             .createCompositeState(false));
     private static final RenderType GLINT = create("glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GLINT_LOCATION, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -43,8 +43,8 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTexturingState(GLINT_TEXTURING)
             .createCompositeState(false));
     private static final RenderType GLINT_DIRECT = create("glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GLINT_LOCATION, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -52,8 +52,8 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTexturingState(GLINT_TEXTURING)
             .createCompositeState(false));
     private static final RenderType ENTITY_GLINT = create("entity_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GLINT_LOCATION, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -62,8 +62,8 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTexturingState(ENTITY_GLINT_TEXTURING)
             .createCompositeState(false));
     private static final RenderType ENTITY_GLINT_DIRECT = create("entity_glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GLINT_LOCATION, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -84,7 +84,7 @@ public abstract class GELifeImbueGlint extends RenderType {
         if (goldEFoil) {
             if (item.getItem() == Items.COMPASS) {
                 matrixStack.pushPose();
-                PoseStack.Entry matrixEntry = matrixStack.last();
+                PoseStack.Pose matrixEntry = matrixStack.last();
                 if (transformType == ItemDisplayContext.GUI) {
                     matrixEntry.pose().multiply(0.5F);
                 } else if (transformType.firstPerson()) {
@@ -130,19 +130,19 @@ public abstract class GELifeImbueGlint extends RenderType {
     
     private static VertexConsumer getFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, boolean pIsItem) {
         return Minecraft.useShaderTransparency() && pRenderType == Sheets.translucentItemSheet() ? 
-                VertexBuilderUtils.create(pBuffer.getBuffer(GLINT_TRANSLUCENT), pBuffer.getBuffer(pRenderType))
-                : VertexBuilderUtils.create(pBuffer.getBuffer(pIsItem ? glint() : entityGlint()), pBuffer.getBuffer(pRenderType));
+                VertexMultiConsumer.create(pBuffer.getBuffer(GLINT_TRANSLUCENT), pBuffer.getBuffer(pRenderType))
+                : VertexMultiConsumer.create(pBuffer.getBuffer(pIsItem ? glint() : entityGlint()), pBuffer.getBuffer(pRenderType));
     }
     
     private static VertexConsumer getFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, boolean pNoEntity) {
-        return VertexBuilderUtils.create(pBuffer.getBuffer(pNoEntity ? glintDirect() : entityGlintDirect()), pBuffer.getBuffer(pRenderType));
+        return VertexMultiConsumer.create(pBuffer.getBuffer(pNoEntity ? glintDirect() : entityGlintDirect()), pBuffer.getBuffer(pRenderType));
     }
     
-    private static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Entry pMatrixEntry) {
-       return VertexBuilderUtils.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glint()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+    private static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
+       return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glint()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
     }
     
-    private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Entry pMatrixEntry) {
-       return VertexBuilderUtils.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glintDirect()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+    private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
+       return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glintDirect()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
     }
 }

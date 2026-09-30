@@ -58,7 +58,7 @@ public class ItemRendererMixin {
            flag1 = true;
         }
         RenderType rendertype = ItemBlockRenderTypes.getRenderType(pItemStack, flag1);
-        PoseStack.Entry matrixstack$entry = pMatrixStack.last();
+        PoseStack.Pose matrixstack$entry = pMatrixStack.last();
         
         return GoldExperienceMarkItem.ClientStuff.qwe(vertexBuilder, pItemStack, flag1, pBuffer, rendertype, matrixstack$entry);
     }

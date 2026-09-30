@@ -27,7 +27,7 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
-import com.mojang.blaze3d.vertex.VertexBuilderUtils;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
@@ -172,7 +172,7 @@ public class GoldExperienceMarkItem extends StandAction {
     public static class ClientStuff {
         
         public static VertexConsumer qwe(VertexConsumer vertexBuilder, ItemStack item, boolean direct, 
-                MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Entry pMatrixEntry) {
+                MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
             Player player = Minecraft.getInstance().player;
             if (player != null && GEItemMarkEffect.isItemMarked(item, player)) {
                 if (item.getItem() == Items.COMPASS) {
@@ -191,27 +191,27 @@ public class GoldExperienceMarkItem extends StandAction {
             return vertexBuilder;
         }
         
-        public static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Entry pMatrixEntry) {
-            return VertexBuilderUtils.create(new MatrixApplyingVertexBuilder(
+        public static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
+            return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(
                     pBuffer.getBuffer(CustomRenderType.geImbuedGlint()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
         }
 
-        public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Entry pMatrixEntry) {
-            return VertexBuilderUtils.create(new MatrixApplyingVertexBuilder(
+        public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
+            return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(
                     pBuffer.getBuffer(CustomRenderType.geImbuedGlintDirect()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
         }
 
         public static VertexConsumer getFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType) {
             if (Minecraft.useShaderTransparency() && pRenderType == Sheets.translucentItemSheet()) {
-                return VertexBuilderUtils.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlintTranslucent()), pBuffer.getBuffer(pRenderType));
+                return VertexMultiConsumer.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlintTranslucent()), pBuffer.getBuffer(pRenderType));
             }
             else {
-                return VertexBuilderUtils.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlint()), pBuffer.getBuffer(pRenderType));
+                return VertexMultiConsumer.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlint()), pBuffer.getBuffer(pRenderType));
             }
         }
 
         public static VertexConsumer getFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType) {
-            return VertexBuilderUtils.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlintDirect()), pBuffer.getBuffer(pRenderType));
+            return VertexMultiConsumer.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlintDirect()), pBuffer.getBuffer(pRenderType));
         }
     }
     

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.text;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
             float spriteX = x - 1;
             sprite
             .ifLeft(texLocation -> {
-                Minecraft.getInstance().RenderSystem.setShaderTexture(0, texLocation);
+                Minecraft.getInstance().GuiDraw.bind(texLocation);
                 BlitFloat.blitFloat(matrixStack, spriteX, y, 0, 0, 8, 8, 8, 8);
             })
             .ifRight(atlasSprite -> {

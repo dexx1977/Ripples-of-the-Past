@@ -345,7 +345,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                 case STUCK_ARROW:
                                     tf.moveTo(pos.x, pos.y, pos.z, itemEntity.yRot, itemEntity.xRot);
                                     AbstractArrow arrow = new Arrow(world, user);
-                                    arrow.pickup = AbstractArrow.PickupStatus.ALLOWED;
+                                    arrow.pickup = AbstractArrow.Pickup.ALLOWED;
                                     tf.getTfSourceData().withEntitySource(arrow);
                                     if (livingItemHolder != null) {
                                         decrementStuckArrow(livingItemHolder);
@@ -356,7 +356,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                 case STUCK_KNIFE:
                                     tf.moveTo(pos.x, pos.y, pos.z, itemEntity.yRot, itemEntity.xRot);
                                     AbstractArrow knife = new KnifeEntity(world, user);
-                                    knife.pickup = AbstractArrow.PickupStatus.ALLOWED;
+                                    knife.pickup = AbstractArrow.Pickup.ALLOWED;
                                     tf.getTfSourceData().withEntitySource(knife);
                                     if (livingItemHolder != null) {
                                         decrementStuckKnife(livingItemHolder);

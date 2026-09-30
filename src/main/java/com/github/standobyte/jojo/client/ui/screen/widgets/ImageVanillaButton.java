@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -20,7 +21,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, 
-            Button.Button.OnPress pOnPress) {
+            Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, 
                 pResourceLocation, 256, 256, 
@@ -30,7 +31,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.Button.OnPress pOnPress) {
+            Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -40,7 +41,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.Button.OnPress pOnPress, Component pMessage) {
+            Button.OnPress pOnPress, Component pMessage) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, pWidth, pHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -50,7 +51,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         this(pX, pY, pWidth, pHeight,
                 pXTexStart, pYTexStart, pWidth, pHeight,
                 pResourceLocation, pTextureWidth, pTextureHeight,
@@ -60,7 +61,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.Button.OnPress pOnPress) {
+            Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, iconWidth, iconHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -70,7 +71,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.textureWidth = pTextureWidth;
         this.textureHeight = pTextureHeight;
@@ -90,21 +91,21 @@ public class ImageVanillaButton extends Button {
     @Override
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blit(pMatrixStack, x, y, 0, 46 + i * 20, width / 2, height);
-        blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
+        GuiDraw.blit(pMatrixStack, x, y, 0, 46 + i * 20, width / 2, height);
+        GuiDraw.blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
         renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
         
-        RenderSystem.setShaderTexture(0, resourceLocation);
+        GuiDraw.bind(resourceLocation);
         RenderSystem.enableDepthTest();
         int iconX = x + (width - iconWidth) / 2;
         int iconY = y + (height - iconHeight) / 2;
-        blit(pMatrixStack, iconX, iconY, (float)xTexStart, (float)yTexStart, 
+        GuiDraw.blit(pMatrixStack, iconX, iconY, (float)xTexStart, (float)yTexStart, 
                 iconWidth, iconHeight, textureWidth, textureHeight);
         
         if (isHovered()) {

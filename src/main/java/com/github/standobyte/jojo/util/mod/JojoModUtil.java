@@ -234,7 +234,7 @@ public class JojoModUtil {
         float f5 = Mth.sin(-xRot * ((float)Math.PI / 180F));
         float f6 = f3 * f4;
         float f7 = f2 * f4;
-        double distance = Optional.ofNullable(entity.getAttribute(ForgeMod.REACH_DISTANCE.get())).map(AttributeInstance::getValue).orElse(5D);
+        double distance = Optional.ofNullable(entity.getAttribute(ForgeMod.ENTITY_REACH.get())).map(AttributeInstance::getValue).orElse(5D);
         Vec3 vector3d1 = eyePos.add((double)f6 * distance, (double)f5 * distance, (double)f7 * distance);
         return world.clip(new ClipContext(eyePos, vector3d1, ClipContext.Block.OUTLINE, fluidMode, entity));
     }

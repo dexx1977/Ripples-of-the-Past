@@ -31,7 +31,7 @@ public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectil
     @Override
     public void render(HamonProjectileShieldEntity entity, float yRotation, float partialTick, 
             PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
-        PoseStack.Entry matrixstack$entry = matrixStack.last();
+        PoseStack.Pose matrixstack$entry = matrixStack.last();
         VertexConsumer vertexBuilder = buffer.getBuffer(CustomRenderType.hamonProjectileShield(getTextureLocation(entity)));
         PlaneRectangle rectangle = entity.getShieldRectangle();
         packedLight = ClientUtil.MAX_MODEL_LIGHT;
@@ -49,7 +49,7 @@ public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectil
         vertex(matrixstack$entry, vertexBuilder, packedLight, rectangle.pLU.subtract(entity.position()), 1.0F, 1, 0);
     }
     
-    private void vertex(PoseStack.Entry matrixstack$entry, VertexConsumer vertexBuilder,
+    private void vertex(PoseStack.Pose matrixstack$entry, VertexConsumer vertexBuilder,
             int packedLight, Vec3 pos, float strength, float u, float v) {
         float alpha = 0.5F * strength;
         ClientUtil.vertex(matrixstack$entry, vertexBuilder, 

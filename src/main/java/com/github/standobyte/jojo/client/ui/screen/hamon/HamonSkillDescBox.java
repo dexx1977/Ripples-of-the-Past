@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_UPPER_BORDER;
 
@@ -12,7 +13,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -66,9 +66,9 @@ public class HamonSkillDescBox {
     
     public void renderBg(PoseStack matrixStack, int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
-        AbstractGui.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 206, WIDTH + 6, HEIGHT + 6, 256, 256);
+        GuiDraw.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 206, WIDTH + 6, HEIGHT + 6, 256, 256);
         
-        AbstractGui.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 156, WIDTH + 6, HEIGHT + 6, 256, 256);
+        GuiDraw.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 156, WIDTH + 6, HEIGHT + 6, 256, 256);
         
         if (hasScrolling) {
             renderScrollBar(matrixStack, x, y, mouseX, mouseY);
@@ -87,11 +87,8 @@ public class HamonSkillDescBox {
             brightness = 127;
         }
         float[] scrollBar = getScrollBarPosSize(xOffset, yOffset);
-
-        RenderSystem.disableTexture();
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         ClientUtil.fillRect(bufferBuilder, scrollBar[0], scrollBar[1], scrollBar[2], scrollBar[3], brightness, brightness, brightness, 127);
-        RenderSystem.enableTexture();
     }
     
     private float[] getScrollBarPosSize(int xOffset, int yOffset) {

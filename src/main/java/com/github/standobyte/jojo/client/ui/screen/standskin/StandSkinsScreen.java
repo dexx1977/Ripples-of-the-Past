@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.standskin;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +117,9 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         if (!standCap.hasPower()) {
             onClose();
             return;
@@ -140,9 +144,9 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     
     @SuppressWarnings("deprecation")
     private void renderBgPattern(PoseStack matrixStack) {
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(getWindowX() + 4, getWindowY() + 4, 0);
-        RenderSystem.setShaderTexture(0, TEXTURE_BG);
+        GuiDraw.bind(TEXTURE_BG);
         
         int x = getWindowX() + WINDOW_INSIDE_X;
         int y = getWindowY() + WINDOW_INSIDE_Y;
@@ -150,25 +154,25 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         int l = -scroll % 16;
         for (int i1 = -1; i1 <= 12; ++i1) {
             for (int j1 = -1; j1 <= 11; ++j1) {
-                blit(matrixStack, 5 + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
+                GuiDraw.blit(matrixStack, 5 + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
             }
         }
         ClientUtil.disableGlScissor();
         
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
     }
     
     private void renderWindow(PoseStack matrixStack) {
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
-        blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        GuiDraw.bind(TEXTURE_MAIN_WINDOW);
+        GuiDraw.blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     
     @SuppressWarnings("deprecation")
     private void renderContents(int mouseX, int mouseY, float partialTick) {
         int x = getWindowX() + WINDOW_INSIDE_X;
         int y = getWindowY() + WINDOW_INSIDE_Y;
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(x, y, 0);
         PoseStack matrixStack = new PoseStack();
         float ticks = tickCount + partialTick;
@@ -189,7 +193,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
             }
             ClientUtil.disableGlScissor();
         }
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
     }
     
     private Optional<SkinView> getSkinAt(int mouseX, int mouseY) {
@@ -391,8 +395,8 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         }
         
         public void renderStand(PoseStack matrixStack, int mouseX, int mouseY, float ticks) {
-            RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
-//            blit(matrixStack, x, y, 98, 182, width, height);
+            GuiDraw.bind(TEXTURE_MAIN_WINDOW);
+//            GuiDraw.blit(matrixStack, x, y, 98, 182, width, height);
             
             StandType<?> standType = standCap.getType();
             if (standType instanceof EntityStandType) {
@@ -405,15 +409,15 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         @SuppressWarnings("deprecation")
         public void renderAdditional(PoseStack matrixStack, int mouseX, int mouseY, 
                 float ticks, boolean isHovered) {
-            RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
+            GuiDraw.bind(TEXTURE_MAIN_WINDOW);
             if (isSkinSelected(skin)) {
-                blit(matrixStack, x + boxWidth - 18, y + 2, 0, 192, 16, 16);
+                GuiDraw.blit(matrixStack, x + boxWidth - 18, y + 2, 0, 192, 16, 16);
             }
             if (isHovered) {
                 float[] color = ClientUtil.rgb(skin.color);
                 RenderSystem.enableBlend();
                 RenderSystem.setShaderColor(color[0], color[1], color[2], 1);
-                blit(matrixStack, x - 2, y - 2, 
+                GuiDraw.blit(matrixStack, x - 2, y - 2, 
                         32, 180, boxWidth + 4, boxHeight + 4);
                 RenderSystem.setShaderColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
@@ -432,12 +436,14 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
             this.skinIndex = skinIndex;
         }
         
-        public void render(PoseStack matrixStack, int mouseX, int mouseY, float ticks) {
+        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float ticks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
             ResourceLocation standIcon = JojoModUtil.makeTextureLocation("power", 
                     skinFullView.skin.standTypeId.getNamespace(), skinFullView.skin.standTypeId.getPath());
             standIcon = skinFullView.skin.getRemappedResPath(standIcon).or(standIcon);
-            RenderSystem.setShaderTexture(0, standIcon);
-            blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(standIcon);
+            GuiDraw.blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
             
             StandType<?> standType = standCap.getType();
             if (standType instanceof EntityStandType) {
@@ -446,8 +452,8 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
             }
             
             if (isSkinSelected(skin)) {
-                RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
-                blit(matrixStack, WINDOW_INSIDE_WIDTH - 20, 4, 0, 192, 16, 16);
+                GuiDraw.bind(TEXTURE_MAIN_WINDOW);
+                GuiDraw.blit(matrixStack, WINDOW_INSIDE_WIDTH - 20, 4, 0, 192, 16, 16);
             }
 
             RenderSystem.enableBlend();
@@ -457,7 +463,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     @SuppressWarnings("deprecation")
     public static void renderStandModel(float posX, float posY, float scale, float yRot, 
             EntityStandType<?> standType, StandSkin standSkin, float ticks) {
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(posX, posY, 1050.0F);
         RenderSystem.scalef(1.0F, 1.0F, -1.0F);
         
@@ -477,7 +483,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         matrixStack.last().normal().rotation(Axis.YP.rotationDegrees(60));
         
         entityrenderermanager.setRenderShadow(false);
-        MultiBufferSource.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         EntityRenderDispatcher entityRendererManager = Minecraft.getInstance().getEntityRenderDispatcher();
         StandEntityRenderer<?, ?> renderer = (StandEntityRenderer<?, ?>) entityRendererManager.renderers.get(standType.getEntityType());
         FlameModelRenderer.renderingUI = true;
@@ -487,6 +493,6 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         FlameModelRenderer.renderingUI = false;
         buffer.endBatch();
         entityrenderermanager.setRenderShadow(true);
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
     }
 }

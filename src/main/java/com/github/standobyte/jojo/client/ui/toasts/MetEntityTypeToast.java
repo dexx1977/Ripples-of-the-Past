@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.toasts;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +31,9 @@ public class MetEntityTypeToast implements Toast {
     }
 
     @Override
-    public Toast.Visibility render(PoseStack matrixStack, ToastComponent toastGui, long delta) {
+    public Toast.Visibility render(GuiGraphics guiGraphics, ToastComponent toastGui, long delta) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         if (changed) {
             lastChanged = delta;
             changed = false;
@@ -39,9 +43,9 @@ public class MetEntityTypeToast implements Toast {
             return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
-            RenderSystem.setShaderTexture(0, TEXTURE);
+            GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-            toastGui.blit(matrixStack, 0, 0, 0, 32, 160, 32);
+            GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -0xAFFFB0);
             
             EntityType<?> entityType = entityTypes.get((int)(delta / Math.max(1L, 5000L / (long)entityTypes.size()) % (long)entityTypes.size()));
@@ -56,8 +60,8 @@ public class MetEntityTypeToast implements Toast {
                             Optional.of(power.clGetPowerTypeIcon())
                             : Optional.empty())
                     .orElse(ModStands.GOLD_EXPERIENCE.getStandType().getIconTexture(null));
-            RenderSystem.setShaderTexture(0, standIcon);
-            ToastComponent.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(standIcon);
+            GuiDraw.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
             matrixStack.popPose();
             
             return delta - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;

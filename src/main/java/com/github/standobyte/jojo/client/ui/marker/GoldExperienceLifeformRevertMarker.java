@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
@@ -45,8 +45,8 @@ public class GoldExperienceLifeformRevertMarker extends MarkerRenderer {
                         ObjectEntity.Type objectType = ((ObjectEntity) sourceEntity).getObjectType();
                         switch (objectType) {
                         case TOOTH:
-                            RenderSystem.setShaderTexture(0, ICON_TOOTH);
-                            AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
+                            GuiDraw.bind(ICON_TOOTH);
+                            GuiDraw.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
                             break;
                         }
                     }

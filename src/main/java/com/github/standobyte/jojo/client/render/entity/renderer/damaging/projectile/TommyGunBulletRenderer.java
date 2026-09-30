@@ -140,7 +140,7 @@ public class TommyGunBulletRenderer extends EntityRenderer<TommyGunBulletEntity>
         
         matrixStack.translate(0, 0, 1f);
 
-        PoseStack.Entry matrix = matrixStack.last();
+        PoseStack.Pose matrix = matrixStack.last();
         Matrix4f pose = matrix.pose();
         Matrix3f normal = matrix.normal();
         ClientUtil.vertex(pose, normal, vertexBuilder, 
@@ -199,7 +199,7 @@ public class TommyGunBulletRenderer extends EntityRenderer<TommyGunBulletEntity>
         
         matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F));
 
-        PoseStack.Entry matrix = matrixStack.last();
+        PoseStack.Pose matrix = matrixStack.last();
         Matrix4f pose = matrix.pose();
         Matrix3f normal = matrix.normal();
         ClientUtil.vertex(pose, normal, vertexBuilder, 

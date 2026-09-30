@@ -61,7 +61,7 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         matrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
         afterRotate.accept(matrixStack);
         
-        PoseStack.Entry pose = matrixStack.last();
+        PoseStack.Pose pose = matrixStack.last();
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
         

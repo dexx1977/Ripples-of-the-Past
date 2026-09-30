@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -344,9 +346,11 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
     }
 
     @Override
-    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         renderBackground(pMatrixStack);
-        drawCenteredString(pMatrixStack, font, title, width / 2, 15, 0xFFFFFF);
+        GuiDraw.drawCenteredString(pMatrixStack, font, title, width / 2, 15, 0xFFFFFF);
         super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
     }
     
@@ -390,7 +394,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     },
                     (button, matrixStack, mouseX, mouseY) -> {
                         if (tooltip != null) {
-                            screen.renderTooltip(matrixStack, tooltip, mouseX, mouseY);
+                            GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                         }
                     })
                     .setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
@@ -432,7 +436,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     },
                     (button, matrixStack, mouseX, mouseY) -> {
                         if (tooltip != null) {
-                            screen.renderTooltip(matrixStack, tooltip, mouseX, mouseY);
+                            GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                         }
                     })
                     .setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
@@ -468,14 +472,14 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
             Minecraft mc = Minecraft.getInstance();
             Font font = mc.font;
-            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+            GuiDraw.bind(WIDGETS_LOCATION);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             int i = getYImage(isHovered());
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
-            blit(matrixStack, x, y, 0, 46 + i * 20, width / 2, height);
-            blit(matrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
+            GuiDraw.blit(matrixStack, x, y, 0, 46 + i * 20, width / 2, height);
+            GuiDraw.blit(matrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
             renderBg(matrixStack, mc, mouseX, mouseY);
             int j = getFGColor();
             int textColor = j | Mth.ceil(alpha * 255.0F) << 24;
@@ -517,7 +521,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     ClientUtil.disableGlScissor();
                 }
             } else {
-                drawCenteredString(matrixStack, font, text, (x0 + x1) / 2, y, color);
+                GuiDraw.drawCenteredString(matrixStack, font, text, (x0 + x1) / 2, y, color);
             }
         }
     }
@@ -574,7 +578,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     optionsScreen.getMinecraft().setScreen(new ClientModSettingsScreen(optionsScreen, ClientModSettings.getInstance()));
                 },
                 (button, matrixStack, mouseX, mouseY) -> {
-                    optionsScreen.renderTooltip(matrixStack, tooltip, mouseX, mouseY);
+                    GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                 },
                 tooltip);
     }

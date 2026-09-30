@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ public class ToggleBox extends AbstractWidget implements IExtendedWidget {
     
     @Override
     public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        drawCenteredString(matrixStack, Minecraft.getInstance().font, getMessage(), 
+        GuiDraw.drawCenteredString(matrixStack, Minecraft.getInstance().font, getMessage(), 
                 x + width / 2, y + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
     }
 

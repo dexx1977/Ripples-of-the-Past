@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.toasts;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -18,7 +19,7 @@ public class FinisherAttackToast extends ActionToast {
     protected void renderIcon(PoseStack matrixStack, ToastComponent toastGui, int timeMs) {
         if (timeMs > TIME_MS - FINISHER_BAR_TIME) {
             toastGui.getMinecraft().getTextureManager().bind(ActionsOverlayGui.OVERLAY_LOCATION);
-            toastGui.blit(matrixStack, 7, 7, 132, 216, 18, 18);
+            GuiDraw.blit(matrixStack, 7, 7, 132, 216, 18, 18);
         }
         else {
             int actionRotationTime = timeMs * TIME_MS / (TIME_MS - FINISHER_BAR_TIME);

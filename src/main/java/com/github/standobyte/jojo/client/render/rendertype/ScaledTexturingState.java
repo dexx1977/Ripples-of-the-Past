@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.rendertype;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.renderer.RenderStateShard;
@@ -12,13 +13,13 @@ public class ScaledTexturingState extends RenderStateShard.TexturingState {
     public ScaledTexturingState(float xScale, float yScale) {
         super("jojo_scaled_texturing", () -> {
             RenderSystem.matrixMode(5890);
-            RenderSystem.pushMatrix();
+            GuiDraw.pushMatrix();
             RenderSystem.loadIdentity();
             RenderSystem.scalef(xScale, yScale, 1);
             RenderSystem.matrixMode(5888);
         }, () -> {
             RenderSystem.matrixMode(5890);
-            RenderSystem.popMatrix();
+            GuiDraw.popMatrix();
             RenderSystem.matrixMode(5888);
         });
         this.xScale = xScale;

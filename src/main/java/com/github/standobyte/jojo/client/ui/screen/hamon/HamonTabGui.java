@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_UPPER_BORDER;
@@ -18,7 +19,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.FormattedCharSequence;
@@ -71,14 +71,14 @@ public abstract class HamonTabGui extends AbstractGui {
     }
 
     void drawTab(PoseStack matrixStack, int windowX, int windowY, boolean isSelected, boolean red) {
-        RenderSystem.setShaderTexture(0, IJojoScreen.TABS);
+        GuiDraw.bind(IJojoScreen.TABS);
         tabPositioning.draw(matrixStack, screen, windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT, 
                 isSelected, index, false);
         if (!isSelected && red) {
-            RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
+            GuiDraw.bind(HamonScreen.WINDOW);
             int x = windowX + tabPositioning.getX(index, WINDOW_WIDTH);
             int y = windowY + tabPositioning.getY(index, WINDOW_HEIGHT);
-            blit(matrixStack, x + 3, y, 230, 0, 26, 28);
+            GuiDraw.blit(matrixStack, x + 3, y, 230, 0, 26, 28);
         }
     }
     
@@ -99,22 +99,22 @@ public abstract class HamonTabGui extends AbstractGui {
             scrollY = 0;
             leftUpperCorner = true;
         }
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.enableDepthTest();
         RenderSystem.translatef(0.0F, 0.0F, 950.0F);
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(xOffset, yOffset, 0);
         RenderSystem.colorMask(false, false, false, false);
-        fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
+        GuiDraw.fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.translatef(0.0F, 0.0F, -950.0F);
         RenderSystem.depthFunc(518);
-        fill(matrixStack, WINDOW_WIDTH - 18, WINDOW_HEIGHT - 27, 0, 0, -16777216);
+        GuiDraw.fill(matrixStack, WINDOW_WIDTH - 18, WINDOW_HEIGHT - 27, 0, 0, -16777216);
         RenderSystem.depthFunc(515);
         if (background != null)  {
-            RenderSystem.setShaderTexture(0, background);
+            GuiDraw.bind(background);
         } else {
-            RenderSystem.setShaderTexture(0, TextureManager.INTENTIONAL_MISSING_TEXTURE);
+            GuiDraw.bind(TextureManager.INTENTIONAL_MISSING_TEXTURE);
         }
 
         intScrollX = Mth.floor(scrollX);
@@ -123,41 +123,41 @@ public abstract class HamonTabGui extends AbstractGui {
         int l = intScrollY % 16;
         for (int i1 = -1; i1 <= 13; ++i1) {
             for (int j1 = -1; j1 <= 13; ++j1) {
-                blit(matrixStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
+                GuiDraw.blit(matrixStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
             }
         }
 
         drawOnBackground(screen, matrixStack, mouseX - (int) xOffset, mouseY - (int) yOffset);
         RenderSystem.disableDepthTest();
         drawText(matrixStack);
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(-xOffset, -yOffset, 0);
         updateButtons(matrixStack, mouseX, mouseY);
         drawButtonNames(matrixStack);
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
         
         RenderSystem.enableDepthTest();
         drawActualContents(screen, matrixStack, mouseX - (int) xOffset, mouseY - (int) yOffset, partialTick);
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(-xOffset, -yOffset, 0);
         renderButtons(matrixStack, mouseX, mouseY, partialTick);
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
 
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
         
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.translatef(xOffset, yOffset, 0);
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(518);
         RenderSystem.translatef(0.0F, 0.0F, -950.0F);
         RenderSystem.colorMask(false, false, false, false);
-        fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
+        GuiDraw.fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.translatef(0.0F, 0.0F, 950.0F);
         RenderSystem.depthFunc(515);
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
         
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
     }
     
     public abstract void addButtons();

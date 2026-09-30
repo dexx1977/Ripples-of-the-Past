@@ -28,7 +28,7 @@ public class MagiciansRedFlameBurst extends StandEntityAction {
         if (!world.isClientSide()) {
 //            GeneralUtil.doFractionTimes(() -> {
                 MRFlameEntity flame = new MRFlameEntity(standEntity, world);
-                float velocity = (float) standEntity.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) / 5F;
+                float velocity = (float) standEntity.getAttributeValue(ForgeMod.ENTITY_REACH.get()) / 5F;
                 if (userPower.getResolveLevel() >= 3) {
                     velocity *= 2F;
                 }

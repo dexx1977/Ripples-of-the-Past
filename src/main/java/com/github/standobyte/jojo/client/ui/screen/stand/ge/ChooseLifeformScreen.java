@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
+import net.minecraft.client.gui.GuiGraphics;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -311,7 +313,9 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
 //        chosenLifeformCache = getEntriesUiData(minecraft.player).map(
 //                entityData -> entityData.getGEChosenLifeformType()).orElse(null);
         if (searchField != null) {

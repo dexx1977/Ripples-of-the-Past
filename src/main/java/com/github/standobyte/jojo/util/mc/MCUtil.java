@@ -663,7 +663,7 @@ public class MCUtil {
     }
     
     public static double getPickRange(LivingEntity entity) {
-        AttributeInstance reachDist = entity.getAttribute(ForgeMod.REACH_DISTANCE.get());
+        AttributeInstance reachDist = entity.getAttribute(ForgeMod.ENTITY_REACH.get());
         double value = reachDist != null ? reachDist.getValue() : 5;
         if (entity instanceof Player && !((Player) entity).isCreative()) {
             value -= 0.5;

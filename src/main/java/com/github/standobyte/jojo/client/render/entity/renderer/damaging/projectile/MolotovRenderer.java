@@ -51,7 +51,7 @@ public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItem
             int i = 0;
             VertexConsumer ivertexbuilder = pBuffer.getBuffer(Sheets.cutoutBlockSheet());
 
-            for(PoseStack.Entry matrixstack$entry = pMatrixStack.last(); f3 > 0.0F; ++i) {
+            for(PoseStack.Pose matrixstack$entry = pMatrixStack.last(); f3 > 0.0F; ++i) {
                 TextureAtlasSprite sprite = i % 2 == 0 ? ModelBakery.FIRE_0.sprite() : ModelBakery.FIRE_1.sprite();
                 float u0 = sprite.getU0();
                 float v0 = sprite.getV0();
@@ -77,7 +77,7 @@ public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItem
         }
     }
 
-    private static void fireVertex(PoseStack.Entry pMatrixEntry, VertexConsumer pBuffer, 
+    private static void fireVertex(PoseStack.Pose pMatrixEntry, VertexConsumer pBuffer, 
             float pX, float pY, float pZ, float pTexU, float pTexV) {
         pBuffer.vertex(pMatrixEntry.pose(), pX, pY, pZ)
         .color(255, 255, 255, 255)

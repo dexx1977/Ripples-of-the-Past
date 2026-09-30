@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Arrays;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.AbstractGui;
 
 public enum TabPositionType {
     ABOVE(0, 0, 28, 32, 8),
@@ -51,7 +51,7 @@ public enum TabPositionType {
         else if (tmpDisabled) {
             texY += 128;
         }
-        gui.blit(matrixStack, offsetX + getX(index, screenWidth), offsetY + getY(index, screenHeight), texX, texY, width, height);
+        GuiDraw.blit(matrixStack, offsetX + getX(index, screenWidth), offsetY + getY(index, screenHeight), texX, texY, width, height);
     }
 
     public int getX(int index, int screenWidth) {

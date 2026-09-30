@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.toasts;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 
 import com.github.standobyte.jojo.client.resources.CustomResources;
@@ -32,7 +34,9 @@ public class HamonSkillToast implements Toast {
     }
 
     @Override
-    public Toast.Visibility render(PoseStack matrixStack, ToastComponent toastGui, long delta) {
+    public Toast.Visibility render(GuiGraphics guiGraphics, ToastComponent toastGui, long delta) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         if (changed) {
             lastChanged = delta;
             changed = false;
@@ -42,15 +46,15 @@ public class HamonSkillToast implements Toast {
             return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
-            RenderSystem.setShaderTexture(0, TEXTURE);
+            GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-            toastGui.blit(matrixStack, 0, 0, 0, 32, 160, 32);
+            GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
             mc.font.draw(matrixStack, description, 30.0F, 18.0F, -16777216);
             AbstractHamonSkill skill = skills.get((int)(delta / Math.max(1L, 5000L / (long)skills.size()) % (long)skills.size()));
             TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
-            RenderSystem.setShaderTexture(0, textureAtlasSprite.atlas().location());
-            ToastComponent.blit(matrixStack, 8, 8, 0, 16, 16, textureAtlasSprite);
+            GuiDraw.bind(textureAtlasSprite.atlas().location());
+            GuiDraw.blit(matrixStack, 8, 8, 0, 16, 16, textureAtlasSprite);
             return delta - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }
     }

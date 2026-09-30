@@ -104,7 +104,7 @@ public class SilverChariotEntity extends StandEntity {
         entityData.set(HAS_RAPIER, rapier);
         updateModifier(getAttribute(Attributes.ATTACK_DAMAGE), NO_RAPIER_DAMAGE_DECREASE, !rapier);
         updateModifier(getAttribute(Attributes.ATTACK_SPEED), NO_RAPIER_ATTACK_SPEED_DECREASE, !rapier);
-        updateModifier(getAttribute(ForgeMod.REACH_DISTANCE.get()), NO_RAPIER_ATTACK_RANGE_DECREASE, !rapier);
+        updateModifier(getAttribute(ForgeMod.ENTITY_REACH.get()), NO_RAPIER_ATTACK_RANGE_DECREASE, !rapier);
         if (!rapier) {
             entityData.set(RAPIER_ON_FIRE, false);
         }
@@ -199,7 +199,7 @@ public class SilverChariotEntity extends StandEntity {
     @Override
     public boolean attackTarget(ActionTarget target, IHasStandPunch punch, StandEntityTask task) {
         if (canDeflectProjectiles()) {
-            level.getEntitiesOfClass(Projectile.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())), 
+            level.getEntitiesOfClass(Projectile.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.ENTITY_REACH.get())), 
                     entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
                         if (this.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
                                 >= Mth.cos((float) (30.0 + Mth.clamp(getPrecision(), 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {

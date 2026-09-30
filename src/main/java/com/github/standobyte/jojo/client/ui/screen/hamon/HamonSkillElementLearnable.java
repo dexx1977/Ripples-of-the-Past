@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +10,6 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
@@ -41,19 +41,19 @@ public class HamonSkillElementLearnable extends HamonSkillGuiElement {
     }
     
     void blitBgSquare(PoseStack matrixStack, int x, int y) {
-        AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
+        GuiDraw.blit(matrixStack, getX() + x, getY() + y, 
                 state.textureX, state.textureY, 26, 26, 256, 256);
     }
     
     void blitBgSquareSelection(PoseStack matrixStack, int x, int y) {
         int texY = state.isFinal ? 78 : 0;
-        AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
+        GuiDraw.blit(matrixStack, getX() + x, getY() + y, 
                 26, texY, 26, 26, 256, 256);
     }
     
     void blitBgSquareRequirement(PoseStack matrixStack, int x, int y) {
         int texY = state.isFinal ? 104 : 26;
-        AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
+        GuiDraw.blit(matrixStack, getX() + x, getY() + y, 
                 26, texY, 26, 26, 256, 256);
     }
     

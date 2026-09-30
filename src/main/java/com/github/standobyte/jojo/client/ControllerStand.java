@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.POTION_ICONS;
 import static net.minecraftforge.event.TickEvent.Phase.END;
@@ -23,7 +24,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -230,15 +230,15 @@ public class ControllerStand {
         {
             if (i < level)
             {
-                gui.blit(matrixStack, left, top, 34, 9, 9, 9);
+                GuiDraw.blit(matrixStack, left, top, 34, 9, 9, 9);
             }
             else if (i == level)
             {
-                gui.blit(matrixStack, left, top, 25, 9, 9, 9);
+                GuiDraw.blit(matrixStack, left, top, 25, 9, 9, 9);
             }
             else if (i > level)
             {
-                gui.blit(matrixStack, left, top, 16, 9, 9, 9);
+                GuiDraw.blit(matrixStack, left, top, 16, 9, 9, 9);
             }
             left += 8;
         }
@@ -283,9 +283,9 @@ public class ControllerStand {
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     float f = 1.0F;
                     if (effectinstance.isAmbient()) {
-                        gui.blit(matrixStack, k, l, 165, 166, 24, 24);
+                        GuiDraw.blit(matrixStack, k, l, 165, 166, 24, 24);
                     } else {
-                        gui.blit(matrixStack, k, l, 141, 166, 24, 24);
+                        GuiDraw.blit(matrixStack, k, l, 141, 166, 24, 24);
                         if (effectinstance.getDuration() <= 200) {
                             int i1 = 10 - effectinstance.getDuration() / 20;
                             f = Mth.clamp((float)effectinstance.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F) + Mth.cos((float)effectinstance.getDuration() * (float)Math.PI / 5.0F) * Mth.clamp((float)i1 / 10.0F * 0.25F, 0.0F, 0.25F);
@@ -299,7 +299,7 @@ public class ControllerStand {
                     list.add(() -> {
                         RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
-                        AbstractGui.blit(matrixStack, j1 + 3, k1 + 3, gui.getBlitOffset(), 18, 18, textureatlassprite);
+                        GuiDraw.blit(matrixStack, j1 + 3, k1 + 3, gui.getBlitOffset(), 18, 18, textureatlassprite);
                     });
                     effectinstance.renderHUDEffect(gui, matrixStack, k, l, gui.getBlitOffset(), f);
                 }

@@ -64,7 +64,7 @@ public class StandArrowItem extends ArrowItem {
             @Override
             protected Projectile getProjectile(Level world, Position position, ItemStack stack) {
                 StandArrowEntity arrow = new StandArrowEntity(world, position.x(), position.y(), position.z(), stack);
-                arrow.pickup = AbstractArrow.PickupStatus.ALLOWED;
+                arrow.pickup = AbstractArrow.Pickup.ALLOWED;
                 return arrow;
             }
         });

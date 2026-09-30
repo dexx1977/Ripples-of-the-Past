@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -48,7 +49,7 @@ public class WalkmanVolumeWheel extends AbstractWidget {
         Minecraft.getInstance().getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        blit(matrixStack, x, y, isHovered() ? 229 : 245 , 61 + (int) (value * FULL_WHEEL_LENGTH), width, height);
+        GuiDraw.blit(matrixStack, x, y, isHovered() ? 229 : 245 , 61 + (int) (value * FULL_WHEEL_LENGTH), width, height);
     }
 
     @Override

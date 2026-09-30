@@ -68,7 +68,7 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
         
         matrixStack.translate(0, 0, 0.125f);
 
-        PoseStack.Entry matrix = matrixStack.last();
+        PoseStack.Pose matrix = matrixStack.last();
         Matrix4f pose = matrix.pose();
         Matrix3f normal = matrix.normal();
         

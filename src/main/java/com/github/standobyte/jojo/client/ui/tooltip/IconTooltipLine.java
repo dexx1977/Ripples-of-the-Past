@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.tooltip;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -54,36 +54,36 @@ public class IconTooltipLine implements ITooltipLine {
         switch (icon) {
         case NON_STAND_ENERGY:
             if (nonStandPowerType != null) {
-                Minecraft.getInstance().RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
+                Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
                 iconTex = BarsRenderer.getIconTex(BarsRenderer.getEnergyBarIcon(nonStandPowerType), ActionsOverlayGui.BarsOrientation.HORIZONTAL);
                 if (nonStandPowerType == ModPowers.VAMPIRISM.get()) {
                     iconTex[5] += 3;
                     iconTex[6] += 3;
                     iconTex[4] = 2;
                 }
-                AbstractGui.blit(matrixStack, (int) x + iconTex[5] - 2, (int) y + iconTex[6], 
+                GuiDraw.blit(matrixStack, (int) x + iconTex[5] - 2, (int) y + iconTex[6], 
                         iconTex[0] / iconTex[4], iconTex[1] / iconTex[4], iconTex[2] / iconTex[4], iconTex[3] / iconTex[4], 256 / iconTex[4], 256 / iconTex[4]);
             }
             break;
         case STAND_STAMINA:
-            Minecraft.getInstance().RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
+            Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
             iconTex = BarsRenderer.getIconTex(BarType.STAMINA, ActionsOverlayGui.BarsOrientation.HORIZONTAL);
             iconTex[4] = 2;
-            AbstractGui.blit(matrixStack, (int) x + 1, (int) y - 1, 
+            GuiDraw.blit(matrixStack, (int) x + 1, (int) y - 1, 
                     iconTex[0] / iconTex[4], iconTex[1] / iconTex[4], iconTex[2] / iconTex[4], iconTex[3] / iconTex[4], 256 / iconTex[4], 256 / iconTex[4]);
             break;
         case STAND_RESOLVE:
-            Minecraft.getInstance().RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
+            Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
             iconTex = BarsRenderer.getIconTex(BarType.RESOLVE, ActionsOverlayGui.BarsOrientation.HORIZONTAL);
-            AbstractGui.blit(matrixStack, (int) x, (int) y, 
+            GuiDraw.blit(matrixStack, (int) x, (int) y, 
                     iconTex[0]           / iconTex[4], iconTex[1] / iconTex[4], iconTex[2], iconTex[3], 256 / iconTex[4], 256 / iconTex[4]);
-            AbstractGui.blit(matrixStack, (int) x, (int) y, 
+            GuiDraw.blit(matrixStack, (int) x, (int) y, 
                     (iconTex[0] + 40) / iconTex[4], iconTex[1] / iconTex[4], iconTex[2], iconTex[3], 256 / iconTex[4], 256 / iconTex[4]);
             break;
         default:
-            Minecraft.getInstance().RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
+            Minecraft.getInstance().GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
             for (int i = 0; i < count; i++) {
-                AbstractGui.blit(matrixStack, (int) x, (int) y, 247 - icon.ordinal() * 9, 247, 9, 9, 256, 256);
+                GuiDraw.blit(matrixStack, (int) x, (int) y, 247 - icon.ordinal() * 9, 247, 9, 9, 256, 256);
                 x += 8;
             }
             break;

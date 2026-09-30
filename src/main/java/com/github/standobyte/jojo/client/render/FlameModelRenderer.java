@@ -115,7 +115,7 @@ public class FlameModelRenderer extends ModelPart {
             matrixStack.translate(0.0D, 0.0D, (double)(-0.4F + (float)((int)f3) * 0.02F));
             float f5 = 0.0F;
             int i = 0;
-            for (PoseStack.Entry matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
+            for (PoseStack.Pose matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
                 TextureAtlasSprite sprite = i % 2 == 0 ? spriteFire0.get() : spriteFire1.get();
                 float texU0 = sprite.getU0();
                 float texV0 = sprite.getV0();

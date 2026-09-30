@@ -65,7 +65,7 @@ public class PillarmanBladeBarrage extends PillarmanAction {
                         return projectile.canBeEvaded(targetLiving) && (!projectile.standDamage());
                 	}
                     world.getEntitiesOfClass(Projectile.class, targetLiving.getBoundingBox()
-                    		.inflate(targetLiving.getAttributeValue(ForgeMod.REACH_DISTANCE.get())), 
+                    		.inflate(targetLiving.getAttributeValue(ForgeMod.ENTITY_REACH.get())), 
                             entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
                                 if (targetLiving.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
                                         >= Mth.cos((float) (30.0 + Mth.clamp(10F, 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {

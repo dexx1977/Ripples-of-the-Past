@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_UPPER_BORDER;
@@ -75,7 +76,7 @@ public class HamonIntroTabGui extends HamonTabGui {
     protected void drawText(PoseStack matrixStack) {
         int textX = intScrollX + 5;
         int textY = intScrollY + 6;
-        drawString(matrixStack, minecraft.font, aboutName, textX - 3, textY, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, aboutName, textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (int i = 0; i < aboutText.size(); i++) {
@@ -84,7 +85,7 @@ public class HamonIntroTabGui extends HamonTabGui {
         }
         
         textY += 15;
-        drawString(matrixStack, minecraft.font, breathName, textX - 3, textY, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, breathName, textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (FormattedCharSequence line : breathTextBar) {
@@ -138,7 +139,7 @@ public class HamonIntroTabGui extends HamonTabGui {
     @Override
     protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
+        GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
         float ticks = screen.tickCount + partialTick;
         int x = intScrollX + 5;
         
@@ -177,34 +178,34 @@ public class HamonIntroTabGui extends HamonTabGui {
     @SuppressWarnings("deprecation")
     private void renderEnergyBar(PoseStack matrixStack, int x, int y, float fillStab, float fillEnergy) {
         float[] hamonRGB = ClientUtil.rgb(HamonPowerType.COLOR);
-        blit(matrixStack, x, y, 0, 128, 202, 8);
+        GuiDraw.blit(matrixStack, x, y, 0, 128, 202, 8);
         RenderSystem.setShaderColor(hamonRGB[0], hamonRGB[1], hamonRGB[2], 0.4F);
-        blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillStab), 6);
+        GuiDraw.blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillStab), 6);
         
         RenderSystem.setShaderColor(hamonRGB[0], hamonRGB[1], hamonRGB[2], 1.0F);
-        blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillEnergy), 6);
+        GuiDraw.blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillEnergy), 6);
         
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        blit(matrixStack, x + 1, y + 1, 0, 145, 200, 6);
+        GuiDraw.blit(matrixStack, x + 1, y + 1, 0, 145, 200, 6);
     }
     
     private void renderHamonBreathIcon(PoseStack matrixStack, int x, int y) {
-        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
-        blit(matrixStack, x - 15, y - 1, 236, 128, 9, 16);
+        GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+        GuiDraw.blit(matrixStack, x - 15, y - 1, 236, 128, 9, 16);
         HotbarRenderer.renderHotbar(matrixStack, minecraft, x - 3, y - 3, 1, 1);
-        blit(matrixStack, x - 17, y - 17, 390, 50, 50, 50, 512, 512);
+        GuiDraw.blit(matrixStack, x - 17, y - 17, 390, 50, 50, 50, 512, 512);
         ResourceLocation actionIcon = ModHamonActions.HAMON_BREATH.get().getIconTexture(null);
-        RenderSystem.setShaderTexture(0, actionIcon);
-        blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+        GuiDraw.bind(actionIcon);
+        GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
         HotbarRenderer.renderSlotSelection(matrixStack, minecraft, x, y, 1, false);
     }
 
     @Override
     void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
-        RenderSystem.setShaderTexture(0, ModPowers.HAMON.get().getIconTexture(null));
+        GuiDraw.bind(ModPowers.HAMON.get().getIconTexture(null));
         int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
-        blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
+        GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
     }
     
     @Override

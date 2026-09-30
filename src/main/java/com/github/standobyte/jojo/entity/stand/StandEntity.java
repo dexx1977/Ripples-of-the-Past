@@ -341,7 +341,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                 .add(Attributes.ATTACK_DAMAGE)
                 .add(Attributes.ATTACK_KNOCKBACK)
                 .add(Attributes.ATTACK_SPEED)
-                .add(ForgeMod.REACH_DISTANCE.get())
+                .add(ForgeMod.ENTITY_REACH.get())
                 .add(ModEntityAttributes.STAND_DURABILITY.get())
                 .add(ModEntityAttributes.STAND_PRECISION.get());
     }
@@ -350,7 +350,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(stats.getBasePower());
         getAttribute(Attributes.ATTACK_SPEED).setBaseValue(stats.getBaseAttackSpeed());
         getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(stats.getBaseMovementSpeed());
-        getAttribute(ForgeMod.REACH_DISTANCE.get()).setBaseValue(getDefaultMeleeAttackRange());
+        getAttribute(ForgeMod.ENTITY_REACH.get()).setBaseValue(getDefaultMeleeAttackRange());
         getAttribute(ModEntityAttributes.STAND_DURABILITY.get()).setBaseValue(stats.getBaseDurability());
         getAttribute(ModEntityAttributes.STAND_PRECISION.get()).setBaseValue(stats.getBasePrecision());
         getAttribute(Attributes.ARMOR).setBaseValue(stats.getArmor());
@@ -458,7 +458,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     public double getAttackRange() {
-        return getAttributeValue(ForgeMod.REACH_DISTANCE.get());
+        return getAttributeValue(ForgeMod.ENTITY_REACH.get());
     }
     
     public double getProximityRatio(Entity target) {
@@ -1706,11 +1706,11 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     public double getAimDistance(@Nullable Entity aimingEntity) {
-        double reachDistance = getAttributeValue(ForgeMod.REACH_DISTANCE.get());
+        double reachDistance = getAttributeValue(ForgeMod.ENTITY_REACH.get());
         if (!isManuallyControlled() && aimingEntity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) aimingEntity;
-            if (livingEntity.getAttribute(ForgeMod.REACH_DISTANCE.get()) != null) {
-                reachDistance = livingEntity.getAttributeValue(ForgeMod.REACH_DISTANCE.get());
+            if (livingEntity.getAttribute(ForgeMod.ENTITY_REACH.get()) != null) {
+                reachDistance = livingEntity.getAttributeValue(ForgeMod.ENTITY_REACH.get());
             }
         }
         return reachDistance;
@@ -1781,7 +1781,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     public boolean canAttackMelee() {
-        return getAttackSpeed() > 0 && getAttributeValue(ForgeMod.REACH_DISTANCE.get()) > 0 ;
+        return getAttackSpeed() > 0 && getAttributeValue(ForgeMod.ENTITY_REACH.get()) > 0 ;
     }
 
     public boolean punch(StandEntityTask task, IHasStandPunch punch, ActionTarget target) {
@@ -1911,7 +1911,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     public boolean isTargetInReach(ActionTarget target) {
-        return getDistanceToTarget(target) <= getAttributeValue(ForgeMod.REACH_DISTANCE.get());
+        return getDistanceToTarget(target) <= getAttributeValue(ForgeMod.ENTITY_REACH.get());
     }
     
     public void setTaskTarget(ActionTarget target) {

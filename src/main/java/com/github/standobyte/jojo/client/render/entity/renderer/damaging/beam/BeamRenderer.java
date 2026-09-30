@@ -40,7 +40,7 @@ public abstract class BeamRenderer<T extends DamagingEntity> extends EntityRende
         float beamWidth = getBeamWidth(entity);
         matrixStack.scale(1.0F, beamWidth, beamWidth);
         VertexConsumer ivertexbuilder = buffer.getBuffer(RenderType.entityCutout(getTextureLocation(entity)));
-        PoseStack.Entry matrixstack$entry = matrixStack.last();
+        PoseStack.Pose matrixstack$entry = matrixStack.last();
         Matrix4f matrix4f = matrixstack$entry.pose();
         Matrix3f matrixNormal = matrixstack$entry.normal();
 

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,7 +39,6 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
@@ -328,7 +328,6 @@ public class ClientUtil {
     public static void drawTooltipRectangle(PoseStack matrixStack, int x, int y, int width, int height, 
             int backgroundColor, int borderColorStart, int borderColorEnd, int zLevel) {
         RenderSystem.enableDepthTest();
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
@@ -348,7 +347,6 @@ public class ClientUtil {
         matrixStack.popPose();
         RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
     
     private static void drawGradientRect(Matrix4f mat, int zLevel, int left, int top, int right, int bottom, int startColor, int endColor) {
@@ -373,10 +371,8 @@ public class ClientUtil {
     
     public static void fillSingleRect(double x, double y, double width, double height, int red, int green, int blue, int alpha) {
         RenderSystem.disableDepthTest();
-        RenderSystem.disableTexture();
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         fillRect(bufferBuilder, x, y, width, height, red, green, blue, alpha);
-        RenderSystem.enableTexture();
         RenderSystem.enableDepthTest();
     }
     
@@ -397,7 +393,6 @@ public class ClientUtil {
         int height = window.getGuiScaledHeight();
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
-        RenderSystem.disableTexture();
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         
         for (int x = 0; x < width; x++) {
@@ -411,7 +406,6 @@ public class ClientUtil {
                 Tesselator.getInstance().end();
             }
         }
-        RenderSystem.enableTexture();
         RenderSystem.enableDepthTest();
     }
     
@@ -420,13 +414,13 @@ public class ClientUtil {
         ResourceLocation playerFace = player.getSkinTextureLocation();
         RenderSystem.setShaderTexture(0, playerFace);
 
-        AbstractGui.blit(matrixStack, x, y, 16, 16, 16, 16, 128, 128);
+        GuiDraw.blit(matrixStack, x, y, 16, 16, 16, 16, 128, 128);
         if (mc.options.getModelParts().contains(PlayerModelPart.HAT)) {
             matrixStack.pushPose();
             matrixStack.translate(x, y, 0);
             matrixStack.scale(9F/8F, 9F/8F, 0);
             matrixStack.translate(-1, -1, 0);
-            AbstractGui.blit(matrixStack, 0, 0, 80, 16, 16, 16, 128, 128);
+            GuiDraw.blit(matrixStack, 0, 0, 80, 16, 16, 16, 128, 128);
             matrixStack.popPose();
         }
     }
@@ -435,7 +429,7 @@ public class ClientUtil {
         Minecraft mc = Minecraft.getInstance();
         int backdropColor = mc.options.getBackgroundColor(0.0F);
         if (backdropColor != 0) {
-            AbstractGui.fill(matrixStack, x - 2, y - 2, x + width + 2, y + mc.font.lineHeight + 2, 
+            GuiDraw.fill(matrixStack, x - 2, y - 2, x + width + 2, y + mc.font.lineHeight + 2, 
                     FastColor.PackedColor.multiply(backdropColor, addAlpha(0xFFFFFF, alpha)));
         }
     }
@@ -540,7 +534,7 @@ public class ClientUtil {
         return color | ((int) (255F * alpha)) << 24 & -0x1000000;
     }
     
-    public static void vertex(PoseStack.Entry matrixEntry, VertexConsumer vertexBuilder, 
+    public static void vertex(PoseStack.Pose matrixEntry, VertexConsumer vertexBuilder, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha, 
             float x, float y, float z, float texU, float texV) {
         vertexBuilder
@@ -764,7 +758,7 @@ public class ClientUtil {
     
     public static Button.ITooltip buttonMessageTooltip(Screen screen) {
         return (Button button, PoseStack matrixStack, int x, int y) -> {
-            screen.renderTooltip(matrixStack, button.getMessage(), x, y);
+            screen.renderToolTip(matrixStack, button.getMessage(), x, y);
         };
     }
     

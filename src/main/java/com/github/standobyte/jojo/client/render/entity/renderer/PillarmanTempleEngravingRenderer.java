@@ -63,7 +63,7 @@ public class PillarmanTempleEngravingRenderer extends EntityRenderer<PillarmanTe
     private void renderPainting(PoseStack matrixStack, VertexConsumer vertexBuilder, PillarmanTempleEngravingEntity entity) {
         int width = entity.getWidth();
         int height = entity.getHeight();
-        PoseStack.Entry matrixStackEntry = matrixStack.last();
+        PoseStack.Pose matrixStackEntry = matrixStack.last();
         Matrix4f matrix4f = matrixStackEntry.pose();
         Matrix3f matrixNormals = matrixStackEntry.normal();
         float f = (float)(-width) / 2.0F;

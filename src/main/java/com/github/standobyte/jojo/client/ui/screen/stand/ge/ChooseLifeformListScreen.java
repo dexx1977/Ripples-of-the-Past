@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
+import net.minecraft.client.gui.GuiGraphics;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
@@ -80,7 +82,9 @@ public class ChooseLifeformListScreen extends ChooseLifeformScreen {
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 //        renderBackground(matrixStack);
         

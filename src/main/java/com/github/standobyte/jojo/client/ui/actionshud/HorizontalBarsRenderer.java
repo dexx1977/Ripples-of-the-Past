@@ -1,12 +1,12 @@
 package com.github.standobyte.jojo.client.ui.actionshud;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.Alignment;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.BarsOrientation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.AbstractGui;
 
 @SuppressWarnings("deprecation")
 public class HorizontalBarsRenderer extends BarsRenderer {
@@ -92,14 +92,14 @@ public class HorizontalBarsRenderer extends BarsRenderer {
             matrixStack.pushPose();
             matrixStack.scale(-1, 1, 1);
             fill = length - fill;
-            gui.blit(matrixStack, 
+            GuiDraw.blit(matrixStack, 
                     -(x + fill + 1), y + 1, 
                     -(texX - length + fill - 1), texY + 1, 
                     -length + fill, width - 2);
             matrixStack.popPose();
         }
         else {
-            gui.blit(matrixStack, 
+            GuiDraw.blit(matrixStack, 
                     x + 1, y + 1, 
                     texX + 1, texY + 1, 
                     fill, width - 2);
@@ -115,13 +115,13 @@ public class HorizontalBarsRenderer extends BarsRenderer {
         if (costFill > 0) {
             int diff = Math.max(barFill - costFill, 0);
             if (alignment == Alignment.RIGHT) {
-                AbstractGui.fill(matrixStack, 
+                GuiDraw.fill(matrixStack, 
                         x + 1 - diff + length - costFill,  y + yOffset + 1, 
                         x + 1 - diff + length,             y + yOffset + (height / 2) - 1, 
                         ClientUtil.addAlpha(0xFFFFFF, alpha));
             }
             else {
-                AbstractGui.fill(matrixStack, 
+                GuiDraw.fill(matrixStack, 
                         x + 1 + diff,                y + yOffset + 1, 
                         x + 1 + diff + costFill,     y + yOffset + (height / 2) - 1, 
                         ClientUtil.addAlpha(0xFFFFFF, alpha));
@@ -135,7 +135,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
             int x, int y, Alignment alignment, 
             int height, int length, 
             float alpha) {
-        AbstractGui.fill(matrixStack, 
+        GuiDraw.fill(matrixStack, 
                 x + 1,          y + 1, 
                 x + 1 + length, y + height - 1, 
                 ClientUtil.addAlpha(0xFF0000, alpha));

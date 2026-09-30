@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -264,7 +266,9 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         partialTick = minecraft.getFrameTime(); // i was jebaited
         int x = windowPosX();
         int y = windowPosY();
@@ -309,8 +313,8 @@ public class HamonScreen extends Screen implements IJojoScreen {
     public void renderWindow(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, WINDOW);
-        blit(matrixStack, windowX, windowY, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        GuiDraw.bind(WINDOW);
+        GuiDraw.blit(matrixStack, windowX, windowY, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         for (HamonTabGui tabGui : selectableTabs) {
             tabGui.drawTab(matrixStack, windowX, windowY, tabGui == selectedTab, tabsWithSkillRequirements.contains(tabGui));
         }
@@ -337,21 +341,21 @@ public class HamonScreen extends Screen implements IJojoScreen {
     private void renderToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (selectedTab != null && mouseInsideWindow(mouseX, mouseY)) {
-            RenderSystem.pushMatrix();
+            GuiDraw.pushMatrix();
             RenderSystem.enableDepthTest();
             tooltipOffsetX = windowX + WINDOW_THIN_BORDER;
             tooltipOffsetY = windowY + WINDOW_UPPER_BORDER;
             RenderSystem.translatef((float) tooltipOffsetX, (float) tooltipOffsetY, 400.0F);
             selectedTab.drawToolTips(matrixStack, mouseX - windowX - WINDOW_THIN_BORDER, mouseY - windowY - WINDOW_UPPER_BORDER, windowX, windowY);
             RenderSystem.disableDepthTest();
-            RenderSystem.popMatrix();
+            GuiDraw.popMatrix();
         }
         for (HamonTabGui hamonTabGui : selectableTabs) {
             if (hamonTabGui.isMouseOnTabIcon(windowX, windowY, (double)mouseX, (double)mouseY)) {
                 List<FormattedCharSequence> tooltipLines = new ArrayList<FormattedCharSequence>();
                 tooltipLines.add(hamonTabGui.getTitle().getVisualOrderText());
                 tooltipLines.addAll(hamonTabGui.additionalTabNameTooltipInfo());
-                renderTooltip(matrixStack, tooltipLines, mouseX, mouseY);
+                renderToolTip(matrixStack, tooltipLines, mouseX, mouseY);
                 break;
             }
         }
@@ -363,19 +367,17 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
 
     // these two overrides make the tooltip wrap at the right edge of the screen correctly
-    @Override
     public void renderToolTip(PoseStack matrixStack, List<? extends FormattedCharSequence> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        super.renderToolTip(matrixStack, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY, font);
+        GuiDraw.renderTooltip(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
-    @Override
     public void renderWrappedToolTip(PoseStack matrixStack, List<? extends FormattedText> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        super.renderWrappedToolTip(matrixStack, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY, font);
+        GuiDraw.renderTooltip(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     

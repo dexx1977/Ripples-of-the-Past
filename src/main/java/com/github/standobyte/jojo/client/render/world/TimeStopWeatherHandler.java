@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.world;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Random;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -134,7 +135,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
                                     }
 
                                     i1 = 0;
-                                    RenderSystem.setShaderTexture(0, RAIN_LOCATION);
+                                    GuiDraw.bind(RAIN_LOCATION);
                                     bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 
@@ -157,7 +158,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
                                     }
 
                                     i1 = 1;
-                                    RenderSystem.setShaderTexture(0, SNOW_LOCATION);
+                                    GuiDraw.bind(SNOW_LOCATION);
                                     bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 

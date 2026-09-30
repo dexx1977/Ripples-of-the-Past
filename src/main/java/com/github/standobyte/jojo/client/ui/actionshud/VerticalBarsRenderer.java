@@ -1,12 +1,12 @@
 package com.github.standobyte.jojo.client.ui.actionshud;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.Alignment;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.BarsOrientation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.AbstractGui;
 
 public class VerticalBarsRenderer extends BarsRenderer {
     static final int BAR_HEIGHT = 100;
@@ -69,7 +69,7 @@ public class VerticalBarsRenderer extends BarsRenderer {
     @Override
     protected void barFill(PoseStack matrixStack, int x, int y, Alignment alignment, 
             int texX, int texY, int width, int length, int fill) {
-        gui.blit(matrixStack, x + 1, y + length - fill + 1, 
+        GuiDraw.blit(matrixStack, x + 1, y + length - fill + 1, 
                 texX + 1, texY + length - fill + 1, width - 2, fill);
     }
 
@@ -81,7 +81,7 @@ public class VerticalBarsRenderer extends BarsRenderer {
             int xOffset, float alpha) {
         if (costFill > 0) {
             int diff = Math.max(barFill - costFill, 0);
-            AbstractGui.fill(matrixStack, 
+            GuiDraw.fill(matrixStack, 
                     x + xOffset + 1,               y - diff + height + 1 - costFill, 
                     x + xOffset + (width / 2) - 1, y - diff + height + 1, 
                     ClientUtil.addAlpha(0xFFFFFF, alpha));
@@ -94,7 +94,7 @@ public class VerticalBarsRenderer extends BarsRenderer {
             int x, int y, Alignment alignment, 
             int width, int height, 
             float alpha) {
-        AbstractGui.fill(matrixStack, 
+        GuiDraw.fill(matrixStack, 
                 x + 1,         y + 1, 
                 x + width - 1, y + height + 1, 
                 ClientUtil.addAlpha(0xFF0000, alpha));

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.standstats;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -230,20 +230,20 @@ public class StandStatsRenderer {
                 matrixStack.scale(scale, scale, 1);
             }
 
-            RenderSystem.setShaderTexture(0, STAND_STATS_UI);
+            GuiDraw.bind(STAND_STATS_UI);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             // background
             if (invertBnW) RenderSystem.setShaderColor(0, 0, 0, bgAlpha * bordersAlpha);
             else           RenderSystem.setShaderColor(1, 1, 1, bgAlpha * bordersAlpha);
-            AbstractGui.blit(matrixStack, x, y, 0, 256, 0, statsWidth, statsHeight, 512, 512);
+            GuiDraw.blit(matrixStack, x, y, 0, 256, 0, statsWidth, statsHeight, 512, 512);
             
             // circles
             if (invertBnW) RenderSystem.setShaderColor(1, 1, 1, bordersAlpha);
             else           RenderSystem.setShaderColor(0, 0, 0, bordersAlpha);
-            AbstractGui.blit(matrixStack, x, y, 0, 0, 0, statsWidth, statsHeight, 512, 512);
-            AbstractGui.blit(matrixStack, x, y, 0, 0, 164, statsWidth, statsHeight, 512, 512);
-            AbstractGui.blit(matrixStack, x, y, 0, 256, 164, statsWidth, statsHeight, 512, 512);
+            GuiDraw.blit(matrixStack, x, y, 0, 0, 0, statsWidth, statsHeight, 512, 512);
+            GuiDraw.blit(matrixStack, x, y, 0, 0, 164, statsWidth, statsHeight, 512, 512);
+            GuiDraw.blit(matrixStack, x, y, 0, 256, 164, statsWidth, statsHeight, 512, 512);
             
             // rotating outer ring effect
             float outerRingRot = 0;
@@ -332,8 +332,8 @@ public class StandStatsRenderer {
                     standIconY -= 5;
                 }
     
-                RenderSystem.setShaderTexture(0, override.standIcon(power));
-                AbstractGui.blit(matrixStack, x + statsWidth - 18 - width, standIconY, 0, 0, 16, 16, 16, 16);
+                GuiDraw.bind(override.standIcon(power));
+                GuiDraw.blit(matrixStack, x + statsWidth - 18 - width, standIconY, 0, 0, 16, 16, 16, 16);
                 ClientUtil.drawLines(matrixStack, mc.font, standName, 
                         x + statsWidth - width, standNameY, 0, color, true, true);
     
@@ -407,7 +407,7 @@ public class StandStatsRenderer {
     @SuppressWarnings("deprecation")
     private static void renderLetterFromTex(PoseStack matrixStack, float letterAlpha, boolean invertBnW, 
             float statX, float statY, float letterWidth, int texX, int texY) {
-        Minecraft.getInstance().RenderSystem.setShaderTexture(0, STAND_STATS_UI);
+        Minecraft.getInstance().GuiDraw.bind(STAND_STATS_UI);
         if (invertBnW) RenderSystem.setShaderColor(1, 1, 1, letterAlpha);
         else           RenderSystem.setShaderColor(0, 0, 0, letterAlpha);
         RenderSystem.enableBlend();
@@ -434,7 +434,6 @@ public class StandStatsRenderer {
             double r1, double r2, double r3, double r4, double r5, double r6, 
             int red, int green, int blue, int alpha) {
         RenderSystem.disableDepthTest();
-        RenderSystem.disableTexture();
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 
         /*
@@ -513,8 +512,6 @@ public class StandStatsRenderer {
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             Tesselator.getInstance().end();
         }
-
-        RenderSystem.enableTexture();
         RenderSystem.enableDepthTest();
     }
     

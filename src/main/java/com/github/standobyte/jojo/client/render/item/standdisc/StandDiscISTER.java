@@ -111,7 +111,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
     private static final Polygon QUAD_FRONT;
     private static final Polygon QUAD_BACK;
     
-    private void renderIconQuad(PoseStack.Entry poseEntry, Polygon quad, 
+    private void renderIconQuad(PoseStack.Pose poseEntry, Polygon quad, 
             VertexConsumer vertexBuilder, int light, int overlay) {
         Matrix4f pose = poseEntry.pose();
         Matrix3f entry = poseEntry.normal();

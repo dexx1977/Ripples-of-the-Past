@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.gui.components.Button;
 import java.util.function.Supplier;
 
@@ -20,7 +21,7 @@ public class WalkmanButton extends CustomButton {
     private final int texX;
 
     public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, Supplier<Component> message, Screen screen, int texX) {
-        this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> screen.renderTooltip(matrixStack, button.getMessage(), mouseX, mouseY), message, texX);
+        this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> screen.renderToolTip(matrixStack, button.getMessage(), mouseX, mouseY), message, texX);
     }
 
     public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, ITooltip tooltip, Supplier<Component> message, int texX) {
@@ -32,12 +33,12 @@ public class WalkmanButton extends CustomButton {
     @Override
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
+        GuiDraw.bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, texX, active && isHovered() ? 240 : 227, width, height);
+        GuiDraw.blit(matrixStack, x, y, texX, active && isHovered() ? 240 : 227, width, height);
     }
 
     @Override

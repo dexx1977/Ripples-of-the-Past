@@ -73,7 +73,7 @@ public class SilverChariotDashAttack extends StandEntityHeavyAttack {
         boolean moveForward = completion <= 0.5F;
         if (moveForward) {
             for (HitResult rayTraceResult : JojoModUtil.rayTraceMultipleEntities(standEntity, 
-                    standEntity.getAttributeValue(ForgeMod.REACH_DISTANCE.get()), 
+                    standEntity.getAttributeValue(ForgeMod.ENTITY_REACH.get()), 
                     standEntity.canTarget(), 0.25, standEntity.getPrecision())) {
                 standEntity.punch(task, this, ActionTarget.fromRayTraceResult(rayTraceResult));
             }

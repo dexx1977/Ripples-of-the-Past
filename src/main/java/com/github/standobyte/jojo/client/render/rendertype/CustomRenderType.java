@@ -21,8 +21,8 @@ public class CustomRenderType extends RenderType {
     }
     
     public static RenderType hamonProjectileShield(ResourceLocation glintTexture) { // it just works
-        RenderType.State renderType$state = RenderType.State.builder()
-                .setTextureState(new RenderStateShard.TextureState(glintTexture, true, false))
+        RenderType.CompositeState renderType$state = RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(glintTexture, true, false))
                 .setWriteMaskState(COLOR_WRITE)
                 .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
@@ -36,8 +36,8 @@ public class CustomRenderType extends RenderType {
     
     private static final ResourceLocation GE_GLINT_PATH = new ResourceLocation(JojoMod.MOD_ID, "textures/item_imbued_with_life.png");
     public static RenderType goldExperienceLifeformAura() {
-        RenderType.State renderType$state = RenderType.State.builder()
-                .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
+        RenderType.CompositeState renderType$state = RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
                 .setWriteMaskState(COLOR_WRITE)
                 .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
@@ -49,8 +49,8 @@ public class CustomRenderType extends RenderType {
     }
     
     public static RenderType goldExperienceLifeformOverlay(ResourceLocation overlayTexture, float xScale, float yScale) {
-        RenderType.State rendertype$state = RenderType.State.builder()
-                .setTextureState(new RenderStateShard.TextureState(overlayTexture, false, false))
+        RenderType.CompositeState rendertype$state = RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(overlayTexture, false, false))
                 .setTexturingState(new ScaledTexturingState(xScale, yScale))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setDiffuseLightingState(DIFFUSE_LIGHTING)
@@ -63,8 +63,8 @@ public class CustomRenderType extends RenderType {
     }
     
     private static final RenderType GE_IMBUED_GLINT = RenderType.create("jojo_ge_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -76,8 +76,8 @@ public class CustomRenderType extends RenderType {
     }
     
     private static final RenderType GE_IMBUED_GLINT_DIRECT = RenderType.create("jojo_ge_glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -89,8 +89,8 @@ public class CustomRenderType extends RenderType {
     }
     
     private static final RenderType GE_IMBUED_GLINT_TRANSLUCENT = create("jojo_ge_glint_translucent", DefaultVertexFormat.POSITION_TEX, 7, 256, 
-            RenderType.State.builder()
-            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
+            RenderType.CompositeState.builder()
+            .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)

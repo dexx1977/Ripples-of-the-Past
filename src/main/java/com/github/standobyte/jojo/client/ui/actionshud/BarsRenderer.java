@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.actionshud;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.Util;
@@ -228,7 +228,7 @@ public abstract class BarsRenderer {
             int texX, int texY, int width, int length, int fill);
     
     protected void drawBarElement(PoseStack matrixStack, int x, int y, int texX, int texY, int width, int length) {
-        gui.blit(matrixStack, x, y, texX, texY, width, length);
+        GuiDraw.blit(matrixStack, x, y, texX, texY, width, length);
     }
     
     protected void renderCost(PoseStack matrixStack, 
@@ -300,7 +300,7 @@ public abstract class BarsRenderer {
             matrixStack.scale(1F / scale, 1F / scale, 1F);
             matrixStack.translate(x * (scale - 1), y * (scale - 1), 0);
         }
-        gui.blit(matrixStack, x, y, 
+        GuiDraw.blit(matrixStack, x, y, 
                 texX, texY, width * scale, height * scale);
         if (scale > 1) {
             matrixStack.popPose();

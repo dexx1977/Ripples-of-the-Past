@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.gui.components.Button;
 import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -25,23 +26,23 @@ public class HamonScreenButton extends CustomButton {
     @Override
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
 //        RenderSystem.enableBlend();
 //        RenderSystem.defaultBlendFunc();
 //        RenderSystem.enableDepthTest();
-        blit(matrixStack, x, y, 0, 46 + i * 20, width / 2, height);
-        blit(matrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
+        GuiDraw.blit(matrixStack, x, y, 0, 46 + i * 20, width / 2, height);
+        GuiDraw.blit(matrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
     }
     
     public void drawName(PoseStack matrixStack) {
         // shadow is gone for whatever reason so it's rendered here
-        drawCenteredString(matrixStack, Minecraft.getInstance().font, this.getMessage(), 
+        GuiDraw.drawCenteredString(matrixStack, Minecraft.getInstance().font, this.getMessage(), 
                 this.x + this.getWidth() / 2 + 1, this.y + (this.getHeight() - 8) / 2 + 1, 
                 0x3E3E3E | Mth.ceil(this.alpha * 255.0F) << 24);
         
-        drawCenteredString(matrixStack, Minecraft.getInstance().font, this.getMessage(), 
+        GuiDraw.drawCenteredString(matrixStack, Minecraft.getInstance().font, this.getMessage(), 
                 this.x + this.getWidth() / 2, this.y + (this.getHeight() - 8) / 2, 
                 getFGColor() | Mth.ceil(this.alpha * 255.0F) << 24);
     }

@@ -51,7 +51,7 @@ public abstract class ItemNbtProjectileEntity extends ItemProjectileEntity {
 
     @Override
     public void tickDespawn() {
-        if (this.pickup != AbstractArrow.PickupStatus.ALLOWED) {
+        if (this.pickup != AbstractArrow.Pickup.ALLOWED) {
             super.tickDespawn();
         }
     }

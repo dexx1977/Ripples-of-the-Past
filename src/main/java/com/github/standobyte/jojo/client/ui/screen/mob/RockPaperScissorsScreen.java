@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.mob;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import javax.annotation.Nullable;
 
 import org.lwjgl.glfw.GLFW;
@@ -95,7 +97,9 @@ public class RockPaperScissorsScreen extends ChatScreen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         if (game == null) {
             this.onClose();
             return;
@@ -116,8 +120,8 @@ public class RockPaperScissorsScreen extends ChatScreen {
     private void renderScreen(PoseStack matrixStack, int windowX, int windowY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, WINDOW);
-        blit(matrixStack, windowX, windowY, 0, 0, WIDTH, HEIGHT);
+        GuiDraw.bind(WINDOW);
+        GuiDraw.blit(matrixStack, windowX, windowY, 0, 0, WIDTH, HEIGHT);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
     }
@@ -128,14 +132,14 @@ public class RockPaperScissorsScreen extends ChatScreen {
         int y = 26;
         for (int i = 0; i < nonTieRound; i++) {
             Pick pick1 = game.player1.getPreviousPicks().get(i);
-            blit(matrixStack, windowX + 66, windowY + y, getIconTexX(pick1), HEIGHT, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 66, windowY + y, getIconTexX(pick1), HEIGHT, 16, 16);
             Pick pick2 = game.player2.getPreviousPicks().get(i);
-            blit(matrixStack, windowX + 101, windowY + y, getIconTexX(pick2), HEIGHT + 16, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 101, windowY + y, getIconTexX(pick2), HEIGHT + 16, 16, 16);
             if (pick1.beats(pick2)) {
-                blit(matrixStack, windowX + 84, windowY + y, 15, HEIGHT + 18, 15, 15);
+                GuiDraw.blit(matrixStack, windowX + 84, windowY + y, 15, HEIGHT + 18, 15, 15);
             }
             else if (pick2.beats(pick1)) {
-                blit(matrixStack, windowX + 84, windowY + y, 0, HEIGHT + 18, 15, 15);
+                GuiDraw.blit(matrixStack, windowX + 84, windowY + y, 0, HEIGHT + 18, 15, 15);
             }
             y += 18;
         }
@@ -145,24 +149,24 @@ public class RockPaperScissorsScreen extends ChatScreen {
             if (game.player1.canOpponentReadThoughts && pickMouseOver != prevPickMouseOver) {
                 sendThoughts = true;
             }
-            blit(matrixStack, windowX + 7, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.ROCK), HEIGHT, 18, 18);
-            blit(matrixStack, windowX + 25, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.PAPER), HEIGHT, 18, 18);
-            blit(matrixStack, windowX + 43, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.SCISSORS), HEIGHT, 18, 18);
+            GuiDraw.blit(matrixStack, windowX + 7, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.ROCK), HEIGHT, 18, 18);
+            GuiDraw.blit(matrixStack, windowX + 25, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.PAPER), HEIGHT, 18, 18);
+            GuiDraw.blit(matrixStack, windowX + 43, windowY + 25 + nonTieRound * 18, getButtonTexX(Pick.SCISSORS), HEIGHT, 18, 18);
 
-            blit(matrixStack, windowX + 8, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.ROCK), HEIGHT, 16, 16);
-            blit(matrixStack, windowX + 26, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.PAPER), HEIGHT, 16, 16);
-            blit(matrixStack, windowX + 44, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.SCISSORS), HEIGHT, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 8, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.ROCK), HEIGHT, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 26, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.PAPER), HEIGHT, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 44, windowY + 26 + nonTieRound * 18, getIconTexX(Pick.SCISSORS), HEIGHT, 16, 16);
         }
         else {
-            blit(matrixStack, windowX + 66, windowY + 26 + nonTieRound * 18, getIconTexX(game.player1.getCurrentPick()), HEIGHT, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 66, windowY + 26 + nonTieRound * 18, getIconTexX(game.player1.getCurrentPick()), HEIGHT, 16, 16);
         }
         Pick opponentPick = game.player2.getCurrentPick();
         if (opponentPick != null) {
-            blit(matrixStack, windowX + 101, windowY + 26 + nonTieRound * 18, getIconTexX(opponentPick), HEIGHT + 16, 16, 16);
+            GuiDraw.blit(matrixStack, windowX + 101, windowY + 26 + nonTieRound * 18, getIconTexX(opponentPick), HEIGHT + 16, 16, 16);
         }
-        blit(matrixStack, windowX + 121, windowY + 11 + nonTieRound * 18, 173, 0, 24, 26);
+        GuiDraw.blit(matrixStack, windowX + 121, windowY + 11 + nonTieRound * 18, 173, 0, 24, 26);
         Pick opponentPickThoughts = opponentPick != null ? opponentPick : game.player2.getPickThoughts();
-        blit(matrixStack, windowX + 128, windowY + 12 + nonTieRound * 18, opponentPickThoughts != null ? getIconTexX(opponentPickThoughts) : 102, HEIGHT + 16, 16, 16);
+        GuiDraw.blit(matrixStack, windowX + 128, windowY + 12 + nonTieRound * 18, opponentPickThoughts != null ? getIconTexX(opponentPickThoughts) : 102, HEIGHT + 16, 16, 16);
         RenderSystem.disableDepthTest();
         minecraft.font.drawShadow(matrixStack, Component.literal(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
         RenderSystem.enableDepthTest();
@@ -180,8 +184,8 @@ public class RockPaperScissorsScreen extends ChatScreen {
         if (cheat != null) {
             IPower<?, ?> cheatPowerCap = IPower.getPowerOptional(minecraft.player, cheatPower).resolve().get();
             cheatButton.y = (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y + nonTieRound * 18;
-            RenderSystem.setShaderTexture(0, cheatPowerCap.clGetPowerTypeIcon());
-            blit(matrixStack, cheatButton.x + 2, cheatButton.y + 2, 0, 0, 16, 16, 16, 16);
+            GuiDraw.bind(cheatPowerCap.clGetPowerTypeIcon());
+            GuiDraw.blit(matrixStack, cheatButton.x + 2, cheatButton.y + 2, 0, 0, 16, 16, 16, 16);
             if (cheatButton.isMouseOver(mouseX, mouseY)) {
                 renderTooltip(matrixStack, minecraft.font.split(Component.translatable(
                         "jojo.rps.cheat." + cheatPowerCap.getType().getRegistryName().toString().replace(":", ".")), 150), mouseX, mouseY);

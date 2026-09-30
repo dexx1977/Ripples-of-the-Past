@@ -218,7 +218,7 @@ public class StandEntityPunch implements IPunch {
         if (isSweepingAttack()) {
             for (LivingEntity sweepingTarget : stand.level.getEntitiesOfClass(LivingEntity.class, sweepingAttackAabb(target.getBoundingBox()), 
                     e -> !e.isSpectator() && e.isPickable() && e != target
-                    && JojoModUtil.getDistance(stand, e.getBoundingBox()) < stand.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) && stand.canHarm(e))) {
+                    && JojoModUtil.getDistance(stand, e.getBoundingBox()) < stand.getAttributeValue(ForgeMod.ENTITY_REACH.get()) && stand.canHarm(e))) {
                 doAttack(stand, sweepingTarget, dmgSource, sweepingDamage);
             }
         }

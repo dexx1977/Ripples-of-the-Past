@@ -53,7 +53,7 @@ public class KnifeItem extends Item {
             @Override
             protected Projectile getProjectile(Level world, Position position, ItemStack stack) {
                 KnifeEntity knife = new KnifeEntity(world, position.x(), position.y(), position.z());
-                knife.pickup = AbstractArrow.PickupStatus.ALLOWED;
+                knife.pickup = AbstractArrow.Pickup.ALLOWED;
                 return knife;
             }
         });

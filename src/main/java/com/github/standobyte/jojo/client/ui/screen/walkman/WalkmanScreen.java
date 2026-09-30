@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
+import net.minecraft.client.gui.GuiGraphics;
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,12 +89,14 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         updateCassette();
         updateButtons();
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTick);
-        this.renderTooltip(matrixStack, mouseX, mouseY);
+        this.renderToolTip(matrixStack, mouseX, mouseY);
     }
     
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dragX, double dragY) {
@@ -239,12 +243,12 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                RenderSystem.setShaderTexture(0, WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
+                GuiDraw.bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
-                blit(matrixStack, x, y, isHovered() ? 175 : 183, 235, width, height);
+                GuiDraw.blit(matrixStack, x, y, isHovered() ? 175 : 183, 235, width, height);
             }
         });
         
@@ -304,13 +308,13 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     protected void renderBg(PoseStack matrixStack, float partialTick, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, WALKMAN_SCREEN_TEXTURE);
+        GuiDraw.bind(WALKMAN_SCREEN_TEXTURE);
         int windowX = getWindowX();
         int windowY = getWindowY();
         
         volumeWheel.render(matrixStack, mouseX, mouseY, partialTick);
         
-        blit(matrixStack, windowX, windowY, 0, 0, imageWidth, imageHeight);
+        GuiDraw.blit(matrixStack, windowX, windowY, 0, 0, imageWidth, imageHeight);
 
         renderIndicators(matrixStack, partialTick, windowX, windowY);
         renderCassette(matrixStack, partialTick, windowX, windowY);
@@ -345,13 +349,13 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                 revFlicker = tmp;
             }
 
-            RenderSystem.setShaderTexture(0, WALKMAN_SCREEN_TEXTURE);
+            GuiDraw.bind(WALKMAN_SCREEN_TEXTURE);
             boolean flickerTick = minecraft.player.tickCount % 40 >= 20;
             if (revLight || revFlicker && flickerTick) {
-                blit(matrixStack, windowX + 17, windowY + 18, 17, 226, 9, 9);
+                GuiDraw.blit(matrixStack, windowX + 17, windowY + 18, 17, 226, 9, 9);
             }
             if (fwdLight || fwdFlicker && flickerTick) {
-                blit(matrixStack, windowX + 17, windowY + 35, 17, 243, 9, 9);
+                GuiDraw.blit(matrixStack, windowX + 17, windowY + 35, 17, 243, 9, 9);
             }
         }
     }
@@ -359,16 +363,16 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     private void renderCassette(PoseStack matrixStack, float partialTick, int windowX, int windowY) {
         ItemStack cassetteItem = getCassetteItem();
         if (!cassetteItem.isEmpty()) {
-            RenderSystem.setShaderTexture(0, WALKMAN_CASSETTE_TEXTURE);
-            blit(matrixStack, windowX + 35, windowY + 7, 0, 0, 150, 95);
+            GuiDraw.bind(WALKMAN_CASSETTE_TEXTURE);
+            GuiDraw.blit(matrixStack, windowX + 35, windowY + 7, 0, 0, 150, 95);
             
             Optional<DyeColor> color = CassetteRecordedItem.getCassetteData(cassetteItem).map(cap -> cap.getDye());
             if (color.isPresent()) {
-                blit(matrixStack, windowX + 40, windowY + 41, 5, 128 + color.get().ordinal() * 8, 140, 7);
+                GuiDraw.blit(matrixStack, windowX + 40, windowY + 41, 5, 128 + color.get().ordinal() * 8, 140, 7);
             }
             
             if (currentSide != null) {
-                blit(matrixStack, windowX + 47, windowY + 49, 204 + currentSide.ordinal() * 16, 41, 11, 11);
+                GuiDraw.blit(matrixStack, windowX + 47, windowY + 49, 204 + currentSide.ordinal() * 16, 41, 11, 11);
             }
         }
     }
