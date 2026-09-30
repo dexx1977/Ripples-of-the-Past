@@ -44,7 +44,7 @@ public class CollisionUtil {
         if (selectionContext == null) selectionContext = CollisionContext.of(entity);
         VoxelShape worldBorder = entity.level.getWorldBorder().getCollisionShape();
         Stream<VoxelShape> worldBorderCollision = Shapes.joinIsNotEmpty(worldBorder, Shapes.create(collisionBox.deflate(1.0E-7D)), BooleanOp.AND) ? Stream.empty() : Stream.of(worldBorder);
-        Stream<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, collisionBox.expandTowards(offsetVec), e -> true);
+        Stream<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, collisionBox.expandTowards(offsetVec)).stream();
         List<VoxelShape> collisions = Stream.concat(entityCollisions, worldBorderCollision).collect(Collectors.toList());
         Vec3 vector3d = offsetVec.lengthSqr() == 0 ? offsetVec : collideBoundingBoxHeuristically(entity, offsetVec, collisionBox, entity.level, selectionContext, collisions);
         boolean flag = offsetVec.x != vector3d.x;
@@ -251,7 +251,7 @@ public class CollisionUtil {
         double d1 = pVec.y;
         double d2 = pVec.z;
         if (d1 != 0.0D) {
-           d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pLevel, d1, pSelectionContext, pPotentialHits);
+           d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pPotentialHits, d1);
            if (d1 != 0.0D) {
               pCollisionBox = pCollisionBox.move(0.0D, d1, 0.0D);
            }
@@ -259,21 +259,21 @@ public class CollisionUtil {
 
         boolean flag = Math.abs(d0) < Math.abs(d2);
         if (flag && d2 != 0.0D) {
-           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits);
+           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits, d2);
            if (d2 != 0.0D) {
               pCollisionBox = pCollisionBox.move(0.0D, 0.0D, d2);
            }
         }
 
         if (d0 != 0.0D) {
-           d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pLevel, d0, pSelectionContext, pPotentialHits);
+           d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pPotentialHits, d0);
            if (!flag && d0 != 0.0D) {
               pCollisionBox = pCollisionBox.move(d0, 0.0D, 0.0D);
            }
         }
 
         if (!flag && d2 != 0.0D) {
-           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits);
+           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits, d2);
         }
 
         return new Vec3(d0, d1, d2);

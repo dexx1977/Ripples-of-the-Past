@@ -137,7 +137,7 @@ public abstract class CustomExplosion extends Explosion {
                         double z = pos.z;
                         
                         for (; power > 0.0F; power -= 0.225F) {
-                            BlockPos blockPos = new BlockPos(x, y, z);
+                            BlockPos blockPos = BlockPos.containing(x, y, z);
                             BlockState blockState = level.getBlockState(blockPos);
                             FluidState fluidState = level.getFluidState(blockPos);
                             Optional<Float> resistance = damageCalculator.getBlockExplosionResistance(this, level, blockPos, blockState, fluidState);
@@ -235,7 +235,8 @@ public abstract class CustomExplosion extends Explosion {
     @SuppressWarnings("deprecation")
     protected void explodeBlocks() {
         ObjectArrayList<Pair<ItemStack, BlockPos>> dropPositions = new ObjectArrayList<>();
-        Util.shuffle(getToBlow(), level.random);
+        // 1.20.1 shuffles fastutil lists only, so the java helper with a seeded random is used
+        java.util.Collections.shuffle(getToBlow(), new java.util.Random(level.random.nextLong()));
 
         for (BlockPos blockPos : getToBlow()) {
             BlockState blockState = level.getBlockState(blockPos);
@@ -243,9 +244,8 @@ public abstract class CustomExplosion extends Explosion {
                 level.getProfiler().push("explosion_blocks");
                 if (blockState.canDropFromExplosion(level, blockPos, this) && level instanceof ServerLevel) {
                     BlockEntity tileEntity = blockState.hasBlockEntity() ? level.getBlockEntity(blockPos) : null;
-                    LootContext.Builder lootCtxBuilder = (
-                            new LootContext.Builder((ServerLevel)level))
-                            .withRandom(level.random)
+                    net.minecraft.world.level.storage.loot.LootParams.Builder lootCtxBuilder = (
+                            new net.minecraft.world.level.storage.loot.LootParams.Builder((ServerLevel)level))
                             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
                             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
                             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, tileEntity)

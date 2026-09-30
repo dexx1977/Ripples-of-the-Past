@@ -246,7 +246,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     private void tickLerp() {
         if (isControlledByLocalInstance()) {
             lerpSteps = 0;
-            setPacketCoordinates(getX(), getY(), getZ());
+            hasImpulse = true;
         }
         if (lerpSteps > 0) {
             double xLerp = getX() + (lerpX - getX()) / (double) lerpSteps;
@@ -361,7 +361,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
 
     @Override
     public LivingEntity getControllingPassenger() {
-        return isVehicle() ? getPassengers().get(0) : null;
+        return isVehicle() && getPassengers().get(0) instanceof LivingEntity passenger ? passenger : null;
     }
 
     @Override
@@ -427,12 +427,12 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
         new Vec3(0, 0, -0.625)
     };
     @Override
-    public void positionRider(Entity entity) {
+    protected void positionRider(Entity entity, Entity.MoveFunction moveFunction) {
         if (hasPassenger(entity)) {
             int i = getPassengers().indexOf(entity);
             if (i < MAX_PASSENGERS) {
                 Vec3 rotatedVec = OFFSETS[i].yRot(-yRot * MathUtil.DEG_TO_RAD);
-                entity.setPos(
+                moveFunction.accept(entity, 
                         getX() + rotatedVec.x, 
                         getY(1.0) - super.getDimensions(Pose.STANDING).height - entity.getBbHeight(), 
                         getZ() + rotatedVec.z);
@@ -628,7 +628,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
         if (nbt.contains("Health")) setHealth(nbt.getFloat("Health"));
         if (nbt.contains("Color"))  foliageColor = nbt.getInt("Color");
         if (nbt.contains("Block", MCUtil.getNbtId(CompoundTag.class))) {
-            setLeavesBlock(NbtUtils.readBlockState(nbt.getCompound("Block")));
+            setLeavesBlock(NbtUtils.readBlockState(level.holderLookup(net.minecraft.core.registries.Registries.BLOCK), nbt.getCompound("Block")));
         }
     }
 
