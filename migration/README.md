@@ -104,6 +104,8 @@ Compilation is the current gate; the counts below are javac errors from
 | Low-level geometry (Cube/Polygon/Vertex), custom cubes, blockbench parsers | 2,331 |
 | Buttons via the builder API, screens passing GuiGraphics | 2,318 |
 | Vanilla model part typing where vanilla models supply the parts | 2,278 |
+| Damage sources on the 1.20.1 damage type registry | 2,226 |
+| Remaining damage sources, isRemoved, texture binding calls | 2,200 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
@@ -118,17 +120,13 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-3. Damage: `EntityDamageSource`/`IndirectEntityDamageSource` were removed in 1.20;
-   custom sources need a `Holder<DamageType>` from the damage type registry.
-4. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
+3. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
    registration changed, `WorldGenRegistries`/`DimensionStructuresSettings` are
    gone (datapack worldgen), and the AT that strips `final` from `StructureStart`
    still has to be added.
-5. Creative tabs: `Item.Properties#tab` is gone; the mod's tab has to be built
-   with `CreativeModeTab.builder()` and filled via `BuildCreativeModeTabContentsEvent`.
-6. Mixins and access transformers: targets, descriptors and SRG names still need
+4. Mixins and access transformers: targets, descriptors and SRG names still need
    a pass, plus `ObfuscationReflectionHelper` strings.
-7. Optional integrations: bendy-lib's `IBendHelper` API changed, JEI/Vampirism
+5. Optional integrations: bendy-lib's `IBendHelper` API changed, JEI/Vampirism
    entry points need their 1.20.1 shapes.
 
 Runtime testing has not started: the build does not compile yet, so nothing has
