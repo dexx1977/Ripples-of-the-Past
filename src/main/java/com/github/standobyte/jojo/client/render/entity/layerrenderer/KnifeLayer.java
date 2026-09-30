@@ -16,11 +16,12 @@ import net.minecraft.util.Mth;
 
 public class KnifeLayer<T extends LivingEntity, M extends PlayerModel<T>> extends StuckInBodyLayer<T, M> {
     private final EntityRendererProvider.Context context;
+    private final net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher;
     private KnifeEntity knife;
 
     public KnifeLayer(LivingEntityRenderer<T, M> renderer) {
         super(renderer);
-        this.dispatcher = renderer.getDispatcher();
+        this.dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     }
 
     @Override

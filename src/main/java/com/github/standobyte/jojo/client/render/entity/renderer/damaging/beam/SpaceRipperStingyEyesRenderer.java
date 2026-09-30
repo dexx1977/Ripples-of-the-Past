@@ -48,7 +48,7 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
         Matrix3f lighting = matrixStack.last().normal();
         lighting.identity();
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        lighting.mul(Axis.XP.rotationDegrees(camera.getXRot()));
+        lighting.rotate(Axis.XP.rotationDegrees(camera.getXRot()));
         VertexConsumer ivertexbuilder = buffer.getBuffer(RenderType.entityTranslucentCull(getTextureLocation(entity)));
         float length = (float) beamVec.length();
         

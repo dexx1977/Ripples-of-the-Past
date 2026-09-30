@@ -27,6 +27,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 public class HamonBurnLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     
@@ -130,8 +131,8 @@ public class HamonBurnLayer<T extends LivingEntity, M extends EntityModel<T>> ex
         }
         
         public static TextureSize getClosestTexSize(Model model) {
-            int widthLog = Mth.ceillog2(model.texWidth);
-            int heightLog = Mth.ceillog2(model.texHeight);
+            int widthLog = Mth.ceillog2(ModelPart.textureWidthOf(model));
+            int heightLog = Mth.ceillog2(ModelPart.textureHeightOf(model));
             
             widthLog = Mth.clamp(widthLog, 6, 8);
             heightLog = Mth.clamp(heightLog, widthLog - 1, widthLog);

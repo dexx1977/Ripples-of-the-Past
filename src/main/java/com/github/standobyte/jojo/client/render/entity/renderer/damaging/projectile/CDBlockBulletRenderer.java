@@ -37,7 +37,7 @@ public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEnt
         return texture;
     }
     
-    private static final Random RANDOM = new Random();
+    private static final net.minecraft.util.RandomSource RANDOM = net.minecraft.util.RandomSource.create();
     private static final ResourceLocation GLASS_TEXTURE = new ResourceLocation("textures/block/glass.png");
     private ResourceLocation getBlockTexture(CDBlockBulletEntity entity) {
         if (entity.getBlock() != null) {
@@ -60,7 +60,7 @@ public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEnt
     
     public static Optional<ResourceLocation> getSpriteTexture(TextureAtlasSprite sprite) {
         if (sprite != null) {
-            ResourceLocation name = sprite.getName();
+            ResourceLocation name = sprite.contents().name();
             if (name != null) {
                 return Optional.of(new ResourceLocation(name.getNamespace(), "textures/" + name.getPath() + ".png"));
             }

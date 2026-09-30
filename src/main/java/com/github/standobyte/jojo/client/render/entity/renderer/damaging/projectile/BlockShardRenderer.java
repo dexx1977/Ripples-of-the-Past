@@ -61,7 +61,7 @@ public class BlockShardRenderer extends EntityRenderer<BlockShardEntity> {
 //                ForgeHooksClient.setRenderLayer(null);
                 
                 for (RenderType blockRenderType : RenderType.chunkBufferLayers()) {
-                    if (ItemBlockRenderTypes.canRenderInLayer(blockState, blockRenderType)) {
+                    if (blockRenderType == ItemBlockRenderTypes.getChunkRenderType(blockState)) {
                         // FIXME temporary block shard rendering, rewrite to use the atlas sprite
                         ResourceLocation texture = getTextureLocation(entity);
                         if (texture != InventoryMenu.BLOCK_ATLAS) {

@@ -22,7 +22,7 @@ public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItem
 
     public MolotovRenderer(EntityRendererProvider.Context context, ItemRenderer itemRenderer, 
             float scale, boolean fullBright) {
-        super(context, itemRenderer, scale, fullBright);
+        super(context, scale, fullBright);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItem
         Camera camera = entityRenderDispatcher.camera;
         Matrix3f lighting = pMatrixStack.last().normal();
         lighting.identity();
-        lighting.mul(Axis.XP.rotationDegrees(90));
-        lighting.mul(Axis.YP.rotationDegrees(camera.getYRot()));
+        lighting.rotate(Axis.XP.rotationDegrees(90));
+        lighting.rotate(Axis.YP.rotationDegrees(camera.getYRot()));
         
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
         pMatrixStack.popPose();

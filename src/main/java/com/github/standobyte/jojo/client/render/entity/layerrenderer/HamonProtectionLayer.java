@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 //@OnlyIn(Dist.CLIENT)
 public class HamonProtectionLayer<T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     public static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/biped/hamon_protection.png");
-    private final PlayerModel<T> model = new PlayerModel<>(0.20F, false);
+    private final PlayerModel<T> model = new PlayerModel<>(com.github.standobyte.jojo.client.render.entity.model.ModelPart.playerRoot(0.20F, false), false);
     
     public HamonProtectionLayer(RenderLayerParent<T, M> renderer) {
         super(renderer);

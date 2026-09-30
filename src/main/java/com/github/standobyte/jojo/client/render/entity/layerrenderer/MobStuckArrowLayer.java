@@ -33,7 +33,7 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
     public MobStuckArrowLayer(LivingEntityRenderer<T, M> renderer) {
         super(renderer);
         this.renderer = renderer;
-        this.dispatcher = renderer.getDispatcher();
+        this.dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     }
     
     @Override

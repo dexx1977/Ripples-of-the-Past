@@ -115,7 +115,7 @@ public class TommyGunBulletRenderer extends EntityRenderer<TommyGunBulletEntity>
         Matrix3f lighting = matrixStack.last().normal();
         lighting.identity();
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        lighting.mul(Axis.XP.rotationDegrees(camera.getXRot()));
+        lighting.rotate(Axis.XP.rotationDegrees(camera.getXRot()));
         float length = (float) trailSegmentVec.length();
         
         if (first) {

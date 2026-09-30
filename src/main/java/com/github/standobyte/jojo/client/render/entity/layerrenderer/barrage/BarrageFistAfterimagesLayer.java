@@ -28,8 +28,8 @@ public class BarrageFistAfterimagesLayer extends RenderLayer<AbstractClientPlaye
 
     public BarrageFistAfterimagesLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer) {
         super(renderer);
-        this.model = new PlayerModel<>(0.0F, false);
-        this.modelSlim = new PlayerModel<>(0.0F, true);
+        this.model = new PlayerModel<>(com.github.standobyte.jojo.client.render.entity.model.ModelPart.playerRoot(0.0F, false), false);
+        this.modelSlim = new PlayerModel<>(com.github.standobyte.jojo.client.render.entity.model.ModelPart.playerRoot(0.0F, true), true);
     }
     
     @Override

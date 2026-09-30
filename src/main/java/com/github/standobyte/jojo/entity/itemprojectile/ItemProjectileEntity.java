@@ -141,7 +141,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
 
     protected boolean hurtTarget(Entity target, Entity thrower) {
         float dmgAmount = getActualDamage();
-        DamageSource damagesource = DamageSource.arrow(this, thrower == null ? this : thrower);
+        DamageSource damagesource = damageSources().arrow(this, thrower == null ? this : thrower);
         return target.hurt(damagesource, (float) dmgAmount);
     }
 

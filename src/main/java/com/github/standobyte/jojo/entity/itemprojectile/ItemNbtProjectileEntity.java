@@ -44,7 +44,7 @@ public abstract class ItemNbtProjectileEntity extends ItemProjectileEntity {
     protected void onHit(HitResult rayTraceResult) {
         Entity shooter = getOwner();
         if (shooter instanceof LivingEntity) {
-            thrownStack.hurtAndBreak(1, (LivingEntity) shooter, entity -> remove());
+            thrownStack.hurtAndBreak(1, (LivingEntity) shooter, entity -> discard());
         }
         super.onHit(rayTraceResult);
     }

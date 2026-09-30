@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 public class MRFireballRenderer extends ThrownItemRenderer<MRFireballEntity> {
     
     public MRFireballRenderer(EntityRendererProvider.Context context) {
-        super(context, Minecraft.getInstance().getItemRenderer(), 1F, true);
+        super(context, 1F, true);
     }
 
     @Override

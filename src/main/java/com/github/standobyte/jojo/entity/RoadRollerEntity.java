@@ -152,7 +152,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     private void explode() {
-        level.explode(this, getX(), getY(0.0625D), getZ(), 4.0F, Explosion.BlockInteraction.KEEP);
+        level.explode(this, getX(), getY(0.0625D), getZ(), 4.0F, Level.ExplosionInteraction.NONE); // the old Explosion.Mode.NONE
     }
 
     @Override

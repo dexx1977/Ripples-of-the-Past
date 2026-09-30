@@ -162,6 +162,13 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         return root;
     }
 
+    /** The root the old {@code PlayerModel(float,boolean)} produced. */
+    public static net.minecraft.client.model.geom.ModelPart playerRoot(float inflate, boolean slim) {
+        return LayerDefinition.create(
+                net.minecraft.client.model.PlayerModel.createMesh(new CubeDeformation(inflate), slim), 64, 64)
+                .bakeRoot();
+    }
+
     /**
      * The root the old {@code HumanoidModel(float size)} produced: the standard
      * humanoid mesh with every box inflated by {@code size}, baked the 1.20.1 way.

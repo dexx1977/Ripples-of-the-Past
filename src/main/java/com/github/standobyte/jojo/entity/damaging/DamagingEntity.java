@@ -157,7 +157,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityAdditi
     }
 
     protected HitResult[] rayTrace() {
-        return new HitResult[] { ProjectileUtil.getHitResult(this, this::canHitEntity) };
+        return new HitResult[] { ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity) };
     }
     
     @Override
