@@ -49,7 +49,7 @@ public class KilledPillarManUserTrigger extends SimpleCriterionTrigger<KilledPil
         return new KilledPillarManUserTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromJson(json, "entity", conditionArrayParser), 
+                ContextAwarePredicate.fromElement("entity", conditionArrayParser, json.get("entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
                 DamageSourcePredicate.fromJson(json.get("killing_blow")), 
                 PowerPredicate.fromJson(json.get("power"), null),
                 PowerPredicate.fromJson(json.get("killed_power"), null),

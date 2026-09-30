@@ -40,7 +40,7 @@ public class StandArrowHitTrigger extends SimpleCriterionTrigger<StandArrowHitTr
         return new StandArrowHitTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromJson(json, "target", conditionArrayParser), 
+                ContextAwarePredicate.fromElement("target", conditionArrayParser, json.get("target"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
                 StandArrowHitPredicate.fromJson(json.get("arrow_hit")));
     }
 

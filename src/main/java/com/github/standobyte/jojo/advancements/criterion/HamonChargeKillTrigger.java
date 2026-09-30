@@ -52,7 +52,7 @@ public class HamonChargeKillTrigger extends SimpleCriterionTrigger<HamonChargeKi
         else if (chargedBlockPos != null) {
             BlockState blockState = player.level().getBlockState(chargedBlockPos);
             trigger(player, (criterion) -> {
-               return criterion.matches(killed, killedLootCtx, blockState, chargedBlockPos, player.level());
+               return criterion.matches(killed, killedLootCtx, blockState, chargedBlockPos, player.serverLevel());
             });
         }
     }
@@ -70,9 +70,9 @@ public class HamonChargeKillTrigger extends SimpleCriterionTrigger<HamonChargeKi
         return new HamonChargeKillTrigger.Instance(
                 id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromJson(json, "killed_entity", conditionArrayParser), 
+                ContextAwarePredicate.fromElement("killed_entity", conditionArrayParser, json.get("killed_entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
                 PowerPredicate.fromJson(json.get("killed_power"), null),
-                ContextAwarePredicate.fromJson(json, "charged_entity", conditionArrayParser), 
+                ContextAwarePredicate.fromElement("charged_entity", conditionArrayParser, json.get("charged_entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
                 block, 
                 blockState,
                 LocationPredicate.fromJson(json.get("location")));

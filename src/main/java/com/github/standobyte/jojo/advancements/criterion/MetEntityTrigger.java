@@ -36,7 +36,7 @@ public class MetEntityTrigger extends SimpleCriterionTrigger<MetEntityTrigger.In
     @Override
     public MetEntityTrigger.Instance createInstance(JsonObject json, 
             ContextAwarePredicate playerPredicate, DeserializationContext conditionsParser) {
-        ContextAwarePredicate entityPredicate = ContextAwarePredicate.fromJson(json, "entity", conditionsParser);
+        ContextAwarePredicate entityPredicate = ContextAwarePredicate.fromElement("entity", conditionsParser, json.get("entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
         return new MetEntityTrigger.Instance(id, playerPredicate, entityPredicate);
     }
 

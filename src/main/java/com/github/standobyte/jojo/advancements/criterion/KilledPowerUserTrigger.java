@@ -48,7 +48,7 @@ public class KilledPowerUserTrigger extends SimpleCriterionTrigger<KilledPowerUs
         return new KilledPowerUserTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromJson(json, "entity", conditionArrayParser), 
+                ContextAwarePredicate.fromElement("entity", conditionArrayParser, json.get("entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
                 DamageSourcePredicate.fromJson(json.get("killing_blow")), 
                 PowerPredicate.fromJson(json.get("power"), null),
                 PowerPredicate.fromJson(json.get("killed_power"), null));
