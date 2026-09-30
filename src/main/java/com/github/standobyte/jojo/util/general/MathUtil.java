@@ -8,6 +8,7 @@ import java.util.stream.StreamSupport;
 
 import com.github.standobyte.jojo.mixin.Matrix4fAccessor;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -18,6 +19,15 @@ import org.joml.Vector3f;
 public class MathUtil {
     public static final float DEG_TO_RAD = (float) (Math.PI / 180D);
     public static final float RAD_TO_DEG = (float) (180D / Math.PI);
+
+    /**
+     * The {@code Vec3i#offset(double,double,double)} that 1.20.1 dropped: the
+     * offsets are added as doubles and truncated, exactly like the old method.
+     */
+    public static BlockPos offset(BlockPos pos, double dx, double dy, double dz) {
+        return new BlockPos((int) ((double) pos.getX() + dx), (int) ((double) pos.getY() + dy), (int) ((double) pos.getZ() + dz));
+    }
+
     private static final float PI = (float) Math.PI;
     private static final float DOUBLE_PI = PI * 2F;
     
@@ -26,7 +36,8 @@ public class MathUtil {
     }
     
     public static float xRotDegFromVec(Vec3 vec) {
-        return (float) (-Mth.atan2(vec.y, Mth.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG);
+        // 1.20.1's Mth#sqrt only takes a float, the old double overload is gone
+        return (float) (-Mth.atan2(vec.y, Mth.sqrt((float) (vec.x * vec.x + vec.z * vec.z))) * RAD_TO_DEG);
     }
     
     /**

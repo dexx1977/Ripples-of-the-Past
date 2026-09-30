@@ -35,6 +35,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import com.github.standobyte.jojo.util.general.MathUtil;
 
 public class VampirismFreeze extends VampirismAction {
 
@@ -117,8 +118,8 @@ public class VampirismFreeze extends VampirismAction {
         if (entity.onGround()) {
             BlockPos.MutableBlockPos posMutable = new BlockPos.MutableBlockPos();
             // 1.20.1 removed Vec3i#offset(double,double,double) and BlockPos#closerThan(Vec3,double)
-            BlockPos minCorner = offsetBy(entityPos, -radius, -1.0, -radius);
-            BlockPos maxCorner = offsetBy(entityPos, radius, -1.0, radius);
+            BlockPos minCorner = MathUtil.offset(entityPos, -radius, -1.0, -radius);
+            BlockPos maxCorner = MathUtil.offset(entityPos, radius, -1.0, radius);
             for (BlockPos blockPos : BlockPos.betweenClosed(minCorner, maxCorner)) {
                 if (Vec3.atCenterOf(blockPos).distanceToSqr(entity.position()) < (double) radius * (double) radius) {
                     posMutable.set(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ());
@@ -137,11 +138,6 @@ public class VampirismFreeze extends VampirismAction {
         if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
             freezeWaterBlock(world, ((BlockHitResult) rayTraceResult).getBlockPos(), entity);
         }
-    }
-
-    /** The Vec3i#offset(double,double,double) that 1.20.1 dropped. */
-    private static BlockPos offsetBy(BlockPos pos, double dx, double dy, double dz) {
-        return new BlockPos((int) ((double) pos.getX() + dx), (int) ((double) pos.getY() + dy), (int) ((double) pos.getZ() + dz));
     }
 
     private static final BlockState ICE = Blocks.FROSTED_ICE.defaultBlockState();

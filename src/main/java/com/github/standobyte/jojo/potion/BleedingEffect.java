@@ -55,6 +55,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.Level;
+import com.github.standobyte.jojo.util.general.MathUtil;
 
 public class BleedingEffect extends MobEffect implements IApplicableEffect {
     private static final float HP_REDUCTION = 4;
@@ -132,8 +133,8 @@ public class BleedingEffect extends MobEffect implements IApplicableEffect {
             }
         }
 
-        BlockPos blockPos = new BlockPos(splashPos);
-        BlockPos.betweenClosedStream(blockPos.offset(-radius, -radius, -radius), blockPos.offset(radius, radius, radius))
+        BlockPos blockPos = BlockPos.containing(splashPos);
+        BlockPos.betweenClosedStream(MathUtil.offset(blockPos, -radius, -radius, -radius), MathUtil.offset(blockPos, radius, radius, radius))
         .filter(pos -> world.getBlockState(pos).getBlock() == ModBlocks.STONE_MASK.get())
         .forEach(pos -> {
             BlockState blockState = world.getBlockState(pos);

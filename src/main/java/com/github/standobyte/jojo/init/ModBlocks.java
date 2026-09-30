@@ -27,17 +27,17 @@ public class ModBlocks {
     
     
     public static final RegistryObject<StoneMaskBlock> STONE_MASK = BLOCKS.register("stone_mask", 
-            () -> new StoneMaskBlock(Block.Properties.copy(Blocks.STONE).harvestLevel(0).requiresCorrectToolForDrops().noCollission().isValidSpawn((state, reader, pos, entityType) -> false)));
+            () -> new StoneMaskBlock(Block.Properties.copy(Blocks.STONE).requiresCorrectToolForDrops().noCollission().isValidSpawn((state, reader, pos, entityType) -> false)));
     
     public static final RegistryObject<StoneMaskBlock> AJA_STONE_MASK = BLOCKS.register("aja_stone_mask", 
-            () -> new StoneMaskBlock(Block.Properties.copy(Blocks.STONE).harvestLevel(0).requiresCorrectToolForDrops().noCollission().isValidSpawn((state, reader, pos, entityType) -> false)));
+            () -> new StoneMaskBlock(Block.Properties.copy(Blocks.STONE).requiresCorrectToolForDrops().noCollission().isValidSpawn((state, reader, pos, entityType) -> false)));
     
     public static final RegistryObject<PillarmanBossMultiBlock> SLUMBERING_PILLARMAN = BLOCKS.register("slumbering_pillarman", 
             () -> new PillarmanBossMultiBlock(Block.Properties.copy(Blocks.BEDROCK).isValidSpawn((state, reader, pos, entityType) -> false)));
     
     public static final RegistryObject<LiquidBlock> BOILING_BLOOD = BLOCKS.register("boiling_blood", 
             () -> new LiquidBlock(ModFluids.BOILING_BLOOD, BlockBehaviour.Properties.of()
-                    .liquid().pushReaction(PushReaction.DESTROY).mapColor(MapColor.LAVA)
+                    .liquid().pushReaction(PushReaction.DESTROY).mapColor(MapColor.FIRE) // 1.20.1 dropped MapColor.LAVA; vanilla lava uses FIRE
                     .noCollission().randomTicks().strength(100.0F).lightLevel(blockState -> 15).noLootTable()));
     
     public static final RegistryObject<Block> METEORIC_IRON = BLOCKS.register("meteoric_iron", 

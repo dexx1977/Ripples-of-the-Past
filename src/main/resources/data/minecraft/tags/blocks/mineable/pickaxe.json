@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "jojo:meteoric_iron",
-    "jojo:meteoric_ore"
+    "jojo:meteoric_ore",
+    "jojo:stone_mask",
+    "jojo:aja_stone_mask"
   ]
 }

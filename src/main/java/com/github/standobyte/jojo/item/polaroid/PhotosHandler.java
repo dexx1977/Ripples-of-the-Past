@@ -36,9 +36,11 @@ public class PhotosHandler {
     
     public void putPhoto(long id, byte[] photoData, UUID photoSender, UUID serverId) {
         DimensionDataStorage serverData = server.overworld().getDataStorage();
-        PolaroidPhotoData photo = new PolaroidPhotoData(makePhotoId(id), photoData, photoSender);
+        String stringId = makePhotoId(id);
+        PolaroidPhotoData photo = new PolaroidPhotoData(photoData, photoSender);
         photo.setDirty();
-        serverData.set(photo);
+        // 1.20.1 keys the saved data by the id string instead of storing it in the data
+        serverData.set(stringId, photo);
         
         Set<ServerPlayer> earlyRequested = playersRequestedEarly.get(id);
         if (earlyRequested != null) {
@@ -54,7 +56,7 @@ public class PhotosHandler {
     public void requestPhoto(long photoId, ServerPlayer player, UUID serverId) {
         DimensionDataStorage serverData = server.overworld().getDataStorage();
         String stringId = makePhotoId(photoId);
-        PolaroidPhotoData photo = serverData.get(() -> new PolaroidPhotoData(stringId), stringId);
+        PolaroidPhotoData photo = serverData.get(PolaroidPhotoData::load, stringId);
         if (photo != null) {
             photo.sendTo(player, serverId, photoId);
         }

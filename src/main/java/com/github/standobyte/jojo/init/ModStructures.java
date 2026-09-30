@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.world.gen.structures.PillarmanTemplePieces;
 import com.github.standobyte.jojo.world.gen.structures.PillarmanTempleStructure;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;

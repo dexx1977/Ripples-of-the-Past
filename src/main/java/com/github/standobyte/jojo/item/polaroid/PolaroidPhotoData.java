@@ -14,12 +14,10 @@ public class PolaroidPhotoData extends SavedData {
     private byte[] photoBytes = new byte[0];
     private UUID senderPlayer;
     
-    public PolaroidPhotoData(String id) {
-        super(id);
-    }
+    // 1.20.1's SavedData has no id field, the DimensionDataStorage key carries it
+    public PolaroidPhotoData() {}
     
-    public PolaroidPhotoData(String id, byte[] photoBytes, @Nullable UUID senderPlayer) {
-        super(id);
+    public PolaroidPhotoData(byte[] photoBytes, @Nullable UUID senderPlayer) {
         this.photoBytes = photoBytes;
         this.senderPlayer = senderPlayer;
     }
@@ -29,10 +27,12 @@ public class PolaroidPhotoData extends SavedData {
         sender.sendAll();
     }
 
-    @Override
-    public void read(CompoundTag nbt) {
-        this.photoBytes = nbt.getByteArray("Photo");
-        this.senderPlayer = nbt.hasUUID("Sender") ? nbt.getUUID("Sender") : null;
+    /** The loader the 1.20.1 storage takes in place of the old {@code read} override. */
+    public static PolaroidPhotoData load(CompoundTag nbt) {
+        PolaroidPhotoData data = new PolaroidPhotoData();
+        data.photoBytes = nbt.getByteArray("Photo");
+        data.senderPlayer = nbt.hasUUID("Sender") ? nbt.getUUID("Sender") : null;
+        return data;
     }
 
     @Override
