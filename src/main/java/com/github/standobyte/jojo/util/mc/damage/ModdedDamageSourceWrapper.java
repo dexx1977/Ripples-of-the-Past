@@ -154,7 +154,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isMagic() {
-        return dmgSource.is(net.minecraft.tags.DamageTypeTags.WITCH_RESISTANT_TO);
+        return dmgSource.is(com.github.standobyte.jojo.init.ModTags.MAGIC);
     }
     
     public boolean isCreativePlayer() {

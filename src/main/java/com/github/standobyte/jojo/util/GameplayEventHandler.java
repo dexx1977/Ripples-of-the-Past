@@ -900,7 +900,7 @@ public class GameplayEventHandler {
                 || dmgAmount < 0.98F
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && !dmgSource.is(net.minecraft.world.damagesource.DamageTypes.FALL)
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_FIRE)
-                || dmgSource.is(net.minecraft.tags.DamageTypeTags.WITCH_RESISTANT_TO)
+                || dmgSource.is(com.github.standobyte.jojo.init.ModTags.MAGIC)
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE)
                 || dmgSource.getMsgId().startsWith(DamageUtil.PILLAR_MAN_ABSORPTION.location().getPath())
                 || !JojoModUtil.canBleed(target)) return;

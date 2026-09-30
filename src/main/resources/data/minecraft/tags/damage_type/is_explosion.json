@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "jojo:explosion.stand"
+    "jojo:explosion.stand",
+    "jojo:on_fire_explosion"
   ]
 }

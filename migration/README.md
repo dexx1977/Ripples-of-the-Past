@@ -127,19 +127,23 @@ Known remaining work, roughly in the order it should be tackled:
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
 3. Magic damage audit (done): the 1.16.5 sources call setMagic() nowhere; the only
-   reader is bleed(), which skips bleeding for magical damage and now asks
-   DamageTypeTags.WITCH_RESISTANT_TO - the tag Mojang introduced for exactly that flag
-   (the witch resists it). No mod damage type may join it, so the mod ships no override
-   of that tag and the vanilla members (magic, indirect_magic, sonic_boom, thorns)
-   apply. bypassMagic() means "ignores Resistance", not "is magical", and maps to
+   living reader is bleed(), which skips bleeding for magical damage, plus the
+   wrapper's isMagic() mirror (no callers). Both now ask the mod tag jojo:magic
+   (minecraft:magic, indirect_magic, thorns, and sonic_boom which 1.20.1 classifies the
+   same way) instead of the witch resistant tag, because that tag means "the witch
+   resists this", not "this is magic". No mod damage type sets the flag in 1.16.5, so
+   none joins the tag. The bypassMagic flag is a separate idea ("ignores the resistance
+   effect") and maps to the bypasses_resistance tag. bypassMagic() means "ignores Resistance", not "is magical", and maps to
    BYPASSES_RESISTANCE. Two call sites were fixed: jojo:mowzie_sun had asked for
    armour bypass, resistance bypass and fire in 1.16.5 (bypassArmor/bypassMagic/
    setIsFire) but was in no tag, and jojo:healthLink had been put into both bypass tags
    although its old source bypassed nothing.
-4. Approximation: the pillarman self detonation used the vanilla on fire damage
-   source with the explosion flag. 1.20.1 damage properties come from the type and no
-   vanilla type is both fire and explosion, so the fire source is kept (same death
-   message, still no bleeding) and the explosion flag (blast protection) is lost.
+4. The pillarman self detonation used the vanilla on fire damage source with the
+   explosion flag. 1.20.1 keeps damage properties in the type, so the mod ships
+   jojo:on_fire_explosion: its message id is the same onFire and it is listed in both
+   minecraft:is_fire and minecraft:is_explosion, which restores the fire behaviour
+   (fire immunity checks, no bleeding) and the explosion behaviour (blast protection,
+   explosion checks) of the old source.
 5. Removed file: client/render/world/TimeStopWeatherHandler.java (and its now empty
    directory). It implemented Forge's weather render handlers, which 1.20.1 dropped,
    but it was already dead code in the 1.16.5 base - the single reference is a
@@ -149,7 +153,10 @@ Known remaining work, roughly in the order it should be tackled:
 6. Approximation: the stand chat message used ForgeHooks.onServerChatEvent to let other
    mods rewrite the text. 1.20.1 fires the chat event on the server side instead, and a
    signed player chat message cannot be forged, so this synthetic message is built and
-   broadcast as a system message with the stand's name.
+   broadcast as a system message with the stand's name. This is an intentionally
+   accepted compatibility difference: the message no longer passes through
+   ServerChatEvent, so other mods cannot cancel or rewrite it the way they could in
+   1.16.5.
 7. Approximation: the input tick takes a slow down factor in 1.20.1; the fake client
    player passes 0.3, the vanilla sneak value, where 1.16.5 only passed the flag.
    Likewise the suffocation check walks the blocks in its box because the 1.20.1
