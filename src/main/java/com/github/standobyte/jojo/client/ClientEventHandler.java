@@ -1456,7 +1456,7 @@ public class ClientEventHandler {
         }
         
         else if (screen instanceof OptionsScreen) {
-            ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables).forEach(widget -> addWidgetToScreen(event, widget));
+            addWidgetToScreen(event, ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
         }
         
         else if (screen instanceof ControlsScreen) {

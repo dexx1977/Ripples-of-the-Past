@@ -349,7 +349,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
-        renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
+        renderBackground(guiGraphics);
         GuiDraw.drawCenteredString(pMatrixStack, font, title, width / 2, 15, 0xFFFFFF);
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
     }
@@ -528,7 +528,11 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
     
     
     
-    public static Button addSettingsButton(Screen optionsScreen, List<AbstractWidget> otherModdedButtons) {
+    public static Button addSettingsButton(Screen optionsScreen, List<net.minecraft.client.gui.components.Renderable> otherRenderables) {
+        List<AbstractWidget> otherModdedButtons = otherRenderables.stream()
+                .filter(renderable -> renderable instanceof AbstractWidget)
+                .map(renderable -> (AbstractWidget) renderable)
+                .collect(java.util.stream.Collectors.toList());
         final int minY = optionsScreen.height / 6 + 48 - 6;
         final int maxY = minY + 72;
         
