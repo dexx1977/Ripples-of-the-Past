@@ -16,7 +16,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.commands.arguments.ArgumentSerializer;
+import com.github.standobyte.jojo.init.ModArgumentTypes;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.chat.Component;
 import com.github.standobyte.jojo.init.power.RegistryEntry;
@@ -27,7 +27,8 @@ public class NonStandTypeArgument implements ArgumentType<NonStandPowerType<?>> 
     private static Map<String, List<NonStandPowerType<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypeInfos.register("non_stand", NonStandTypeArgument.class, new ArgumentSerializer<>(NonStandTypeArgument::new));
+        // the info itself is registered on the mod bus, this is the class -> info mapping
+        ArgumentTypeInfos.registerByClass(NonStandTypeArgument.class, ModArgumentTypes.NON_STAND_TYPE);
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.NON_STAND_POWERS.getRegistry());
     }
     

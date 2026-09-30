@@ -8,12 +8,12 @@ public class ModGamerules {
     
     public static void load() {}
 
-    public static final GameRules.RuleKey<GameRules.BooleanValue> BREAK_BLOCKS = GameRules.register(
+    public static final GameRules.Key<GameRules.BooleanValue> BREAK_BLOCKS = GameRules.register(
             "jojoAbilitiesBreakBlocks", GameRules.Category.PLAYER, createBoolean(true));
     
     
     
-    private static GameRules.RuleType<GameRules.BooleanValue> createBoolean(boolean defaultValue) {
+    private static GameRules.Type<GameRules.BooleanValue> createBoolean(boolean defaultValue) {
         return CommonReflection.createBooleanGameRule(defaultValue);
     }
     

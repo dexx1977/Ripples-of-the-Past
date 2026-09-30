@@ -13,6 +13,7 @@ import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -26,9 +27,10 @@ import net.minecraft.nbt.Tag;
 public class CustomTargetIconMap {
     
     @Nullable
-    public static ItemStack createMap(ServerLevel serverWorld, Structure<?> structure, BlockPos traderBlockPos, 
+    public static ItemStack createMap(ServerLevel serverWorld, TagKey<Structure> structure, BlockPos traderBlockPos, 
             OptionalInt customColor, String structureName, ResourceLocation iconPath) {
-        BlockPos blockpos = serverWorld.findNearestMapFeature(structure, traderBlockPos, 100, true);
+        // 1.20.1 looks structures up by tag; 1.16.5 took the structure itself
+        BlockPos blockpos = serverWorld.findNearestMapStructure(structure, traderBlockPos, 100, true);
         if (blockpos == null) return null;
         
         ItemStack mapItem = MapItem.create(serverWorld, blockpos.getX(), blockpos.getZ(), (byte)2, true, true);
@@ -38,7 +40,7 @@ public class CustomTargetIconMap {
             CompoundTag compoundnbt1 = mapItem.getOrCreateTagElement("display");
             compoundnbt1.putInt("MapColor", color);
         });
-        mapItem.setHoverName(Component.translatable("filled_map." + structure.getFeatureName().toLowerCase(Locale.ROOT)));
+        mapItem.setHoverName(Component.translatable("filled_map." + structure.location().getPath()));
         
         mapItem.getTag().putString("JojoStructure", structureName); // no fucking clue why the advancement criteria doesn't work with the custom item name
         

@@ -17,7 +17,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.commands.arguments.ArgumentSerializer;
+import com.github.standobyte.jojo.init.ModArgumentTypes;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.chat.Component;
 import com.github.standobyte.jojo.init.power.RegistryEntry;
@@ -28,7 +28,8 @@ public class StandArgument implements ArgumentType<StandType<?>> {
     private static Map<String, List<StandType<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypeInfos.register("stand", StandArgument.class, new ArgumentSerializer<>(StandArgument::new));
+        // the info itself is registered on the mod bus, this is the class -> info mapping
+        ArgumentTypeInfos.registerByClass(StandArgument.class, ModArgumentTypes.STAND);
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.STANDS.getRegistry());
     }
     

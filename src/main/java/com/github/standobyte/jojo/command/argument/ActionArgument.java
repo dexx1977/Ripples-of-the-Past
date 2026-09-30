@@ -25,7 +25,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.commands.arguments.ArgumentSerializer;
+import com.github.standobyte.jojo.init.ModArgumentTypes;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
@@ -37,7 +37,8 @@ public class ActionArgument implements ArgumentType<Action<?>> {
     private static Map<String, List<Action<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypeInfos.register("jojo_action", ActionArgument.class, new ArgumentSerializer<>(ActionArgument::new));
+        // the info itself is registered on the mod bus, this is the class -> info mapping
+        ArgumentTypeInfos.registerByClass(ActionArgument.class, ModArgumentTypes.ACTION);
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.ACTIONS.getRegistry());
         makeExtraSuggestionMap();
     }

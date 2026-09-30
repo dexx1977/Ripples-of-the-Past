@@ -53,6 +53,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -309,9 +310,8 @@ public class CustomVillagerTrades {
                     return null;
                 } else {
                     ServerLevel serverworld = (ServerLevel)pTrader.level;
-                    // the structures live in the level's registry in 1.20.1
-                    Structure structure = serverworld.registryAccess()
-                            .registryOrThrow(net.minecraft.core.registries.Registries.STRUCTURE).get(destination);
+                    // 1.20.1 locates structures by tag, one tag per structure id
+                    TagKey<Structure> structure = TagKey.create(net.minecraft.core.registries.Registries.STRUCTURE, destination.location());
                     ItemStack itemstack = CustomTargetIconMap.createMap(serverworld, structure, pTrader.blockPosition(), 
                             customColor, destinationType.name.toLowerCase(), iconPath);
                     if (itemstack != null) {
