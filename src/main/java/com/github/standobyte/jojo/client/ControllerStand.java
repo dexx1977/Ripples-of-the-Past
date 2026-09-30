@@ -1,8 +1,10 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.POTION_ICONS;
 import static net.minecraftforge.event.TickEvent.Phase.END;
 import static net.minecraftforge.fml.LogicalSide.CLIENT;
 
@@ -38,7 +40,6 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.common.MinecraftForge;
@@ -173,52 +174,62 @@ public class ControllerStand {
     
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void renderStandEffectsGui(RenderGameOverlayEvent.Pre event) {
+    public void renderStandEffectsGui(RenderGuiOverlayEvent.Pre event) {
         if (!isControllingStand()) {
             return;
         }
-        if (event.getType() == POTION_ICONS) {
-            PoseStack matrixStack = event.getMatrixStack();
+        if (event.getOverlay().id().equals(VanillaGuiOverlay.POTION_ICONS.id())) {
+            GuiDraw.setGraphics(event.getGuiGraphics());
+            PoseStack matrixStack = event.getGuiGraphics().pose();
             event.setCanceled(true);
             Gui gui = mc.gui;
             int width = mc.getWindow().getGuiScaledWidth();
             int height = mc.getWindow().getGuiScaledHeight();
-            renderStandPotionEffects(matrixStack, gui, event, width, height);     
+            renderStandPotionEffects(matrixStack, gui, width, height);     
         }
     }
 
     @SuppressWarnings("deprecation")
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void renderStandGui(RenderGameOverlayEvent.Pre event) {
+    public void renderStandGui(RenderGuiOverlayEvent.Pre event) {
         if (!isControllingStand()) {
             return;
         }
 
-        PoseStack matrixStack = event.getMatrixStack();
-        if (!mc.options.hideGui) {
-            switch (event.getType()) {
-            case ALL:
-                if (mc.gameMode.canHurtPlayer()) {
-                    Gui gui = mc.gui;
-                    int width = mc.getWindow().getGuiScaledWidth();
-                    int height = mc.getWindow().getGuiScaledHeight();
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    if (ForgeGui.renderHealth) renderCameraStandHealth(matrixStack, gui, event, width, height);
-                    if (ForgeGui.renderArmor)  renderCameraStandArmor(matrixStack, gui, event, width, height);
-                }
-                break;
-            default:
-                break;
+        ResourceLocation overlay = event.getOverlay().id();
+        boolean isHealth = overlay.equals(VanillaGuiOverlay.PLAYER_HEALTH.id());
+        boolean isArmor = overlay.equals(VanillaGuiOverlay.ARMOR_LEVEL.id());
+        if (!isHealth && !isArmor) {
+            return;
+        }
+
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+        GuiDraw.setGraphics(guiGraphics);
+        PoseStack matrixStack = guiGraphics.pose();
+        if (!mc.options.hideGui && mc.gameMode.canHurtPlayer()) {
+            Gui gui = mc.gui;
+            int width = mc.getWindow().getGuiScaledWidth();
+            int height = mc.getWindow().getGuiScaledHeight();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            // the vanilla bars are hidden by cancelling their overlays, which is what
+            // the old ForgeGui.renderHealth/renderArmor flags used to do
+            if (isHealth) {
+                renderCameraStandHealth(matrixStack, gui, width, height);
+                event.setCanceled(true);
+            }
+            if (isArmor) {
+                renderCameraStandArmor(matrixStack, gui, width, height);
+                event.setCanceled(true);
             }
         }
     }
-
-    private void renderCameraStandHealth(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
+    
+    private void renderCameraStandHealth(PoseStack matrixStack, Gui gui, int width, int height) {
         LivingEntity entity = StandUtil.getStandUser(stand);
         ClientEventHandler.getInstance().renderHealthWithBleeding(entity, matrixStack, gui, event, width, height);
     }
 
-    private void renderCameraStandArmor(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
+    private void renderCameraStandArmor(PoseStack matrixStack, Gui gui, int width, int height) {
         mc.getProfiler().push("armor");
 
         RenderSystem.enableBlend();
@@ -249,7 +260,7 @@ public class ControllerStand {
     }
 
     @SuppressWarnings("deprecation")
-    private void renderStandPotionEffects(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
+    private void renderStandPotionEffects(PoseStack matrixStack, Gui gui, int width, int height) {
         Collection<MobEffectInstance> collection = stand.getActiveEffects();
         if (!collection.isEmpty()) {
             RenderSystem.enableBlend();

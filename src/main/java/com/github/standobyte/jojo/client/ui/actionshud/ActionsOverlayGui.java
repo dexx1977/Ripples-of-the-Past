@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.actionshud;
 
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.AbstractGui;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import static com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer.BARS_WIDTH_PX;
@@ -86,7 +87,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -285,16 +285,14 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     protected ActionTarget _target;
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void render(RenderGameOverlayEvent.Pre event) {
+    public void render(GuiGraphics guiGraphics, float partialTick, boolean textLayer) {
         _target = null;
         if (noHudRender(mc)) {
             return;
         }
-        RenderGameOverlayEvent.ElementType elementTypeRender = event.getType();
+        GuiDraw.setGraphics(guiGraphics);
         
-        PoseStack matrixStack = event.getMatrixStack();
-        float partialTick = event.getPartialTicks();
+        PoseStack matrixStack = guiGraphics.pose();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         
@@ -302,8 +300,7 @@ public class ActionsOverlayGui extends AbstractGui {
         PositionConfig barsPosConfig = ClientModSettings.getSettingsReadOnly().barsPosition;
         boolean showModeSelector = false;
         
-        switch (elementTypeRender) {
-        case ALL:
+        if (!textLayer) {
             updateHotkeyUi();
             
             for (int i = 0; i < hotbarIsRendered.length; i++) {
@@ -348,8 +345,8 @@ public class ActionsOverlayGui extends AbstractGui {
             
             renderOutOfBreathSprite(matrixStack, partialTick, screenWidth, screenHeight);
             RenderSystem.disableBlend();
-            break;
-        case TEXT:
+                }
+                else if (textLayer) {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -360,13 +357,10 @@ public class ActionsOverlayGui extends AbstractGui {
             
             drawBarsText(matrixStack, barsRenderer, partialTick);
             RenderSystem.disableBlend();
-            break;
-        case HELMET: // VIGNETTE only gets called when the graphics settings are on Fancy, and this overlay is pretty important
-            renderOutOfBreathVignette(matrixStack, partialTick);
-            break;
-        default:
-            break;
-        }
+                }
+                // the out-of-breath vignette belongs to the helmet overlay, see
+                // renderOutOfBreathVignetteOverlay below
+            
 
         if (currentMode != null) {
             if (currentMode.getPower() == null || !currentMode.getPower().hasPower()) {
@@ -375,8 +369,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 return;
             }
 
-            switch (elementTypeRender) {
-            case ALL:
+            if (!textLayer) {
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
@@ -391,8 +384,8 @@ public class ActionsOverlayGui extends AbstractGui {
                 
                 renderLeapIcon(matrixStack, currentMode, screenWidth, screenHeight);
                 RenderSystem.disableBlend();
-                break;
-            case TEXT:
+                }
+                else if (textLayer) {
                 int color = getPowerUiColor(currentMode.getPower());
                 drawPowerName(matrixStack, lmbHotbarPosition, currentMode, color, partialTick);
 
@@ -400,34 +393,28 @@ public class ActionsOverlayGui extends AbstractGui {
                         currentMode, getMouseTarget(), color, partialTick);
                 if (hotbarIsRendered[1]) drawHotbarText(matrixStack, rmbHotbarPosition, InputHandler.ActionKey.ABILITY, currentMode, 
                         getMouseTarget(), color, partialTick);
-                break;
-            default:
-                break;
-            }
+                }
+            
         }
 
         if (hotbarIsRendered[2]) {
-            switch (elementTypeRender) {
-            case ALL:
+            if (!textLayer) {
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
                 renderInHudKeybindActionSlots(matrixStack, inHudHotkeysPosition, getMouseTarget(), partialTick);
                 RenderSystem.disableBlend();
-                break;
-            case TEXT:
+                }
+                else if (textLayer) {
                 renderInHudKeybindActionNames(matrixStack, inHudHotkeysPosition);
-                break;
-            default:
-                break;
-            }
+                }
+            
         }
         
         if (hotbarIsRendered[3]) {
             Action<?> action = lastHotkeyPressedAction.getAction();
             ActionsModeConfig<?> hudMode = getHudMode(action.getPowerClassification());
-            switch (elementTypeRender) {
-            case ALL:
+            if (!textLayer) {
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
@@ -435,40 +422,44 @@ public class ActionsOverlayGui extends AbstractGui {
                         offHudHotkeyPosition, action, 
                         getMouseTarget(), partialTick);
                 RenderSystem.disableBlend();
-                break;
-            case TEXT:
+                }
+                else if (textLayer) {
                 drawCustomKeybindActionText(matrixStack, offHudHotkeyPosition, 
                         action, hudMode, getMouseTarget(), 
                         getPowerUiColor(hudMode.getPower()), partialTick);
-                break;
-            default:
-                break;
-            }
+                }
+            
         }
 
-        switch (elementTypeRender) {
-        case ALL:
+        if (!textLayer) {
             renderWarningIcons(matrixStack, warningsPosition, warningLines);
-            break;
-        case TEXT:
+                }
+                else if (textLayer) {
             drawWarningText(matrixStack, warningsPosition, warningLines);
             if (ControllerStand.getInstance().isControllingStand()) {
                 StandEntity stand = ControllerStand.getInstance().getManuallyControlledStand();
                 drawStandRemoteRange(matrixStack, stand.distanceTo(mc.player), (float) stand.getRangeEfficiency());
             }
-            break;
-        default:
-            break;
-        }
+                }
+            
     }
     
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void renderPost(RenderGameOverlayEvent.Post event) {
+    /** Drawn above the vanilla helmet overlay, like the old HELMET element did. */
+    public void renderOutOfBreathVignetteOverlay(GuiGraphics guiGraphics, float partialTick) {
         if (noHudRender(mc)) {
             return;
         }
+        GuiDraw.setGraphics(guiGraphics);
+        renderOutOfBreathVignette(guiGraphics.pose(), partialTick);
+    }
+    
+    public void renderPost(GuiGraphics guiGraphics, float partialTick) {
+        if (noHudRender(mc)) {
+            return;
+        }
+        GuiDraw.setGraphics(guiGraphics);
         
-        PoseStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = guiGraphics.pose();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         float partialTick = event.getPartialTicks();

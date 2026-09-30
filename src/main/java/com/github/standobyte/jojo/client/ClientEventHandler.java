@@ -1,11 +1,10 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import com.github.standobyte.jojo.client.ui.render.AbstractGui;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.AIR;
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.EXPERIENCE;
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.FOOD;
-import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.HEALTH;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -190,8 +189,6 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderArmEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderNameplateEvent;
@@ -781,9 +778,17 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void disableFoodBar(RenderGameOverlayEvent.Pre event) {
+    public void disableFoodBar(RenderGuiOverlayEvent.Pre event) {
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+        GuiDraw.setGraphics(guiGraphics);
+        ResourceLocation overlay = event.getOverlay().id();
+        boolean isFood = overlay.equals(VanillaGuiOverlay.FOOD_LEVEL.id());
+        boolean isAir = overlay.equals(VanillaGuiOverlay.AIR_LEVEL.id());
+        boolean isHealth = overlay.equals(VanillaGuiOverlay.PLAYER_HEALTH.id());
+        boolean isExperience = overlay.equals(VanillaGuiOverlay.EXPERIENCE_BAR.id());
+
         boolean isVampirismModVampire = OptionalDependencyHelper.vampirism().isEntityVampire(mc.player);
-        if (event.getType() == FOOD && !isVampirismModVampire || event.getType() == AIR) {
+        if (isFood && !isVampirismModVampire || isAir) {
             INonStandPower.getNonStandPowerOptional(mc.player).ifPresent(power -> {
                 if (power.getType() == ModPowers.VAMPIRISM.get() || power.getType() == ModPowers.ZOMBIE.get() 
                         || power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).map(pillarMan -> pillarMan.getEvolutionStage() > 1).orElse(false)) {
@@ -791,21 +796,17 @@ public class ClientEventHandler {
                 }
             });
         }
-        if (JojoModUtil.isDyingBody(mc.player) && (
-                event.getType() == HEALTH || 
-                event.getType() == FOOD || 
-                event.getType() == AIR)) {
+        if (JojoModUtil.isDyingBody(mc.player) && (isHealth || isFood || isAir)) {
             event.setCanceled(true);
         }
         
-        if (event.getType() == EXPERIENCE && mc.gameMode.hasExperience()) {
+        if (isExperience && mc.gameMode.hasExperience()) {
             if (mc.player.hasEffect(ModStatusEffects.STAND_VIRUS.get())) {
                 IStandPower.getStandPowerOptional(mc.player).ifPresent(power -> {
                     StandArrowHandler handler = power.getStandArrowHandler();
                     int standArrowLevels = handler.getXpLevelsTakenByArrow();
                     if (standArrowLevels > 0) {
-                        PoseStack matrixStack = event.getMatrixStack();
-                        renderExperienceBar(matrixStack, standArrowLevels, event.getWindow());
+                        renderExperienceBar(guiGraphics.pose(), standArrowLevels, mc.getWindow());
                         event.setCanceled(true);
                     }
                 });
@@ -813,30 +814,29 @@ public class ClientEventHandler {
         }
     }
     
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void renderUI(RenderGameOverlayEvent.Pre event) {
-        switch (event.getType()) {
-        case HELMET:
-            renderLosingVision(event.getMatrixStack(), event.getPartialTicks());
-            break;
-        case ALL:
-            hudRenderEntityGEDetectorData(event.getMatrixStack());
-            break;
-        default:
-            break;
-        }
+    public void renderLosingVisionOverlay(GuiGraphics guiGraphics, float partialTick) {
+        GuiDraw.setGraphics(guiGraphics);
+        renderLosingVision(guiGraphics.pose(), partialTick);
+    }
+    
+    public void renderGEDetectorDataOverlay(GuiGraphics guiGraphics) {
+        GuiDraw.setGraphics(guiGraphics);
+        hudRenderEntityGEDetectorData(guiGraphics.pose());
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
-    public void renderHpWithBleeding(RenderGameOverlayEvent.Pre event) {
+    public void renderHpWithBleeding(RenderGuiOverlayEvent.Pre event) {
         if (ModInteractionUtil.isModLoaded("healthoverlay")) return;
         
-        switch (event.getType()) {
-        case HEALTH:
-        case HEALTHMOUNT:
+        ResourceLocation overlay = event.getOverlay().id();
+        boolean health = overlay.equals(VanillaGuiOverlay.PLAYER_HEALTH.id());
+        boolean mount = overlay.equals(VanillaGuiOverlay.MOUNT_HEALTH.id());
+        if (health || mount) {
+            GuiGraphics guiGraphics = event.getGuiGraphics();
+            GuiDraw.setGraphics(guiGraphics);
+            PoseStack matrixStack = guiGraphics.pose();
             Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
             if (cameraEntity instanceof Player) {
-                boolean mount = event.getType() == RenderGameOverlayEvent.ElementType.HEALTHMOUNT;
                 LivingEntity entity = (LivingEntity) cameraEntity;
                 if (mount) {
                     Entity mountEntity = entity.getVehicle();
@@ -848,27 +848,24 @@ public class ClientEventHandler {
                     int height = mc.getWindow().getGuiScaledHeight();
                     
                     if (mount) {
-                        renderMountHealthWithBleeding(entity, event.getMatrixStack(), gui, event, width, height);
+                        renderMountHealthWithBleeding(entity, matrixStack, gui, width, height);
                     }
                     else {
-                        renderHealthWithBleeding(entity, event.getMatrixStack(), gui, event, width, height);
+                        renderHealthWithBleeding(entity, matrixStack, gui, width, height);
                     }
                     event.setCanceled(true);
                 }
             }
-            break;
-        default:
-            break;
         }
     }
-
+    
     private Random rand = new Random();
     private int entityHealth;
     private int lastEntityHealth;
     private long lastSystemTime;
     private long healthUpdateCounter;
     public void renderHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
-            RenderGameOverlayEvent event, int width, int height) {
+            int width, int height) {
         RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
         mc.getProfiler().push("health");
         RenderSystem.enableBlend();
@@ -981,7 +978,7 @@ public class ClientEventHandler {
     }
     
     public void renderMountHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
-            RenderGameOverlayEvent event, int width, int height) {
+            int width, int height) {
         RenderSystem.setShaderTexture(0, GuiDraw.GUI_ICONS_LOCATION);
 
         boolean unused = false;
@@ -1033,18 +1030,18 @@ public class ClientEventHandler {
     
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     @SuppressWarnings("deprecation")
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void renderCarriedCocoJumboSlot(RenderGameOverlayEvent.Pre event) {
-        if (event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR && !mc.player.isSpectator()) {
+    public void renderCarriedCocoJumboSlot(GuiGraphics guiGraphics) {
+        GuiDraw.setGraphics(guiGraphics);
+        if (!mc.player.isSpectator()) {
             for (Entity passenger : mc.player.getPassengers()) {
                 if (CocoJumboTurtleEntity.isCarriedTurtle(passenger, mc.player)) {
                     ItemStack turtleItemIcon = new ItemStack(ModItems.METEORIC_SCRAP.get());
                     turtleItemIcon.getOrCreateTag().put("Icon", IntTag.valueOf(22));
                     
-                    PoseStack matrixStack = event.getMatrixStack();
+                    PoseStack matrixStack = guiGraphics.pose();
                     HumanoidArm offHand = mc.player.getMainArm().getOpposite();
-                    int screenHeight = event.getWindow().getGuiScaledHeight();
-                    int halfWidth = event.getWindow().getGuiScaledWidth() / 2;
+                    int screenHeight = mc.getWindow().getGuiScaledHeight();
+                    int halfWidth = mc.getWindow().getGuiScaledWidth() / 2;
                     Gui gui = mc.gui;
                     int blitOffs = gui.getBlitOffset();
                     
@@ -1062,7 +1059,7 @@ public class ClientEventHandler {
                     
                     int itemX = offHand == HumanoidArm.LEFT ? halfWidth - 91 - 26 : halfWidth + 91 + 10;
                     int itemY = screenHeight - 16 - 3;
-                    mc.getItemRenderer().renderAndDecorateItem(mc.player, turtleItemIcon, itemX, itemY);
+                    guiGraphics.renderItem(mc.player, turtleItemIcon, itemX, itemY, 0);
 //                    mc.getItemRenderer().renderGuiItemDecorations(mc.font, turtleItemIcon, itemX, itemY);
                     
                     break;
@@ -1122,13 +1119,11 @@ public class ClientEventHandler {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
     
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void renderOverlayMessage(RenderGameOverlayEvent.Pre event) {
-        if (event.getType() == ElementType.SUBTITLES) {
-            Window window = mc.getWindow();
-            renderMultiLineMessage(event.getMatrixStack(), event.getPartialTicks(), 
-                    window.getGuiScaledWidth(), window.getGuiScaledHeight());
-        }
+    public void renderMultiLineOverlayMessage(GuiGraphics guiGraphics, float partialTick) {
+        GuiDraw.setGraphics(guiGraphics);
+        Window window = mc.getWindow();
+        renderMultiLineMessage(guiGraphics.pose(), partialTick, 
+                window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
     
     public void setMultiLineOverlayMessage(Collection<Component> message, boolean animateColor) {

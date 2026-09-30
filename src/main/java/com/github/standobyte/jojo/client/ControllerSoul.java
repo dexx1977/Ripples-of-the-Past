@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.github.standobyte.jojo.JojoMod;
@@ -13,8 +15,6 @@ import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -96,12 +96,13 @@ public class ControllerSoul {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void renderSoulTimer(RenderGameOverlayEvent.Pre event) {
-        if (event.getType() == ElementType.EXPERIENCE && 
+    public void renderSoulTimer(RenderGuiOverlayEvent.Pre event) {
+        if (event.getOverlay().id().equals(VanillaGuiOverlay.EXPERIENCE_BAR.id()) && 
                 playerSoulEntity != null && playerSoulEntity == mc.getCameraEntity() && !mc.player.isSpectator() && mc.player.isDeadOrDying()) {
             event.setCanceled(true);
             
-            PoseStack matrixStack = event.getMatrixStack();
+            GuiDraw.setGraphics(event.getGuiGraphics());
+            PoseStack matrixStack = event.getGuiGraphics().pose();
             mc.getProfiler().push("expBar");
             RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
             int i = mc.player.getXpNeededForNextLevel();
