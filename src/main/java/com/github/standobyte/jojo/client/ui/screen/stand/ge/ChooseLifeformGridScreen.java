@@ -378,9 +378,14 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             }
         }
         
+        @Override
+        protected void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
+            this.defaultButtonNarrationText(narrationElementOutput);
+        }
+
         public void setSelected(boolean isSelected) {
             this.isSelected = isSelected;
-            this.narrate();
+            Minecraft.getInstance().getNarrator().sayNow(this.createNarrationMessage());
         }
         
         public void updateIsHovered(int mouseX, int mouseY) {

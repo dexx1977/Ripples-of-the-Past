@@ -133,6 +133,11 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     }
     
     protected abstract void refreshEntityTypes();
+
+    /** 1.16.5's Screen#addButton was public; 1.20.1's addRenderableWidget is protected. */
+    public <T extends net.minecraft.client.gui.components.AbstractWidget> T addButton(T button) {
+        return addRenderableWidget(button);
+    }
     
     protected void addCommonWidgets(ViewMode currentMode) {
         Minecraft mc = getMinecraft();

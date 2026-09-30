@@ -59,7 +59,7 @@ public class StandEntityRenderer<T extends StandEntity, M extends StandEntityMod
         super(context, entityModel, shadowRadius);
         this.texture = texture;
         entityModel.afterInit();
-        addLayer(new ItemInHandLayer<>(this));
+        addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
         addLayer(new StandGlowLayer<>(this, texture));
     }
 

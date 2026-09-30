@@ -180,7 +180,7 @@ public abstract class MarkerRenderer {
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         // FIXME the item model isn't rendered behind blocks/entities
         itemRenderer.renderStatic(item, ItemDisplayContext.GUI, 
-                ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
+                ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, matrixStack, buffer, mc.level, 0);
 //        RenderSystem.enableDepthTest();
 //        RenderSystem.enableCull();
         
@@ -246,7 +246,7 @@ public abstract class MarkerRenderer {
             Minecraft mc = Minecraft.getInstance();
             if (!mc.options.hideGui) {
                 RenderSystem.disableDepthTest();
-                if (mc.options.graphicsMode == GraphicsStatus.FABULOUS) { // it just works
+                if (mc.options.graphicsMode().get() == GraphicsStatus.FABULOUS) { // it just works
                 }
 
                 PoseStack matrixStack = event.getPoseStack();

@@ -19,12 +19,14 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Style;
 import java.util.List;
 
-public class ShortKeybindTextComponent implements Component {
+public class ShortKeybindTextComponent extends net.minecraft.network.chat.MutableComponent {
     protected static final Map<String, Component> SHORT_NAMES = new HashMap<>();
     protected final KeyMapping key;
     protected Supplier<Component> nameResolver;
 
     public ShortKeybindTextComponent(@Nonnull KeyMapping key) {
+        // the contents are resolved lazily, so the base is filled in by the overrides below
+        super(Component.empty().getContents(), new java.util.ArrayList<>(), Style.EMPTY);
         this.key = key;
     }
     

@@ -156,7 +156,7 @@ public class ControllerSoul {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void cancelRespawnScreen(ScreenEvent.Opening event) {
         boolean soul = isCameraEntityPlayerSoul();
-        if (event.getGui() instanceof DeathScreen) {
+        if (event.getNewScreen() instanceof DeathScreen) {
         	if (mc.screen instanceof DeathScreen) {
         		/* When the player dies in nether handle, this causes the game to repeatedly open DeathScreen
         		 * (ClientPlayerEntity#handleNetherPortalClient() tries to close the screen, but the game opens DeathScreen instead).
@@ -172,7 +172,7 @@ public class ControllerSoul {
                 firstDeathFrame = false;
             }
             if (soul || soulEntityWaiting) {
-                event.setGui(null);
+                event.setNewScreen(null);
                 if (playerSoulEntity != null && !playerSoulEntity.isAlive() && !soulEntityWaiting) {
                     mc.player.respawn();
                 }

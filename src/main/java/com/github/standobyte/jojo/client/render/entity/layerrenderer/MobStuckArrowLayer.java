@@ -25,6 +25,7 @@ import net.minecraft.util.Mth;
 
 public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
     private final LivingEntityRenderer<T, M> renderer;
+    private final net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     private ModelCubeWeightedList modelCubes;
     private final EntityRendererProvider.Context context;
     private Entity arrow;
@@ -33,7 +34,6 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
     public MobStuckArrowLayer(LivingEntityRenderer<T, M> renderer) {
         super(renderer);
         this.renderer = renderer;
-        this.dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     }
     
     @Override

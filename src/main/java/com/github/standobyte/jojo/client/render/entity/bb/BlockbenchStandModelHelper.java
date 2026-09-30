@@ -56,8 +56,7 @@ public class BlockbenchStandModelHelper {
             JojoMod.getLogger().error("Failed to add model parts to {} via Blockbench helper", inModModel.getClass().getName(), e);
         }
         
-        ModelPart.textureWidthOf(inModModel) = ModelPart.textureWidthOf(bbSourceModel);
-        ModelPart.textureHeightOf(inModModel) = ModelPart.textureHeightOf(bbSourceModel);
+        ModelPart.setTextureSize(inModModel, ModelPart.textureWidthOf(bbSourceModel), ModelPart.textureHeightOf(bbSourceModel));
     }
     
     public static void replaceModelParts(Model inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {
@@ -117,7 +116,7 @@ public class BlockbenchStandModelHelper {
         }
         
         for (ModelPart modelPart : editedParts) {
-            ObjectList<ModelPart> children = modelPart.children;
+            java.util.Collection<ModelPart> children = modelPart.children.values();
             if (!children.isEmpty()) {
                 remapParents.forEach((oldChild, newChild) -> {
                     Collections.replaceAll(children, oldChild, newChild);

@@ -61,10 +61,12 @@ public class PillarmanModeCommand {
             }
         }
         else {
+            // the 1.20.1 sendSuccess takes a supplier, so the results have to be final
+            final int successCount = success;
             if (targets.size() == 1) {
                 source.sendSuccess(() -> Component.translatable("commands.pillarman.stage.success.single", stage, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(() -> Component.translatable("commands.pillarman.stage.success.multiple", stage, success), true);
+                source.sendSuccess(() -> Component.translatable("commands.pillarman.stage.success.multiple", stage, successCount), true);
             }
             return success;
         }

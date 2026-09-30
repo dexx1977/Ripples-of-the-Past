@@ -20,7 +20,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ListModel;
-import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class ModelCubeWeightedList {
     
@@ -70,7 +70,7 @@ public class ModelCubeWeightedList {
         List<ModelPartParents> thisGen = new ArrayList<>();
         do {
             for (ModelPartParents parent : prevGen) {
-                List<ModelPart> children = ClientReflection.getChildren(parent.modelPart);
+                java.util.Collection<ModelPart> children = ClientReflection.getChildren(parent.modelPart).values();
                 children.stream().map(parent::withChild).forEach(thisGen::add);
                 
                 for (ModelPartParents modelPart : thisGen) {

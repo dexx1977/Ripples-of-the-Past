@@ -129,6 +129,23 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         return new Field[] { width, height };
     }
 
+    /** Writes the texture size into the owning model, like assigning texWidth/texHeight did. */
+    public static void setTextureSize(@Nullable Object owner, int width, int height) {
+        if (owner == null) return;
+        Field[] fields = TEX_SIZE_FIELDS.computeIfAbsent(owner.getClass(), ModelPart::findTexSizeFields);
+        writeIntField(fields[0], owner, width);
+        writeIntField(fields[1], owner, height);
+    }
+
+    private static void writeIntField(@Nullable Field field, Object owner, int value) {
+        if (field == null) return;
+        try {
+            field.setInt(owner, value);
+        }
+        catch (IllegalAccessException | IllegalArgumentException ignored) {
+        }
+    }
+
     private static int readIntField(Field field, Object owner, int fallback) {
         try {
             return field.getInt(owner);

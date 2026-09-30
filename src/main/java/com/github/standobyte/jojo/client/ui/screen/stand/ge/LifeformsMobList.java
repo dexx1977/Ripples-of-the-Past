@@ -69,13 +69,14 @@ public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
         }
 
         @Override
-        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+            PoseStack pMatrixStack = guiGraphics.pose();
             pMatrixStack.pushPose();
             pMatrixStack.scale(0.5F, 0.5F, 1);
             EntityTypeIcon.renderIcon(entityType.getCurrentSubtype(), pMatrixStack, 2 * (pLeft + 13), 2 * (pTop + 2), false);
             pMatrixStack.popPose();
-            super.render(pMatrixStack, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
+            super.render(guiGraphics, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
         }
         
     }

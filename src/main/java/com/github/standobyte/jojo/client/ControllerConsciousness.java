@@ -86,7 +86,7 @@ public class ControllerConsciousness {
                     playerCsnsEntity = null;
                 }
                 else {
-                    player.connection.send(new ServerboundMovePlayerPacket.PositionRotationPacket(
+                    player.connection.send(new ServerboundMovePlayerPacket.PosRot(
                             player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.onGround()));
                 }
             }

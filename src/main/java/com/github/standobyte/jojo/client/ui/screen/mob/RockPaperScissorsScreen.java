@@ -189,7 +189,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
             GuiDraw.bind(cheatPowerCap.clGetPowerTypeIcon());
             GuiDraw.blit(matrixStack, cheatButton.x + 2, cheatButton.y + 2, 0, 0, 16, 16, 16, 16);
             if (cheatButton.isMouseOver(mouseX, mouseY)) {
-                renderTooltip(matrixStack, minecraft.font.split(Component.translatable(
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltip(matrixStack, minecraft.font, minecraft.font.split(Component.translatable(
                         "jojo.rps.cheat." + cheatPowerCap.getType().getRegistryName().toString().replace(":", ".")), 150), mouseX, mouseY);
             }
         }
@@ -197,7 +197,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
 
     private void renderTooltips(PoseStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
         if (game.player1.getCurrentPick() == null && pickMouseOver != null) {
-            renderTooltip(matrixStack, Component.translatable("jojo.rps." + pickMouseOver.name().toLowerCase()), mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.rps." + pickMouseOver.name().toLowerCase()), mouseX, mouseY);
         }
     }
     
@@ -257,7 +257,13 @@ public class RockPaperScissorsScreen extends ChatScreen {
         } else if (p_231046_1_ == GLFW.GLFW_KEY_ENTER || p_231046_1_ == GLFW.GLFW_KEY_KP_ENTER) {
             String s = this.input.getValue().trim();
             if (!s.isEmpty()) {
-                this.sendMessage(s);
+                // 1.16.5's Screen#sendMessage is gone, the typed text goes to the connection
+                if (s.startsWith("/")) {
+                    this.minecraft.player.connection.sendCommand(s.substring(1));
+                } else {
+                    this.minecraft.player.connection.sendChat(s);
+                }
+                this.minecraft.gui.getChat().addRecentChat(s);
             }
 
             this.input.setValue("");
