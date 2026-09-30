@@ -211,6 +211,14 @@ import net.minecraftforge.fml.ModList;
 import com.mojang.math.Axis;
 
 public class ClientEventHandler {
+
+    /** addRenderableWidget is protected in 1.20.1, so the widget is added to the screen lists. */
+    private static void addWidgetToScreen(net.minecraftforge.client.event.ScreenEvent.Init.Post event, net.minecraft.client.gui.components.events.GuiEventListener widget) {
+        if (widget instanceof net.minecraft.client.gui.components.Renderable renderable) {
+            event.getScreen().renderables.add(renderable);
+        }
+        event.addListener(widget);
+    }
     private static ClientEventHandler instance = null;
 
     private final Minecraft mc;
@@ -356,7 +364,7 @@ public class ClientEventHandler {
             if (cap.isUsingZoomPunch()) {
                 M model = event.getRenderer().getModel();
                 if (model instanceof HumanoidModel) {
-                    ModelPart arm;
+                    net.minecraft.client.model.geom.ModelPart arm;
                     if (entity.getMainArm() == HumanoidArm.LEFT) {
                         arm = ((HumanoidModel<?>) model).leftArm;
                     } else {
@@ -762,7 +770,7 @@ public class ClientEventHandler {
             return;
         }
         if (mc.options.getCameraType().isFirstPerson()) {
-            OptionalFloat cameraRoll = calcDodgeCameraRoll((float) event.getRenderPartialTicks());
+            OptionalFloat cameraRoll = calcDodgeCameraRoll((float) event.getPartialTick());
             cameraRoll.ifPresent(roll -> {
                 event.setRoll(roll);
                 
@@ -1333,7 +1341,7 @@ public class ClientEventHandler {
             if (title.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents && ((net.minecraft.network.chat.contents.TranslatableContents) title.getContents()).getKey().endsWith(".hardcore")) {
                 return;
             }
-            renderToBeContinuedArrow(event.getPoseStack(), screen, screen.width, screen.height, partialTick);
+            renderToBeContinuedArrow(event.getGuiGraphics().pose(), screen, screen.width, screen.height, partialTick);
         }
 
         else if (screen instanceof PauseScreen && ClientReflection.showsPauseMenu((PauseScreen) screen)) {
@@ -1344,7 +1352,7 @@ public class ClientEventHandler {
             int windowHeight = screen.height;
             
             if (doStandStatsRender(screen)) {
-                StandStatsRenderer.renderStandStats(event.getPoseStack(), mc, 
+                StandStatsRenderer.renderStandStats(event.getGuiGraphics().pose(), mc, 
                         windowWidth - StandStatsRenderer.statsWidth - 7, windowHeight - StandStatsRenderer.statsHeight - 7, 
                         windowWidth, windowHeight,
                         standStatsTick, partialTick, 
@@ -1365,7 +1373,7 @@ public class ClientEventHandler {
         return windowWidth - xButtonsRightEdge >= 167 && windowHeight > 204;
     }
 
-    private void renderToBeContinuedArrow(PoseStack matrixStack, AbstractGui ui, int screenWidth, int screenHeight, float partialTick) {
+    private void renderToBeContinuedArrow(PoseStack matrixStack, net.minecraft.client.gui.screens.Screen ui, int screenWidth, int screenHeight, float partialTick) {
         int x = screenWidth - 5 - (int) ((screenWidth - 10) * Math.min(deathScreenTick + partialTick, 20F) / 20F);
         int y = screenHeight - 29;
         RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
@@ -1423,7 +1431,7 @@ public class ClientEventHandler {
                         }
                     };
                     statsBgAlphaSlider.visible = doStandStatsRender(screen);
-                    event.getScreen().addRenderableWidget(statsBgAlphaSlider);
+                    addWidgetToScreen(event, statsBgAlphaSlider);
                     
                     ImageMutableButton invertBnWButton = new ImageMutableButton(screen.width - 8, screen.height - 7, 
                             8, 8, 464, 496, 8, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
@@ -1435,7 +1443,7 @@ public class ClientEventHandler {
                             });
                     invertBnWButton.xTexStart = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 472 : 464;
                     invertBnWButton.visible = doStandStatsRender(screen);
-                    event.getScreen().addRenderableWidget(invertBnWButton);
+                    addWidgetToScreen(event, invertBnWButton);
                     
                     Button standStatsToggleButton = new ImageVanillaButton(screen.width - 28, screen.height - 28, 
                             20, 20, 492, 492, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
@@ -1451,13 +1459,13 @@ public class ClientEventHandler {
                                 com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, message, x, y);
                             }, 
                             Component.empty());
-                    event.getScreen().addRenderableWidget(standStatsToggleButton);
+                    addWidgetToScreen(event, standStatsToggleButton);
                 }
             });
         }
         
         else if (screen instanceof OptionsScreen) {
-            event.getScreen().addRenderableWidget(ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
+            ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables).forEach(widget -> addWidgetToScreen(event, widget));
         }
         
         else if (screen instanceof ControlsScreen) {
@@ -1545,7 +1553,7 @@ public class ClientEventHandler {
                                 tooltip);
                     }
                     
-                    if (InputHandler.HUD_CATEGORY.equals(((Component) categoryName).getKey())) {
+                    if (categoryName.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents && InputHandler.HUD_CATEGORY.equals(contents.getKey())) {
                         entriesIter.set(new CategoryWithButtonsEntry(controlList, categoryName, hudScreenButtons));
                     }
                 }
@@ -1574,7 +1582,7 @@ public class ClientEventHandler {
                 Button angeloRockDieButton = Button.builder(Component.translatable(mc.level.getLevelData().isHardcore() ? "deathScreen.spectate" : "deathScreen.respawn"), button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.respawn()))
                         .pos(x, y)
                         .size(200, 20).build();
-                event.getScreen().addRenderableWidget(angeloRockDieButton);
+                addWidgetToScreen(event, angeloRockDieButton);
                 
                 Button angeloRockGruntButton = new ImageVanillaButton(x - 24, y, 20, 20, 
                         238, 150, 
@@ -1582,7 +1590,7 @@ public class ClientEventHandler {
                         button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.grunt())) {
                     @Override public void playDownSound(SoundManager pHandler) {}
                 };
-                event.getScreen().addRenderableWidget(angeloRockGruntButton);
+                addWidgetToScreen(event, angeloRockGruntButton);
             }
         }
     }
@@ -1727,7 +1735,7 @@ public class ClientEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onMount(EntityMountEvent event) {
-        if (event.getWorldObj().isClientSide() && event.getEntityMounting() instanceof Player) {
+        if (event.getLevel().isClientSide() && event.getEntityMounting() instanceof Player) {
             Entity mounted = event.getEntityBeingMounted();
             EntityType<?> mountedType = event.isMounting() && mounted != null ? mounted.getType() : null;
             event.getEntityMounting().getCapability(ClientPlayerUtilCapProvider.CAPABILITY).ifPresent(

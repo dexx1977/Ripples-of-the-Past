@@ -22,6 +22,18 @@ public class ImageVanillaButton extends CustomButton {
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
+            ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
+            Button.OnPress pOnPress, ITooltipRenderer pOnTooltip, Component pMessage) {
+        super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
+        this.xTexStart = pXTexStart;
+        this.yTexStart = pYTexStart;
+        this.resourceLocation = pResourceLocation;
+        this.textureWidth = pTextureWidth;
+        this.textureHeight = pTextureHeight;
+    }
+
+    public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
+            int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, 
             Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
