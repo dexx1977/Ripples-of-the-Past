@@ -171,18 +171,14 @@ public class PacketManager {
     private static int packetIndex = 0;
 
     public static void init() {
-        serverChannel = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(JojoMod.MOD_ID, "server_channel"))
-                .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-                .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-                .networkProtocolVersion(() -> PROTOCOL_VERSION)
-                .simpleChannel();
-        clientChannel = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(JojoMod.MOD_ID, "client_channel"))
-                .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-                .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-                .networkProtocolVersion(() -> PROTOCOL_VERSION)
-                .simpleChannel();
+        // ChannelBuilder was replaced by NetworkRegistry#newSimpleChannel in 1.19+;
+        // channel names, protocol version and directions are unchanged.
+        serverChannel = NetworkRegistry.newSimpleChannel(
+                new ResourceLocation(JojoMod.MOD_ID, "server_channel"),
+                () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+        clientChannel = NetworkRegistry.newSimpleChannel(
+                new ResourceLocation(JojoMod.MOD_ID, "client_channel"),
+                () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
         
         packetIndex = 0;
         registerMessage(clientChannel, new ClBroadcastedModSettingsPacket.Handler(),       Optional.of(NetworkDirection.PLAY_TO_SERVER));

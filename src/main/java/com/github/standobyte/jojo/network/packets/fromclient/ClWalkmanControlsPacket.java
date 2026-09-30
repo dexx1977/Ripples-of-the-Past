@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 public class ClWalkmanControlsPacket {
     private final Type packetType;
@@ -94,7 +94,7 @@ public class ClWalkmanControlsPacket {
                         }
                         break;
                     case CASSETTE_POS:
-                        ItemStack cassette = walkman.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(
+                        ItemStack cassette = walkman.getCapability(ForgeCapabilities.ITEM_HANDLER).map(
                                 walkmanSlot -> walkmanSlot.getStackInSlot(0)).orElse(ItemStack.EMPTY);
                         if (!cassette.isEmpty() && cassette.getItem() == ModItems.CASSETTE_RECORDED.get()) {
                             CassetteRecordedItem.editCassetteData(cassette, cap -> {

@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.network.packets.fromserver;
 
 import java.util.Random;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -59,7 +60,7 @@ public class SpawnParticlePacket {
         
         @Override
         public void encode(SpawnParticlePacket msg, FriendlyByteBuf buf) {
-            buf.writeInt(Registry.PARTICLE_TYPE.getId(msg.particle.getType()));
+            buf.writeInt(BuiltInRegistries.PARTICLE_TYPE.getId(msg.particle.getType()));
             buf.writeBoolean(msg.overrideLimiter);
             buf.writeDouble(msg.x);
             buf.writeDouble(msg.y);
@@ -75,7 +76,7 @@ public class SpawnParticlePacket {
         
         @Override
         public SpawnParticlePacket decode(FriendlyByteBuf buf) {
-            ParticleType<?> particleType = Registry.PARTICLE_TYPE.byId(buf.readInt());
+            ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.byId(buf.readInt());
             if (particleType == null) {
                 particleType = ParticleTypes.BARRIER;
             }

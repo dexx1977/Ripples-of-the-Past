@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.network.packets.fromclient;
 
 import java.util.Optional;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.capability.entity.LifeformsUIState;
@@ -26,12 +27,12 @@ public class ClGEUiDataPacket {
     
     public static ClGEUiDataPacket favoriteAdded(EntityType<?> entityType) {
         return new ClGEUiDataPacket(Type.FAVORITE_ADDED, Optional.of(entityType)
-                .map(EntityType::getRegistryName).map(SubtypeResourceLocation::new));
+                .map(MCUtil::id).map(SubtypeResourceLocation::new));
     }
 
     public static ClGEUiDataPacket favoriteRemoved(EntityType<?> entityType) {
         return new ClGEUiDataPacket(Type.FAVORITE_REMOVED, Optional.of(entityType)
-                .map(EntityType::getRegistryName).map(SubtypeResourceLocation::new));
+                .map(MCUtil::id).map(SubtypeResourceLocation::new));
     }
 
     public static ClGEUiDataPacket clearUnseen() {

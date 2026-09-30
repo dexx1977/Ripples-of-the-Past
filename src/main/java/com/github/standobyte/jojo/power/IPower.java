@@ -124,7 +124,8 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
         STAND(IStandPower.class) {
             @Override
             public void writePowerType(IPowerType<?, ?> powerType, FriendlyByteBuf buf) {
-                buf.writeRegistryId((StandType<?>) powerType);
+                StandType<?> standType = (StandType<?>) powerType;
+                buf.writeRegistryId(standType.getRegistry(), standType);
             }
 
             @SuppressWarnings("unchecked")
@@ -145,7 +146,8 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
         NON_STAND(INonStandPower.class) {
             @Override
             public void writePowerType(IPowerType<?, ?> powerType, FriendlyByteBuf buf) {
-                buf.writeRegistryId((NonStandPowerType<?>) powerType);
+                NonStandPowerType<?> nonStandType = (NonStandPowerType<?>) powerType;
+                buf.writeRegistryId(nonStandType.getRegistry(), nonStandType);
             }
 
             @SuppressWarnings("unchecked")

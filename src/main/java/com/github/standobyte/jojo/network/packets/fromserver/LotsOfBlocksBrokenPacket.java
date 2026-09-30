@@ -102,7 +102,7 @@ public class LotsOfBlocksBrokenPacket {
         if (brokenBlocks.size() > 128) {
             Vec3 cameraPos = ClientUtil.getCameraPos();
             stream = stream
-                    .sorted(Comparator.comparingDouble(block -> block.blockPos.distSqr(cameraPos.x, cameraPos.y, cameraPos.z, true)))
+                    .sorted(Comparator.comparingDouble(block -> block.blockPos.distToCenterSqr(cameraPos.x, cameraPos.y, cameraPos.z)))
                     .limit(128);
         }
         Streams.mapWithIndex(stream, (block, index) -> {
@@ -116,7 +116,7 @@ public class LotsOfBlocksBrokenPacket {
     
     public static void blockBreakVisuals(BlockPos blockPos, BlockState blockState, long i) {
         Level world = ClientUtil.getClientWorld();
-        if (!blockState.isAir(world, blockPos)) {
+        if (!blockState.isAir()) {
             int particlesSetting = ClientUtil.particlesSetting();
             if (particlesSetting < 2 && (particlesSetting < 1 || i % 2 == 0)) {
                 CustomParticlesHelper.addBlockBreakParticles(blockPos, blockState);

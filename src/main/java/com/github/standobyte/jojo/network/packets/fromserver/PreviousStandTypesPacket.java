@@ -46,10 +46,10 @@ public class PreviousStandTypesPacket {
             if (!msg.clear) {
                 buf.writeBoolean(msg.sendingAll);
                 if (msg.sendingAll) {
-                    NetworkUtil.writeCollection(buf, msg.allStands, buf::writeRegistryId, false);
+                    NetworkUtil.writeCollection(buf, msg.allStands, (buffer, stand) -> buffer.writeRegistryId(stand.getRegistry(), stand), false);
                 }
                 else {
-                    buf.writeRegistryId(msg.newStand);
+                    buf.writeRegistryId(msg.newStand.getRegistry(), msg.newStand);
                 }
             }
         }

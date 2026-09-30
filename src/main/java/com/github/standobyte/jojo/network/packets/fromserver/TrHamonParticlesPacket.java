@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.network.packets.fromserver;
 
 import java.util.NoSuchElementException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -98,12 +99,12 @@ public class TrHamonParticlesPacket {
         }
         
         private void writeParticle(ParticleOptions particleData, FriendlyByteBuf buf) {
-            buf.writeInt(Registry.PARTICLE_TYPE.getId(particleData.getType()));
+            buf.writeInt(BuiltInRegistries.PARTICLE_TYPE.getId(particleData.getType()));
             particleData.writeToNetwork(buf);
         }
         
         private Optional<ParticleOptions> readParticle(FriendlyByteBuf buf) {
-            ParticleType<?> particleType = Registry.PARTICLE_TYPE.byId(buf.readInt());
+            ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.byId(buf.readInt());
             if (particleType == null) {
                 return Optional.empty();
             }

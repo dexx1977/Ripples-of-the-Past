@@ -47,8 +47,10 @@ public class TrPossessEntityPacket {
             NetworkUtil.writeOptionally(buf, msg.context, this::fuckingGenerics);
         }
         
+        @SuppressWarnings("unchecked")
         private <T extends RegistryEntry<T>> void fuckingGenerics(RegistryEntry<?> entry, FriendlyByteBuf buf) {
-            buf.writeRegistryId((T) entry);
+            RegistryEntry<T> regEntry = (RegistryEntry<T>) entry;
+            buf.writeRegistryId(regEntry.getRegistry(), (T) regEntry);
         }
         
         @Override

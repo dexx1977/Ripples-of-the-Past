@@ -75,13 +75,13 @@ public class NetworkUtil {
         if (entries.isEmpty()) return;
         IForgeRegistry<T> retrievedRegistry = null;
         for (T entry : entries) {
-            Class<T> entryRegType = Objects.requireNonNull(entry, "Cannot write a null registry entry!").getRegistryType();
-            IForgeRegistry<T> entryRegistry = RegistryManager.ACTIVE.getRegistry(entryRegType);
-            Preconditions.checkArgument(entryRegistry != null, "Cannot write registry id for an unknown registry type: %s", entryRegType.getName());
+            Objects.requireNonNull(entry, "Cannot write a null registry entry!");
+            IForgeRegistry<T> entryRegistry = entry.getRegistry();
+            Preconditions.checkArgument(entryRegistry != null, "Cannot write registry id for an unknown registry type: %s", entry.getClass().getName());
             if (retrievedRegistry == null) retrievedRegistry = entryRegistry;
-            Preconditions.checkArgument(retrievedRegistry == entryRegistry, "Cannot write entries of different registry types: %s, %s", 
-                    retrievedRegistry.getRegistrySuperType().getName(), entryRegType.getName());
-            Preconditions.checkArgument(retrievedRegistry.containsValue(entry), "Cannot find %s in %s", 
+            Preconditions.checkArgument(retrievedRegistry == entryRegistry, "Cannot write entries of different registry types: %s, %s",
+                    retrievedRegistry.getRegistrySuperType().getName(), entryRegistry.getRegistrySuperType().getName());
+            Preconditions.checkArgument(retrievedRegistry.containsValue(entry), "Cannot find %s in %s",
                     entry.getRegistryName() != null ? entry.getRegistryName() : entry, retrievedRegistry.getRegistryName());
         }
         ResourceLocation name = retrievedRegistry.getRegistryName();
@@ -93,10 +93,11 @@ public class NetworkUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends RegistryEntry<T>> List<T> readRegistryIds(IForgeFriendlyByteBuf buf) {
         if (!buf.getBuffer().readBoolean()) return Collections.emptyList();
         ResourceLocation location = buf.getBuffer().readResourceLocation();
-        ForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(location);
+        ForgeRegistry<T> registry = (ForgeRegistry<T>) (ForgeRegistry<?>) RegistryManager.ACTIVE.getRegistry(location);
         int size = buf.getBuffer().readVarInt();
         List<T> entries = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -108,13 +109,12 @@ public class NetworkUtil {
     public static <T extends RegistryEntry<T>> List<T> readRegistryIdsSafe(IForgeFriendlyByteBuf buf, Class<? super T> registrySuperType) {
         List<T> values = readRegistryIds(buf);
         for (T value : values) {
-            if (!value.getRegistryType().equals(registrySuperType))
+            if (!registrySuperType.isAssignableFrom(value.getClass()))
                 throw new IllegalArgumentException("Attempted to read an registryValue of the wrong type from the Buffer!");
         }
         return values;
     }
-    
-    
+
     public static void writeBlockState(FriendlyByteBuf buf, BlockState blockState) {
         buf.writeVarInt(Block.getId(blockState));
     }
@@ -362,10 +362,12 @@ public class NetworkUtil {
     public static void writePowerType(FriendlyByteBuf buf, IPowerType<?, ?> powerType, PowerClassification powerClassification) {
         switch (powerClassification) {
         case STAND:
-            buf.writeRegistryId((StandType<?>) powerType);
+            StandType<?> standType = (StandType<?>) powerType;
+            buf.writeRegistryId(standType.getRegistry(), standType);
             break;
         case NON_STAND:
-            buf.writeRegistryId((NonStandPowerType<?>) powerType);
+            NonStandPowerType<?> nonStandType = (NonStandPowerType<?>) powerType;
+            buf.writeRegistryId(nonStandType.getRegistry(), nonStandType);
             break;
         }
     }

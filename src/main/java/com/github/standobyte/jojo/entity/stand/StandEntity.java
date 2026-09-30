@@ -128,7 +128,6 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.FMLPlayMessages;
 import net.minecraftforge.network.NetworkHooks;
 
 public class StandEntity extends LivingEntity implements IStandManifestation, IEntityAdditionalSpawnData {
@@ -2069,7 +2068,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     protected boolean breakBlock(BlockPos blockPos, BlockState blockState, boolean dropLootTableItems, @Nullable List<ItemStack> createdDrops) {
-        if (level.isClientSide() || !JojoModUtil.canEntityDestroy((ServerLevel) level, blockPos, blockState, this) || blockState.isAir(level, blockPos)) {
+        if (level.isClientSide() || !JojoModUtil.canEntityDestroy((ServerLevel) level, blockPos, blockState, this) || blockState.isAir()) {
             return false;
         }
         
@@ -2683,13 +2682,12 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         buffer.writeInt(tickCount);
     }
     
-    protected void beforeClientSpawn(FMLPlayMessages.SpawnEntity packet, Level world) {
-        int userId = packet.getAdditionalData().readInt();
-        entityData.set(USER_ID, userId);
-    }
-    
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
+        // 1.20.1 delivers the additional spawn data exactly once, so the user id
+        // that the removed customClientSpawn hook used to read is read here, in
+        // the same order writeSpawnData writes the fields.
+        entityData.set(USER_ID, additionalData.readInt());
         summonPoseRandomByte = additionalData.readVarInt();
         tickCount = additionalData.readInt();
     }
