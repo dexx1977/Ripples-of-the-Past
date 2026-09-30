@@ -22,7 +22,7 @@ public class CocoJumboTurtleModel<T extends Turtle> extends TurtleModel<T> {
     private final ModelPart mrPresidentKey;
     
     public CocoJumboTurtleModel(float inflate) {
-        super(inflate);
+        super(net.minecraft.client.model.TurtleModel.createBodyLayer().bakeRoot()); // the caller uses 0 inflation
 
         ParseGenericModel.ModelParsed.ElementMesh meshParsed = ParseGenericModel.GSON.fromJson(COCO_JUMBO_MESH, ParseGenericModel.ModelParsed.ElementMesh.class);
         ModelPart.Cube shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);

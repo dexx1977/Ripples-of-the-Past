@@ -10,16 +10,12 @@ import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
+import com.github.standobyte.jojo.JojoMod;
 
 @Deprecated
 public class ActionSpriteUploader extends TextureAtlasHolder {
     public ActionSpriteUploader(TextureManager textureManager) {
-        super(textureManager, new ResourceLocation("textures/atlas/actions.png"), "action");
-    }
-
-    @Override
-    protected Stream<ResourceLocation> getResourcesToLoad() {
-        return JojoCustomRegistries.ACTIONS.getRegistry().getValues().stream().flatMap(Action::getTexLocationstoLoad);
+        super(textureManager, new ResourceLocation("textures/atlas/actions.png"), new ResourceLocation(JojoMod.MOD_ID, "actions"));
     }
 
     public <P extends IPower<P, ?>> TextureAtlasSprite getSprite(Action<P> action, P power) {
@@ -28,7 +24,8 @@ public class ActionSpriteUploader extends TextureAtlasHolder {
     
     @Override
     public TextureAtlasSprite getSprite(ResourceLocation texLocation) {
-        return super.getSprite(texLocation);
+        // 1.20.1 names the sprite by its full path, the old prefix is part of it now
+        return super.getSprite(new ResourceLocation(texLocation.getNamespace(), "action/" + texLocation.getPath()));
     }
     
     public static ResourceLocation getIcon(Action<?> action) {

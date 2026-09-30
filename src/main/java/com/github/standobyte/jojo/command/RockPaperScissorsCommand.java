@@ -44,12 +44,12 @@ public class RockPaperScissorsCommand {
             if (game.getPlayer(opponent).isReady()) {
                 player.getCapability(PlayerUtilCapProvider.CAPABILITY).orElseGet(null).setCurrentRockPaperScissorsGame(game);
                 opponent.getCapability(PlayerUtilCapProvider.CAPABILITY).orElseGet(null).setCurrentRockPaperScissorsGame(game);
-                game.gameStarted(opponent.level());
+                game.gameStarted((net.minecraft.server.level.ServerLevel) opponent.level());
             }
             else {
                 String name = player.getGameProfile().getName();
                 String command = "/" + LITERAL + " " + name;
-                opponent.sendMessage(Component.translatable("jojo.rps.game_invite.text", player.getDisplayName(), 
+                opponent.sendSystemMessage(Component.translatable("jojo.rps.game_invite.text", player.getDisplayName(), 
                         Component.literal(command).withStyle(style -> {
                             return style.withColor(ChatFormatting.GREEN)
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))

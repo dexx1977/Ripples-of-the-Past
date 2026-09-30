@@ -75,7 +75,7 @@ public class TrPossessEntityPacket {
                 IPlayerPossess player = (IPlayerPossess) entity;
                 player.jojoPossessEntity(hostEntity, msg.asAlive, msg.context);
                 player.jojoSetPrePossessGameMode(msg.prevGameMode);
-                ForgeGui.renderSpectatorTooltip = hostEntity == null;
+                // 1.20.1's ForgeGui no longer renders a spectator tooltip, so there is no flag to set here
             }
         }
 

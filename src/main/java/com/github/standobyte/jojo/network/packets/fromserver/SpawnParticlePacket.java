@@ -78,7 +78,7 @@ public class SpawnParticlePacket {
         public SpawnParticlePacket decode(FriendlyByteBuf buf) {
             ParticleType<?> particleType = BuiltInRegistries.PARTICLE_TYPE.byId(buf.readInt());
             if (particleType == null) {
-                particleType = ParticleTypes.BARRIER;
+                particleType = ParticleTypes.BLOCK_MARKER;
             }
             
             boolean overrideLimiter = buf.readBoolean();

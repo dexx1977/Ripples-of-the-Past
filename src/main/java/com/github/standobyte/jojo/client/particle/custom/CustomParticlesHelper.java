@@ -219,14 +219,14 @@ public abstract class CustomParticlesHelper {
         Minecraft mc = Minecraft.getInstance();
         ParticleEngine particleManager = mc.particleEngine;
         ClientLevel world = mc.level;
-        BlockPos blockPos = new BlockPos(pos);
+        BlockPos blockPos = BlockPos.containing(pos);
         if (!blockState.isAir()) {
             for (int i = 0; i < 4; i++) {
                 double x = (Math.random() - 0.5) * 0.2;
                 double y = (Math.random() - 0.5) * 0.2;
                 double z = (Math.random() - 0.5) * 0.2;
                 particleManager.add(new TerrainParticle(world, pos.x + x, pos.y + y, pos.z + z, 
-                        x * 0.25, y * 0.25, z * 0.25, blockState).init(blockPos));
+                        x * 0.25, y * 0.25, z * 0.25, blockState, blockPos));
             }
         }
     }

@@ -58,7 +58,6 @@ public class ClSetStandSkinPacket {
                             if (power.getStandManifestation() instanceof StandEntity) {
                                 StandEntity standEntity = (StandEntity) power.getStandManifestation();
                                 
-                                ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket();
                                 FriendlyByteBuf data = new FriendlyByteBuf(Unpooled.buffer());
                                 data.writeVarInt(standEntity.getId());
                                 EntityDataAccessor<Optional<ResourceLocation>> dataParameter = StandEntity.DATA_PARAM_STAND_SKIN;
@@ -68,10 +67,8 @@ public class ClSetStandSkinPacket {
                                     data.writeVarInt(serializerId);
                                     dataParameter.getSerializer().write(data, stand.getSelectedSkin());
                                     data.writeByte(255);
-                                    try {
-                                        entityDataPacket.read(data);
-                                        player.connection.send(entityDataPacket);
-                                    } catch (IOException e) {}
+                                    // 1.20.1's packet reads its own buffer, there is no read(ByteBuf) anymore
+                                    player.connection.send(new ClientboundSetEntityDataPacket(data));
                                 }
                             }
                         }

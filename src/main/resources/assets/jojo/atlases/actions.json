@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "directory",
+      "source": "action",
+      "prefix": "action/"
+    }
+  ]
+}

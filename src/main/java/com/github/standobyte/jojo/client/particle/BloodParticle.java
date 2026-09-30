@@ -82,7 +82,7 @@ public class BloodParticle extends TextureSheetParticle {
             }
         }
         
-        BlockPos pos = new BlockPos(getBoundingBox().getCenter());
+        BlockPos pos = BlockPos.containing(getBoundingBox().getCenter());
         if (!level.getFluidState(pos).isEmpty()) {
             waterDownTicks = lifetime;
         }

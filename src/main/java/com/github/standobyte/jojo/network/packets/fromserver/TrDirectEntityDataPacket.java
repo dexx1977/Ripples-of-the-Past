@@ -31,21 +31,20 @@ public class TrDirectEntityDataPacket {
         @Override
         public void encode(TrDirectEntityDataPacket msg, FriendlyByteBuf buf) {
             buf.writeVarInt(msg.entityId);
-            try {
-                SynchedEntityData.pack(msg.packedItems, buf);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            // 1.20.1 keeps SynchedEntityData#pack private, so the vanilla layout is written here
+            for (SynchedEntityData.DataValue<?> value : msg.packedItems) {
+                value.write(buf);
             }
+            buf.writeByte(255);
         }
 
         @Override
         public TrDirectEntityDataPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readVarInt();
-            List<SynchedEntityData.DataValue<?>> packedItems;
-            try {
-                packedItems = SynchedEntityData.unpack(buf);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            List<SynchedEntityData.DataValue<?>> packedItems = new ArrayList<>();
+            int dataId;
+            while ((dataId = buf.readUnsignedByte()) != 255) {
+                packedItems.add(SynchedEntityData.DataValue.read(buf, dataId));
             }
             return new TrDirectEntityDataPacket(entityId, packedItems);
         }

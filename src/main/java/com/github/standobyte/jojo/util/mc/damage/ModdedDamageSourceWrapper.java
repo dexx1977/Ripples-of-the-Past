@@ -104,7 +104,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isProjectile() {
-        return dmgSource.isProjectile();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE);
     }
     
     public boolean isExplosion() {

@@ -45,7 +45,7 @@ public class StandUtil {
     }
     
     @Nonnull
-    public static Either<StandType<?>, Component> randomStandOrError(Player entity, Random random) {
+    public static Either<StandType<?>, Component> randomStandOrError(Player entity, net.minecraft.util.RandomSource random) {
         if (!entity.level.isClientSide()) {
             List<StandType<?>> stands = arrowStands(entity.level.isClientSide()).collect(Collectors.toList());
             if (stands.isEmpty()) {
