@@ -71,7 +71,7 @@ public class HungryZombieEntity extends Zombie {
         entityData.define(OWNER_UUID, Optional.empty());
     }
     
-    public static AttributeSupplier.MutableAttribute createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return Zombie.createAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.3D)

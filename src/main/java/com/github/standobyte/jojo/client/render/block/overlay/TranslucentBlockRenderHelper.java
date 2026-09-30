@@ -25,7 +25,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 // A helper class for rendering translucent blocks overlay
 // as a quality-of-life feature for Crazy Diamond's terrain restoration ability

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.capability.world;
 
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,9 +51,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionAddedEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionExpiryEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionRemoveEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
@@ -461,23 +459,23 @@ public class TimeStopHandler {
 
 
     @SubscribeEvent
-    public static void onTSEffectAdded(PotionAddedEvent event) {
+    public static void onTSEffectAdded(MobEffectEvent.Added event) {
         LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
-        if (event.getOldPotionEffect() == null && event.getPotionEffect().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
+        if (event.getOldEffectInstance() == null && event.getEffectInstance().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler().updateEntityTimeStop(entity, true, false);
             if (!entity.level.isClientSide()) {
-                ((ServerLevel) entity.level).getChunkSource().broadcast(entity, (new ClientboundUpdateMobEffectPacket(entity.getId(), event.getPotionEffect())));
+                ((ServerLevel) entity.level).getChunkSource().broadcast(entity, (new ClientboundUpdateMobEffectPacket(entity.getId(), event.getEffectInstance())));
                 PacketManager.sendToClientsTrackingAndSelf(new RefreshMovementInTimeStopPacket(entity.getId(), chunkPos, true), entity);
             }
         }
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onTSEffectExpired(PotionExpiryEvent event) {
+    public static void onTSEffectExpired(MobEffectEvent.Expired event) {
         LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
-        if (event.getPotionEffect().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
+        if (event.getEffectInstance().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             WorldUtilCap worldCap = entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get();
             worldCap.getTimeStopHandler().updateEntityTimeStop(entity, false, false);
             if (!entity.level.isClientSide()) {
@@ -492,10 +490,10 @@ public class TimeStopHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onTSEffectRemoved(PotionRemoveEvent event) {
+    public static void onTSEffectRemoved(MobEffectEvent.Remove event) {
         LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
-        if (event.getPotion() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
+        if (event.getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler().updateEntityTimeStop(entity, false, false);
             if (!entity.level.isClientSide()) {
                 PacketManager.sendToClientsTrackingAndSelf(new RefreshMovementInTimeStopPacket(entity.getId(), chunkPos, false), entity);

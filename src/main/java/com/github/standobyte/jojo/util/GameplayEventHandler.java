@@ -193,7 +193,7 @@ import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import net.minecraftforge.event.entity.living.EntityTeleportEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingConversionEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -208,10 +208,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionAddedEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionApplicableEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionExpiryEvent;
-import net.minecraftforge.event.entity.living.PotionEvent.PotionRemoveEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
@@ -929,9 +926,9 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onPotionApply(PotionApplicableEvent event) {
+    public static void onPotionApply(MobEffectEvent.Applicable event) {
         LivingEntity entity = event.getEntity();
-        MobEffect effect = event.getPotionEffect().getEffect();
+        MobEffect effect = event.getEffectInstance().getEffect();
         if (JojoModUtil.isDyingBody(entity)) {
             if (effect == MobEffects.HUNGER || effect == MobEffects.POISON || effect == MobEffects.REGENERATION) {
                 event.setResult(Result.DENY);
@@ -951,10 +948,10 @@ public class GameplayEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void changePotionAmplifier(PotionAddedEvent event) {
-        MobEffectInstance effectInstance = event.getPotionEffect();
+    public static void changePotionAmplifier(MobEffectEvent.Added event) {
+        MobEffectInstance effectInstance = event.getEffectInstance();
         if (effectInstance.getEffect() == ModStatusEffects.BLEEDING.get()) {
-            int amplifier = BleedingEffect.limitAmplifier(event.getOwner(), effectInstance.getAmplifier());
+            int amplifier = BleedingEffect.limitAmplifier(event.getEffectSource() instanceof LivingEntity ? (LivingEntity) event.getEffectSource() : null, effectInstance.getAmplifier());
             if (amplifier != effectInstance.getAmplifier() && amplifier >= 0) {
                 effectInstance.amplifier = amplifier;
             }
@@ -962,9 +959,9 @@ public class GameplayEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onPotionAdded(PotionAddedEvent event) {
+    public static void onPotionAdded(MobEffectEvent.Added event) {
         LivingEntity entity = event.getEntity();
-        MobEffectInstance effectInstance = event.getPotionEffect();
+        MobEffectInstance effectInstance = event.getEffectInstance();
         EntityStandType.giveEffectSharedWithStand(entity, effectInstance);
         
         if (!entity.level.isClientSide()) {
@@ -992,14 +989,14 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void cancelPotionRemoval(PotionRemoveEvent event) {
-        MobEffectInstance effectInstance = event.getPotionEffect();
+    public static void cancelPotionRemoval(MobEffectEvent.Remove event) {
+        MobEffectInstance effectInstance = event.getEffectInstance();
         if (effectInstance != null) {
             LivingEntity entity = event.getEntity();
             INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
                 if (power.hasPower()) {
                     Iterable<MobEffect> effects = power.getType().getAllPossibleEffects();
-                    MobEffect effect = event.getPotion();
+                    MobEffect effect = event.getEffect();
                     if (Iterables.contains(effects, effect) && 
                             power.getType().getPassiveEffectLevel(effect, power) == effectInstance.getAmplifier() && 
                             !effectInstance.isVisible() && !effectInstance.showIcon()) {
@@ -1011,24 +1008,24 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void trackedPotionRemoved(PotionRemoveEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getPotion());
+    public static void trackedPotionRemoved(MobEffectEvent.Remove event) {
+        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getEffect());
         
         Entity entity = event.getEntity();
-        if (!entity.level.isClientSide() && event.getPotionEffect() != null && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
+        if (!entity.level.isClientSide() && event.getEffectInstance() != null && ModStatusEffects.isEffectTracked(event.getEffectInstance().getEffect())) {
             ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
-                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getPotion()));
+                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void trackedPotionExpired(PotionExpiryEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getPotionEffect().getEffect());
+    public static void trackedPotionExpired(MobEffectEvent.Expired event) {
+        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getEffectInstance().getEffect());
         
         Entity entity = event.getEntity();
-        if (!entity.level.isClientSide() && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
+        if (!entity.level.isClientSide() && ModStatusEffects.isEffectTracked(event.getEffectInstance().getEffect())) {
             ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
-                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getPotionEffect().getEffect()));
+                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffectInstance().getEffect()));
         }
     }
     

@@ -150,7 +150,7 @@ public class MeshModelBox extends ModelPart.Cube {
                     
                     ModelPart.Vertex[] verticesArr = vertices.toArray(new ModelPart.Vertex[MAX_VERTICES]);
                     if (this.vertices.size() < MAX_VERTICES) {
-                        Vertex lastVertex = verticesArr[this.vertices.size() - 1];
+                        ModelPart.Vertex lastVertex = verticesArr[this.vertices.size() - 1];
                         for (int i = this.vertices.size(); i < verticesArr.length; i++) {
                             verticesArr[i] = lastVertex;
                         }

@@ -171,7 +171,7 @@ public class HamonMasterEntity extends Mob implements Npc, IMobPowerUser, IEntit
     @Override
     protected void registerGoals() {} // TODO Hamon Master ai
     
-    public static AttributeSupplier.MutableAttribute createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
                 .add(Attributes.ATTACK_SPEED, 8.0)

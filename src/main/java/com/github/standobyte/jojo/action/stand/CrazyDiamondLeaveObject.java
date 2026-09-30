@@ -60,7 +60,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.TriPredicate;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.living.EntityTeleportEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
 
 public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
     

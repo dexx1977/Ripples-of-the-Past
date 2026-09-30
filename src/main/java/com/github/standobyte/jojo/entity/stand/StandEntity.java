@@ -336,7 +336,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
 
 
-    public static AttributeSupplier.MutableAttribute createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.ATTACK_DAMAGE)
                 .add(Attributes.ATTACK_KNOCKBACK)
