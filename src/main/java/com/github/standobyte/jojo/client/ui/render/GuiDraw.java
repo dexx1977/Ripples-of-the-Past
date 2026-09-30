@@ -60,7 +60,9 @@ public final class GuiDraw {
     /** Records the texture the following blits use, and binds it like 1.16.5 did. */
     public static void bind(ResourceLocation texture) {
         GuiDraw.texture = texture;
-        GuiDraw.bind(texture);
+        // 1.16.5 bound the texture through the texture manager; 1.20.1 binds it on
+        // the shader (the same thing GuiGraphics#blit does with a location)
+        com.mojang.blaze3d.systems.RenderSystem.setShaderTexture(0, texture);
     }
 
     public static ResourceLocation boundTexture() {
