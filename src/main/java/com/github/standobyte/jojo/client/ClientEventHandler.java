@@ -193,7 +193,7 @@ import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderNameplateEvent;
+import net.minecraftforge.client.event.RenderNameTagEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
@@ -369,7 +369,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public <T extends LivingEntity, M extends EntityModel<T>> void onRenderNameplate(RenderNameplateEvent event) {
+    public <T extends LivingEntity, M extends EntityModel<T>> void onRenderNameplate(RenderNameTagEvent event) {
         Entity entity = event.getEntity();
         PoseStack matrixStack = event.getPoseStack();
         if (entity instanceof LivingEntity) {

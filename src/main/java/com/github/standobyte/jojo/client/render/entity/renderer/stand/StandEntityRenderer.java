@@ -46,7 +46,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderNameplateEvent;
+import net.minecraftforge.client.event.RenderNameTagEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import com.mojang.math.Axis;
@@ -327,7 +327,7 @@ public class StandEntityRenderer<T extends StandEntity, M extends StandEntityMod
 
         matrixStack.popPose();
 
-        RenderNameplateEvent renderNameplateEvent = new RenderNameplateEvent(entity, entity.getDisplayName(), this, matrixStack, buffer, packedLight, partialTick);
+        RenderNameTagEvent renderNameplateEvent = new RenderNameTagEvent(entity, entity.getDisplayName(), this, matrixStack, buffer, packedLight, partialTick);
         MinecraftForge.EVENT_BUS.post(renderNameplateEvent);
         if (renderNameplateEvent.getResult() != Event.Result.DENY && (renderNameplateEvent.getResult() == Event.Result.ALLOW || this.shouldShowName(entity))) {
             this.renderNameTag(entity, renderNameplateEvent.getContent(), matrixStack, buffer, packedLight);
