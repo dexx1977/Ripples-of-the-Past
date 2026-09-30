@@ -370,14 +370,14 @@ public class HamonScreen extends Screen implements IJojoScreen {
     public void renderToolTip(PoseStack matrixStack, List<? extends FormattedCharSequence> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltip(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltipWrapped(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
     public void renderWrappedToolTip(PoseStack matrixStack, List<? extends FormattedText> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltip(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltipWrapped(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     

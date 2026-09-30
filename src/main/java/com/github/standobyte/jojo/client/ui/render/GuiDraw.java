@@ -144,7 +144,7 @@ public final class GuiDraw {
         graphics.renderComponentTooltip(net.minecraft.client.Minecraft.getInstance().font, lines, mouseX, mouseY, ItemStack.EMPTY);
     }
 
-    public static void renderTooltip(PoseStack poseStack, Font font, List<? extends FormattedText> lines, int mouseX, int mouseY) {
+    public static void renderTooltipWrapped(PoseStack poseStack, Font font, List<? extends FormattedText> lines, int mouseX, int mouseY) {
         graphics.renderComponentTooltip(font, lines, mouseX, mouseY, ItemStack.EMPTY);
     }
 

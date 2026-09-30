@@ -1007,7 +1007,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             int textX = x + textOffset;
             drawBackdrop(matrixStack, textX, y, width, position.alignment, null, alpha, 0);
-            GuiDraw.drawString(matrixStack, mc.font, keyName, textX, y, position.alignment, color, alpha);
+            drawString(matrixStack, mc.font, keyName, textX, y, position.alignment, color, alpha);
             
             RenderSystem.disableBlend();
             GuiDraw.popMatrix();
@@ -1346,7 +1346,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 RenderSystem.defaultBlendFunc();
                 
                 drawBackdrop(matrixStack, x, y, width, position.alignment, null, alpha, 0);
-                GuiDraw.drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
+                drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
                 
                 RenderSystem.disableBlend();
                 GuiDraw.popMatrix();
@@ -1417,7 +1417,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 RenderSystem.defaultBlendFunc();
                 
                 drawBackdrop(matrixStack, x, y, width, position.alignment, null, alpha, 0);
-                GuiDraw.drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
+                drawString(matrixStack, mc.font, actionName, x, y, position.alignment, color, alpha);
                 
                 RenderSystem.disableBlend();
                 GuiDraw.popMatrix();
@@ -1485,7 +1485,7 @@ public class ActionsOverlayGui extends AbstractGui {
             IPower<?, ?> power = mode.getPower();
             Component name = power.getName();
             drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, null, alpha, 0);
-            GuiDraw.drawString(matrixStack, mc.font, name, x, y, position.alignment, color, alpha);
+            drawString(matrixStack, mc.font, name, x, y, position.alignment, color, alpha);
         }
     }
 
@@ -1514,7 +1514,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
         for (Component line : warningLines) {
             drawBackdrop(matrixStack, x, y, mc.font.width(line), position.alignment, null, 1.0F, 0);
-            GuiDraw.drawString(matrixStack, mc.font, line, x, y, position.alignment, 0xFFFFFF);
+            drawString(matrixStack, mc.font, line, x, y, position.alignment, 0xFFFFFF);
             y += 16;
         }
     }
@@ -1525,12 +1525,12 @@ public class ActionsOverlayGui extends AbstractGui {
         Alignment alignment = standStrengthPosition.alignment;
         Component distanceString = Component.literal(String.format("%.2f m", distance));
         drawBackdrop(matrixStack, x, y, mc.font.width(distanceString), alignment, null, 1.0F, 0);
-        GuiDraw.drawString(matrixStack, mc.font, distanceString, x, y, alignment, 0xFFFFFF);
+        drawString(matrixStack, mc.font, distanceString, x, y, alignment, 0xFFFFFF);
         if (damageFactor < 1) {
             y += 12;
             Component strength = Component.translatable("jojo.overlay.stand_strength", String.format("%.2f%%", damageFactor * 100F));
             drawBackdrop(matrixStack, x, y, mc.font.width(strength), alignment, null, 1.0F, 0);
-            GuiDraw.drawString(matrixStack, mc.font, strength, x, y, alignment, 0xFF4040);
+            drawString(matrixStack, mc.font, strength, x, y, alignment, 0xFF4040);
         }
     }
     
@@ -1616,7 +1616,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 Component name = getModeNameForSelector(mode);
                 if (name != null) {
                     drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, modeSelectorTransparency, 0, partialTick);
-                    GuiDraw.drawString(matrixStack, mc.font, name, x, y, position.alignment, modeSelectorTransparency.makeTextColorTranclucent(color, partialTick));
+                    drawString(matrixStack, mc.font, name, x, y, position.alignment, modeSelectorTransparency.makeTextColorTranclucent(color, partialTick));
                 }
                 y += 22;
             }
@@ -1895,7 +1895,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     void drawString(PoseStack matrixStack, Font font, Component text, int x, int y, Alignment alignment, int color, float alpha) {
         if (alpha > 0) {
-            GuiDraw.drawString(matrixStack, font, text, x, y, alignment, color + ((int) (Math.min(alpha, 1F) * 256F) << 24));
+            drawString(matrixStack, font, text, x, y, alignment, color + ((int) (Math.min(alpha, 1F) * 256F) << 24));
         }
     }
     
