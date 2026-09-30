@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.modcompat;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,7 +19,6 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -102,7 +102,7 @@ public class ModInteractionUtil {
                         entityName.equals("super_nova")) {
                     boolean targetIsVampire = target instanceof Player && JojoModUtil.isPlayerJojoVampiric((Player) target);
                     if (targetIsVampire) {
-                        DamageSource extraDmgSource = new IndirectEntityDamageSource("mowzie_sun", entity, damageSource.getEntity())
+                        DamageSource extraDmgSource = ModDamageTypes.source(entity, damageSource.getEntity(), ModDamageTypes.key("mowzie_sun"))
                                 .bypassArmor().bypassMagic().setIsFire();
                         if (target.hurt(extraDmgSource, event.getAmount() * 4)) {
                             VampirismUtil.incSunBurn(target, 2);

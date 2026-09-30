@@ -33,7 +33,7 @@ public abstract class MobEntityMixin extends LivingEntity {
         if (!this.level.isClientSide && this.isAlive() && !this.dead && ForgeEventFactory.getMobGriefingEvent(this.level, this)) {
             List<ItemEntity> markedItems = this.level.getEntitiesOfClass(
                     ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D), itemEntity -> {
-                        if (itemEntity.removed) return false;
+                        if (itemEntity.isRemoved()) return false;
                         ItemStack item = itemEntity.getItem();
                         if (item.isEmpty()) return false;
                         return TrackerItemStack.getItemTracker(item).filter(TrackerItemStack::isTracked).isPresent();

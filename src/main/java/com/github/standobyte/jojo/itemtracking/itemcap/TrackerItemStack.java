@@ -230,7 +230,7 @@ public class TrackerItemStack {
         
         if (positionEntity.isPresent()) {
             Entity entity = world.getEntity(positionEntity.getAsInt());
-            if (entity == null || entity.removed) {
+            if (entity == null || entity.isRemoved()) {
                 return false;
             }
         }

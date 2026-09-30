@@ -277,7 +277,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                     }
                 }
                 
-                if (level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT) && mob != null && mob.removed && lastAttack != null) {
+                if (level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT) && mob != null && mob.isRemoved() && lastAttack != null) {
                     mob.setPos(getX(), getY(), getZ());
                     mobLootFortune = mob;
                     mob.lastHurtByPlayerTime = 1;
@@ -414,7 +414,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         }).orElse(null);
         this.mob = mobEntity instanceof Mob ? (Mob) mobEntity : null;
         if (mob != null) {
-            mob.removed = true;
+            mob.isRemoved() = true;
         }
         this.useMobHurtSound = pCompound.getBoolean("NoAmbient");
     }

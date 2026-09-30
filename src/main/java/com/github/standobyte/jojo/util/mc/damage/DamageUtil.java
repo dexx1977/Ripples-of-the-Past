@@ -89,7 +89,7 @@ public class DamageUtil {
             IModdedDamageSource moddedSrc = (IModdedDamageSource) source;
             return moddedSrc.getKnockbackFactor();
         }
-        if (source instanceof EntityDamageSource) {
+        if (source.getDirectEntity() instanceof LivingEntity) {
             if (source.getDirectEntity() instanceof LivingEntity && (INonStandPower.getNonStandPowerOptional((LivingEntity) source.getDirectEntity())
                     .map(power -> {
                         Action<?> heldAction = power.getHeldAction();
@@ -287,7 +287,7 @@ public class DamageUtil {
     }
     
     public static DamageSource roadRollerDamage(RoadRollerEntity entity) {
-        return new EntityDamageSource(ROAD_ROLLER_MSG, entity).bypassArmor();
+        return ModDamageTypes.source(entity, ModDamageTypes.key(ROAD_ROLLER_MSG));
     }
     
     public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireSeconds, boolean stand) {

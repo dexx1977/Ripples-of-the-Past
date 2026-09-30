@@ -1289,7 +1289,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
 
         if (!level.isClientSide()) {
-            if (requiresUser() && (user == null || user.removed)) {
+            if (requiresUser() && (user == null || user.isRemoved())) {
                 remove();
                 return;
             }

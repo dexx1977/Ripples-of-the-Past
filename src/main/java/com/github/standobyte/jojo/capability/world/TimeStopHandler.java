@@ -78,7 +78,7 @@ public class TimeStopHandler {
         
         while (entityIter.hasNext()) {
             Entity entity = entityIter.next();
-            if (entity.removed) {
+            if (entity.isRemoved()) {
                 entityIter.remove();
             }
 

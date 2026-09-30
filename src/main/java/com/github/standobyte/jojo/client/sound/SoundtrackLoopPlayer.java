@@ -109,7 +109,7 @@ public class SoundtrackLoopPlayer {
                 finish();
                 return;
             }
-            else if (bossEntity.removed) {
+            else if (bossEntity.isRemoved()) {
                 forceStop();
                 return;
             }

@@ -1087,9 +1087,9 @@ public class ClientEventHandler {
         if (i > 0) {
             int k = (int)(mc.player.experienceProgress * 183.0F);
             int yPos = screenHeight - 32 + 3;
-            mc.GuiDraw.blit(matrixStack, xPos, yPos, 0, 64, 182, 5);
+            GuiDraw.blit(matrixStack, xPos, yPos, 0, 64, 182, 5);
             if (k > 0) {
-                mc.GuiDraw.blit(matrixStack, xPos, yPos, 0, 69, k, 5);
+                GuiDraw.blit(matrixStack, xPos, yPos, 0, 69, k, 5);
             }
         }
         

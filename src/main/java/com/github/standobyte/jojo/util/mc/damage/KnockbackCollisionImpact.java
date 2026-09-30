@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.util.mc.damage;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -44,7 +45,6 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.AxisCycle;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.core.Direction;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ReuseableStream;
@@ -289,12 +289,12 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                 }
                 if (scarletOverdriveFireTicks > 0) {
                     DamageUtil.dealDamageAndSetOnFire(targetEntity, 
-                            e -> hurtTarget(e, new EntityDamageSource("entityFlewInto", entity), 
+                            e -> hurtTarget(e, ModDamageTypes.source(entity, "entityFlewInto"), 
                                     (float) getKnockbackImpactStrength() * 5), 
                             scarletOverdriveFireTicks / 20, false);
                 }
                 else {
-                    hurtTarget(targetEntity, new EntityDamageSource("entityFlewInto", entity), 
+                    hurtTarget(targetEntity, ModDamageTypes.source(entity, "entityFlewInto"), 
                             (float) getKnockbackImpactStrength() * 5);
                 }
                 if (asLiving != null) {

@@ -199,7 +199,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     public static List<ItemStack> sourceItemStacks(AABB entitiesArea, Vec3 center, LivingEntity user, Level world, 
             ItemsSource... order) {
         Map<SourceType, List<Entity>> entitiesAround = world.getEntities(user, entitiesArea,
-                EntitySelector.NO_SPECTATORS.and(e -> !e.removed))
+                EntitySelector.NO_SPECTATORS.and(e -> !e.isRemoved()))
                 .stream().collect(Collectors.groupingBy(e -> {
                     if (e instanceof ItemEntity) {
                         return SourceType.ITEM_ENTITY;

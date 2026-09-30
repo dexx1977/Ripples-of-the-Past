@@ -78,7 +78,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         super.tick();
         
         if (originEntity == null
-                || originEntity.removed
+                || originEntity.isRemoved()
                 || tickCount > 1 && !originEntity.isDeadOrDying()
                 || tickCount > lifeSpan) {
             remove();
