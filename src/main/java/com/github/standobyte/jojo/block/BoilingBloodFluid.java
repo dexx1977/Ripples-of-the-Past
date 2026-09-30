@@ -23,7 +23,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.common.SoundActions;
 
 public abstract class BoilingBloodFluid extends LavaFluid {
 
@@ -42,19 +43,26 @@ public abstract class BoilingBloodFluid extends LavaFluid {
         return ModItems.BOILING_BLOOD_BUCKET.get();
     }
     
+    /** 1.20.1 keeps the fluid behaviour in a FluidType (the textures are client side). */
+    public static final FluidType BOILING_BLOOD_TYPE = new FluidType(FluidType.Properties.create()
+            .descriptionId("block.jojo.boiling_blood")
+            .lightLevel(15).density(3000).viscosity(6000).temperature(1300)
+            .sound(SoundActions.BUCKET_FILL, ModSounds.BUCKET_FILL_BOILING_BLOOD.get())
+            .sound(SoundActions.BUCKET_EMPTY, ModSounds.BUCKET_EMPTY_BOILING_BLOOD.get())) {
+        @Override
+        public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions> consumer) {
+            // only called on the client, where the textures live
+            consumer.accept(new com.github.standobyte.jojo.client.BoilingBloodClientExtensions());
+        }
+    };
+
     @Override
-    protected FluidAttributes createAttributes() {
-       return FluidAttributes.builder(
-               new ResourceLocation(JojoMod.MOD_ID, "block/boiling_blood_still"),
-               new ResourceLocation(JojoMod.MOD_ID, "block/boiling_blood_flow"))
-               .translationKey("block.jojo.boiling_blood")
-               .luminosity(15).density(3000).viscosity(6000).temperature(1300)
-               .sound(ModSounds.BUCKET_FILL_BOILING_BLOOD.get(), ModSounds.BUCKET_EMPTY_BOILING_BLOOD.get())
-               .build(this);
+    public FluidType getFluidType() {
+        return BOILING_BLOOD_TYPE;
     }
 
     @Override
-    public void animateTick(Level pLevel, BlockPos pPos, FluidState pState, Random pRandom) {
+    public void animateTick(Level pLevel, BlockPos pPos, FluidState pState, net.minecraft.util.RandomSource pRandom) {
         BlockPos blockpos = pPos.above();
         if (pLevel.getBlockState(blockpos).isAir() && !pLevel.getBlockState(blockpos).isSolidRender(pLevel, blockpos)) {
             if (pRandom.nextInt(100) == 0) {
