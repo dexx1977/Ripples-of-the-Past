@@ -309,7 +309,7 @@ public class ClientEventHandler {
         }
         
         if (model instanceof PlayerModel) {
-            INonStandPower.getNonStandPowerOptional(event.getOwner()).map(power -> {
+            INonStandPower.getNonStandPowerOptional(event.getEntity()).map(power -> {
                 if (power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).map(
                         pillarmanData -> pillarmanData.isStoneFormEnabled()).orElse(false)) {
                     PlayerModel<?> playerModel = (PlayerModel<?>) model;
@@ -390,7 +390,7 @@ public class ClientEventHandler {
             event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.limitPlayerHeadRot();
             });
-            ContinuousActionInstance.getCurrentAction(event.getOwner()).ifPresent(action -> action.onPreRender(partialTick));
+            ContinuousActionInstance.getCurrentAction(event.getEntity()).ifPresent(action -> action.onPreRender(partialTick));
         }
         BladeHatArmorModel.modifyOuterLayer(renderer.getModel(), entity);
     }

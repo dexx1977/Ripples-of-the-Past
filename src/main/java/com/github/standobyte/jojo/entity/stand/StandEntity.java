@@ -964,7 +964,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                     setAbsorptionAmount(getAbsorptionAmount() - (damageAmount - damageAfterAbsorption));
                     float absorbedDamage = damageAmount - damageAfterAbsorption;
                     if (absorbedDamage > 0.0F && absorbedDamage < Float.MAX_VALUE / 10F && dmgSource.getEntity() instanceof ServerPlayer) {
-                        ((ServerPlayer) dmgSource.getOwner()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(absorbedDamage * 10.0F));
+                        ((ServerPlayer) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(absorbedDamage * 10.0F));
                     }
                     damageAmount = damageAfterAbsorption;
                     
@@ -1002,7 +1002,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                 if (user instanceof ServerPlayer) {
                     ((ServerPlayer) user).awardStat(Stats.DAMAGE_RESISTED, Math.round(f2 * 10.0F));
                 } else if (dmgSource.getEntity() instanceof ServerPlayer) {
-                    ((ServerPlayer) dmgSource.getOwner()).awardStat(Stats.DAMAGE_DEALT_RESISTED, Math.round(f2 * 10.0F));
+                    ((ServerPlayer) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_RESISTED, Math.round(f2 * 10.0F));
                 }
             }
         }
@@ -1136,8 +1136,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         if (damageSrc == DamageSource.OUT_OF_WORLD) {
             return false;
         }
-        if (this.is(damageSrc.getOwner())
-                || getUser() != null && getUser().is(damageSrc.getOwner())) {
+        if (this.is(damageSrc.getEntity())
+                || getUser() != null && getUser().is(damageSrc.getEntity())) {
             return !(damageSrc instanceof IStandDamageSource && ((IStandDamageSource) damageSrc).standCanHitSelf());
         }
         if (

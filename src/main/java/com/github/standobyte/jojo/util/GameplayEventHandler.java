@@ -359,7 +359,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelStunnedPlayerInteraction(PlayerInteractEvent event) {
-        if (event.isCancelable() && ModStatusEffects.isStunned(event.getOwner())) {
+        if (event.isCancelable() && ModStatusEffects.isStunned(event.getEntity())) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }
@@ -367,7 +367,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelItemPickupInStun(EntityItemPickupEvent event) {
-        if (ModStatusEffects.isStunned(event.getOwner())) {
+        if (ModStatusEffects.isStunned(event.getEntity())) {
             event.setCanceled(true);
         }
     }
@@ -400,7 +400,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onUseItem(PlayerInteractEvent.RightClickItem event) {
         if (ModInteractionUtil.isSquidInkPasta(event.getItemStack())) {
-            InkPastaItem.useWithHamon(event.getLevel(), event.getOwner(), event.getHand()).ifPresent(result -> {
+            InkPastaItem.useWithHamon(event.getLevel(), event.getEntity(), event.getHand()).ifPresent(result -> {
                 event.setCanceled(true);
                 event.setCancellationResult(result.getResult());
             });
@@ -434,7 +434,7 @@ public class GameplayEventHandler {
         LivingEntity entity = event.getEntity();
         ItemStack item = event.getItem();
         if (item.getItem() == Items.ENCHANTED_GOLDEN_APPLE) {
-            VampirismUtil.onEnchantedGoldenAppleEaten(event.getOwner());
+            VampirismUtil.onEnchantedGoldenAppleEaten(event.getEntity());
         }
         else if (ModInteractionUtil.isSquidInkPasta(item)) {
             InkPastaItem.onEaten(entity);
@@ -641,7 +641,7 @@ public class GameplayEventHandler {
             };
         });
         
-        if (HamonUtil.cancelDamageFromBlock(event.getOwner(), event.getSource(), event.getAmount())) {
+        if (HamonUtil.cancelDamageFromBlock(event.getEntity(), event.getSource(), event.getAmount())) {
             event.setCanceled(true);
         }
         if (VampirismFreeze.onUserAttacked(event)) {
@@ -817,9 +817,9 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void resolveOnTakingDamage(LivingDamageEvent event) {
-        IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(stand -> {
+        IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> {
             if (stand.usesResolve()) {
-                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getOwner());
+                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getEntity());
             }
         });
     }
@@ -829,7 +829,7 @@ public class GameplayEventHandler {
         if (event.getSource() == DamageSource.OUT_OF_WORLD) {
             return;
         }
-        float dmgReduction = IStandPower.getStandPowerOptional(event.getOwner()).map(stand -> {
+        float dmgReduction = IStandPower.getStandPowerOptional(event.getEntity()).map(stand -> {
             return stand.getResolveDmgReduction();
         }).orElse(0F);
         if (dmgReduction > 0F) {
@@ -1109,7 +1109,7 @@ public class GameplayEventHandler {
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() == Blocks.TRIPWIRE) {
-                    INonStandPower.getNonStandPowerOptional(event.getOwner()).ifPresent(power -> {
+                    INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> {
                         power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                             if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
                                 event.setCanceled(true);
@@ -1135,7 +1135,7 @@ public class GameplayEventHandler {
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() instanceof AbstractFurnaceBlock) {
-                    IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(power -> {
+                    IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(power -> {
                         if (power.isActive() && power.getType() == ModStands.MAGICIANS_RED.getStandType()) {
                             BlockEntity tileEntity = world.getBlockEntity(pos);
                             if (tileEntity instanceof AbstractFurnaceBlockEntity) {
@@ -1351,12 +1351,12 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onProjectileShot(EntityJoinLevelEvent event) {
-        HamonUtil.chargeNewEntity(event.getOwner(), event.getLevel());
+        HamonUtil.chargeNewEntity(event.getEntity(), event.getLevel());
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onProjectileHit(ProjectileImpactEvent event) {
-        HamonUtil.onProjectileImpact(event.getOwner(), event.getRayTraceResult());
+        HamonUtil.onProjectileImpact(event.getEntity(), event.getRayTraceResult());
     }
     
     @SubscribeEvent
@@ -1635,8 +1635,8 @@ public class GameplayEventHandler {
     public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
         if (event.getNewGameMode() == GameType.CREATIVE) {
             Player player = event.getEntity();
-            INonStandPower.getNonStandPowerOptional(event.getOwner()).ifPresent(power -> power.resetCooldowns());
-            IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(stand -> stand.resetCooldowns());
+            INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> power.resetCooldowns());
+            IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> stand.resetCooldowns());
             player.removeEffect(ModStatusEffects.IMMOBILIZE.get());
             player.removeEffect(ModStatusEffects.STUN.get());
             player.removeEffect(ModStatusEffects.HAMON_SHOCK.get());
