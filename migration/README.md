@@ -1,0 +1,83 @@
+# Forge 1.20.1 migration
+
+This branch ports the original 1.16.5 Forge implementation. It is **not yet a
+working 1.20.1 release**. Compilation is a prerequisite, not the acceptance test.
+
+## Provenance
+
+- Base: `StandoByte/Ripples-of-the-Past`, branch `1.16.5`, commit
+  `72862a5826ed45d1dc26e90b37853097acda35de`.
+- Reference only: `StandoByte/Ripples-of-the-Past-1-21-1`, commit
+  `1fe3ac189908aea3957ce716b0a560318d3d2e21`.
+- Baseline: 1,273 Java files, 158,639 Java lines, 2,235 resource files.
+- `baseline-files.json` records the original source/resource paths. Moves or
+  replacements must be accounted for; compiling a subset is not a migration.
+- Keep the `jojo` namespace and all existing content IDs and NBT keys.
+
+## Toolchain and dependencies
+
+- Java 17; Forge 1.20.1-47.4.10; ForgeGradle 6.0.54; Gradle 8.8.
+- Official Minecraft 1.20.1 mappings; Mixin 0.8.5 annotation processor.
+- playerAnimator 1.0.2-rc1+1.20; bendy-lib 4.0.0.
+- JEI 15.62.0.217, Vampirism 1.20.1-1.10.17, ExpandAbility 9.0.4
+  are compile-time optional integrations, preserving their original status.
+- Mocha 3.0.1 remains shaded and relocated, as in the original project.
+- Dependency coordinates are pinned; API compatibility still needs compilation
+  and runtime validation, including animations with and without optional mods.
+
+The local development host has Homebrew OpenJDK 17.0.15 (aarch64). Use a Java 17
+`JAVA_HOME` when invoking `./gradlew`; no absolute JDK path is committed.
+
+## Build and run
+
+```sh
+./gradlew compileJava
+./gradlew build
+./gradlew runClient
+./gradlew runClient2
+./gradlew runServer
+./gradlew runGameTestServer
+```
+
+The run directories are separate (`run-client`, `run-client2`, `run-server`,
+`run-gameTestServer`, `run-data`). The second client has a different development
+username for synchronization testing. The legacy tracked `run/mods` JAR targets
+1.16.5 and is not used in the new run directories.
+
+## Migration order and acceptance
+
+1. Build/toolchain, metadata, mappings and dependency resolution.
+2. Vanilla and custom registries: retain IDs, ordering and numeric wire lookup.
+3. Capability: registration, serialization, attachment invalidation, clone,
+   save/load and dimension transfer, retaining all original NBT fields.
+4. SimpleChannel: packet identity/order, direction, main-thread handling and
+   dedicated-server class loading; exercise two clients and integrated server.
+5. Stand core and player progression/persistence.
+6. Client rendering, animation, input and HUD; retain optional integrations.
+7. Combat, projectiles, effects and damage types.
+8. Star Platinum, The World/time stop, then every other Stand.
+9. Hamon, Vampirism, Pillar Man, Zombie.
+10. Worldgen, dimensions, loot, recipes, commands and remaining systems.
+
+Do not remove source sets, disable mixins/features, or add placeholder behavior
+merely to make compilation pass. Where APIs disappeared, record the original
+behavior and its replacement before implementing it.
+
+## Runtime test matrix (not yet executed)
+
+Record build commit, exact mods, launch command, world mode, steps and observed
+results for each executed case. An unexecuted case is not a passing case.
+
+| Area | Client / singleplayer | Dedicated server + two clients |
+| --- | --- | --- |
+| Startup | menu, new world, save/reload | startup, login, reconnect |
+| Stand data | obtain/progress, save/reload | owner and tracking-player state |
+| Lifecycle | death/respawn, End return, dimension transfer | same, with another observer |
+| Networking | integrated-server queues | packet direction, no client classes loaded on server |
+| Time stop | enter/exit, partial ticks, animation, projectiles | frozen entities, damage, observers, logout |
+| Render/input | HUD, keybinds, all models, particles, player animation | observer rendering and synchronization |
+| Other powers | progression, transformations, combat, persistence | owner/observer agreement |
+| Worldgen | structures, loot, custom dimensions | generation, restart, chunk unload/reload |
+
+No runtime tests have been performed at project creation. Build logs are kept
+locally in `.porting/`; concise verified outcomes belong in `STATUS.md`.

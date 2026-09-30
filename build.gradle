@@ -1,73 +1,43 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        mavenCentral()
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-    }
-}
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
 
 version = release_snapshot.toBoolean() ? "${mc_version}-${mod_version}-snapshot-${snapshot_version}" : "${mc_version}-${mod_version}"
 group = 'standobyte.jojo'
 archivesBaseName = 'JJBA-RipplesOfThePast'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'parchment', version: "2022.03.06-1.16.5"
+    mappings channel: 'official', version: mc_version
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
-        client {
-            workingDirectory project.file('run')
+        configureEach {
+            workingDirectory project.file("run-${name}")
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             mods {
-                jojo {
-                    source sourceSets.main
-                }
+                jojo { source sourceSets.main }
             }
         }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
-            mods {
-                jojo {
-                    source sourceSets.main
-                }
-            }
+        client {}
+        client2 {
+            parent runs.client
+            args '--username', 'ROTPTestPlayer2'
         }
-
+        server { args '--nogui' }
+        gameTestServer { property 'forge.enabledGameTestNamespaces', 'jojo' }
         data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                jojo {
-                    source sourceSets.main
-                }
-            }
+            args '--mod', 'jojo', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
 }
@@ -84,9 +54,18 @@ mixin {
 }
 
 repositories {
+    mavenCentral()
+    maven {
+        // MixinExtras 0.1.1 is only published under its original JitPack
+        // coordinate, which ExpandAbility's module metadata still requires.
+        name = "JitPack"
+        url = "https://jitpack.io"
+        content { includeGroupByRegex "com\\.github\\.LlamaLad7" }
+    }
     maven {
         name = "KosmX's maven"
         url = "https://maven.kosmx.dev/"
+        content { includeGroupByRegex "dev\\.kosmx.*"; includeGroupByRegex "io\\.github\\.kosmx.*" }
     }
 //    flatDir {
 //        dirs 'lib/dev/kosmx/player-anim/player-animation-lib-forge/0.4.0+1.16.5'
@@ -96,19 +75,23 @@ repositories {
         // location of the maven that hosts JEI files since January 2023
         name = "Jared's maven"
         url = "https://maven.blamejared.com/"
+        content { includeGroup "mezz.jei"; includeGroupByRegex "net\\.mezzdev.*" }
     }
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
         url = "https://modmaven.dev"
+        content { includeGroup "mezz.jei" }
     }
     maven { // Vampirism
         name = "Maxanier"
-        url = "https://maxanier.de/maven2/"
+        url = "https://maven.maxanier.de/releases/"
+        content { includeGroupByRegex "de\\.teamlapen.*" }
     }
     maven {
         name = "Expandability"
         url = "https://maven.florens.be/releases"
+        content { includeGroup "be.florens" }
     }
 }
 
@@ -119,17 +102,21 @@ configurations {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
-    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${playeranim_version}")
     implementation fg.deobf("io.github.kosmx.bendy-lib:bendy-lib-forge:${bendylib_version}")
     compileOnly 'org.jetbrains:annotations:23.0.0'
     
-    compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
     
     compileOnly fg.deobf("de.teamlapen.vampirism:Vampirism:${mc_version}-${vampirism_version}")
     
-    compileOnly fg.deobf("be.florens:expandability-forge:${expandability_version}")
+    // Only the fluid-collision event API is used. ExpandAbility bundles its own
+    // MixinExtras implementation; its old JitPack coordinate is not a dev API.
+    compileOnly(fg.deobf("be.florens:expandability-forge:${expandability_version}")) {
+        transitive = false
+    }
     
     shade 'team.unnamed:mocha:3.0.1'
 }
@@ -151,7 +138,7 @@ processResources {
 
 
 jar {
-	archiveClassifier = 'no-gecko'
+	archiveClassifier = 'unbundled'
     manifest {
         attributes([
             "Specification-Title": "Ripples of the Past",
@@ -160,6 +147,7 @@ jar {
             "Implementation-Title": "com.github.standobyte.jojo",
             "Implementation-Version": "${mod_version}",
             "Implementation-Vendor" :"StandoByte",
+            "MixinConfigs": "mixins.jojo.json",
         ])
     }
 }
@@ -186,7 +174,7 @@ jar.finalizedBy('reobfJar')
 
 task srcJar (type: Jar) {
     from sourceSets.main.java
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 artifacts {
@@ -219,4 +207,13 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Forking lets us force an English diagnostic locale, so porting notes and
+    // CI logs stay greppable, and lets the first passes report every error.
+    options.fork = true
+    options.forkOptions.jvmArgs = ['-Duser.language=en', '-Duser.country=US']
+    options.compilerArgs += ['-Xmaxerrs', '12000']
 }

@@ -1,0 +1,161 @@
+{
+  "_comment": "Curated relocations from the 1.16.5 MCP names used by the source to their 1.20.1 counterparts. Every target was checked against the mapped Forge development artifact (migration/tools/api.sh) or the FML jars, never guessed. Applied by migration/tools/apply_type_renames.py, which leaves string literals and comments untouched so NBT keys, packet ids, translation keys and resource paths survive byte for byte. Anything under needsManualReview changed behaviour and must be rewritten by hand with the original purpose in mind.",
+  "types": {
+    "net.minecraft.block.OreBlock": "net.minecraft.world.level.block.DropExperienceBlock",
+    "net.minecraft.block.material.MaterialColor": "net.minecraft.world.level.material.MapColor",
+    "net.minecraft.command.arguments.ArgumentTypes": "net.minecraft.commands.synchronization.ArgumentTypeInfos",
+    "net.minecraft.entity.AgeableEntity": "net.minecraft.world.entity.AgeableMob",
+    "net.minecraft.entity.item.PaintingType": "net.minecraft.world.entity.decoration.PaintingVariant",
+    "net.minecraft.item.FishBucketItem": "net.minecraft.world.item.MobBucketItem",
+    "net.minecraft.item.crafting.SpecialRecipeSerializer": "net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer",
+    "net.minecraft.network.play.server.SChatPacket": "net.minecraft.network.protocol.game.ClientboundSystemChatPacket",
+    "net.minecraft.tags.ITag": "net.minecraft.tags.TagKey",
+    "net.minecraft.util.math.vector.Matrix3f": "org.joml.Matrix3f",
+    "net.minecraft.util.math.vector.Matrix4f": "org.joml.Matrix4f",
+    "net.minecraft.util.math.vector.Quaternion": "org.joml.Quaternionf",
+    "net.minecraft.util.math.vector.Vector3f": "org.joml.Vector3f",
+    "net.minecraft.util.math.vector.Vector4f": "org.joml.Vector4f",
+    "net.minecraft.util.text.TextFormatting": "net.minecraft.ChatFormatting",
+    "net.minecraft.world.gen.feature.structure.IStructurePieceType": "net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType",
+    "net.minecraft.world.gen.feature.structure.Structure": "net.minecraft.world.level.levelgen.structure.Structure",
+    "net.minecraft.world.gen.feature.template.TemplateManager": "net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager",
+    "net.minecraft.client.gui.widget.list.KeyBindingList": "net.minecraft.client.gui.screens.controls.KeyBindsList",
+    "net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType": "net.minecraft.world.item.ItemDisplayContext",
+    "net.minecraft.client.renderer.model.ItemCameraTransforms": "net.minecraft.world.item.ItemDisplayContext",
+    "net.minecraft.advancements.criterion.MinMaxBounds": "net.minecraft.advancements.critereon.MinMaxBounds",
+    "net.minecraft.advancements.criterion.EntityPredicate": "net.minecraft.advancements.critereon.EntityPredicate",
+    "net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData": "net.minecraftforge.entity.IEntityAdditionalSpawnData",
+    "net.minecraftforge.fml.common.ObfuscationReflectionHelper": "net.minecraftforge.fml.util.ObfuscationReflectionHelper",
+    "net.minecraftforge.event.entity.PlaySoundAtEntityEvent": "net.minecraftforge.event.PlayLevelSoundEvent",
+    "net.minecraftforge.client.gui.ForgeIngameGui": "net.minecraftforge.client.gui.overlay.ForgeGui",
+    "com.mojang.blaze3d.matrix.MatrixStack": "com.mojang.blaze3d.vertex.PoseStack",
+    "com.mojang.blaze3d.vertex.IVertexBuilder": "com.mojang.blaze3d.vertex.VertexConsumer",
+    "net.minecraft.advancements.criterion.EntityPredicate.AndPredicate": "net.minecraft.advancements.critereon.ContextAwarePredicate"
+  },
+  "textComponents": {
+    "_comment": "1.20.1 removed the deprecated Component subclasses; the factories below are the direct equivalents.",
+    "net.minecraft.util.text.StringTextComponent": "net.minecraft.network.chat.Component",
+    "net.minecraft.util.text.TranslationTextComponent": "net.minecraft.network.chat.Component",
+    "net.minecraft.util.text.KeybindTextComponent": "net.minecraft.network.chat.Component",
+    "net.minecraft.util.text.TextComponent": "net.minecraft.network.chat.Component",
+    "net.minecraft.util.text.ITextComponent": "net.minecraft.network.chat.Component",
+    "net.minecraft.util.text.IFormattableTextComponent": "net.minecraft.network.chat.MutableComponent"
+  },
+  "factories": {
+    "StringTextComponent": "literal",
+    "TranslationTextComponent": "translatable",
+    "KeybindTextComponent": "keybind",
+    "TextComponent": "literal"
+  },
+  "simpleRenames": {
+    "_comment": "Identifier-level renames for types whose simple name changed; the import rename is handled by the types table above.",
+    "TransformType": "ItemDisplayContext"
+  },
+  "memberRenames": [
+    {
+      "_comment": "1.20.1 nested type names.",
+      "from": "BlockPos.Mutable",
+      "to": "BlockPos.MutableBlockPos"
+    },
+    {
+      "from": "Explosion.Mode",
+      "to": "Explosion.BlockInteraction"
+    },
+    {
+      "from": "MinMaxBounds.IntBound",
+      "to": "MinMaxBounds.Ints"
+    },
+    {
+      "from": "ClipContext.BlockMode",
+      "to": "ClipContext.Block"
+    },
+    {
+      "from": "ClipContext.FluidMode",
+      "to": "ClipContext.Fluid"
+    },
+    {
+      "from": "EntityPredicate.AndPredicate",
+      "to": "ContextAwarePredicate",
+      "addImport": "net.minecraft.advancements.critereon.ContextAwarePredicate"
+    },
+    {
+      "_comment": "org.joml.Vector3f has no axis constants; com.mojang.math.Axis is the 1.20.1 equivalent.",
+      "from": "Vector3f.XP",
+      "to": "Axis.XP",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "from": "Vector3f.YP",
+      "to": "Axis.YP",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "from": "Vector3f.ZP",
+      "to": "Axis.ZP",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "from": "Vector3f.XN",
+      "to": "Axis.XN",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "from": "Vector3f.YN",
+      "to": "Axis.YN",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "from": "Vector3f.ZN",
+      "to": "Axis.ZN",
+      "addImport": "com.mojang.math.Axis"
+    },
+    {
+      "_comment": "Entity#isOnGround() became onGround(), and Level#getEntityLiving() became getEntity().",
+      "from": "isOnGround()",
+      "to": "onGround()"
+    },
+    {
+      "from": "getEntityLiving()",
+      "to": "getEntity()"
+    },
+    {
+      "_comment": "Forge's Constants helper was dropped; the NBT tag ids live on Tag and world events on LevelEvent.",
+      "from": "Constants.NBT.TAG_",
+      "to": "Tag.TAG_",
+      "addImport": "net.minecraft.nbt.Tag",
+      "partial": true
+    },
+    {
+      "from": "Constants.WorldEvents",
+      "to": "LevelEvent",
+      "addImport": "net.minecraft.world.level.block.LevelEvent"
+    }
+  ],
+  "needsManualReview": {
+    "_comment": "Type-level relocation is not a semantic migration. These are recorded so their old purpose is understood before the 1.20.1 equivalent is written; they are never blanket-renamed.",
+    "net.minecraft.client.gui.AbstractGui": "Static drawing helpers were replaced by instance methods on net.minecraft.client.gui.GuiGraphics.",
+    "net.minecraft.client.gui.chat.NarratorChatListener": "Narration moved behind Minecraft#getNarrator().",
+    "net.minecraft.command.arguments.ArgumentSerializer": "Command argument serialization was replaced by the ArgumentTypeInfo registry in 1.19+.",
+    "net.minecraft.tileentity.ITickableTileEntity": "Ticking block entities were replaced by BlockEntityTicker.",
+    "net.minecraft.util.registry.WorldGenRegistries": "Worldgen registries became datapack registries (net.minecraft.core.registries.Registries) in 1.19+.",
+    "net.minecraft.world.gen.feature.StructureFeature": "Structure feature registration was replaced by StructureType plus StructurePlacement/StructureSet, and the 1.20.1 Structure type is not generic.",
+    "net.minecraft.world.gen.feature.structure.StructureManager": "Structure lookup was replaced by StructureCheck/ServerLevelStructureManager.",
+    "net.minecraft.world.gen.settings.DimensionStructuresSettings": "Dimension structure settings became datapack worldgen JSON in 1.19+.",
+    "net.minecraft.world.gen.settings.StructureSeparationSettings": "Separation settings became StructurePlacement (datapack).",
+    "net.minecraft.advancements.criterion.PlacedBlockTrigger": "Criterion classes moved to net.minecraft.advancements.critereon, and this trigger no longer exists in 1.20.1 (use the item-used-on-block criterion).",
+    "net.minecraft.item.crafting.SmithingRecipe": "Smithing was reworked into SmithingTransformRecipe/SmithingTrimRecipe in 1.20.",
+    "net.minecraft.block.material.Material": "Removed in 1.20. BlockBehaviour.Properties no longer takes a Material, and BlockState#getMaterial() is gone: use Properties.of()/of(MapColor) plus sound/pushReaction when building, and replace getMaterial() comparisons with the concrete 1.20.1 predicates (BlockState#is, getSoundType, getPistonPushReaction, getMapColor).",
+    "net.minecraft.util.EntityDamageSource": "1.20 removed the damage source subclasses in favour of the DamageSources factory class; DamageSource itself now carries the causing/direct entity, and custom sources need a Holder<DamageType> from the damage type registry.",
+    "net.minecraft.util.IndirectEntityDamageSource": "Same 1.20 damage-source rework as EntityDamageSource.",
+    "net.minecraft.util.ReuseableStream": "Removed in 1.19+; the collision helper must take a materialised collection or stream of shapes.",
+    "net.minecraftforge.common.util.Constants": "Forge's Constants holder was removed; the NBT tag ids are on Tag and the world events on LevelEvent.",
+    "net.minecraftforge.fml.network.NetworkRegistry": "Unchanged in name but the channel factory is NetworkRegistry#newSimpleChannel now.",
+    "net.minecraftforge.fml.client.registry.RenderingRegistry": "Renderer registration moved to the EntityRenderersEvent.RegisterRenderers mod event.",
+    "net.minecraftforge.fml.client.registry.ClientRegistry": "Key mapping registration moved to the RegisterKeyMappingsEvent mod event.",
+    "net.minecraftforge.client.event.RenderGameOverlayEvent": "Replaced by RenderGuiOverlayEvent/CustomizeGuiOverlayEvent.",
+    "net.minecraft.client.gui.screen.Screen#addButton": "Widgets are added with addRenderableWidget/addWidget.",
+    "net.minecraft.item.ItemGroup": "Creative tabs are registered through CreativeModeTab.builder() plus the BuildCreativeModeTabContentsEvent in 1.19.3+.",
+    "com.mojang.blaze3d.matrix.MatrixStack#push/pop": "PoseStack uses pushPose()/popPose().",
+    "net.minecraftforge.entity.IEntityAdditionalSpawnData": "Still used for custom spawn data, but the packet is built with NetworkHooks#getEntitySpawningPacket instead of FMLPlayMessages."
+  }
+}

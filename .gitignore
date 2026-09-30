@@ -17,6 +17,12 @@ out
 # gradle
 build
 .gradle
+.porting
+run-client
+run-client2
+run-server
+run-gameTestServer
+run-data
 
 # other
 eclipse
@@ -28,3 +34,6 @@ changelog.txt
 CREDITS.txt
 LICENSE.txt
 README.txt
+
+# local porting notes, logs and downloaded reference artifacts
+.porting/
