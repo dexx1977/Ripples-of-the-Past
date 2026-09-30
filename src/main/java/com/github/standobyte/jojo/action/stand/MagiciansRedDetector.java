@@ -22,7 +22,7 @@ public class MagiciansRedDetector extends StandAction {
             List<MRDetectorEntity> summonedDetector = world.getEntities(ModEntityTypes.MR_DETECTOR.get(), 
                     user.getBoundingBox().inflate(5), detector -> detector.getOwner() == user);
             if (!summonedDetector.isEmpty()) {
-                summonedDetector.forEach(detector -> detector.remove());
+                summonedDetector.forEach(detector -> detector.discard());
             }
             else {
                 MRDetectorEntity detector = new MRDetectorEntity(user, world);

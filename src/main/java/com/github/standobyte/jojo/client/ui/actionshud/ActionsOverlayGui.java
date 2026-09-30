@@ -1628,7 +1628,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             name = power.getName();
         }
-        Component keyName = getKeyName(mode);
+        MutableComponent keyName = getKeyName(mode);
         if (keyName != null) {
             name = Component.translatable("jojo.overlay.mode_key", keyName, name);
         }

@@ -269,7 +269,7 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
                 StandEntity standEntity = (StandEntity) stand;
                 standPower.setStandManifestation(null);
                 PacketManager.sendToClientsTrackingAndSelf(new TrSetStandEntityPacket(user.getId(), -1), user);
-                standEntity.remove();
+                standEntity.discard();
             }
         }
         else if (user.is(ClientUtil.getClientPlayer())) {

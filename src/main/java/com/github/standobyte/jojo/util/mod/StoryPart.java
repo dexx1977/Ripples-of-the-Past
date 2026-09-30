@@ -37,7 +37,7 @@ public class StoryPart {
     public static final StoryPart OTHER                   = canon(-1, "jojo.story_part.none", name -> name.withStyle(ChatFormatting.GRAY));
     public static final StoryPart[] CANON_PARTS = { PHANTOM_BLOOD, BATTLE_TENDENCY, STARDUST_CRUSADERS, DIAMOND_IS_UNBREAKABLE, GOLDEN_WIND, STONE_OCEAN, STEEL_BALL_RUN, JOJOLION, THE_JOJOLANDS };
     
-    private final Component name;
+    private final MutableComponent name;
     private final Component tooltipName;
     @Nullable private ResourceLocation sprite;
     private OptionalInt canonPart = OptionalInt.empty();

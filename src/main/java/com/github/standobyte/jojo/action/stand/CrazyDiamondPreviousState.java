@@ -234,7 +234,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                             if (spawnTicks >= 215) {
                                 if (!world.isClientSide() && standEntity.getRandom().nextFloat() < 0.005F) {
                                     BlockPos blockPos = wither.blockPosition();
-                                    wither.remove();
+                                    wither.discard();
                                     if (!wither.isAlive()) {
                                         replaceOrDropBlock(world, blockPos.offset(0, 2, 0), Blocks.WITHER_SKELETON_SKULL.defaultBlockState());
                                         replaceOrDropBlock(world, blockPos.offset(1, 2, 0), Blocks.WITHER_SKELETON_SKULL.defaultBlockState());

@@ -467,7 +467,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                         ((IPlayerPossess) angeloEntity).jojoPossessEntity(this, false, null);
                     }
                     else {
-                        angeloEntity.remove();
+                        angeloEntity.discard();
                         if (keepMobInside && angeloEntity instanceof Mob) {
                             this.mob = (Mob) angeloEntity;
                             useMobHurtSound = CommonReflection.getAmbientSound(mob) == null;
