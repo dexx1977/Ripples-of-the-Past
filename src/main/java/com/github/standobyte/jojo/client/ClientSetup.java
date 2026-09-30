@@ -182,10 +182,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -439,10 +438,9 @@ public class ClientSetup {
     }
 
     @SubscribeEvent
-    public static void registerItemColoring(ColorHandlerEvent.Item event) {
-        ItemColors itemColors = event.getItemColors();
+    public static void registerItemColoring(RegisterColorHandlersEvent.Item event) {
         
-        itemColors.register((stack, layer) -> {
+        event.register((stack, layer) -> {
             switch (layer) {
             case 1:
                 return ClientUtil.discColor(StandDiscItem.getColor(stack));
@@ -453,7 +451,7 @@ public class ClientSetup {
             }
         }, ModItems.STAND_DISC.get());
         
-        itemColors.register((stack, layer) -> {
+        event.register((stack, layer) -> {
             if (layer != 1) return -1;
 
             Optional<DyeColor> dye = CassetteRecordedItem.getCassetteData(stack).map(cap -> cap.getDye());
@@ -477,8 +475,8 @@ public class ClientSetup {
     
     
     @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent event) {
-        Map<ResourceLocation, BakedModel> registry = event.getModelRegistry();
+    public static void onModelBake(ModelEvent.BakingCompleted event) {
+        Map<ResourceLocation, BakedModel> registry = event.getModels();
         registerCustomBakedModel(MCUtil.id(ModItems.ROAD_ROLLER.get()), registry,                model -> new RoadRollerBakedModel(model));
         registerCustomBakedModel(MCUtil.id(ModItems.STAND_DISC.get()), registry,                 model -> new StandDiscISTERModel(model));
         registerCustomBakedModel(MCUtil.id(ModItems.POLAROID.get()), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
@@ -505,43 +503,43 @@ public class ClientSetup {
     
     
     @SubscribeEvent
-    public static void onMcConstructor(ParticleFactoryRegisterEvent event) {
+    public static void onMcConstructor(RegisterParticleProvidersEvent event) {
         Minecraft mc = Minecraft.getInstance();
-        mc.particleEngine.register(ModParticles.BLOOD.get(),                BloodParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_SPARK.get(),          HamonSparkParticle.HamonParticleFactory::new);
-        mc.particleEngine.register(ModParticles.HAMON_SPARK_BLUE.get(),     HamonSparkParticle.HamonParticleFactory::new);
-        mc.particleEngine.register(ModParticles.HAMON_SPARK_YELLOW.get(),   HamonSparkParticle.HamonParticleFactory::new);
-        mc.particleEngine.register(ModParticles.HAMON_SPARK_RED.get(),      HamonSparkParticle.HamonParticleFactory::new);
-        mc.particleEngine.register(ModParticles.HAMON_SPARK_SILVER.get(),   HamonSparkParticle.HamonParticleFactory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA.get(),           HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_BLUE.get(),      HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_YELLOW.get(),    HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_RED.get(),       HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_SILVER.get(),    HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_GREEN.get(),     HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.HAMON_AURA_RAINBOW.get(),   HamonAuraParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.BOILING_BLOOD_POP.get(),    LavaParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.METEORITE_VIRUS.get(),      MeteoriteVirusParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.MENACING.get(),             OnomatopoeiaParticle.GoFactory::new);
-        mc.particleEngine.register(ModParticles.RESOLVE.get(),              OnomatopoeiaParticle.DoFactory::new);
-        mc.particleEngine.register(ModParticles.SOUL_CLOUD.get(),           SoulCloudParticleFactory::new);
-        mc.particleEngine.register(ModParticles.AIR_STREAM.get(),           AirStreamParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.FLAME_ONE_TICK.get(),       OneTickFlameParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.CD_RESTORATION.get(),       CDRestorationParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.RPS_ROCK.get(),             RPSPickPartile.Factory::new);
-        mc.particleEngine.register(ModParticles.RPS_PAPER.get(),            RPSPickPartile.Factory::new);
-        mc.particleEngine.register(ModParticles.RPS_SCISSORS.get(),         RPSPickPartile.Factory::new);
-        mc.particleEngine.register(ModParticles.SANDSTORM.get(),         DivineSandstormParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.RIFT.get(),         AtmosphericRiftParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.LIGHT_SPARK.get(),       LightGlintParticle.Factory::new);
-        mc.particleEngine.register(ModParticles.LIGHT_MODE_FLASH.get(),     LightModeFlashParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.BLOOD.get(),                BloodParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_SPARK.get(),          HamonSparkParticle.HamonParticleFactory::new);
+        event.registerSpriteSet(ModParticles.HAMON_SPARK_BLUE.get(),     HamonSparkParticle.HamonParticleFactory::new);
+        event.registerSpriteSet(ModParticles.HAMON_SPARK_YELLOW.get(),   HamonSparkParticle.HamonParticleFactory::new);
+        event.registerSpriteSet(ModParticles.HAMON_SPARK_RED.get(),      HamonSparkParticle.HamonParticleFactory::new);
+        event.registerSpriteSet(ModParticles.HAMON_SPARK_SILVER.get(),   HamonSparkParticle.HamonParticleFactory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA.get(),           HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_BLUE.get(),      HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_YELLOW.get(),    HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_RED.get(),       HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_SILVER.get(),    HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_GREEN.get(),     HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.HAMON_AURA_RAINBOW.get(),   HamonAuraParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.BOILING_BLOOD_POP.get(),    LavaParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.METEORITE_VIRUS.get(),      MeteoriteVirusParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.MENACING.get(),             OnomatopoeiaParticle.GoFactory::new);
+        event.registerSpriteSet(ModParticles.RESOLVE.get(),              OnomatopoeiaParticle.DoFactory::new);
+        event.registerSpriteSet(ModParticles.SOUL_CLOUD.get(),           SoulCloudParticleFactory::new);
+        event.registerSpriteSet(ModParticles.AIR_STREAM.get(),           AirStreamParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.FLAME_ONE_TICK.get(),       OneTickFlameParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.CD_RESTORATION.get(),       CDRestorationParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.RPS_ROCK.get(),             RPSPickPartile.Factory::new);
+        event.registerSpriteSet(ModParticles.RPS_PAPER.get(),            RPSPickPartile.Factory::new);
+        event.registerSpriteSet(ModParticles.RPS_SCISSORS.get(),         RPSPickPartile.Factory::new);
+        event.registerSpriteSet(ModParticles.SANDSTORM.get(),         DivineSandstormParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.RIFT.get(),         AtmosphericRiftParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.LIGHT_SPARK.get(),       LightGlintParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.LIGHT_MODE_FLASH.get(),     LightModeFlashParticle.Factory::new);
 
         CustomParticlesHelper.saveSprites(mc);
         CustomResources.initCustomResourceManagers(mc);
         CustomRenderType.addExtraFixedBuffers(mc);
     }
 
-    private static class SoulCloudParticleFactory extends PlayerCloudParticle.Factory {
+    private static class SoulCloudParticleFactory extends PlayerCloudParticle.Provider {
 
         public SoulCloudParticleFactory(SpriteSet sprite) {
             super(sprite);
