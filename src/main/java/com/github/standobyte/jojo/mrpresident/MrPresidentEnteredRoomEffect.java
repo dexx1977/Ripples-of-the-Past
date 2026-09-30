@@ -147,10 +147,10 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
     }
     
     
-    public static CompletableFuture<Either<ChunkAccess, ChunkHolder.IChunkLoadingError>> getChunkFuture(ServerChunkCache chunkProvider, 
+    public static CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> getChunkFuture(ServerChunkCache chunkProvider, 
             int chunkX, int chunkY, ChunkStatus requiredStatus, boolean load) {
         boolean flag = Thread.currentThread() == chunkProvider.mainThread;
-        CompletableFuture<Either<ChunkAccess, ChunkHolder.IChunkLoadingError>> future;
+        CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> future;
         if (flag) {
             future = chunkProvider.getChunkFutureMainThread(chunkX, chunkY, requiredStatus, load);
             chunkProvider.mainThreadProcessor.managedBlock(future::isDone);

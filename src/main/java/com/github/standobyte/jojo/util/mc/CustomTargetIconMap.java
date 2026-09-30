@@ -21,7 +21,6 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
-import net.minecraftforge.common.util.Constants;
 import net.minecraft.nbt.Tag;
 
 public class CustomTargetIconMap {

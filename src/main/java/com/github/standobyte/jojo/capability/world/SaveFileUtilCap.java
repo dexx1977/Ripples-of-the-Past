@@ -25,7 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.util.Constants;
 import net.minecraft.nbt.Tag;
 
 public class SaveFileUtilCap {

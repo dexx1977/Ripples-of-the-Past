@@ -67,7 +67,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.PlayLevelSoundEvent;
@@ -518,22 +517,8 @@ public class JojoModUtil {
     }
     
     
-    public static <T extends INBTSerializable<N>, N extends Tag> IStorage<T> makeSerializableStorage() {
-        return new IStorage<T>() {
-            @Override public Tag writeNBT(Capability<T> capability, T instance, Direction side) { return instance.serializeNBT(); }
-            @Override public void readNBT(Capability<T> capability, T instance, Direction side, Tag nbt) { instance.deserializeNBT((N) nbt); }
-        };
-    }
-    
-    public static <T> IStorage<T> noStorage() {
-        return new IStorage<T>() {
-            @Override public Tag writeNBT(Capability<T> capability, T instance, Direction side) { return null; }
-            @Override public void readNBT(Capability<T> capability, T instance, Direction side, Tag nbt) {}
-        };
-    }
-    
-    
-    
+
+
     public static enum Direction2D {
         UP,
         RIGHT,

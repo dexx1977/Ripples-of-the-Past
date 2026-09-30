@@ -40,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.util.Constants;
 
 /**
  * Currently item stacks are being tracked in:

@@ -20,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class EntitySubtype<T extends Entity> {
     public final EntityType<T> vanillaType;
@@ -30,13 +31,13 @@ public class EntitySubtype<T extends Entity> {
     public EntitySubtype(EntityType<T> type, String subtypeId, 
             Consumer<T> onInstanceInit, Predicate<T> entityIsOfSubtype) {
         this.vanillaType = type;
-        this.id = new SubtypeResourceLocation(type.getRegistryName(), subtypeId);
+        this.id = new SubtypeResourceLocation(MCUtil.id(type), subtypeId);
         this.onInstanceInit = onInstanceInit;
         this.entityIsOfSubtype = entityIsOfSubtype;
     }
     
     public static <T extends Entity> EntitySubtype<?> base(EntityType<T> type) {
-        return BASE_SUBTYPES.computeIfAbsent(type.getRegistryName(), __ -> new EntitySubtype<>(type, null, null, null));
+        return BASE_SUBTYPES.computeIfAbsent(MCUtil.id(type), __ -> new EntitySubtype<>(type, null, null, null));
     }
     
     public T create(Level world) {
@@ -68,7 +69,7 @@ public class EntitySubtype<T extends Entity> {
             Consumer<T> onInstanceInit, Predicate<T> entityIsOfSubtype) {
         Objects.requireNonNull(subtypeId);
         EntitySubtype<T> subType = new EntitySubtype<>(entityType, subtypeId, onInstanceInit, entityIsOfSubtype);
-        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.computeIfAbsent(entityType.getRegistryName(), __ -> new HashMap<>());
+        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.computeIfAbsent(MCUtil.id(entityType), __ -> new HashMap<>());
         subtypes.put(subtypeId, subType);
         return subType;
     }
@@ -99,7 +100,7 @@ public class EntitySubtype<T extends Entity> {
     }
     
     public static <T extends Entity> Stream<EntitySubtype<?>> getMatchingSubtypes(T entity) {
-        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(entity.getType().getRegistryName());
+        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(MCUtil.id(entity.getType()));
         Stream<EntitySubtype<?>> base = Stream.of(base(entity.getType()));
         if (subtypes == null || subtypes.isEmpty()) {
             return base;

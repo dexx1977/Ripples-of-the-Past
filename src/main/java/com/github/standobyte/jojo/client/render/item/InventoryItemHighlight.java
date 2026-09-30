@@ -9,6 +9,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class InventoryItemHighlight {
     private static final Map<ResourceLocation, MutableInt> HIGHLIGHT_TIMER = new HashMap<>();
@@ -17,7 +18,7 @@ public class InventoryItemHighlight {
     public static void highlightItem(Item item, int ticks) {
         if (item != null && ticks >= CYCLE) {
             ticks = ticks / CYCLE * CYCLE;
-            ResourceLocation key = item.getRegistryName();
+            ResourceLocation key = MCUtil.id(item);
             MutableInt curTimer = HIGHLIGHT_TIMER.get(key);
             if (curTimer != null) {
                 if (curTimer.intValue() % CYCLE > 0) ticks -= CYCLE;
@@ -40,7 +41,7 @@ public class InventoryItemHighlight {
     }
     
     public static float getHighlightAmount(Item item, float partialTick) {
-        MutableInt ticks = HIGHLIGHT_TIMER.get(item.getRegistryName());
+        MutableInt ticks = HIGHLIGHT_TIMER.get(MCUtil.id(item));
         if (ticks != null && ticks.intValue() >= 0) {
             float x = ticks.intValue() + partialTick;
             x = x % 20 / 10;

@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.capability.item.walkman;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
 
-public class WalkmanCassetteSlotStorage implements IStorage<WalkmanCassetteSlotCap> {
+/**
+ * 1.20.1 removed Capability.IStorage, so the walkman slot's read/write logic
+ * lives here as plain helpers that the provider calls. Forge's ItemStackHandler
+ * accepts both the legacy compound form and the current list form, so walkman
+ * items written by either layout keep working.
+ */
+public class WalkmanCassetteSlotStorage {
 
-    @Override
-    public Tag writeNBT(Capability<WalkmanCassetteSlotCap> capability, WalkmanCassetteSlotCap instance, Direction side) {
+    public static Tag writeNBT(WalkmanCassetteSlotCap instance) {
         return instance.serializeNBT();
     }
 
-    @Override
-    public void readNBT(Capability<WalkmanCassetteSlotCap> capability, WalkmanCassetteSlotCap instance, Direction side, Tag nbt) {
-        instance.deserializeNBT((CompoundTag) nbt);
+    public static void readNBT(WalkmanCassetteSlotCap instance, Tag nbt) {
+        instance.deserializeNBT(nbt);
     }
 }

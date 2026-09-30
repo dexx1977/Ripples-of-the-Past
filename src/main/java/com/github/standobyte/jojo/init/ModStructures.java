@@ -42,6 +42,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModStructures {
@@ -105,7 +106,7 @@ public class ModStructures {
             F structure,
             StructureSeparationSettings structureSeparationSettings,
             boolean transformSurroundingLand) {
-        Structure.STRUCTURES_REGISTRY.put(structure.getRegistryName().toString(), structure);
+        Structure.STRUCTURES_REGISTRY.put(MCUtil.id(structure).toString(), structure);
 
         if (transformSurroundingLand) {
             Structure.NOISE_AFFECTING_FEATURES = ImmutableList.<Structure<?>>builder()

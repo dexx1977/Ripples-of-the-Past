@@ -91,6 +91,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import com.mojang.math.Axis;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 /**
  * Any methods from this class are only to be called on the client side
@@ -709,7 +710,7 @@ public class ClientUtil {
     }
     
     public static void addItemReferenceQuote(List<Component> tooltip, Item item) {
-        ResourceLocation itemId = item.getRegistryName();
+        ResourceLocation itemId = MCUtil.id(item);
         addItemReferenceQuote(tooltip, item, itemId.getNamespace() + "." + itemId.getPath());
     }
     

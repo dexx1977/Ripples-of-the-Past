@@ -21,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
 import net.minecraft.nbt.Tag;
 
 public class LifeformsUIState {
@@ -51,11 +50,11 @@ public class LifeformsUIState {
     
     
     public boolean isGELifeformInFavorites(EntityType<?> type) {
-        return favoritesMobs.contains(type.getRegistryName());
+        return favoritesMobs.contains(MCUtil.id(type));
     }
 
     public boolean GELifeformAddFav(EntityType<?> type) {
-        if (favoritesMobs.add(type.getRegistryName()) && player.level.isClientSide()) {
+        if (favoritesMobs.add(MCUtil.id(type)) && player.level.isClientSide()) {
             PacketManager.sendToServer(ClGEUiDataPacket.favoriteAdded(type));
             return true;
         }
@@ -64,7 +63,7 @@ public class LifeformsUIState {
     }
 
     public boolean GELifeformRemoveFav(EntityType<?> type) {
-        if (favoritesMobs.remove(type.getRegistryName()) && player.level.isClientSide()) {
+        if (favoritesMobs.remove(MCUtil.id(type)) && player.level.isClientSide()) {
             PacketManager.sendToServer(ClGEUiDataPacket.favoriteRemoved(type));
             return true;
         }
@@ -79,7 +78,7 @@ public class LifeformsUIState {
     
     
     public boolean isGELifeformNew(EntityType<?> type) {
-        return newUnseenMobs.contains(type.getRegistryName());
+        return newUnseenMobs.contains(MCUtil.id(type));
     }
     
     public void clearGENewMobs() {

@@ -220,7 +220,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
             nbt.putFloat("HamonPunchDmg", syoPunchBaseDamage);
             nbt.putInt("HamonFireTicks", scarletOverdriveFireTicks);
             if (hamonParticles instanceof ParticleType) {
-                nbt.putString("HamonSparks", ((ParticleType<?>) hamonParticles).getRegistryName().toString());
+                nbt.putString("HamonSparks", MCUtil.id(((ParticleType<?>) hamonParticles)).toString());
             }
         }
         return nbt;

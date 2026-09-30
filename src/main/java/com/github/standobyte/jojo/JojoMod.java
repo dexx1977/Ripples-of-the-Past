@@ -71,6 +71,7 @@ public class JojoMod {
         JojoCustomRegistries.initCustomRegistries(modEventBus);
         registerVanillaDeferredRegisters(modEventBus);
 
+        modEventBus.addListener(ForgeBusEventSubscriber::registerCapabilities);
         modEventBus.addListener(this::preInit);
         modEventBus.addListener(this::interMod);
         ModTags.initTags();
@@ -100,7 +101,6 @@ public class JojoMod {
     private void preInit(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             ModDimensions.init();
-            ForgeBusEventSubscriber.registerCapabilities();
             
             StandArgument.commonSetupRegister();
             NonStandTypeArgument.commonSetupRegister();

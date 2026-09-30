@@ -58,7 +58,7 @@ public class PlayerUtilCap {
     
     public int knivesThrewTicks = 0;
     
-    private final Map<Entity, Map<EntityDataAccessor<?>, SynchedEntityData.DataEntry<?>>> tsDelayedData = new HashMap<>();
+    private final Map<Entity, Map<EntityDataAccessor<?>, SynchedEntityData.DataValue<?>>> tsDelayedData = new HashMap<>();
     
     private Optional<ContinuousActionInstance<?, ?>> continuousAction = Optional.empty();
     
@@ -237,9 +237,9 @@ public class PlayerUtilCap {
     }
     
     
-    public void addDataForTSUnfreeze(Entity entity, Iterable<SynchedEntityData.DataEntry<?>> newData) {
-        Map<EntityDataAccessor<?>, SynchedEntityData.DataEntry<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
-        for (SynchedEntityData.DataEntry<?> dataEntry : newData) {
+    public void addDataForTSUnfreeze(Entity entity, Iterable<SynchedEntityData.DataValue<?>> newData) {
+        Map<EntityDataAccessor<?>, SynchedEntityData.DataValue<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
+        for (SynchedEntityData.DataValue<?> dataEntry : newData) {
             data.put(dataEntry.getAccessor(), dataEntry);
         }
     }
@@ -493,7 +493,7 @@ public class PlayerUtilCap {
     public boolean addMetEntityType(EntitySubtype<?> entityType) {
         boolean added = metEntityTypes.add(entityType.getId());
         if (added) {
-            geUIState.newUnseenMobs.add(entityType.vanillaType.getRegistryName());
+            geUIState.newUnseenMobs.add(MCUtil.id(entityType.vanillaType));
         }
         return added;
     }

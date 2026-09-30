@@ -1,20 +1,22 @@
 package com.github.standobyte.jojo.capability.entity.hamonutil;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
+import com.github.standobyte.jojo.capability.entity.hamonutil.EntityHamonChargeCap;
 
-public class EntityHamonChargeCapStorage implements IStorage<EntityHamonChargeCap> {
+/**
+ * 1.20.1 removed Capability.IStorage, so the read/write logic that used to
+ * implement that interface lives here as plain helpers that the provider
+ * calls. The class is kept so the original split between capability storage
+ * and capability providers stays visible, and the serialized data is byte
+ * identical to 1.16.5.
+ */
+public class EntityHamonChargeCapStorage {
 
-    @Override
-    public Tag writeNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side) {
+    public static CompoundTag writeNBT(EntityHamonChargeCap instance) {
         return instance.toNBT();
     }
 
-    @Override
-    public void readNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side, Tag nbt) {
-        instance.fromNBT((CompoundTag) nbt);
+    public static void readNBT(EntityHamonChargeCap instance, CompoundTag nbt) {
+        instance.fromNBT(nbt);
     }
 }

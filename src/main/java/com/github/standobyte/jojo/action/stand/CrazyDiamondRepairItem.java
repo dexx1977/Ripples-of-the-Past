@@ -35,6 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class CrazyDiamondRepairItem extends StandEntityAction {
     public static final StandPose ITEM_FIX_POSE = new StandPose("itemFix");
@@ -105,10 +106,10 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
             damage = 1;
             newStack = new ItemStack(Items.STONE);
         }
-        else if (itemStack.getItem().getRegistryName().getPath().contains("cracked")) {
+        else if (MCUtil.id(itemStack.getItem()).getPath().contains("cracked")) {
             ResourceLocation uncracked = new ResourceLocation(
-                    itemStack.getItem().getRegistryName().getNamespace(), 
-                    itemStack.getItem().getRegistryName().getPath().replace("cracked_", ""));
+                    MCUtil.id(itemStack.getItem()).getNamespace(), 
+                    MCUtil.id(itemStack.getItem()).getPath().replace("cracked_", ""));
             if (ForgeRegistries.ITEMS.containsKey(uncracked)) {
                 damage = 1;
                 newStack = new ItemStack(ForgeRegistries.ITEMS.getValue(uncracked));
@@ -178,9 +179,9 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
                 (itemStack.isDamaged() || itemStack.isEnchanted()
                         || itemStack.getItem() == Items.CHIPPED_ANVIL || itemStack.getItem() == Items.DAMAGED_ANVIL
                         || itemStack.getItem() == Items.COBBLESTONE
-                        || itemStack.getItem().getRegistryName().getPath().contains("cracked") && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(
-                                itemStack.getItem().getRegistryName().getNamespace(), 
-                                itemStack.getItem().getRegistryName().getPath().replace("cracked_", "")))
+                        || MCUtil.id(itemStack.getItem()).getPath().contains("cracked") && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(
+                                MCUtil.id(itemStack.getItem()).getNamespace(), 
+                                MCUtil.id(itemStack.getItem()).getPath().replace("cracked_", "")))
                         );
     }
     

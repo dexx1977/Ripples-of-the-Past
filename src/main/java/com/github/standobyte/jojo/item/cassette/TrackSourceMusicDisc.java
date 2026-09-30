@@ -32,7 +32,7 @@ public class TrackSourceMusicDisc extends TrackSource {
     @Override
     protected CompoundTag toNBT() {
         CompoundTag nbt = super.toNBT();
-        nbt.putString("MusicDisc", musicDisc.getRegistryName().toString());
+        nbt.putString("MusicDisc", MCUtil.id(musicDisc).toString());
         return nbt;
     }
 

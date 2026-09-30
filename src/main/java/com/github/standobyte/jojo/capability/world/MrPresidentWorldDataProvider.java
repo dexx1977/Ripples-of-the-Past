@@ -2,17 +2,18 @@ package com.github.standobyte.jojo.capability.world;
 
 import com.github.standobyte.jojo.mrpresident.dimension.MrPresidentWorldData;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class MrPresidentWorldDataProvider implements ICapabilitySerializable<Tag>{
-    @CapabilityInject(MrPresidentWorldData.class)
-    public static Capability<MrPresidentWorldData> CAPABILITY = null;
+public class MrPresidentWorldDataProvider implements ICapabilitySerializable<CompoundTag>{
+    public static final Capability<MrPresidentWorldData> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private LazyOptional<MrPresidentWorldData> instance;
     
     public MrPresidentWorldDataProvider(ServerLevel world) {
@@ -25,14 +26,14 @@ public class MrPresidentWorldDataProvider implements ICapabilitySerializable<Tag
     }
 
     @Override
-    public Tag serializeNBT() {
-        return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(
-                () -> new IllegalArgumentException("Mr.President capability LazyOptional is not attached.")), null);
+    public CompoundTag serializeNBT() {
+        return instance.orElseThrow(
+                () -> new IllegalArgumentException("Mr.President capability LazyOptional is not attached.")).serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(Tag nbt) {
-        CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(
-                () -> new IllegalArgumentException("Mr.President capability LazyOptional is not attached.")), null, nbt);
+    public void deserializeNBT(CompoundTag nbt) {
+        instance.orElseThrow(
+                () -> new IllegalArgumentException("Mr.President capability LazyOptional is not attached.")).deserializeNBT(nbt);
     }
 }

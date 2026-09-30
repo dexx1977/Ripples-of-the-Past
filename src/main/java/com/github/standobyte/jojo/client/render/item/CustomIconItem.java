@@ -27,9 +27,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
-import net.minecraftforge.common.util.Constants;
 import com.mojang.math.Axis;
 import net.minecraft.nbt.Tag;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class CustomIconItem {
     public static final Supplier<Item> DUMMY_ITEM = ModItems.METEORIC_SCRAP;
@@ -110,7 +110,7 @@ public class CustomIconItem {
     }
     
     public static void onModelBake(Map<ResourceLocation, BakedModel> modelRegistry) {
-        ClientSetup.registerCustomBakedModel(DUMMY_ITEM.get().getRegistryName(), modelRegistry, 
+        ClientSetup.registerCustomBakedModel(MCUtil.id(DUMMY_ITEM.get()), modelRegistry, 
                 model -> new ItemISTERModelWrapper(model));
     }
     

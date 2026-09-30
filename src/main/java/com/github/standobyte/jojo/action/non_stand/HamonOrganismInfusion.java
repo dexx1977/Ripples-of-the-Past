@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class HamonOrganismInfusion extends HamonAction {
 
@@ -209,7 +210,7 @@ public class HamonOrganismInfusion extends HamonAction {
         
         Material material = blockState.getMaterial();
         Block block = blockState.getBlock();
-        ResourceLocation id = block.getRegistryName();
+        ResourceLocation id = MCUtil.id(block);
         
         if (material == Material.REPLACEABLE_PLANT) {
             return !exceptionBlocksCache.contains(id);

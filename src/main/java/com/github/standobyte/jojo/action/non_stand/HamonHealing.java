@@ -45,10 +45,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class HamonHealing extends HamonAction {
     public static final Set<ResourceLocation> VENOM_EFFECTS_INIT = Util.make(new HashSet<>(), set -> {
-        set.add(MobEffects.POISON.getRegistryName());
-        set.add(MobEffects.WITHER.getRegistryName());
-        set.add(MobEffects.HUNGER.getRegistryName());
-        set.add(MobEffects.CONFUSION.getRegistryName());
+        set.add(MCUtil.id(MobEffects.POISON));
+        set.add(MCUtil.id(MobEffects.WITHER));
+        set.add(MCUtil.id(MobEffects.HUNGER));
+        set.add(MCUtil.id(MobEffects.CONFUSION));
     });
 
     public HamonHealing(HamonAction.Builder builder) {

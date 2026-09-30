@@ -23,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.util.Constants;
 import net.minecraft.nbt.Tag;
 
 public class StandArrowHandler {

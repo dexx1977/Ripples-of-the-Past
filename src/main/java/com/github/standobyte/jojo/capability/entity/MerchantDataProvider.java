@@ -2,16 +2,17 @@ package com.github.standobyte.jojo.capability.entity;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.trading.Merchant;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class MerchantDataProvider implements ICapabilitySerializable<Tag>{
-    @CapabilityInject(MerchantData.class)
-    public static Capability<MerchantData> CAPABILITY = null;
+public class MerchantDataProvider implements ICapabilitySerializable<CompoundTag>{
+    public static final Capability<MerchantData> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     private LazyOptional<MerchantData> instance;
     
     public MerchantDataProvider(LivingEntity entity, Merchant asMerchant) {
@@ -24,14 +25,14 @@ public class MerchantDataProvider implements ICapabilitySerializable<Tag>{
     }
 
     @Override
-    public Tag serializeNBT() {
-        return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(
-                () -> new IllegalArgumentException("Merchant data LazyOptional is not attached.")), null);
+    public CompoundTag serializeNBT() {
+        return instance.orElseThrow(
+                () -> new IllegalArgumentException("Merchant data LazyOptional is not attached.")).serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(Tag nbt) {
-        CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(
-                () -> new IllegalArgumentException("Merchant data LazyOptional is not attached.")), null, nbt);
+    public void deserializeNBT(CompoundTag nbt) {
+        instance.orElseThrow(
+                () -> new IllegalArgumentException("Merchant data LazyOptional is not attached.")).deserializeNBT(nbt);
     }
 }

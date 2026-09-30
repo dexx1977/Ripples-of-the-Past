@@ -903,11 +903,11 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 ((IEntityAdditionalSpawnData) entity).writeSpawnData(buffer);
             }
             
-            List<SynchedEntityData.DataEntry<?>> entityData = entity.getEntityData().getAll();
+            List<SynchedEntityData.DataValue<?>> entityData = entity.getEntityData().getAll();
             try {
                 SynchedEntityData.pack(entityData, buffer);
             } catch (IOException e) {
-                JojoMod.getLogger().error("Failed to write entity data for Gold Experience's transformation render for entity of type {}", entity.getType().getRegistryName());
+                JojoMod.getLogger().error("Failed to write entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
                 e.printStackTrace();
             }
         });
@@ -939,13 +939,13 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
             
             try {
-                List<SynchedEntityData.DataEntry<?>> entityData = SynchedEntityData.unpack(buffer);
+                List<SynchedEntityData.DataValue<?>> entityData = SynchedEntityData.unpack(buffer);
                 entity.getEntityData().assignValues(entityData);
             } catch (IOException e) {
-                JojoMod.getLogger().error("Failed to read entity data for Gold Experience's transformation render for entity of type {}", entity.getType().getRegistryName());
+                JojoMod.getLogger().error("Failed to read entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
                 e.printStackTrace();
             } catch (Exception e) {
-                JojoMod.getLogger().error("Failed to assign entity data for Gold Experience's transformation render for entity of type {}", entity.getType().getRegistryName());
+                JojoMod.getLogger().error("Failed to assign entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
                 e.printStackTrace();
             }
             

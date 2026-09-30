@@ -50,7 +50,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Explosion;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.util.Constants;
 
 public class LivingUtilCap {
     private final LivingEntity entity;

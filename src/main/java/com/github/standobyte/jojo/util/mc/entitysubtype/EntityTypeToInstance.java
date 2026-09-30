@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.JojoMod;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.level.Level;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 /* 
  * A map to hold entity instances which aren't added into a world, 
@@ -47,7 +48,7 @@ public class EntityTypeToInstance {
     @SuppressWarnings("unchecked")
     public static <T extends Entity> T getEntityInstance(EntitySubtype<T> subType, Level world) {
         if (instance == null) {
-            JojoMod.getLogger().error("An operation with {} entity type needed an Entity instance, but the map for them hasn't been created yet!", subType.vanillaType.getRegistryName());
+            JojoMod.getLogger().error("An operation with {} entity type needed an Entity instance, but the map for them hasn't been created yet!", MCUtil.id(subType.vanillaType));
             return null;
         }
         Entity entity = null;

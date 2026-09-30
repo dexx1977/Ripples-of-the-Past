@@ -111,7 +111,7 @@ public class TimeStopHandler {
                     Set<ServerPlayer> trackingPlayers = MCUtil.getTrackingPlayers(entity);
                     List<ServerPlayer> frozenPlayers = new ArrayList<>();
                     
-                    List<SynchedEntityData.DataEntry<?>> packedData = null;
+                    List<SynchedEntityData.DataValue<?>> packedData = null;
                     Iterator<ServerPlayer> trackingIterator = trackingPlayers.iterator();
                     while (trackingIterator.hasNext()) {
                         ServerPlayer player = trackingIterator.next();
@@ -123,7 +123,7 @@ public class TimeStopHandler {
                     
                     boolean manualSelectiveSync = packedData != null;
                     if (manualSelectiveSync) {
-                        List<SynchedEntityData.DataEntry<?>> dataToKeep = packedData;
+                        List<SynchedEntityData.DataValue<?>> dataToKeep = packedData;
                         for (ServerPlayer tracking : trackingPlayers) {
                             if (frozenPlayers.contains(tracking)) {
                                 tracking.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {

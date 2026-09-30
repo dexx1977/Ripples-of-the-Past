@@ -25,6 +25,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class ModInteractionUtil {
@@ -46,7 +47,7 @@ public class ModInteractionUtil {
     private static final ResourceLocation VAMPIRISM_FREEZE = new ResourceLocation("vampirism", "freeze");
     public static float getEntityFreeze(LivingEntity entity) {
         return Math.min(entity.getActiveEffectsMap().entrySet().stream().map(entry -> {
-            ResourceLocation effectId = entry.getKey().getRegistryName();
+            ResourceLocation effectId = MCUtil.id(entry.getKey());
             if (MOWZIES_FROZEN_EFFECT.equals(effectId) || VAMPIRISM_FREEZE.equals(effectId)) {
                 return 1F;
             }
@@ -69,7 +70,7 @@ public class ModInteractionUtil {
         
         EntityType<?> type = entity.getType();
         if (type == null) return false;
-        ResourceLocation typeId = type.getRegistryName();
+        ResourceLocation typeId = MCUtil.id(type);
         return 
                 MUTANT_ENDERMAN_ID.equals(typeId) ||
                 MUTANT_ENDERMAN_ID_2.equals(typeId) ||
@@ -93,7 +94,7 @@ public class ModInteractionUtil {
         LivingEntity target = event.getEntity();
         
         if ("mob".equals(damageSource.msgId) && entity != null) {
-            ResourceLocation damagingEntityId = entity.getType().getRegistryName();
+            ResourceLocation damagingEntityId = MCUtil.id(entity.getType());
             if (damagingEntityId.getNamespace().equals("mowziesmobs")) {
                 String entityName = damagingEntityId.getPath();
                 if (    entityName.equals("sunstrike") || 
@@ -114,7 +115,7 @@ public class ModInteractionUtil {
 
     private static final ResourceLocation SQUID_INK_PASTA = new ResourceLocation("farmersdelight", "squid_ink_pasta");
     public static boolean isSquidInkPasta(ItemStack item) {
-        return SQUID_INK_PASTA.equals(item.getItem().getRegistryName());
+        return SQUID_INK_PASTA.equals(MCUtil.id(item.getItem()));
     }
     
     

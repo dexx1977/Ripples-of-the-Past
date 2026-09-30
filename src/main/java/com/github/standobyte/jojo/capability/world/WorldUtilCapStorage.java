@@ -1,20 +1,22 @@
 package com.github.standobyte.jojo.capability.world;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
+import com.github.standobyte.jojo.capability.world.WorldUtilCap;
 
-public class WorldUtilCapStorage implements IStorage<WorldUtilCap> {
+/**
+ * 1.20.1 removed Capability.IStorage, so the read/write logic that used to
+ * implement that interface lives here as plain helpers that the provider
+ * calls. The class is kept so the original split between capability storage
+ * and capability providers stays visible, and the serialized data is byte
+ * identical to 1.16.5.
+ */
+public class WorldUtilCapStorage {
 
-    @Override
-    public Tag writeNBT(Capability<WorldUtilCap> capability, WorldUtilCap instance, Direction side) {
-        CompoundTag nbt = new CompoundTag();
-        return nbt;
+    public static CompoundTag writeNBT(WorldUtilCap instance) {
+        return new CompoundTag();
     }
 
-    @Override
-    public void readNBT(Capability<WorldUtilCap> capability, WorldUtilCap instance, Direction side, Tag nbt) {
+    public static void readNBT(WorldUtilCap instance, CompoundTag nbt) {
+        // nothing persisted for this capability, as in 1.16.5
     }
 }

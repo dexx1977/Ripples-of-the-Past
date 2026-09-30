@@ -203,7 +203,7 @@ public class StandDiscItem extends Item {
             id = stand.getType().getRegistryName();
         }
         else {
-            id = this.getRegistryName();
+            id = MCUtil.id(this);
         }
         return id.getNamespace();
     }

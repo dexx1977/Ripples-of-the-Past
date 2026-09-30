@@ -40,6 +40,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.registries.ForgeRegistries;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class LifeformsMetMobs {
     private Set<ResourceLocation> metBaseEntityTypesId = new HashSet<>();
@@ -123,7 +124,7 @@ public class LifeformsMetMobs {
             }
             nativeMobs.put(classification, spawners.stream()
                     .map(spawner -> spawner.type)
-                    .filter(type -> metBaseEntityTypesId.contains(type.getRegistryName())
+                    .filter(type -> metBaseEntityTypesId.contains(MCUtil.id(type))
                             && GoldExperienceChooseLifeform.isValidLifeform(EntitySubtype.base(type), world)
                             && ((SpawnPlacements.getPlacementType(type) == SpawnPlacements.PlacementType.IN_WATER) == world.getFluidState(pos).is(FluidTags.WATER))
                             && SpawnPlacements.checkSpawnRules(type, world, MobSpawnType.SPAWNER, pos, notRandom))
@@ -146,7 +147,7 @@ public class LifeformsMetMobs {
         for (MobCategory classification : MobCategory.values()) {
             List<EntityType<?>> types = nativeMobs.get(classification);
             NetworkUtil.writeCollection(buf, types, 
-                    (type, buffer) -> buffer.writeResourceLocation(type.getRegistryName()), false);
+                    (type, buffer) -> buffer.writeResourceLocation(MCUtil.id(type)), false);
         }
     }
     

@@ -20,6 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class GlovesLayer<T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     private final M glovesModel;
@@ -75,8 +76,8 @@ public class GlovesLayer<T extends LivingEntity, M extends PlayerModel<T>> exten
     
     private ResourceLocation getTexture(GlovesItem gloves) {
         return new ResourceLocation(
-                gloves.getRegistryName().getNamespace(), 
-                "textures/entity/layer/" + gloves.getRegistryName().getPath() + (slim ? "_slim" : "") + ".png");
+                MCUtil.id(gloves).getNamespace(), 
+                "textures/entity/layer/" + MCUtil.id(gloves).getPath() + (slim ? "_slim" : "") + ".png");
     }
     
     

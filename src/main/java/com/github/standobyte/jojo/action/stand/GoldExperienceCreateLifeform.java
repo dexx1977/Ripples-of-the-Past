@@ -370,7 +370,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                 }
                             }
                             else {
-                                JojoMod.getLogger().error("Failed to extract tracked item from {} entity", itemEntity.getType().getRegistryName());
+                                JojoMod.getLogger().error("Failed to extract tracked item from {} entity", MCUtil.id(itemEntity.getType()));
                             }
                         }
                         else {
@@ -397,7 +397,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                     }
                                 }
                                 else {
-                                    JojoMod.getLogger().error("Failed to extract tracked item from {} block at {}", blockState.getBlock().getRegistryName(), itemPos);
+                                    JojoMod.getLogger().error("Failed to extract tracked item from {} block at {}", MCUtil.id(blockState.getBlock()), itemPos);
                                 }
                             }
                         }
@@ -608,7 +608,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
     private void mobFromBlock(GETransformationEntity tf, BlockPos blockPos, BlockState blockState, ServerLevel world, Entity lifeformCreated, LivingEntity geUser) {
         BlockEntity tileEntity = world.getBlockEntity(blockPos);
         if (tileEntity != null) {
-            ResourceLocation teId = tileEntity.getType().getRegistryName();
+            ResourceLocation teId = MCUtil.id(tileEntity.getType());
             if (ModInteractionUtil.isModLoaded("apotheosis") && ENCH_TABLE_ID.equals(teId)) {
                 tileEntity = null;
             }
@@ -618,7 +618,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
         if (keepItems) {
             KEEP_ITEMS.add(tileEntity);
             
-            if (lifeformCreated.getType().getRegistryName().getPath().contains("pigeon")) {
+            if (MCUtil.id(lifeformCreated.getType()).getPath().contains("pigeon")) {
                 Container inventory = (Container) tileEntity;
                 Optional<UUID> deliveryDest = IntStream.range(0, inventory.getMaxStackSize()).mapToObj(inventory::getItem)
                         .filter(item -> !item.isEmpty() && item.getItem() == Items.NAME_TAG && item.hasCustomHoverName())

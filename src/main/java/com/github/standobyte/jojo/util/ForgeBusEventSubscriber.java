@@ -10,37 +10,27 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.JojoModConfig;
 import com.github.standobyte.jojo.capability.chunk.ChunkCap;
 import com.github.standobyte.jojo.capability.chunk.ChunkCapProvider;
-import com.github.standobyte.jojo.capability.chunk.ChunkCapStorage;
 import com.github.standobyte.jojo.capability.entity.ClientPlayerUtilCap;
 import com.github.standobyte.jojo.capability.entity.ClientPlayerUtilCapProvider;
 import com.github.standobyte.jojo.capability.entity.EntityUtilCap;
 import com.github.standobyte.jojo.capability.entity.EntityUtilCapProvider;
-import com.github.standobyte.jojo.capability.entity.EntityUtilCapStorage;
 import com.github.standobyte.jojo.capability.entity.LivingUtilCap;
 import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
-import com.github.standobyte.jojo.capability.entity.LivingUtilCapStorage;
 import com.github.standobyte.jojo.capability.entity.MerchantData;
 import com.github.standobyte.jojo.capability.entity.MerchantDataProvider;
 import com.github.standobyte.jojo.capability.entity.PlayerUtilCap;
 import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
-import com.github.standobyte.jojo.capability.entity.PlayerUtilCapStorage;
 import com.github.standobyte.jojo.capability.entity.hamonutil.EntityHamonChargeCap;
 import com.github.standobyte.jojo.capability.entity.hamonutil.EntityHamonChargeCapProvider;
-import com.github.standobyte.jojo.capability.entity.hamonutil.EntityHamonChargeCapStorage;
 import com.github.standobyte.jojo.capability.entity.hamonutil.ProjectileHamonChargeCap;
 import com.github.standobyte.jojo.capability.entity.hamonutil.ProjectileHamonChargeCapProvider;
-import com.github.standobyte.jojo.capability.entity.hamonutil.ProjectileHamonChargeCapStorage;
 import com.github.standobyte.jojo.capability.entity.power.NonStandCapProvider;
-import com.github.standobyte.jojo.capability.entity.power.NonStandCapStorage;
 import com.github.standobyte.jojo.capability.entity.power.StandCapProvider;
-import com.github.standobyte.jojo.capability.entity.power.StandCapStorage;
 import com.github.standobyte.jojo.capability.world.MrPresidentWorldDataProvider;
 import com.github.standobyte.jojo.capability.world.SaveFileUtilCap;
 import com.github.standobyte.jojo.capability.world.SaveFileUtilCapProvider;
-import com.github.standobyte.jojo.capability.world.SaveFileUtilCapStorage;
 import com.github.standobyte.jojo.capability.world.WorldUtilCap;
 import com.github.standobyte.jojo.capability.world.WorldUtilCapProvider;
-import com.github.standobyte.jojo.capability.world.WorldUtilCapStorage;
 import com.github.standobyte.jojo.command.ConfigPackCommand;
 import com.github.standobyte.jojo.command.HamonStatCommand;
 import com.github.standobyte.jojo.command.JojoCommandsCommand;
@@ -90,7 +80,7 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -198,24 +188,30 @@ public class ForgeBusEventSubscriber {
         event.addCapability(ITEM_TRACK_CAP, new TrackerItemStackProvider(event.getObject()));
     }
     
-    public static void registerCapabilities() { // moved the registration here just so that it's in the same place as the attachment
-        CapabilityManager.INSTANCE.register(IStandPower.class, new StandCapStorage(), () -> new StandPower(null));
-        CapabilityManager.INSTANCE.register(INonStandPower.class, new NonStandCapStorage(), () -> new NonStandPower(null));
-        CapabilityManager.INSTANCE.register(PlayerUtilCap.class, new PlayerUtilCapStorage(), () -> new PlayerUtilCap(null));
-        CapabilityManager.INSTANCE.register(ClientPlayerUtilCap.class, JojoModUtil.noStorage(), () -> new ClientPlayerUtilCap(null));
-        CapabilityManager.INSTANCE.register(LivingUtilCap.class, new LivingUtilCapStorage(), () -> new LivingUtilCap(null));
-        CapabilityManager.INSTANCE.register(EntityUtilCap.class, new EntityUtilCapStorage(), () -> new EntityUtilCap(null));
-        CapabilityManager.INSTANCE.register(EntityHamonChargeCap.class, new EntityHamonChargeCapStorage(), () -> new EntityHamonChargeCap(null));
-        CapabilityManager.INSTANCE.register(ProjectileHamonChargeCap.class, new ProjectileHamonChargeCapStorage(), () -> new ProjectileHamonChargeCap(null));
-        CapabilityManager.INSTANCE.register(MerchantData.class, JojoModUtil.makeSerializableStorage(), () -> new MerchantData(null, null));
-        
-        CapabilityManager.INSTANCE.register(WorldUtilCap.class, new WorldUtilCapStorage(), () -> new WorldUtilCap(null));
-        CapabilityManager.INSTANCE.register(SaveFileUtilCap.class, new SaveFileUtilCapStorage(), () -> new SaveFileUtilCap(null));
-        CapabilityManager.INSTANCE.register(MrPresidentWorldData.class, JojoModUtil.makeSerializableStorage(), () -> new MrPresidentWorldData(null));
+    /**
+     * 1.19+ registers capabilities by type only: the storage interface is gone
+     * and the default instances are no longer supplied here. The same set of
+     * capabilities is registered as in 1.16.5, and the class-level
+     * CapabilityManager.get tokens in the providers resolve against these.
+     */
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.register(IStandPower.class);
+        event.register(INonStandPower.class);
+        event.register(PlayerUtilCap.class);
+        event.register(ClientPlayerUtilCap.class);
+        event.register(LivingUtilCap.class);
+        event.register(EntityUtilCap.class);
+        event.register(EntityHamonChargeCap.class);
+        event.register(ProjectileHamonChargeCap.class);
+        event.register(MerchantData.class);
 
-        CapabilityManager.INSTANCE.register(ChunkCap.class, new ChunkCapStorage(), () -> new ChunkCap(null));
+        event.register(WorldUtilCap.class);
+        event.register(SaveFileUtilCap.class);
+        event.register(MrPresidentWorldData.class);
 
-        CapabilityManager.INSTANCE.register(TrackerItemStack.class, new TrackerItemStackStorage(), () -> new TrackerItemStack(null));
+        event.register(ChunkCap.class);
+
+        event.register(TrackerItemStack.class);
     }
     
     
@@ -253,23 +249,35 @@ public class ForgeBusEventSubscriber {
     public static void onPlayerClone(PlayerEvent.Clone event) {
         Player original = event.getOriginal();
         Player player = event.getPlayer();
-        
-        cloneCap(INonStandPower.getNonStandPowerOptional(original), INonStandPower.getNonStandPowerOptional(player), 
-                event.isWasDeath(), "Stand capability");
-        cloneCap(IStandPower.getStandPowerOptional(original), IStandPower.getStandPowerOptional(player), 
-                event.isWasDeath(), "non-Stand capability");
-        
-        original.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(oldCap -> {
-            player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(newCap -> {
-                newCap.onClone(oldCap, event.isWasDeath());
+
+        // When the original player is removed (death or leaving a dimension) its
+        // capabilities may already be invalidated by the time this fires, which
+        // would silently lose the Stand/non-Stand data. Reviving them for the copy
+        // and invalidating them again afterwards is the pattern Forge documents
+        // for providers that are already torn down. isWasDeath() still separates a
+        // real respawn from returning to the Overworld, exactly as in 1.16.5.
+        original.reviveCaps();
+        try {
+            cloneCap(INonStandPower.getNonStandPowerOptional(original), INonStandPower.getNonStandPowerOptional(player), 
+                    event.isWasDeath(), "Stand capability");
+            cloneCap(IStandPower.getStandPowerOptional(original), IStandPower.getStandPowerOptional(player), 
+                    event.isWasDeath(), "non-Stand capability");
+            
+            original.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(oldCap -> {
+                player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(newCap -> {
+                    newCap.onClone(oldCap, event.isWasDeath());
+                });
             });
-        });
-        
-        original.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(oldCap -> {
-            player.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(newCap -> {
-                newCap.onClone(oldCap, event.isWasDeath());
+            
+            original.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(oldCap -> {
+                player.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(newCap -> {
+                    newCap.onClone(oldCap, event.isWasDeath());
+                });
             });
-        });
+        }
+        finally {
+            original.invalidateCaps();
+        }
     }
     
     private static <T extends IPower<T, ?>> void cloneCap(LazyOptional<T> oldCap, LazyOptional<T> newCap, boolean wasDeath, String warning) {

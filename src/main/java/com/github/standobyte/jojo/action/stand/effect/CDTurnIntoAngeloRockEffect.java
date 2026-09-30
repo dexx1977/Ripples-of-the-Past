@@ -50,7 +50,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.util.Constants;
 import net.minecraft.nbt.Tag;
 
 public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {

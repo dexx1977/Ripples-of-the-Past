@@ -17,9 +17,9 @@ import net.minecraftforge.network.NetworkEvent;
 // and can only read either all entries, or the ones marked as dirty
 public class TrDirectEntityDataPacket {
     private int entityId;
-    private List<SynchedEntityData.DataEntry<?>> packedItems;
+    private List<SynchedEntityData.DataValue<?>> packedItems;
     
-    public TrDirectEntityDataPacket(int entityId, List<SynchedEntityData.DataEntry<?>> packedItems) {
+    public TrDirectEntityDataPacket(int entityId, List<SynchedEntityData.DataValue<?>> packedItems) {
         this.entityId = entityId;
         this.packedItems = packedItems;
     }
@@ -41,7 +41,7 @@ public class TrDirectEntityDataPacket {
         @Override
         public TrDirectEntityDataPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readVarInt();
-            List<SynchedEntityData.DataEntry<?>> packedItems;
+            List<SynchedEntityData.DataValue<?>> packedItems;
             try {
                 packedItems = SynchedEntityData.unpack(buf);
             } catch (IOException e) {

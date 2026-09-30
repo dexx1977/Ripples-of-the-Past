@@ -1,20 +1,22 @@
 package com.github.standobyte.jojo.capability.entity;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.Capability.IStorage;
+import com.github.standobyte.jojo.capability.entity.EntityUtilCap;
 
-public class EntityUtilCapStorage implements IStorage<EntityUtilCap> {
+/**
+ * 1.20.1 removed Capability.IStorage, so the read/write logic that used to
+ * implement that interface lives here as plain helpers that the provider
+ * calls. The class is kept so the original split between capability storage
+ * and capability providers stays visible, and the serialized data is byte
+ * identical to 1.16.5.
+ */
+public class EntityUtilCapStorage {
 
-    @Override
-    public Tag writeNBT(Capability<EntityUtilCap> capability, EntityUtilCap instance, Direction side) {
+    public static CompoundTag writeNBT(EntityUtilCap instance) {
         return instance.serializeNBT();
     }
 
-    @Override
-    public void readNBT(Capability<EntityUtilCap> capability, EntityUtilCap instance, Direction side, Tag nbt) {
-        instance.deserializeNBT((CompoundTag) nbt);
+    public static void readNBT(EntityUtilCap instance, CompoundTag nbt) {
+        instance.deserializeNBT(nbt);
     }
 }

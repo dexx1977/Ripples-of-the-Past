@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
 
@@ -15,7 +16,7 @@ public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
     
     @Override
     protected String getModName(LifeformEntityTypeEntry lifeformType) {
-        return ModInteractionUtil.getModName(lifeformType.entityType.getRegistryName());
+        return ModInteractionUtil.getModName(MCUtil.id(lifeformType.entityType));
     }
     
     @Override

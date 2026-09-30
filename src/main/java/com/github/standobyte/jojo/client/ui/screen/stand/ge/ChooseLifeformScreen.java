@@ -48,6 +48,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     protected LifeformsUIState playerUISettings;
@@ -204,7 +205,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     };
     
     public static final Comparator<EntityType<?>> ENTITY_MOD_NAME_COMPARE = Comparator.comparing(
-            type -> ModInteractionUtil.getModName(type.getRegistryName()),
+            type -> ModInteractionUtil.getModName(MCUtil.id(type)),
             MOD_NAMES_ORDER);
     public static final Comparator<EntityType<?>> ENTITY_NAME_COMPARE = Comparator.comparing(t -> t.getDescription().getString());
     
@@ -240,8 +241,8 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
             }
             Predicate<String> finalModFilter = modNameFilter;
             filter = entityType -> 
-                    (entityType.getDescription().getString().toLowerCase().contains(nameFilter) || entityType.getRegistryName().getPath().contains(nameFilter)) && 
-                    (finalModFilter == null || finalModFilter.test(ModInteractionUtil.getModName(entityType.getRegistryName()).toLowerCase()));
+                    (entityType.getDescription().getString().toLowerCase().contains(nameFilter) || MCUtil.id(entityType).getPath().contains(nameFilter)) && 
+                    (finalModFilter == null || finalModFilter.test(ModInteractionUtil.getModName(MCUtil.id(entityType)).toLowerCase()));
         }
         searchBarFilter(filter);
     }

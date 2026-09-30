@@ -33,6 +33,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.Level;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class CrazyDiamondBlockBullet extends StandEntityAction {
     public static final StandPose BLOCK_BULLET_SHOT_POSE = new StandPose("blockBullet");
@@ -76,7 +77,7 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
                 material == Material.STONE || 
                 material == Material.METAL || 
                 material == Material.HEAVY_METAL || 
-                material == Material.CLAY && blockState.getBlock().getRegistryName().getPath().contains("infested");
+                material == Material.CLAY && MCUtil.id(blockState.getBlock()).getPath().contains("infested");
     }
 
     @Override

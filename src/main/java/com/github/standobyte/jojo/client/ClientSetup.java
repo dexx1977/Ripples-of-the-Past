@@ -183,6 +183,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientSetup {
@@ -447,12 +448,12 @@ public class ClientSetup {
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
         Map<ResourceLocation, BakedModel> registry = event.getModelRegistry();
-        registerCustomBakedModel(ModItems.ROAD_ROLLER.get().getRegistryName(), registry,                model -> new RoadRollerBakedModel(model));
-        registerCustomBakedModel(ModItems.STAND_DISC.get().getRegistryName(), registry,                 model -> new StandDiscISTERModel(model));
-        registerCustomBakedModel(ModItems.POLAROID.get().getRegistryName(), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
+        registerCustomBakedModel(MCUtil.id(ModItems.ROAD_ROLLER.get()), registry,                model -> new RoadRollerBakedModel(model));
+        registerCustomBakedModel(MCUtil.id(ModItems.STAND_DISC.get()), registry,                 model -> new StandDiscISTERModel(model));
+        registerCustomBakedModel(MCUtil.id(ModItems.POLAROID.get()), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
         registerCustomBakedModel(new ResourceLocation(JojoMod.MOD_ID, "tommy_gun_flipped"), registry,   model -> new ItemISTERModelWrapper(model));
-        registerCustomBakedModel(ModItems.TOMMY_GUN.get().getRegistryName(), registry,                  model -> new ItemISTERModelWrapper(model).refreshOverrides(registry));
-        registerCustomBakedModel(ModItems.CLACKERS.get().getRegistryName(), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
+        registerCustomBakedModel(MCUtil.id(ModItems.TOMMY_GUN.get()), registry,                  model -> new ItemISTERModelWrapper(model).refreshOverrides(registry));
+        registerCustomBakedModel(MCUtil.id(ModItems.CLACKERS.get()), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
         CustomIconItem.onModelBake(registry);
     }
     

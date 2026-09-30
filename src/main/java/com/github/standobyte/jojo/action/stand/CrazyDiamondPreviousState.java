@@ -149,8 +149,8 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     }
                     else {
                         if (!world.isClientSide()) {
-                            Block tntBlock = ForgeRegistries.BLOCKS.getValue(tnt.getType().getRegistryName());
-                            if (tntBlock == null || tntBlock.getRegistryName().equals(ForgeRegistries.BLOCKS.getDefaultKey())) {
+                            Block tntBlock = ForgeRegistries.BLOCKS.getValue(MCUtil.id(tnt.getType()));
+                            if (tntBlock == null || MCUtil.id(tntBlock).equals(ForgeRegistries.BLOCKS.getDefaultKey())) {
                                 tntBlock = Blocks.TNT;
                             }
                             BlockPos blockPos = tnt.blockPosition();

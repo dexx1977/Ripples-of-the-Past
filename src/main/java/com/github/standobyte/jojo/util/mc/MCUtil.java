@@ -62,6 +62,16 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.entity.decoration.PaintingVariant;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -1271,5 +1281,67 @@ public class MCUtil {
          * SquidEntity
          * PlayerEntity
          */
+    }
+
+    /**
+     * 1.20.1 removed IForgeRegistryEntry#getRegistryName: a value no longer knows
+     * which registry holds it, so the registry is asked instead. These overloads
+     * keep the original call sites readable and are dispatched by static type,
+     * exactly like the old interface method was.
+     */
+    public static ResourceLocation id(EntityType<?> type) {
+        return ForgeRegistries.ENTITY_TYPES.getKey(type);
+    }
+
+    public static ResourceLocation id(Item item) {
+        return ForgeRegistries.ITEMS.getKey(item);
+    }
+
+    public static ResourceLocation id(Block block) {
+        return ForgeRegistries.BLOCKS.getKey(block);
+    }
+
+    public static ResourceLocation id(BlockEntityType<?> type) {
+        return ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
+    }
+
+    public static ResourceLocation id(MobEffect effect) {
+        return ForgeRegistries.MOB_EFFECTS.getKey(effect);
+    }
+
+    public static ResourceLocation id(Fluid fluid) {
+        return ForgeRegistries.FLUIDS.getKey(fluid);
+    }
+
+    public static ResourceLocation id(ParticleType<?> type) {
+        return ForgeRegistries.PARTICLE_TYPES.getKey(type);
+    }
+
+    public static ResourceLocation id(SoundEvent sound) {
+        return ForgeRegistries.SOUND_EVENTS.getKey(sound);
+    }
+
+    public static ResourceLocation id(Enchantment enchantment) {
+        return ForgeRegistries.ENCHANTMENTS.getKey(enchantment);
+    }
+
+    public static ResourceLocation id(Potion potion) {
+        return ForgeRegistries.POTIONS.getKey(potion);
+    }
+
+    public static ResourceLocation id(RecipeType<?> type) {
+        return ForgeRegistries.RECIPE_TYPES.getKey(type);
+    }
+
+    public static ResourceLocation id(RecipeSerializer<?> serializer) {
+        return ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer);
+    }
+
+    public static ResourceLocation id(StructurePieceType type) {
+        return ForgeRegistries.STRUCTURE_PIECE_TYPES.getKey(type);
+    }
+
+    public static ResourceLocation id(PaintingVariant variant) {
+        return ForgeRegistries.PAINTING_VARIANTS.getKey(variant);
     }
 }

@@ -41,6 +41,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class GoldExperienceChooseLifeform extends StandAction {
     
@@ -130,7 +131,7 @@ public class GoldExperienceChooseLifeform extends StandAction {
                 return false;
             }
             
-            ResourceLocation typeId = entity.getType().getRegistryName();
+            ResourceLocation typeId = MCUtil.id(entity.getType());
             if (DISABLE_SUMMON_MANUALLY_NAMESPACES.contains(typeId.getNamespace()) || DISABLE_SUMMON_MANUALLY.contains(typeId)) {
                 return false;
             }

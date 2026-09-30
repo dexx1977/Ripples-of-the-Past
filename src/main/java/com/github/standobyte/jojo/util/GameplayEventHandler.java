@@ -228,7 +228,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 //TODO move all event handlers to their respective classes, leave the method links here
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
@@ -1068,7 +1068,7 @@ public class GameplayEventHandler {
                         fuse = CommonReflection.getFuse(tntMinecart);
                         CompoundTag nbt = new CompoundTag();
                         tntMinecart.saveWithoutId(nbt);
-                        nbt.putString("id", EntityType.MINECART.getRegistryName().toString());
+                        nbt.putString("id", MCUtil.id(EntityType.MINECART).toString());
                         Entity regularMinecart = EntityType.loadEntityRecursive(nbt, world, e -> e);
                         tntMinecart.remove();
                         world.removeEntity(tntMinecart, false);
