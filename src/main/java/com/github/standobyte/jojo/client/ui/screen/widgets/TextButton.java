@@ -30,7 +30,7 @@ public class TextButton extends CustomButton {
 
     public TextButton(int pX, int pY, Component pMessage, 
             Button.OnPress pOnPress, Font font) {
-        this(pX, pY, pMessage, pOnPress, null, font);
+        this(pX, pY, pMessage, pOnPress, (Tooltip) null, font);
     }
 
     @Override

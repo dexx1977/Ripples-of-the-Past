@@ -81,7 +81,7 @@ public class ImageVanillaButton extends CustomButton {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, iconWidth, iconHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
-                pOnPress, null, Component.empty());
+                pOnPress, (Tooltip) null, Component.empty());
     }
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 

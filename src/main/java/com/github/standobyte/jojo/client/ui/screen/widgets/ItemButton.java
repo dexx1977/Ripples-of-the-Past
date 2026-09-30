@@ -19,7 +19,7 @@ public class ItemButton extends CustomButton {
             Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
-                pOnPress, null, Component.empty());
+                pOnPress, (Tooltip) null, Component.empty());
     }
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
@@ -28,6 +28,13 @@ public class ItemButton extends CustomButton {
         this(pX, pY, pWidth, pHeight, 
                 item, 
                 pOnPress, pOnTooltip, Component.empty());
+    }
+
+    public ItemButton(int pX, int pY, int pWidth, int pHeight, 
+            ItemStack item, 
+            Button.OnPress pOnPress, ITooltipRenderer pOnTooltip, Component pMessage) {
+        super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
+        this.item = item;
     }
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
@@ -66,7 +73,7 @@ public class ItemButton extends CustomButton {
         GuiDraw.blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
         renderBg(guiGraphics, minecraft, pMouseX, pMouseY);
         
-        minecraft.getItemRenderer().renderGuiItem(item, x + (width - 16) / 2, y + (height - 16) / 2);
+        GuiDraw.graphics().renderItem(item, x + (width - 16) / 2, y + (height - 16) / 2);
     }
 
 }
