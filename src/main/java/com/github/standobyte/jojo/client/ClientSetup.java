@@ -290,7 +290,10 @@ public class ClientSetup {
         registerRenderer(ModEntityTypes.PILLARMAN_RIBS.get(), PillarmanRibRenderer::new);
         registerRenderer(ModEntityTypes.OBJECT.get(), SpriteObjectEntityRenderer::new);
         
-        xxd = new ConsciousnessRenderer(mc.getEntityRenderDispatcher());
+        EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
+        xxd = new ConsciousnessRenderer(new EntityRendererProvider.Context(dispatcher, mc.getItemRenderer(), 
+                mc.getBlockRenderer(), dispatcher.getItemInHandRenderer(), mc.getResourceManager(), 
+                mc.getEntityModels(), mc.font));
         
         registerRenderer(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
         registerRenderer(ModStands.THE_WORLD.getEntityType(), ClientUtil.logException(TheWorldRenderer::new));

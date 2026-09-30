@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.controls;
 
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
@@ -107,11 +108,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     refreshCustomKeybindEntries();
                 }, 
                 (button, matrixStack, x, y) -> {
-                    renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.reset"), x, y);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.reset"), x, y);
                 }) {
 
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -132,7 +133,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     scrollCtrlListTo = entry -> {
                         if (entry instanceof KeyBindsList.CategoryEntry) {
                             Component categoryName = ClientReflection.getName((KeyBindsList.CategoryEntry) entry);
-                            return InputHandler.MAIN_CATEGORY.equals(((Component) categoryName).getKey());
+                            return InputHandler.MAIN_CATEGORY.equals(((net.minecraft.network.chat.TranslatableComponent) categoryName).getKey());
                         }
                         
                         return false;
@@ -141,11 +142,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     minecraft.setScreen(mcControlsScreen);
                 }, 
                 (button, matrixStack, x, y) -> {
-                    renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.mc_controls"), x, y);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.mc_controls"), x, y);
                 }) {
 
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -227,7 +228,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         renderKeybindsList(matrixStack, mouseX, mouseY, partialTick);
         renderDragged(matrixStack, mouseX, mouseY);
         renderToolTips(matrixStack, mouseX, mouseY);
-        buttons.forEach(button -> button.render(matrixStack, mouseX, mouseY, partialTick));
+        renderables.forEach(renderable -> renderable.render(guiGraphics, mouseX, mouseY, partialTick));
         if (selectedTab != null) IJojoScreen.LastScreenRemembered.lastHudEditingPowerClass = selectedTab;
     }
     
@@ -478,13 +479,13 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             tooltip.add(Component.translatable("jojo.screen.edit_hud_layout.hint.lmb").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
             tooltip.add(Component.translatable("jojo.screen.edit_hud_layout.hint.rmb").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
 
-            renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, Minecraft.getInstance().font, tooltip, mouseX, mouseY);
         });
 
         keybindsList.getHoveredKeybindSlot().ifPresent(slot -> {
             if (slot.getAction() != null) {
                 MutableComponent name = getActionName(selectedPower, slot.getAction());
-                renderToolTip(matrixStack, name, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, name, mouseX, mouseY);
             }
         });
         
@@ -832,7 +833,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     private void _addKeybindEntryToUi(ActionKeybindEntry entry) {
         AbstractWidget keyBindingButton = new Button(-1, -1, 95, 20, entry.getKeybind().getTranslatedKeyMessage(), button -> {
             HudLayoutEditingScreen.this.selectedKey.setKeybind(entry);
-        }, Button.DEFAULT_NARRATION) {
+        }, DEFAULT_NARRATION) {
 //            @Override
 //            protected IFormattableTextComponent createNarrationMessage() {
 //                if (entry.action != null) {
@@ -860,11 +861,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                         List<Component> tooltip = new ArrayList<>(2);
                         tooltip.add(Component.translatable("jojo.keybind_mode.key_press.title").withStyle(ChatFormatting.BOLD));
                         tooltip.add(Component.translatable("jojo.keybind_mode.key_press." + entry.getOnKeyPress().name().toLowerCase()));
-                        renderComponentTooltip(matrixStack, tooltip, x, y);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, Minecraft.getInstance().font, tooltip, x, y);
                     };
                 }) {
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -891,11 +892,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                         tooltip.add(Component.translatable("jojo.keybind_mode.is_active.title").withStyle(ChatFormatting.BOLD));
                         tooltip.add(Component.translatable("jojo.keybind_mode.is_active." + entry.getHudInteraction().name().toLowerCase(), 
                                 selectedPower.getName()));
-                        renderComponentTooltip(matrixStack, tooltip, x, y);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, Minecraft.getInstance().font, tooltip, x, y);
                     };
                 }) {
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -920,11 +921,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     renderAfterScissor = () -> {
                         List<Component> tooltip = new ArrayList<>(2);
                         tooltip.add(Component.translatable("jojo.keybind_mode.hud_visibility." + String.valueOf(entry.isVisibleInHud())).withStyle(ChatFormatting.BOLD));
-                        renderComponentTooltip(matrixStack, tooltip, x, y);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, Minecraft.getInstance().font, tooltip, x, y);
                     };
                 }) {
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -947,7 +948,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             }
         }) {
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
@@ -1013,7 +1014,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 entryKeys.add(entry.keybindEntry.getKeybind());
             }
             hoveredKeybindSlot = Optional.empty();
-            super.renderList(pMatrixStack, pX, pY, pMouseX, pMouseY, pPartialTicks);
+            super.renderList(guiGraphics, pX, pY, pMouseX, pMouseY, pPartialTicks);
         }
         
         public void addKeybindEntry(ActionKeybindsList.KeybindUIEntry entry) {
@@ -1051,11 +1052,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                         screen.markLayoutEdited();
                     }, 
                     (button, matrixStack, x, y) -> {
-                        screen.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.add_keybind"), x, y);
+                        screen.com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.add_keybind"), x, y);
                     }) {
                 
                 @Override
-                protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
                     Minecraft minecraft = Minecraft.getInstance();
