@@ -171,7 +171,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     private static final float FINISHER_DECAY = 0.025F;
     
     private static final EntityDataAccessor<Optional<StandEntityTask>> CURRENT_TASK = SynchedEntityData.defineId(StandEntity.class, 
-            (EntityDataSerializer<Optional<StandEntityTask>>) ModDataSerializers.STAND_ENTITY_TASK.get().getSerializer());
+            ModDataSerializers.STAND_ENTITY_TASK.get());
     // scheduled stand task
 //    @Nullable
 //    private StandEntityTask scheduledTask;
@@ -213,7 +213,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public boolean refreshGlowing = false;
     
     public static final EntityDataAccessor<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = SynchedEntityData.defineId(StandEntity.class, 
-            (EntityDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
+            ModDataSerializers.OPTIONAL_RES_LOC.get());
     
     public StandEntity(StandEntityType<? extends StandEntity> type, Level world) {
         super(type, world);

@@ -37,9 +37,9 @@ import net.minecraftforge.event.ForgeEventFactory;
 public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     protected static final EntityDataAccessor<Boolean> WAS_RIPPED = SynchedEntityData.defineId(HGBarrierEntity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Optional<Vec3>> RIPPED_POINT = SynchedEntityData.defineId(HGBarrierEntity.class, 
-            (EntityDataSerializer<Optional<Vec3>>) ModDataSerializers.OPTIONAL_VECTOR3D.get().getSerializer());
+            ModDataSerializers.OPTIONAL_VECTOR3D.get());
     public static final EntityDataAccessor<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = SynchedEntityData.defineId(HGBarrierEntity.class, 
-            (EntityDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
+            ModDataSerializers.OPTIONAL_RES_LOC.get());
     private boolean rippedHurtOwner = false;
     private LivingEntity standUser;
     private BlockPos originBlockPos;

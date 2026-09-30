@@ -29,7 +29,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.DataSerializerEntry;
 
 public class StandEntityTask {
     @Nonnull
@@ -280,8 +279,8 @@ public class StandEntityTask {
     
     
 
-    public static final Supplier<DataSerializerEntry> SERIALIZER = () -> new DataSerializerEntry(
-            new EntityDataSerializer<Optional<StandEntityTask>>() {
+    public static final Supplier<EntityDataSerializer<Optional<StandEntityTask>>> SERIALIZER = 
+            () -> new EntityDataSerializer<Optional<StandEntityTask>>() {
 
         @Override
         public void write(FriendlyByteBuf buf, Optional<StandEntityTask> value) {
@@ -346,5 +345,5 @@ public class StandEntityTask {
             }
             return Optional.empty();
         }
-    });
+    };
 }

@@ -11,17 +11,20 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.RegistryObject;
-import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModDataSerializers {
-    public static final DeferredRegister<DataSerializerEntry> DATA_SERIALIZERS = DeferredRegister.create(ForgeRegistries.DATA_SERIALIZERS, JojoMod.MOD_ID);
+    // 1.20.1 registers entity data serializers in the vanilla registry itself
+    // (Forge's DataSerializerEntry wrapper is gone)
+    public static final DeferredRegister<EntityDataSerializer<?>> DATA_SERIALIZERS = 
+            DeferredRegister.create(ForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, JojoMod.MOD_ID);
     
-    public static final RegistryObject<DataSerializerEntry> STAND_ENTITY_TASK = DATA_SERIALIZERS.register("stand_action", StandEntityTask.SERIALIZER);
+    public static final RegistryObject<EntityDataSerializer<Optional<StandEntityTask>>> STAND_ENTITY_TASK = 
+            DATA_SERIALIZERS.register("stand_action", StandEntityTask.SERIALIZER);
     
-    public static final RegistryObject<DataSerializerEntry> OPTIONAL_VECTOR3D = DATA_SERIALIZERS.register("optional_vector3d", () -> new DataSerializerEntry(
-            new EntityDataSerializer<Optional<Vec3>>() {
+    public static final RegistryObject<EntityDataSerializer<Optional<Vec3>>> OPTIONAL_VECTOR3D = DATA_SERIALIZERS.register("optional_vector3d", 
+            () -> new EntityDataSerializer<Optional<Vec3>>() {
 
         @Override
         public void write(FriendlyByteBuf buf, Optional<Vec3> value) {
@@ -44,10 +47,10 @@ public class ModDataSerializers {
         public Optional<Vec3> copy(Optional<Vec3> value) {
             return value;
         }
-    }));
+    });
     
-    public static final RegistryObject<DataSerializerEntry> OPTIONAL_RES_LOC = DATA_SERIALIZERS.register("optional_res_loc", () -> new DataSerializerEntry(
-            new EntityDataSerializer<Optional<ResourceLocation>>() {
+    public static final RegistryObject<EntityDataSerializer<Optional<ResourceLocation>>> OPTIONAL_RES_LOC = DATA_SERIALIZERS.register("optional_res_loc", 
+            () -> new EntityDataSerializer<Optional<ResourceLocation>>() {
 
         @Override
         public void write(FriendlyByteBuf buf, Optional<ResourceLocation> value) {
@@ -63,6 +66,6 @@ public class ModDataSerializers {
         public Optional<ResourceLocation> copy(Optional<ResourceLocation> value) {
             return value;
         }
-    }));
+    });
 }
 
