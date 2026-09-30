@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.particle.custom;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -178,7 +179,7 @@ public class FirstPersonHamonAura {
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
         };
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.multMatrix(pMatrixStack.last().pose());
 
         enable.run();
@@ -246,7 +247,7 @@ public class FirstPersonHamonAura {
             renderType.end(tessellator);
         }
         
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();

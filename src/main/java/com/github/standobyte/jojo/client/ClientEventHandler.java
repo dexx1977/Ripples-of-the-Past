@@ -1159,7 +1159,7 @@ public class ClientEventHandler {
             }
 
             if (opacity > 8) {
-                RenderSystem.pushMatrix();
+                GuiDraw.pushMatrix();
                 matrixStack.translate((float)(width / 2), (float)(height - 68), 0.0F);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
@@ -1173,7 +1173,7 @@ public class ClientEventHandler {
                     matrixStack.translate(0, -13, 0);
                 }
                 RenderSystem.disableBlend();
-                RenderSystem.popMatrix();
+                GuiDraw.popMatrix();
             }
 
             mc.getProfiler().pop();

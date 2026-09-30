@@ -24,8 +24,6 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
         super(size);
         texWidth = 32;
         texHeight = 32;
-
-        head.setTexSize(texWidth, texHeight);
         head.cubes.clear();
         head.setPos(0.0F, 0.5F, 0.0F);
         setRotationAngle(head, 0.0873F, 0.0F, 0.0F);

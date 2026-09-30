@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.polaroid;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.function.UnaryOperator;
 
@@ -118,7 +119,7 @@ public class PolaroidHelper {
     
     @SuppressWarnings("deprecation")
     private static void renderOnRemoteBuffer(Minecraft mc) {
-        RenderSystem.pushMatrix();
+        GuiDraw.pushMatrix();
         RenderSystem.clear(16640, Minecraft.ON_OSX);
         remoteRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
@@ -141,7 +142,7 @@ public class PolaroidHelper {
         }
         
         remoteRenderTarget.unbindWrite();
-        RenderSystem.popMatrix();
+        GuiDraw.popMatrix();
     }
     
     public static boolean pictureCameraSetup(ViewportEvent.ComputeCameraAngles event) {
