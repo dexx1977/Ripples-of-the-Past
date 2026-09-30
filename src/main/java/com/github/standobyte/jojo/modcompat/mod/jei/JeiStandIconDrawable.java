@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.gui.elements.DrawableResource;
-import mezz.jei.gui.ingredients.CycleTimer;
+import mezz.jei.common.gui.elements.DrawableResource;
+import mezz.jei.library.gui.ingredients.CycleTimer;
 
 public class JeiStandIconDrawable implements IDrawable {
-    private final CycleTimer iconsCycle = new CycleTimer(0);
+    private final CycleTimer iconsCycle = CycleTimer.create(0);
     private final List<IDrawable> standIcons;
     
     public JeiStandIconDrawable(List<StandType<?>> standIcons) {
@@ -32,11 +31,9 @@ public class JeiStandIconDrawable implements IDrawable {
     }
 
     @Override
-    public void draw(PoseStack matrixStack, int xOffset, int yOffset) {
+    public void draw(net.minecraft.client.gui.GuiGraphics guiGraphics, int xOffset, int yOffset) {
         if (!standIcons.isEmpty()) {
-            IDrawable standIcon = iconsCycle.getCycledItem(standIcons);
-            standIcon.draw(matrixStack, xOffset, yOffset);
-            iconsCycle.onDraw();
+            iconsCycle.getCycled(standIcons).ifPresent(standIcon -> standIcon.draw(guiGraphics, xOffset, yOffset));
         }
     }
 
