@@ -16,17 +16,18 @@ import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.util.RandomSource;
 
 @Mixin(FireBlock.class)
 public class FireBlockMixin {
 
-    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void jojoOnFireRemovedBlock(Level pLevel, BlockPos pPos, int pChance, Random pRandom, int pAge, Direction face, CallbackInfo ci) {
+    @Inject(method = "checkBurnOut", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    public void jojoOnFireRemovedBlock(Level pLevel, BlockPos pPos, int pChance, RandomSource pRandom, int pAge, CallbackInfo ci) {
         cdRememberBurntBlock(pLevel, pPos);
     }
     
-    @Inject(method = "tryCatchFire", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
-    public void jojoOnFireReplacedBlock(Level pLevel, BlockPos pPos, int pChance, Random pRandom, int pAge, Direction face, CallbackInfo ci) {
+    @Inject(method = "checkBurnOut", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;removeBlock(Lnet/minecraft/core/BlockPos;Z)Z"))
+    public void jojoOnFireReplacedBlock(Level pLevel, BlockPos pPos, int pChance, RandomSource pRandom, int pAge, CallbackInfo ci) {
         cdRememberBurntBlock(pLevel, pPos);
     }
     

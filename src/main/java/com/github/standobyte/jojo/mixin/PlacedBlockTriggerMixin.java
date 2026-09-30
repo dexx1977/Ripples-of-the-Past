@@ -13,13 +13,13 @@ import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.mrpresident.dimension.MrPresidentWorldData.ChunkSectionPos;
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 
-import net.minecraft.advancements.criterion.PlacedBlockTrigger;
+import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
 
-@Mixin(PlacedBlockTrigger.class)
+@Mixin(ItemUsedOnLocationTrigger.class)
 public class PlacedBlockTriggerMixin {
     
     @Inject(method = "trigger", at = @At("TAIL"))

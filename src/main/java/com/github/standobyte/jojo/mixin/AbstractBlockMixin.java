@@ -15,11 +15,6 @@ import net.minecraft.world.level.BlockGetter;
 @Mixin(BlockBehaviour.class)
 public abstract class AbstractBlockMixin {
 
-    @Inject(method = "Lnet/minecraft/block/AbstractBlock;getCollisionShape("
-            + "Lnet/minecraft/block/BlockState;"
-            + "Lnet/minecraft/world/IBlockReader;"
-            + "Lnet/minecraft/util/math/BlockPos;"
-            + "Lnet/minecraft/util/math/shapes/ISelectionContext;"
-            + ")Lnet/minecraft/util/math/shapes/VoxelShape;", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getCollisionShape(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;", at = @At("HEAD"), cancellable = true)
     public void changeCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext, CallbackInfoReturnable<VoxelShape> ci) {}
 }

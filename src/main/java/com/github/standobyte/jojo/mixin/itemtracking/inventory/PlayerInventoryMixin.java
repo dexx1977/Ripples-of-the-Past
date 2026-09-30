@@ -27,7 +27,7 @@ public abstract class PlayerInventoryMixin implements Container {
     @Shadow
     @Final private List<NonNullList<ItemStack>> compartments;
     
-    @Inject(method = "add(ILnet/minecraft/item/ItemStack;)Z", at = @At("RETURN"))
+    @Inject(method = "add(ILnet/minecraft/world/item/ItemStack;)Z", at = @At("RETURN"))
     public void jojoOnItemAddedToInv(int slot, ItemStack item, CallbackInfoReturnable<Boolean> ci) {
         if (!player.level.isClientSide() && Boolean.TRUE.equals(ci.getReturnValue())) {
             TrackerItemStack.getItemTrackerInInventory(item, compartments.stream().flatMap(Collection::stream), true)

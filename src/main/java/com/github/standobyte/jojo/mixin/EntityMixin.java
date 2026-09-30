@@ -67,10 +67,8 @@ public abstract class EntityMixin {
     
     
     
-    @Inject(method = "Lnet/minecraft/entity/Entity;positionRider("
-            + "Lnet/minecraft/entity/Entity;"
-            + "Lnet/minecraft/entity/Entity$IMoveCallback;)V", at = @At("TAIL"))
-    public void jojoRepositionPassenger(Entity passenger, Entity.IMoveCallback moveMethod, CallbackInfo ci) {
+    @Inject(method = "positionRider(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity$MoveFunction;)V", at = @At("TAIL"))
+    public void jojoRepositionPassenger(Entity passenger, Entity.MoveFunction moveMethod, CallbackInfo ci) {
         Entity thisAsEntity = (Entity) (Object) this;
         if (passenger instanceof IPassengerMixinReposition && thisAsEntity.hasPassenger(passenger)) {
             Vec3 passengerPosition = ((IPassengerMixinReposition) passenger).repositionPassenger(thisAsEntity);

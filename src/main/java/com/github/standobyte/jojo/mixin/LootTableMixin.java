@@ -26,8 +26,8 @@ import net.minecraft.world.level.Level;
 @Mixin(LootTable.class)
 public class LootTableMixin {
 
-    @Inject(method = "getRandomItems(Lnet/minecraft/loot/LootContext;)Ljava/util/List;", at = @At("RETURN"))
-    public void jojoRememberBlockLoot(LootContext context, CallbackInfoReturnable<List<ItemStack>> ci) {
+    @Inject(method = "getRandomItems(Lnet/minecraft/world/level/storage/loot/LootContext;)Lit/unimi/dsi/fastutil/objects/ObjectArrayList;", at = @At("RETURN"))
+    public void jojoRememberBlockLoot(LootContext context, CallbackInfoReturnable<it.unimi.dsi.fastutil.objects.ObjectArrayList<ItemStack>> ci) {
         if (!LootContextParamSets.BLOCK.getRequired().stream().anyMatch(param -> !context.hasParam(param))) {
             Level world = context.getLevel();
             if (world != null) {
@@ -35,7 +35,7 @@ public class LootTableMixin {
                 BlockState blockState = context.getParamOrNull(LootContextParams.BLOCK_STATE);
                 Optional<BlockEntity> tileEntity = Optional.ofNullable(context.getParamOrNull(LootContextParams.BLOCK_ENTITY));
                 Vec3 posCenter = context.getParamOrNull(LootContextParams.ORIGIN);
-                BlockPos blockPos = new BlockPos(posCenter);
+                BlockPos blockPos = BlockPos.containing(posCenter);
                 CrazyDiamondRestoreTerrain.rememberBrokenBlock(
                         world, blockPos, blockState, tileEntity, world.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS) ? generatedLoot : Collections.emptyList());
             }

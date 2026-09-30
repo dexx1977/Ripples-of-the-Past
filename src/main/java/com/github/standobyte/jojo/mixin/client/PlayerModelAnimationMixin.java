@@ -17,11 +17,11 @@ import net.minecraft.world.entity.LivingEntity;
 @Mixin(value = PlayerModel.class, priority = 3000) // and this... is to go even further beyond!
 public abstract class PlayerModelAnimationMixin<T extends LivingEntity> extends HumanoidModel<T> {
     
-    public PlayerModelAnimationMixin(float p_i1148_1_) {
-        super(p_i1148_1_);
+    public PlayerModelAnimationMixin(net.minecraft.client.model.geom.ModelPart root, boolean slim) {
+        super(root);
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/model/ModelRenderer;copyFrom(Lnet/minecraft/client/renderer/model/ModelRenderer;)V", ordinal = 0))
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/ModelPart;copyFrom(Lnet/minecraft/client/model/geom/ModelPart;)V", ordinal = 0))
     public void jojoPlayerModelPoseAfterPlayerAnimator(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         Entity vehicle = entity.getVehicle();
         if (vehicle != null && vehicle.getType() == ModEntityTypes.LEAVES_GLIDER.get()) {

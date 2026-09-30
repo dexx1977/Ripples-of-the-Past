@@ -30,7 +30,7 @@ public abstract class ServerPlayerEntityMixin extends Player {
     }
     
     
-    @Inject(method = "teleportTo(Lnet/minecraft/world/server/ServerWorld;DDDFF)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V", at = @At("HEAD"), cancellable = true)
     public void jojoCancelTeleport(ServerLevel pNewLevel, double pX, double pY, double pZ, float pYaw, float pPitch, CallbackInfo ci) {
         if (this instanceof IPlayerPossess) {
             IPlayerPossess player = (IPlayerPossess) this;
