@@ -28,7 +28,8 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 		texHeight = 16;
 
 
-		rightArm.setTexSize(texWidth, texHeight);
+		// the arms are the vanilla humanoid parts, which are already baked with the
+		// skin's texture size; the blades read their size from this model
 		rightArm.cubes.clear();
 
 		bladeRight = new ModelPart(this);
@@ -40,7 +41,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 		bladeRight.texOffs(10, 0).addBox(0.2F, -2.8F, -6.0F, 1.0F, 1.0F, 2.0F, 0.0F, false);
 		bladeRight.texOffs(6, 11).addBox(0.2F, -3.8F, -7.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
 
-		leftArm.setTexSize(texWidth, texHeight);
+		// see above
 		leftArm.cubes.clear();
 		
 

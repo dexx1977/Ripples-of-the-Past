@@ -18,7 +18,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.settings.KeyBindingMap;
+import com.github.standobyte.jojo.client.KeyMappingLookup;
 import net.minecraftforge.client.settings.KeyConflictContext;
 
 public class WasdAllowingScreen extends Screen {
@@ -91,7 +91,7 @@ public class WasdAllowingScreen extends Screen {
         }
     }
     
-    public void clickKey(Minecraft mc, int key, int scanCode, int action, int modifiers, KeyBindingMap keyBindingMap) {
+    public void clickKey(Minecraft mc, int key, int scanCode, int action, int modifiers, KeyMappingLookup keyBindingMap) {
         if (action == GLFW.GLFW_RELEASE || !acceptsKeyInput()) return;
         
         InputConstants.Key inputmappings$input = InputConstants.getKey(key, scanCode);

@@ -21,11 +21,15 @@ public class BreathControlMaskModel extends HumanoidModel<LivingEntity> {
         texWidth = 32;
         texHeight = 32;
 
-        head.setTexSize(texWidth, texHeight);
+        // a baked 1.20.1 part has no texture offset setter, so the mask is built
+        // with the model part helper and its cuboids take the head's place
+        ModelPart maskHead = new ModelPart(this);
+        maskHead.setTexSize(texWidth, texHeight);
+        maskHead.texOffs(0, 0).addBox(-4.0F, -3.0F, -4.0F, 8.0F, 3.0F, 3.0F, 0.4F, false);
+        maskHead.texOffs(22, 0).addBox(-1.0F, -2.0F, -5.0F, 2.0F, 2.0F, 1.0F, 0.6F, false);
         head.cubes.clear();
+        head.cubes.addAll(maskHead.cubesMutable());
         head.setPos(0.0F, 0.0F, 0.0F);
-        head.texOffs(0, 0).addBox(-4.0F, -3.0F, -4.0F, 8.0F, 3.0F, 3.0F, 0.4F, false);
-        head.texOffs(22, 0).addBox(-1.0F, -2.0F, -5.0F, 2.0F, 2.0F, 1.0F, 0.6F, false);
     }
     
     @Override

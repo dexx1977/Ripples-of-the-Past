@@ -102,11 +102,9 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.event.InputEvent.ClickInputEvent;
-import net.minecraftforge.client.event.InputEvent.KeyInputEvent;
-import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
-import net.minecraftforge.client.event.InputUpdateEvent;
-import net.minecraftforge.client.settings.KeyBindingMap;
+import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
+import net.minecraftforge.client.event.InputEvent.Key;
+import net.minecraftforge.client.event.InputEvent.MouseScrollingEvent;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -146,7 +144,7 @@ public class InputHandler {
     
     // it works because the actual map is static, not sure if that's intended or just an implementation detail
     // but hey, i'll take it
-    public final KeyBindingMap keyBindingMap = new KeyBindingMap();
+    public final KeyMappingLookup keyBindingMap = new KeyMappingLookup();
     
     private int leftClickBlockDelay;
     
@@ -243,7 +241,7 @@ public class InputHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onMouseScroll(MouseScrollEvent event) {
+    public void onMouseScroll(MouseScrollingEvent event) {
         if (standPower == null || nonStandPower == null || actionsOverlay == null) {
             return;
         }
@@ -326,6 +324,10 @@ public class InputHandler {
     
     @SubscribeEvent
     public void handleKeyBindings(ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START && mc.player != null) {
+            invertMovementInput(mc.player, mc.player.input);
+            onInputUpdate(mc.player, mc.player.input);
+        }
         if (mc.overlay != null || (mc.screen != null && !mc.screen.passEvents)
                 || mc.level == null || standPower == null || nonStandPower == null
                 || actionsOverlay == null || JojoModUtil.tmpSpectatorCantUsePowers(mc.player)) {
@@ -783,7 +785,7 @@ public class InputHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void cancelClickInput(ClickInputEvent event) {
+    public void cancelClickInput(InteractionKeyMappingTriggered event) {
         if (ControllerSoul.getInstance().isCameraEntityPlayerSoul()) {
             event.setCanceled(true);
             event.setSwingHand(false);
@@ -804,7 +806,7 @@ public class InputHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void modActionClick(ClickInputEvent event) {
+    public void modActionClick(InteractionKeyMappingTriggered event) {
         doubleShift.reset();
         
         if (JojoModUtil.tmpSpectatorCantUsePowers(mc.player) || event.getHand() == InteractionHand.OFF_HAND) {
@@ -1032,23 +1034,23 @@ public class InputHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void fixArrowPunchKick(ClickInputEvent event) {
+    public void fixArrowPunchKick(InteractionKeyMappingTriggered event) {
         if (event.isAttack() && !isValidPlayerAttackTarget(mc.hitResult)) {
             event.setCanceled(true); // prevents kick for "Attempting to attack an invalid entity"
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void invertMovementInput(InputUpdateEvent event) {
-        if (event.getPlayer() == mc.player && mc.screen instanceof WasdAllowingScreen) {
-            ((WasdAllowingScreen) mc.screen).tickInput(mc, mc.player, event.getMovementInput());
+    /** Was an InputUpdateEvent handler in 1.16.5; runs on the client tick now. */
+    public void invertMovementInput(LocalPlayer player, Input input) {
+        if (player == mc.player && mc.screen instanceof WasdAllowingScreen) {
+            ((WasdAllowingScreen) mc.screen).tickInput(mc, mc.player, input);
         }
         
-        Input input = event.getMovementInput();
         boolean hasInput = input.up || input.down || input.left || input.right || input.jumping;
         
         HamonRebuffOverdrive.onWASDInput(mc.player);
-        if (GeneralUtil.orElseFalse(INonStandPower.getNonStandPowerOptional(event.getPlayer()).resolve().flatMap(
+        if (GeneralUtil.orElseFalse(INonStandPower.getNonStandPowerOptional(player).resolve().flatMap(
                 power -> power.getTypeSpecificData(ModPowers.HAMON.get())), hamon -> {
                     if (hamon.isMeditating()) {
                         if (hamon.getMeditationTicks() >= 40) {
@@ -1156,11 +1158,8 @@ public class InputHandler {
     }
     
     
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void onInputUpdate(InputUpdateEvent event) {
-        Input input = event.getMovementInput();
-
-        Player player = (Player) event.getEntity();
+    /** Was a second InputUpdateEvent handler in 1.16.5; runs on the client tick now. */
+    public void onInputUpdate(LocalPlayer player, Input input) {
         if (INonStandPower.getNonStandPowerOptional(player).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()))
                 .map(PillarmanData::isStoneFormEnabled).orElse(false)) {
@@ -1336,7 +1335,7 @@ public class InputHandler {
     
     
     @SubscribeEvent
-    public void onKeyClick(KeyInputEvent event) {
+    public void onKeyClick(Key event) {
         if (mc.screen instanceof WasdAllowingScreen) {
             ((WasdAllowingScreen) mc.screen).clickKey(mc, event.getKey(), event.getScanCode(), 
                     event.getAction(), event.getModifiers(), keyBindingMap);
