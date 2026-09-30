@@ -118,8 +118,11 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
             profiler.push(namespace);
 
             try {
-                for (Resource definition : resourceManager.getResources(new ResourceLocation(namespace, "jojo_stand_skins.json"))) {
-                    profiler.push(definition.getSourceName());
+                // 1.20.1 lists resources by path with an id filter
+                for (Map.Entry<ResourceLocation, Resource> definitionEntry : resourceManager.listResources("jojo_stand_skins.json", 
+                        id -> id.getNamespace().equals(namespace)).entrySet()) {
+                    Resource definition = definitionEntry.getValue();
+                    profiler.push(definition.sourcePackId());
 
                     try (
                             InputStream defInputStream = definition.open();
@@ -159,7 +162,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
 //
                         profiler.pop();
                     } catch (RuntimeException runtimeexception) {
-                        JojoMod.getLogger().warn("Invalid jojo_stand_skins.json in resourcepack: '{}'", definition.getSourceName(), runtimeexception);
+                        JojoMod.getLogger().warn("Invalid jojo_stand_skins.json in resourcepack: '{}'", definition.sourcePackId(), runtimeexception);
                     }
 
                     profiler.pop();
@@ -185,7 +188,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
             modelResLoc = new ResourceLocation(modelResLoc.getNamespace(), fileName);
             
             try (
-                    Resource resource = resourceManager.getResource(modelFilePath);
+                    Resource resource = resourceManager.getResource(modelFilePath).orElseThrow();
                     InputStream modelInputStream = resource.open();
                     Reader modelReader = new BufferedReader(new InputStreamReader(modelInputStream, StandardCharsets.UTF_8));
                     ) {
@@ -270,7 +273,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
     private Collection<ResourceLocation> listResources(ResourceManager resourceManager, 
             ResourceLocation skinId, ResourceLocation standTypeId, String folderName, Predicate<String> fileNameFilter) {
         ResourceLocation remapped = StandSkin.pathRemapFunc(skinId, new ResourceLocation(standTypeId.getNamespace(), folderName));
-        return resourceManager.listResources(remapped.getPath(), fileNameFilter);
+        return resourceManager.listResources(remapped.getPath(), id -> fileNameFilter.test(id.getPath())).keySet();
     }
     
     private static int parseColor(JsonElement jsonElement) throws JsonParseException {
