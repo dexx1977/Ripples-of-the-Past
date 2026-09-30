@@ -515,7 +515,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     double $$14 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * $$12 / $$13)) / 2.0 + 0.5;
                     double scrollAmount = Mth.lerp($$14, 0.0, (double)scrollMax);
                     ClientUtil.enableGlScissor(x0, y0, x1 - x0, y1 - y0);
-                    font.drawShadow(matrixStack, text, x0 - (int)scrollAmount, y, color);
+                    GuiDraw.drawString(matrixStack, font, text, x0 - (int)scrollAmount, y, color);
                     ClientUtil.disableGlScissor();
                 }
             } else {

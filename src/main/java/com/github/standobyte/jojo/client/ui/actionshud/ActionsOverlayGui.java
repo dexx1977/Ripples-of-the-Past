@@ -1862,7 +1862,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 matrixStack.pushPose();
                 matrixStack.scale(0.5f, 0.5f, 1);
                 drawBackdrop(matrixStack, x * 2, y * 2, mc.font.width(increaseMsg), Alignment.LEFT, transparency, 0, partialTick);
-                mc.font.drawShadow(matrixStack, increaseMsg, x * 2, y * 2, transparency.makeTextColorTranclucent(0xFFFFFF, partialTick));
+                GuiDraw.drawString(matrixStack, mc.font, increaseMsg, x * 2, y * 2, transparency.makeTextColorTranclucent(0xFFFFFF, partialTick));
                 matrixStack.popPose();
                 y += 6;
             }

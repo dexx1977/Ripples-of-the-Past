@@ -83,7 +83,7 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
             GuiDraw.bind(ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
             int texY = list.getSelectedValue() == value ? 40 : 53;
             GuiDraw.blit(pMatrixStack, x, y, 115, texY, width, height, 128, 128);
-            minecraft.font.drawShadow(pMatrixStack, getMessage(), x + 16, y + (height - minecraft.font.lineHeight) / 2, 0xFFFFFF);
+            GuiDraw.drawString(pMatrixStack, minecraft.font, getMessage(), x + 16, y + (height - minecraft.font.lineHeight) / 2, 0xFFFFFF);
         }
         
     }

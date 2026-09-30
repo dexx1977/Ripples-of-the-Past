@@ -90,10 +90,10 @@ public class ChooseLifeformListScreen extends ChooseLifeformScreen {
         
         mobList.render(matrixStack, mouseX, mouseY, partialTicks);
         Component animalsName = Component.translatable("gold_experience.lifeforms.animals").withStyle(ChatFormatting.BOLD);
-        minecraft.font.drawShadow(matrixStack, animalsName, mobList.getLeft() + (mobList.getWidth() - minecraft.font.width(animalsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, animalsName, mobList.getLeft() + (mobList.getWidth() - minecraft.font.width(animalsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
 
         Component plantsName = Component.translatable("gold_experience.lifeforms.plants").withStyle(ChatFormatting.BOLD);
-        minecraft.font.drawShadow(matrixStack, plantsName, 4 + (135 - minecraft.font.width(plantsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, plantsName, 4 + (135 - minecraft.font.width(plantsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
     }
     
 }

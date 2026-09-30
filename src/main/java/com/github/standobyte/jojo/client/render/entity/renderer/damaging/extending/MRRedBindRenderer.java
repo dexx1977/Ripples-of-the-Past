@@ -73,15 +73,15 @@ public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, 
         Vector3f vec = null;
         switch (phase) {
         case WINDUP:
-            vec = partRotations[0].copy();
+            vec = new Vector3f(partRotations[0]);
             vec.lerp(partRotations[1], completion);
             break;
         case PERFORM:
-            vec = partRotations[1].copy();
+            vec = new Vector3f(partRotations[1]);
             vec.lerp(partRotations[2], completion);
             break;
         case RECOVERY:
-            vec = partRotations[2].copy();
+            vec = new Vector3f(partRotations[2]);
             break;
         default:
             break;

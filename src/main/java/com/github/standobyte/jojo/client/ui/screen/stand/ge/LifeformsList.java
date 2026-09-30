@@ -352,7 +352,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
             Font font = Minecraft.getInstance().font;
             Component name = Component.literal(modName).withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
-            font.drawShadow(pMatrixStack, name, pLeft + 43, pTop + 1, 0xFFFFFF);
+            GuiDraw.drawString(pMatrixStack, font, name, pLeft + 43, pTop + 1, 0xFFFFFF);
             
             if (expandButton != null) {
                 expandButton.x = pLeft + 29;

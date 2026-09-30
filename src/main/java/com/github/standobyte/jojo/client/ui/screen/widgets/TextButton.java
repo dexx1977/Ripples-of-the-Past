@@ -41,7 +41,7 @@ public class TextButton extends Button {
         
         int j = getFGColor();
         Component text = makeText();
-        font.drawShadow(pMatrixStack, text, x, y + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
+        GuiDraw.drawString(pMatrixStack, font, text, x, y + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
         width = font.width(text);
     }
     

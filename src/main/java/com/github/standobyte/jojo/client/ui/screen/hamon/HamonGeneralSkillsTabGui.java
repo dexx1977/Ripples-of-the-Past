@@ -162,7 +162,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
                 BaseHamonSkillTree skillTree = SKILL_TREES.get(skillsType)[i];
                 Component toooltip = Component.translatable(String.format("hamon.skills.%s.desc", skillTree.getName()))
                         .withStyle(ChatFormatting.ITALIC);
-                screen.renderTooltip(matrixStack, minecraft.font.split(toooltip, 200), mouseX, mouseY);
+                GuiDraw.renderToolTip(matrixStack, minecraft.font.split(toooltip, 200), mouseX, mouseY);
             }
         }
     }

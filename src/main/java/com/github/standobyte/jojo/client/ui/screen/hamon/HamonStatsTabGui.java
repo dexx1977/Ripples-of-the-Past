@@ -294,7 +294,7 @@ public class HamonStatsTabGui extends HamonTabGui {
                 breathingIncreaseLine.withStyle(ChatFormatting.GREEN);
             }
             float middleX = textX + (float) (HamonScreen.WINDOW_WIDTH - HamonScreen.WINDOW_THIN_BORDER * 2 - minecraft.font.width(breathingIncreaseLine)) / 2;
-            minecraft.font.drawShadow(matrixStack, breathingIncreaseLine, middleX, (float) textY + 8, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, breathingIncreaseLine, middleX, (float) textY + 8, 0xFFFFFF);
         }
         
         textY += 11;

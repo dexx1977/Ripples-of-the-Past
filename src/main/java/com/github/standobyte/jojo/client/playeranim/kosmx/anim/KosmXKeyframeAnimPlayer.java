@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim;
 
-import net.minecraft.world.item.TransformType;
+import dev.kosmx.playerAnim.api.TransformType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

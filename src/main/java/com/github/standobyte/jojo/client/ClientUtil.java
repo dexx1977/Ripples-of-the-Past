@@ -281,7 +281,7 @@ public class ClientUtil {
     }
     
     public static void drawRightAlignedString(PoseStack matrixStack, Font font, String line, float x, float y, int color) {
-        font.drawShadow(matrixStack, line, x - font.width(line), y, color);
+        GuiDraw.drawString(matrixStack, font, line, x - font.width(line), y, color);
     }
 
     public static void drawRightAlignedString(PoseStack matrixStack, Font font, Component line, float x, float y, int color) {
@@ -289,11 +289,11 @@ public class ClientUtil {
     }
 
     public static void drawRightAlignedString(PoseStack matrixStack, Font font, FormattedCharSequence line, float x, float y, int color) {
-        font.drawShadow(matrixStack, line, x - font.width(line), y, color);
+        GuiDraw.drawString(matrixStack, font, line, x - font.width(line), y, color);
     }
 
     public static void drawCenteredString(PoseStack matrixStack, Font font, FormattedCharSequence line, float x, float y, int color) {
-        font.drawShadow(matrixStack, line, x - font.width(line) / 2, y, color);
+        GuiDraw.drawString(matrixStack, font, line, x - font.width(line) / 2, y, color);
     }
 
     public static void drawCenteredStringNoShadow(PoseStack matrixStack, Font font, Component line, float x, float y, int color) {

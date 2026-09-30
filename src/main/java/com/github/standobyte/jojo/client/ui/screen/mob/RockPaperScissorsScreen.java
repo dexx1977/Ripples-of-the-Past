@@ -170,7 +170,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
         Pick opponentPickThoughts = opponentPick != null ? opponentPick : game.player2.getPickThoughts();
         GuiDraw.blit(matrixStack, windowX + 128, windowY + 12 + nonTieRound * 18, opponentPickThoughts != null ? getIconTexX(opponentPickThoughts) : 102, HEIGHT + 16, 16, 16);
         RenderSystem.disableDepthTest();
-        minecraft.font.drawShadow(matrixStack, Component.literal(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
+        GuiDraw.drawString(matrixStack, minecraft.font, Component.literal(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
         RenderSystem.enableDepthTest();
     }
 

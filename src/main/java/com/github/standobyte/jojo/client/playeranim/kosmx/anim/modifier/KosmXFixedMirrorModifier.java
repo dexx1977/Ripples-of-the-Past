@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
-import net.minecraft.world.item.TransformType;
+import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
 import dev.kosmx.playerAnim.core.util.Vec3f;

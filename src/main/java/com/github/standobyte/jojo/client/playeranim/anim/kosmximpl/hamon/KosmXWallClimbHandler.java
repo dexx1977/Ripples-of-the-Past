@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.hamon;
 
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraft.world.item.TransformType;
+import dev.kosmx.playerAnim.api.TransformType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
