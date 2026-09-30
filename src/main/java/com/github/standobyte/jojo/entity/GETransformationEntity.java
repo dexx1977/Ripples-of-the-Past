@@ -156,7 +156,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         if (blockToPlace != null) {
             blockToPlace = Block.updateFromNeighbourShapes(blockToPlace, level, blockPos);
             BlockState existingBlock = level.getBlockState(blockPos);
-            if (!((existingBlock.isAir(level, blockPos) || existingBlock.getMaterial().isReplaceable())
+            if (!((existingBlock.isAir() || existingBlock.canBeReplaced())
                     && blockToPlace.canSurvive(level, blockPos))) {
                 if (!(blockToPlace.getBlock() instanceof BaseFireBlock)) {
                     level.levelEvent(2001, blockPos, Block.getId(blockToPlace));

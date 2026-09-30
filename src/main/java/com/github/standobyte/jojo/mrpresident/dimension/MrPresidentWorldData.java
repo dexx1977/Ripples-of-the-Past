@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.mrpresident.dimension;
 
 import java.util.HashMap;
+import net.minecraft.core.registries.Registries;
 import java.util.Map;
 import java.util.UUID;
 
@@ -167,7 +168,7 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundTag> {
         static MrPresidentTurtlePos fromNbtEntry(CompoundTag nbt) {
             if (nbt.contains("TurtleDim", Tag.TAG_STRING)) {
                 ResourceLocation dimensionId = new ResourceLocation(nbt.getString("TurtleDim"));
-                ResourceKey<Level> dimension = MCUtil.getRegistryKeyIfPresent(Registry.DIMENSION_REGISTRY, dimensionId);
+                ResourceKey<Level> dimension = MCUtil.getRegistryKeyIfPresent(Registries.DIMENSION, dimensionId);
                 if (dimension == null) {
                     return null;
                 }

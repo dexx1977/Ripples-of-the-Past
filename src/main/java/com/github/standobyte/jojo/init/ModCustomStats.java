@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.JojoMod;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.StatType;
@@ -30,7 +31,7 @@ public class ModCustomStats {
     }
 
     private static ResourceLocation registerCustomStat(ResourceLocation resLoc, StatFormatter statFormatter) {
-        Registry.register(Registry.CUSTOM_STAT, resLoc, resLoc);
+        Registry.register(BuiltInRegistries.CUSTOM_STAT, resLoc, resLoc);
         Stats.CUSTOM.get(resLoc, statFormatter);
         return resLoc;
     }

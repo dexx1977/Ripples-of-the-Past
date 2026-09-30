@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.util;
 
 import java.util.HashMap;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -346,7 +347,7 @@ public class ForgeBusEventSubscriber {
     }
     
     private static void addDimensionalSpacing(ServerLevel serverWorld) {
-        ResourceLocation cgRL = Registry.CHUNK_GENERATOR.getKey(CommonReflection.getCodec(serverWorld.getChunkSource().getGenerator()));
+        ResourceLocation cgRL = BuiltInRegistries.CHUNK_GENERATOR.getKey(CommonReflection.getCodec(serverWorld.getChunkSource().getGenerator()));
         if (cgRL != null && cgRL.getNamespace().equals("terraforged")) {
             return;
         }

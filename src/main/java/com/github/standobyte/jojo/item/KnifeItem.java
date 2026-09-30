@@ -37,7 +37,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.ToolActions;
 
 public class KnifeItem extends Item {
     private final Multimap<Attribute, AttributeModifier> attributeModifiers;
@@ -115,8 +115,7 @@ public class KnifeItem extends Item {
         if (block == Blocks.COBWEB) {
             return 15.0F;
         } else {
-            Material material = state.getMaterial();
-            return material != Material.PLANT && material != Material.REPLACEABLE_PLANT && material != Material.CORAL && !state.is(BlockTags.LEAVES) && material != Material.VEGETABLE ? 1.0F : 1.5F;
+            return !MCUtil.isPlantLike(state) ? 1.0F : 1.5F;
         }
     }
 
@@ -140,7 +139,7 @@ public class KnifeItem extends Item {
         Level world = pContext.getLevel();
         BlockPos blockpos = pContext.getClickedPos();
         BlockState blockstate = world.getBlockState(blockpos);
-        BlockState block = blockstate.getToolModifiedState(world, blockpos, pContext.getPlayer(), pContext.getItemInHand(), ToolType.AXE);
+        BlockState block = blockstate.getToolModifiedState(pContext, ToolActions.AXE_STRIP, false);
         if (block != null) {
             Player playerentity = pContext.getPlayer();
             world.playSound(playerentity, blockpos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);

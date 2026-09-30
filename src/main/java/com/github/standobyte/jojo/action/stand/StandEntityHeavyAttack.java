@@ -659,7 +659,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                     MCUtil.iterateOverBlocks(minX, minY, minZ, maxX, maxY, maxZ, blockPos -> {
                         if (test || pos.distanceToSqr(blockPos.getX() + 0.5, blockPos.getX() + 0.5, blockPos.getX() + 0.5) > radius + 0.5) {
                             BlockState blockState = level.getBlockState(blockPos);
-                            if (!blockState.isAir(level, blockPos)) {
+                            if (!blockState.isAir()) {
                                 blocksShockwaveVisual.addBlock(blockPos, blockState);
                             }
                         }

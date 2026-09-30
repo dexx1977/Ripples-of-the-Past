@@ -385,7 +385,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
     public static boolean canReplaceBlock(Level world, BlockPos blockPos, BlockState newBlockState) {
         BlockState currentBlockState = world.getBlockState(blockPos);
         float hardness = currentBlockState.getDestroySpeed(world, blockPos);
-        return currentBlockState.getMaterial().isReplaceable() || hardness >= 0 && hardness < newBlockState.getDestroySpeed(world, blockPos);
+        return currentBlockState.canBeReplaced() || hardness >= 0 && hardness < newBlockState.getDestroySpeed(world, blockPos);
     }
     
     private void replaceOrDropBlock(Level world, BlockPos blockPos, BlockState newBlockState) {

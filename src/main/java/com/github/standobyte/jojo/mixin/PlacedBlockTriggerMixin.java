@@ -61,7 +61,7 @@ public class PlacedBlockTriggerMixin {
         for (BlockPos offset : BLOCK_OFFSETS) {
             checkBlockPos = roomPos.blockPosition(offset);
             blockState = player.level.getBlockState(checkBlockPos);
-            if (blockState.isAir(player.level, checkBlockPos)) {
+            if (blockState.isAir()) {
                 hasWalls = false;
                 break;
             }
@@ -70,7 +70,7 @@ public class PlacedBlockTriggerMixin {
             for (BlockPos offset : BLOCK_OFFSETS_TOP) {
                 checkBlockPos = roomPos.blockPosition(offset);
                 blockState = player.level.getBlockState(checkBlockPos);
-                if (blockState.isAir(player.level, checkBlockPos) && player.level.getBlockState(checkBlockPos.above()).getBlock() != ModBlocks.MR_PRESIDENT_EXIT.get()) {
+                if (blockState.isAir() && player.level.getBlockState(checkBlockPos.above()).getBlock() != ModBlocks.MR_PRESIDENT_EXIT.get()) {
                     hasWalls = false;
                     break;
                 }

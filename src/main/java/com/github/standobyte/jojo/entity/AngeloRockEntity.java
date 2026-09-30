@@ -516,7 +516,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     private Optional<BlockPos> moveWithPiston(BlockPos pistonBlockPos) {
         Direction pistonHeadDir = null;
         BlockState blockState = level.getBlockState(pistonBlockPos);
-        if (!blockState.isAir(this.level, pistonBlockPos) && (blockState.is(Blocks.MOVING_PISTON) || blockState.is(Blocks.PISTON_HEAD))) {
+        if (!blockState.isAir() && (blockState.is(Blocks.MOVING_PISTON) || blockState.is(Blocks.PISTON_HEAD))) {
             pistonHeadDir = blockState.getValue(BlockStateProperties.FACING);
         }
         if (pistonHeadDir != null) {

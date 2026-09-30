@@ -14,11 +14,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.block.material.Material;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.item.DyeColor;
-import net.minecraftforge.common.ToolType;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -37,28 +36,32 @@ public class ModBlocks {
             () -> new PillarmanBossMultiBlock(Block.Properties.copy(Blocks.BEDROCK).isValidSpawn((state, reader, pos, entityType) -> false)));
     
     public static final RegistryObject<LiquidBlock> BOILING_BLOOD = BLOCKS.register("boiling_blood", 
-            () -> new LiquidBlock(ModFluids.BOILING_BLOOD, BlockBehaviour.Properties.of(Material.LAVA)
-                    .noCollission().randomTicks().strength(100.0F).lightLevel(blockState -> 15).noDrops()));
+            () -> new LiquidBlock(ModFluids.BOILING_BLOOD, BlockBehaviour.Properties.of()
+                    .liquid().pushReaction(PushReaction.DESTROY).mapColor(MapColor.LAVA)
+                    .noCollission().randomTicks().strength(100.0F).lightLevel(blockState -> 15).noLootTable()));
     
     public static final RegistryObject<Block> METEORIC_IRON = BLOCKS.register("meteoric_iron", 
-           () -> new Block(Block.Properties.copy(Blocks.IRON_BLOCK).harvestTool(ToolType.PICKAXE).harvestLevel(1).requiresCorrectToolForDrops()));
+           () -> new Block(Block.Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops()));
     
     public static final RegistryObject<MeteoricOreBlock> METEORIC_ORE = BLOCKS.register("meteoric_ore", 
-           () -> new MeteoricOreBlock(Block.Properties.of(Material.METAL).strength(10.0F, 3.0F).harvestTool(ToolType.PICKAXE).harvestLevel(3).requiresCorrectToolForDrops().sound(SoundType.METAL)));
+           () -> new MeteoricOreBlock(Block.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL)
+                    .strength(10.0F, 3.0F).requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK)));
     
     public static final RegistryObject<MagiciansRedFireBlock> MAGICIANS_RED_FIRE = BLOCKS.register("magicians_red_fire", 
-            () -> new MagiciansRedFireBlock(Block.Properties.of(Material.FIRE, MapColor.FIRE).noCollission().instabreak().lightLevel((blockState) -> {
+            () -> new MagiciansRedFireBlock(Block.Properties.of().mapColor(MapColor.FIRE).replaceable().noCollission().instabreak().lightLevel((blockState) -> {
                 return 15;
             }).sound(SoundType.WOOL)));
     
     public static final Map<DyeColor, RegistryObject<WoodenCoffinBlock>> WOODEN_COFFIN_OAK = ModItems.register16colorsBlock("wooden_coffin_oak", 
-            color -> new WoodenCoffinBlock(color, Block.Properties.copy(Blocks.OAK_PLANKS).harvestTool(ToolType.AXE).harvestLevel(1)));
+            color -> new WoodenCoffinBlock(color, Block.Properties.copy(Blocks.OAK_PLANKS)));
     
     public static final RegistryObject<Block> COCO_JUMBO_SHELL = BLOCKS.register("coco_jumbo_shell", 
-            () -> new Block(BlockBehaviour.Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noDrops().isValidSpawn((state, reader, pos, entityType) -> false)));
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)
+                    .strength(-1.0F, 3600000.0F).noLootTable().isValidSpawn((state, reader, pos, entityType) -> false)));
     
     public static final RegistryObject<Block> MR_PRESIDENT_EXIT = BLOCKS.register("mr_president_gem", 
-            () -> new MrPresidentGemBlock(BlockBehaviour.Properties.of(Material.METAL).strength(-1.0F, 3600000.0F)
-                    .lightLevel(state -> 15).noDrops().isValidSpawn((state, reader, pos, entityType) -> false)));
+            () -> new MrPresidentGemBlock(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL)
+                    .strength(-1.0F, 3600000.0F).requiresCorrectToolForDrops()
+                    .lightLevel(state -> 15).noLootTable().isValidSpawn((state, reader, pos, entityType) -> false)));
     
 }

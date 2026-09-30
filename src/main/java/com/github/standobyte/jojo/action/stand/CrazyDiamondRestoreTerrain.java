@@ -356,7 +356,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     public static boolean blockCanBePlaced(Level world, BlockPos pos, BlockState placedBlockState) {
-        return world.getBlockState(pos).getMaterial().isReplaceable();
+        return world.getBlockState(pos).canBeReplaced();
     }
     
     public static boolean consumeNeededItems(List<ItemStack> restorationCost, List<ItemStack> itemsSource, 

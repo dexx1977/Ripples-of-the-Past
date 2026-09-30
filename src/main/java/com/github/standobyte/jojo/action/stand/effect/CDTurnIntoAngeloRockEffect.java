@@ -189,7 +189,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
     
     
     private static boolean canUseBlock(BlockState blockState) {
-        return blockState.getMaterial() == Material.STONE;
+        return MCUtil.isStoneLike(blockState);
     }
     
     @SuppressWarnings("deprecation")
@@ -245,7 +245,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
 
                     if (!brokenBlocks.containsKey(posAbove)) {
                         BlockState curBlockAbove = world.getBlockState(posAbove);
-                        if (curBlockAbove.isAir(world, posAbove)) {
+                        if (curBlockAbove.isAir()) {
                             return new FindBlockEntry(entry, null, 2);
                         }
                         else if (canUseBlock(curBlockAbove)) {
@@ -254,7 +254,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
                     }
                     if (!brokenBlocks.containsKey(posBelow)) {
                         BlockState curBlockBelow = world.getBlockState(posBelow);
-                        if (curBlockBelow.isAir(world, posBelow)) {
+                        if (curBlockBelow.isAir()) {
                             return new FindBlockEntry(null, entry, 2);
                         }
                         else if (canUseBlock(curBlockBelow)) {

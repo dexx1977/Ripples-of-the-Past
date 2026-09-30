@@ -97,8 +97,7 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     
     public static boolean meltIceAndSnow(Level world, BlockState blockState, BlockPos blockPos) {
         if (world.isClientSide()) return false;
-        if (blockState.getMaterial() == Material.SNOW || blockState.getMaterial() == Material.TOP_SNOW 
-                || blockState.getMaterial() == Material.ICE || blockState.getMaterial() == Material.ICE_SOLID) {
+        if (MCUtil.isSnowOrIce(blockState)) {
             if (world.dimensionType().ultraWarm() || !blockState.isCollisionShapeFullBlock(world, blockPos)) {
                 CrazyDiamondRestoreTerrain.rememberBrokenBlock(world, blockPos, blockState, 
                         Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList());

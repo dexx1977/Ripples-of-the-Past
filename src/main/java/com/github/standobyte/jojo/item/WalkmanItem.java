@@ -29,7 +29,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 // FIXME cassettes can disappear from Walkman (WalkmanCassetteSlotCap)
 public class WalkmanItem extends Item {
@@ -42,7 +42,7 @@ public class WalkmanItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         if (!world.isClientSide()) {
             editWalkmanData(stack, data -> data.initId((ServerLevel) world));
-            stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(cap -> {
+            stack.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(cap -> {
                 if (cap instanceof WalkmanCassetteSlotCap) {
                     NetworkHooks.openGui((ServerPlayer) player, (WalkmanCassetteSlotCap) cap, 
                             buf -> WalkmanItemContainer.writeAdditionalData(buf, stack));

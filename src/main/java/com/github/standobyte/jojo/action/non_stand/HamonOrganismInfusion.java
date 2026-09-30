@@ -173,21 +173,6 @@ public class HamonOrganismInfusion extends HamonAction {
         world.addFreshEntity(charge);
     }
 
-    private static final Set<Material> LIVING_MATERIALS = ImmutableSet.<Material>builder().add(
-            Material.PLANT,
-            Material.WATER_PLANT,
-//            Material.REPLACEABLE_PLANT,
-            Material.REPLACEABLE_FIREPROOF_PLANT,
-            Material.REPLACEABLE_WATER_PLANT,
-            Material.GRASS,
-            Material.BAMBOO_SAPLING,
-            Material.BAMBOO,
-            Material.LEAVES,
-            Material.CACTUS,
-            Material.CORAL,
-            Material.VEGETABLE,
-            Material.EGG
-            ).build();
     private static Set<ResourceLocation> otherLivingBlocksCache;
     private static Set<ResourceLocation> exceptionBlocksCache;
     public static boolean isBlockLiving(BlockState blockState) {
@@ -208,15 +193,16 @@ public class HamonOrganismInfusion extends HamonAction {
                     .collect(Collectors.toSet());
         }
         
-        Material material = blockState.getMaterial();
         Block block = blockState.getBlock();
         ResourceLocation id = MCUtil.id(block);
         
-        if (material == Material.REPLACEABLE_PLANT) {
+        if (MCUtil.isReplaceablePlant(blockState)) {
             return !exceptionBlocksCache.contains(id);
         }
-        return LIVING_MATERIALS.contains(material) || BlockTags.LOGS.contains(block) || 
-                block instanceof SnowyDirtBlock || otherLivingBlocksCache.contains(id);
+        // 1.16.5 asked the block's Material here; 1.20.1 has no Material, so the
+        // same living/organic groups are recognised from the block's sound type and
+        // the vanilla plant/coral/leaf tags (see MCUtil.isLivingBlockMaterial).
+        return MCUtil.isLivingBlockMaterial(blockState) || otherLivingBlocksCache.contains(id);
     }
 
 }

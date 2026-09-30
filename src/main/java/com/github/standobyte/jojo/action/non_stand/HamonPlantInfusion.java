@@ -28,7 +28,7 @@ public class HamonPlantInfusion extends HamonOrganismInfusion {
     public ActionConditionResult checkTarget(ActionTarget target, LivingEntity user, INonStandPower power) {
         BlockPos blockPos = target.getBlockPos();
         BlockState blockState = user.level.getBlockState(blockPos);
-        if (blockState.getMaterial() == Material.EGG) {
+        if (blockState.is(Blocks.TURTLE_EGG) || blockState.is(Blocks.DRAGON_EGG)) {
             return conditionMessage("turtle_egg");
         }
         Block block = blockState.getBlock();

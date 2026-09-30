@@ -66,18 +66,17 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
     }
     
     public static boolean hardMaterial(BlockState blockState) {
-        Material material = blockState.getMaterial();
-        return 
-                material == Material.BUILDABLE_GLASS || 
-                material == Material.ICE_SOLID || 
-                material == Material.WOOD || 
-                material == Material.NETHER_WOOD || 
-                material == Material.GLASS || 
-                material == Material.ICE || 
-                material == Material.STONE || 
-                material == Material.METAL || 
-                material == Material.HEAVY_METAL || 
-                material == Material.CLAY && MCUtil.id(blockState.getBlock()).getPath().contains("infested");
+        // 1.16.5 listed the hard Materials (stone, wood, metal, glass, ice, clay).
+        // 1.20.1 removed Material, so the same groups are recognised through the
+        // properties those materials were built from: their sound type, plus the
+        // ice/clay blocks that have no dedicated sound.
+        SoundType sound = blockState.getSoundType();
+        if (sound == SoundType.GLASS || sound == SoundType.WOOD || sound == SoundType.METAL
+                || sound == SoundType.STONE) {
+            return true;
+        }
+        return MCUtil.isSnowOrIce(blockState)
+                || blockState.is(Blocks.CLAY) && MCUtil.id(blockState.getBlock()).getPath().contains("infested");
     }
 
     @Override

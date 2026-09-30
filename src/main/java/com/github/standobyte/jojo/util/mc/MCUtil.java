@@ -62,6 +62,10 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SnowyDirtBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.core.particles.ParticleType;
@@ -412,7 +416,7 @@ public class MCUtil {
                             BlockPos blockpos = new BlockPos(d4, d6, d8);
                             BlockState blockstate = world.getBlockState(blockpos);
                             FluidState fluidstate = world.getFluidState(blockpos);
-                            Optional<Float> optional = blockstate.isAir(world, blockpos) && fluidstate.isEmpty()
+                            Optional<Float> optional = blockstate.isAir() && fluidstate.isEmpty()
                                     ? Optional.empty()
                                     : Optional.of(Math.max(blockstate.getBlock().getExplosionResistance(), fluidstate.getExplosionResistance()));
                             if (optional.isPresent()) {
@@ -756,7 +760,7 @@ public class MCUtil {
         while (iter.hasNext()) {
             BlockPos blockPos = iter.next();
             BlockState blockState = world.getBlockState(blockPos);
-            if (Level.isOutsideBuildHeight(blockPos) || blockState.isAir(world, blockPos)
+            if (Level.isOutsideBuildHeight(blockPos) || blockState.isAir()
                     || !JojoModUtil.canEntityDestroy(world, blockPos, blockState, entity)) {
                 iter.remove();
             }
@@ -1343,5 +1347,78 @@ public class MCUtil {
 
     public static ResourceLocation id(PaintingVariant variant) {
         return ForgeRegistries.PAINTING_VARIANTS.getKey(variant);
+    }
+
+    /**
+     * 1.20.1 removed Material, which 1.16.5 used to classify blocks. These helpers
+     * keep the same groupings using the block's own properties, which is what the
+     * old materials were defined by (each material had exactly one sound type), and
+     * vanilla tags where the group matches a tag one to one. The tag contents below
+     * were read from the 1.20.1 vanilla data:
+     *   snow = {snow, snow_block, powder_snow} - the old Material.SNOW + TOP_SNOW
+     *   ice  = {ice, packed_ice, blue_ice, frosted_ice} - the old ICE + ICE_SOLID
+     *   replaceable = grass, fern, dead_bush, seagrass, fire, snow, vine, light, ...
+     */
+    public static boolean isGlassLike(BlockState state) {
+        return state.getSoundType() == SoundType.GLASS;
+    }
+
+    public static boolean isWoodLike(BlockState state) {
+        return state.getSoundType() == SoundType.WOOD;
+    }
+
+    public static boolean isMetalLike(BlockState state) {
+        return state.getSoundType() == SoundType.METAL;
+    }
+
+    public static boolean isStoneLike(BlockState state) {
+        return state.getSoundType() == SoundType.STONE;
+    }
+
+    public static boolean isSnowOrIce(BlockState state) {
+        return state.is(BlockTags.SNOW) || state.is(BlockTags.ICE);
+    }
+
+    public static boolean isReplaceablePlant(BlockState state) {
+        return state.is(BlockTags.REPLACEABLE);
+    }
+
+    /** The old Material.CLOTH_DECORATION / WEB / WOOL / SAND / DIRT / GRASS / SNOW / VEGETABLE / LEAVES / CACTUS / TOP_SNOW / SPONGE / CLAY group. */
+    public static boolean isSoftMaterial(BlockState state) {
+        SoundType sound = state.getSoundType();
+        return sound == SoundType.WOOL || sound == SoundType.SAND || sound == SoundType.SNOW
+                || sound == SoundType.GRASS || sound == SoundType.GRAVEL || sound == SoundType.CROP
+                || state.is(BlockTags.WOOL) || state.is(BlockTags.LEAVES) || state.is(BlockTags.SAND)
+                || state.is(BlockTags.DIRT) || state.is(BlockTags.SNOW) || state.is(BlockTags.ICE)
+                || state.is(Blocks.CACTUS) || state.is(Blocks.COBWEB) || state.is(Blocks.CLAY)
+                || state.is(Blocks.SPONGE) || state.is(Blocks.WET_SPONGE);
+    }
+
+
+    /** The old Material.PLANT / REPLACEABLE_PLANT / CORAL / VEGETABLE / LEAVES group. */
+    public static boolean isPlantLike(BlockState state) {
+        SoundType sound = state.getSoundType();
+        return sound == SoundType.GRASS || sound == SoundType.WET_GRASS || sound == SoundType.CROP
+                || sound == SoundType.HARD_CROP || sound == SoundType.VINE || sound == SoundType.LILY_PAD
+                || sound == SoundType.BAMBOO || sound == SoundType.BAMBOO_SAPLING || sound == SoundType.CORAL_BLOCK
+                || sound == SoundType.SWEET_BERRY_BUSH
+                || state.is(BlockTags.LEAVES) || state.is(BlockTags.CORALS) || state.is(BlockTags.CROPS)
+                || state.is(BlockTags.FLOWERS) || state.is(BlockTags.SAPLINGS) || state.is(Blocks.CACTUS)
+                || state.is(BlockTags.REPLACEABLE);
+    }
+
+    /** The old Material.REPLACEABLE_PLANT / PLANT / WATER_PLANT / GRASS / BAMBOO / LEAVES / CORAL / VEGETABLE / EGG group used by the Hamon infusion. */
+    public static boolean isLivingBlockMaterial(BlockState state) {
+        SoundType sound = state.getSoundType();
+        return sound == SoundType.GRASS || sound == SoundType.WET_GRASS || sound == SoundType.CROP
+                || sound == SoundType.HARD_CROP || sound == SoundType.VINE || sound == SoundType.LILY_PAD
+                || sound == SoundType.BAMBOO || sound == SoundType.BAMBOO_SAPLING || sound == SoundType.CORAL_BLOCK
+                || sound == SoundType.SWEET_BERRY_BUSH
+                || state.is(BlockTags.LEAVES) || state.is(BlockTags.LOGS) || state.is(BlockTags.CORALS)
+                || state.is(BlockTags.CORAL_BLOCKS) || state.is(BlockTags.CORAL_PLANTS)
+                || state.is(BlockTags.CROPS) || state.is(BlockTags.SAPLINGS) || state.is(BlockTags.FLOWERS)
+                || state.is(Blocks.CACTUS) || state.is(Blocks.TURTLE_EGG) || state.is(Blocks.DRAGON_EGG)
+                || state.is(BlockTags.REPLACEABLE)
+                || state.getBlock() instanceof SnowyDirtBlock;
     }
 }

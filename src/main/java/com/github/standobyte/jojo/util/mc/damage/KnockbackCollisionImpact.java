@@ -350,7 +350,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                                 && asLiving.getRandom().nextFloat() < bleedingChance) {
                             doGlassBleeding.setTrue();
                         }
-                        if (blockState.getMaterial() == Material.CACTUS) {
+                        if (blockState.is(Blocks.CACTUS)) {
                             hurtTarget(entity, DamageSource.CACTUS, 1);
                         }
                         if (entity.isOnFire()) {
@@ -501,21 +501,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
     
     
     public static boolean isSoftMaterial(BlockState blockState) {
-        Material material = blockState.getMaterial();
-        return 
-                material == Material.CLOTH_DECORATION || 
-                material == Material.TOP_SNOW || 
-                material == Material.WEB || 
-                material == Material.CLAY || 
-                material == Material.DIRT || 
-                material == Material.GRASS || 
-                material == Material.SAND || 
-                material == Material.SPONGE || 
-                material == Material.WOOL || 
-                material == Material.LEAVES || 
-                material == Material.CACTUS || 
-                material == Material.SNOW || 
-                material == Material.VEGETABLE;
+        return MCUtil.isSoftMaterial(blockState);
     }
     
     

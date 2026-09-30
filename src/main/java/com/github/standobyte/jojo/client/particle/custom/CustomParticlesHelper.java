@@ -219,7 +219,7 @@ public abstract class CustomParticlesHelper {
         ParticleEngine particleManager = mc.particleEngine;
         ClientLevel world = mc.level;
         BlockPos blockPos = new BlockPos(pos);
-        if (!blockState.isAir(world, blockPos)) {
+        if (!blockState.isAir()) {
             for (int i = 0; i < 4; i++) {
                 double x = (Math.random() - 0.5) * 0.2;
                 double y = (Math.random() - 0.5) * 0.2;

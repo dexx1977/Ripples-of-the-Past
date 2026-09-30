@@ -51,7 +51,7 @@ public class MagiciansRedEntity extends StandEntity {
                         for(int z = pos1.getZ(); z <= pos2.getZ(); ++z) {
                             blockPos.set(x, y, z);
                             BlockState blockState = world.getBlockState(blockPos);
-                            if (!blockState.isAir(world, blockPos) && blockState.getBlock() instanceof BaseFireBlock) {
+                            if (!blockState.isAir() && blockState.getBlock() instanceof BaseFireBlock) {
                                 MCUtil.destroyBlock(world, blockPos, false, null);
                             }
                         }

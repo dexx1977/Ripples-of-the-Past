@@ -235,11 +235,11 @@ public abstract class CustomExplosion extends Explosion {
     @SuppressWarnings("deprecation")
     protected void explodeBlocks() {
         ObjectArrayList<Pair<ItemStack, BlockPos>> dropPositions = new ObjectArrayList<>();
-        Collections.shuffle(getToBlow(), level.random);
+        Util.shuffle(getToBlow(), level.random);
 
         for (BlockPos blockPos : getToBlow()) {
             BlockState blockState = level.getBlockState(blockPos);
-            if (!blockState.isAir(level, blockPos)) {
+            if (!blockState.isAir()) {
                 level.getProfiler().push("explosion_blocks");
                 if (blockState.canDropFromExplosion(level, blockPos, this) && level instanceof ServerLevel) {
                     BlockEntity tileEntity = blockState.hasTileEntity() ? level.getBlockEntity(blockPos) : null;
@@ -287,7 +287,7 @@ public abstract class CustomExplosion extends Explosion {
     @SuppressWarnings("deprecation")
     protected void spawnFire() {
         for (BlockPos blockPos : getToBlow()) {
-            if (random.nextInt(3) == 0 && level.getBlockState(blockPos).isAir(level, blockPos)
+            if (random.nextInt(3) == 0 && level.getBlockState(blockPos).isAir()
                     && level.getBlockState(blockPos.below()).isSolidRender(level, blockPos.below())) {
                 level.setBlockAndUpdate(blockPos, BaseFireBlock.getState(level, blockPos));
             }

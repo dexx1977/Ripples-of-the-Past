@@ -232,7 +232,7 @@ public class CollideBlocks {
         
         if (sort) {
             return blocks.stream()
-            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distSqr(center1.x, center1.y, center1.z, true)))
+            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distToCenterSqr(center1.x, center1.y, center1.z)))
             .collect(Collectors.toList());
         }
         return blocks;

@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.standskin;
 
 import java.io.BufferedReader;
+import net.minecraft.core.registries.BuiltInRegistries;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -255,7 +256,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
 //
 //        if (LOGGER.isDebugEnabled()) {
 //            for(ResourceLocation resourcelocation1 : this.registry.keySet()) {
-//                if (!Registry.SOUND_EVENT.containsKey(resourcelocation1)) {
+//                if (!BuiltInRegistries.SOUND_EVENT.containsKey(resourcelocation1)) {
 //                    LOGGER.debug("Not having sound event for: {}", (Object)resourcelocation1);
 //                }
 //            }

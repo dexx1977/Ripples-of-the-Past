@@ -121,7 +121,7 @@ public class VampirismFreeze extends VampirismAction {
                 if (blockPos.closerThan(entity.position(), (double) radius)) {
                     posMutable.set(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ());
                     BlockState blockState = world.getBlockState(posMutable);
-                    if (blockState.getBlock().isAir(blockState, world, posMutable)) {
+                    if (blockState.getBlock().isAir()) {
                         freezeWaterBlock(world, blockPos, entity);
                     }
                 }
@@ -141,7 +141,7 @@ public class VampirismFreeze extends VampirismAction {
     private void freezeWaterBlock(Level world, BlockPos blockPos, LivingEntity vampireEntity) {
         BlockState blockState = world.getBlockState(blockPos);
         boolean isFull = blockState.getBlock() == Blocks.WATER && blockState.getValue(LiquidBlock.LEVEL) == 0;
-        if (blockState.getMaterial() == Material.WATER && isFull && ICE.canSurvive(world, blockPos)
+        if (isFull && ICE.canSurvive(world, blockPos)
                 && world.isUnobstructed(ICE, blockPos, CollisionContext.empty())
                 && !ForgeEventFactory.onBlockPlace(vampireEntity, BlockSnapshot.create(world.dimension(), world, blockPos), Direction.UP)) {
             world.setBlockAndUpdate(blockPos, ICE);

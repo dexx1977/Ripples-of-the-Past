@@ -219,7 +219,7 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
     
     
     public static boolean isGlassBlock(BlockState blockState) {
-        return blockState.getMaterial() == Material.GLASS;
+        return MCUtil.isGlassLike(blockState);
     }
     
     public static float glassShardBleedingChance(LivingEntity entity) {
