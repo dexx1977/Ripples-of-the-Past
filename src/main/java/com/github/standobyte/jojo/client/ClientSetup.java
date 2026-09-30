@@ -186,7 +186,7 @@ import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -462,17 +462,12 @@ public class ClientSetup {
     }
     
     
-    private static boolean spritesAdded = false;
     @SubscribeEvent
-    public static void addSprites(ModelRegistryEvent event) {
-        if (!spritesAdded) {
-            addUnreferencedBlockModels(BlockSprites.MR_FIRE_BLOCK_0, BlockSprites.MR_FIRE_BLOCK_1);
-            addUnreferencedBlockModels(MagiciansRedRenderer.MR_FIRE_0, MagiciansRedRenderer.MR_FIRE_1);
-            spritesAdded = true;
-        }
-        
-        ModelLoader.addSpecialModel(new ModelResourceLocation(new ResourceLocation(JojoMod.MOD_ID, "tommy_gun_flipped"), "inventory"));
-        StandDiscOverrideList.onModelRegistry();
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+        // 1.20.1 bakes every model it finds, so the old "unreferenced textures" list
+        // (a reflection into ModelBakery) has no equivalent and is not needed.
+        event.register(new ModelResourceLocation(new ResourceLocation(JojoMod.MOD_ID, "tommy_gun_flipped"), "inventory"));
+        StandDiscOverrideList.onModelRegistry(event);
     }
     
     public static void addUnreferencedBlockModels(Material... renderMaterials) {

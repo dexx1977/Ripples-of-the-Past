@@ -19,7 +19,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
 
 public class StandDiscOverrideList extends ItemOverrides {
     private final Map<ResourceLocation, BakedModel> cache = new HashMap<>();
@@ -44,9 +43,9 @@ public class StandDiscOverrideList extends ItemOverrides {
         return wrappedOverrides.resolve(model, item, world, entity);
     }
     
-    public static void onModelRegistry() {
+    public static void onModelRegistry(net.minecraftforge.client.event.ModelEvent.RegisterAdditional event) {
         for (StandType<?> standType : JojoCustomRegistries.STANDS.getRegistry().getValues()) {
-            ModelLoader.addSpecialModel(makeStandSpecificModelPath(standType));
+            event.register(new ModelResourceLocation(makeStandSpecificModelPath(standType), "inventory"));
         }
     }
     
