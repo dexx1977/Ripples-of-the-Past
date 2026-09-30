@@ -141,6 +141,16 @@ public class FilterList<T extends FilterList.Entry> implements GuiEventListener 
     }
     
     @Override
+    public void setFocused(boolean focused) {
+        // 1.16.5's IGuiEventListener made focus a no-op for this list; 1.20.1 made it abstract.
+    }
+
+    @Override
+    public boolean isFocused() {
+        return false;
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonId) {
         if (!visible) return false;
         if (getScrollUpState((int) mouseX, (int) mouseY) == ScrollButtonState.HOVERED) {

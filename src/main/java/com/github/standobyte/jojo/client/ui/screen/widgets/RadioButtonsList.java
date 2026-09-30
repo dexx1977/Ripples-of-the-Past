@@ -13,12 +13,17 @@ import com.github.standobyte.jojo.client.ui.screen.stand.ge.ChooseLifeformScreen
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 
-public class RadioButtonsList<V> implements ContainerEventHandler {
+// 1.20.1's ContainerEventHandler no longer carries the Renderable/NarratableEntry
+// supertypes that 1.16.5's INestedGuiEventHandler had, so they are listed again here.
+public class RadioButtonsList<V> implements ContainerEventHandler, Renderable, NarratableEntry {
     protected List<Button> radioButtons = new ArrayList<>();
     protected V selectedValue;
     protected Consumer<V> onNewValue;
@@ -116,5 +121,18 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
     @Override
     public GuiEventListener getFocused() {
         return this.focused;
+    }
+
+    @Override
+    public NarrationPriority narrationPriority() {
+        return this.focused != null ? NarrationPriority.FOCUSED : NarrationPriority.NONE;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {
+        GuiEventListener focused = this.getFocused();
+        if (focused instanceof NarratableEntry) {
+            ((NarratableEntry) focused).updateNarration(narrationElementOutput.nest());
+        }
     }
 }

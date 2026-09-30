@@ -33,15 +33,13 @@ public class HideScreenPartToggleBox extends ToggleBox {
         texX = direction.getTexX();
         texY += height;
         GuiDraw.blit(matrixStack, x, y, texX, texY, width, height);
-        super.renderWidget(matrixStack, mouseX, mouseY, partialTick);
-    }
-    
-    @Override
-    public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {
-        Component text = getState() ? 
-                Component.translatable("jojo.ui.spoiler.hide")
-                : Component.translatable("jojo.ui.spoiler.show");
-        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        if (isHovered()) {
+            Component text = getState() ? 
+                    Component.translatable("jojo.ui.spoiler.hide")
+                    : Component.translatable("jojo.ui.spoiler.show");
+            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+        }
     }
     
     public enum Direction {

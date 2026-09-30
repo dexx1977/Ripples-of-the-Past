@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 
@@ -25,8 +26,7 @@ public class ToggleBox extends AbstractWidget implements IExtendedWidget {
 
     public ToggleBox(int x, int y, int width, int height, Component name, 
             Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
-        super(x, y, width, height, Button.DEFAULT_NARRATION);
-        setTooltip(name);
+        super(x, y, width, height, name);
         this.extension = new WidgetExtension(this);
         this.stateGet = stateGet;
         this.stateSet = stateSet;
@@ -70,7 +70,9 @@ public class ToggleBox extends AbstractWidget implements IExtendedWidget {
     }
 
     @Override
-    public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {}
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+        this.defaultButtonNarrationText(narrationElementOutput);
+    }
     
     
     

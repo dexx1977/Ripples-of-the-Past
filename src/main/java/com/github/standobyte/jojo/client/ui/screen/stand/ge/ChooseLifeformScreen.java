@@ -261,7 +261,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         else {
             GuiEventListener focused = getFocused();
             if (searchField != null && focused == searchField) {
-                searchField.setFocus(true);
+                searchField.setFocused(true);
             }
         }
     }

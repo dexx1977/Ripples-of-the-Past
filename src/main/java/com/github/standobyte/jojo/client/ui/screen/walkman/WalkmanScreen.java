@@ -94,7 +94,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
         GuiDraw.setGraphics(guiGraphics);
         updateCassette();
         updateButtons();
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
     
@@ -240,10 +240,9 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                 }, this, -1) {
             
             @Override
-            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        PoseStack matrixStack = guiGraphics.pose();
-        GuiDraw.setGraphics(guiGraphics);
-                Minecraft minecraft = Minecraft.getInstance();
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+                PoseStack matrixStack = guiGraphics.pose();
+                GuiDraw.setGraphics(guiGraphics);
                 GuiDraw.bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
@@ -306,14 +305,15 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     
 
     @Override
-    protected void renderBg(PoseStack matrixStack, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        PoseStack matrixStack = guiGraphics.pose();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         GuiDraw.bind(WALKMAN_SCREEN_TEXTURE);
         int windowX = getWindowX();
         int windowY = getWindowY();
         
-        volumeWheel.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTick);
+        volumeWheel.render(guiGraphics, mouseX, mouseY, partialTick);
         
         GuiDraw.blit(matrixStack, windowX, windowY, 0, 0, imageWidth, imageHeight);
 
@@ -379,7 +379,8 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     }
 
     @Override
-    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        PoseStack matrixStack = guiGraphics.pose();
         ItemStack cassetteItem = getCassetteItem();
         if (!cassetteItem.isEmpty()) {
             if (cassetteItem.hasCustomHoverName()) {

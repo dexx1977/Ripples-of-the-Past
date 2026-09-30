@@ -23,17 +23,21 @@ public class WalkmanButton extends CustomButton {
     private final int texX;
 
     public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, Supplier<Component> message, Screen screen, int texX) {
-        this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> screen.renderToolTip(matrixStack, button.getMessage(), mouseX, mouseY), message, texX);
+        this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> {
+            if (button.active) {
+                GuiDraw.renderToolTip(matrixStack, button.getMessage(), mouseX, mouseY);
+            }
+        }, message, texX);
     }
 
-    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, Tooltip tooltip, Supplier<Component> message, int texX) {
+    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, ITooltipRenderer tooltip, Supplier<Component> message, int texX) {
         super(x, y, width, height, Component.empty(), onPress, tooltip);
         this.message = message;
         this.texX = texX;
     }
 
     @Override
-    protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
@@ -47,16 +51,9 @@ public class WalkmanButton extends CustomButton {
 
     @Override
     public void playDownSound(SoundManager soundManager) {
-        soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.5F, 0.1F));
+        soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.5F, 0.1F));
     }
 
-    @Override
-    public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {
-        if (active && isHovered()) {
-            super.renderToolTip(matrixStack, mouseX, mouseY);
-        }
-    }
-    
     @Override
     public Component getMessage() {
         Component message = this.message.get();

@@ -471,7 +471,7 @@ public class StandStatsRenderer {
             Tesselator.getInstance().end();
         }
         if (r2 > 0 && r1 <= 0 && r3 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x2 + 2 * SIN_PI_BY_6,      y2 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x2 - 2 * SIN_PI_BY_6,      y2 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
@@ -479,7 +479,7 @@ public class StandStatsRenderer {
             Tesselator.getInstance().end();
         }
         if (r3 > 0 && r2 <= 0 && r4 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x3 - 2 * SIN_PI_BY_6,      y3 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
@@ -495,7 +495,7 @@ public class StandStatsRenderer {
             Tesselator.getInstance().end();
         }
         if (r5 > 0 && r4 <= 0 && r6 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x5 - 2 * SIN_PI_BY_6,      y5 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x5 + 2 * SIN_PI_BY_6,      y5 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
@@ -503,7 +503,7 @@ public class StandStatsRenderer {
             Tesselator.getInstance().end();
         }
         if (r6 > 0 && r5 <= 0 && r1 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x6 + 2 * SIN_PI_BY_6,      y6 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x6 - 2 * SIN_PI_BY_6,      y6 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();

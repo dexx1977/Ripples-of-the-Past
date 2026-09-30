@@ -26,7 +26,8 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
         Font fontrenderer = minecraft.font;
         GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-        int texY = 46 + getYImage(isHovered()) * 20;
+        // 1.20.1 dropped AbstractSliderButton#getYImage, which returned hovered ? 2 : 1
+        int texY = 46 + (isHovered() ? 2 : 1) * 20;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -51,8 +52,9 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
         GuiDraw.drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
     }
     
-    @Override
-    protected void renderBg(PoseStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY) {
+    /** Mod helper that the slider's own renderWidget calls; 1.20.1 has no such vanilla hook. */
+    protected void renderBg(GuiGraphics guiGraphics, Minecraft pMinecraft, int pMouseX, int pMouseY) {
+        PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (isHovered() ? 2 : 1) * 20;
