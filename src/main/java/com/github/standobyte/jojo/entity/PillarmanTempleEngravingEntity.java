@@ -114,11 +114,6 @@ public class PillarmanTempleEngravingEntity extends HangingEntity implements IEn
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(textureId);
         buffer.writeBlockPos(pos);

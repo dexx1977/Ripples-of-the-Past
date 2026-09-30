@@ -644,11 +644,6 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(Block.getId(leavesBlock));
         buffer.writeInt(foliageColor);

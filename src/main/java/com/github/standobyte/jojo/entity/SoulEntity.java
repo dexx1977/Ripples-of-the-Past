@@ -240,11 +240,6 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         if (originUuid != null) {
             Entity entity = ((ServerLevel) level).getEntity(originUuid);

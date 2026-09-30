@@ -82,9 +82,4 @@ public class FireworkInsideEntity extends FireworkRocketEntity {
     protected Component getTypeName() {
         return EntityType.FIREWORK_ROCKET.getDescription();
     }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 }

@@ -186,11 +186,6 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public int ticksLifespan() {
         return barrier ? 100 : 100 + barrierMaxTicks;
     }

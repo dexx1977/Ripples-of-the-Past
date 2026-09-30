@@ -402,11 +402,6 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
             MCUtil.nbtPutEnum(nbt, "TargetedFace", targetedFace);
         }
     }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {

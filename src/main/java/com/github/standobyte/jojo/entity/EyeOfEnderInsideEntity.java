@@ -83,9 +83,4 @@ public class EyeOfEnderInsideEntity extends EyeOfEnder {
     protected Component getTypeName() {
         return EntityType.EYE_OF_ENDER.getDescription();
     }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 }

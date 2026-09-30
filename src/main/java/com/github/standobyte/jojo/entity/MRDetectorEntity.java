@@ -170,10 +170,5 @@ public class MRDetectorEntity extends Entity implements IEntityAdditionalSpawnDa
             this.owner = (LivingEntity) owner;
         }
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
     
 }

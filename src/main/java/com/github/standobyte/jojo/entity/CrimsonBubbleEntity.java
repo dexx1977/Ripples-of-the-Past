@@ -184,9 +184,4 @@ public class CrimsonBubbleEntity extends Entity {
         }
     }
 
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
 }

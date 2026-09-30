@@ -189,11 +189,6 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
         objectType = NetworkUtil.readOptional(additionalData, () -> additionalData.readEnum(Type.class)).orElse(null);
     }
 
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
 
     public enum Type {
         TOOTH

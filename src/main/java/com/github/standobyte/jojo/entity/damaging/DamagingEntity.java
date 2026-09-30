@@ -443,9 +443,4 @@ public abstract class DamagingEntity extends Projectile implements IEntityAdditi
         speedFactor = additionalData.readDouble();
         standSkin = NetworkUtil.readOptional(additionalData, FriendlyByteBuf::readResourceLocation);
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 }

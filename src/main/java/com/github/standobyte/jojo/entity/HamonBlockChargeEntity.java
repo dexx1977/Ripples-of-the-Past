@@ -121,9 +121,4 @@ public class HamonBlockChargeEntity extends Entity {
             nbt.put("HamonCharge", hamonCharge.toNBT());
         }
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 }

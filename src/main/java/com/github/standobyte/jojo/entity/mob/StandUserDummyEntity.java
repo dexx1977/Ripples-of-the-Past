@@ -130,11 +130,6 @@ public class StandUserDummyEntity extends Mob implements IMobStandUser, IEntityA
     public IStandPower getStandPower() {
         return stand;
     }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {

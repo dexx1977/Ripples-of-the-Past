@@ -54,7 +54,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     @Override
-    public boolean causeFallDamage(float distance, float damageMultiplier) {
+    public boolean causeFallDamage(float distance, float damageMultiplier, net.minecraft.world.damagesource.DamageSource source) {
         return false;
     }
 
@@ -263,11 +263,6 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
         if (owner != null) {
             nbt.putUUID("Owner", ownerId);
         }
-    }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
 
 }

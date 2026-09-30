@@ -203,11 +203,6 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeFloat(width);
         buffer.writeFloat(height);

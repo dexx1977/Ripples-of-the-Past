@@ -182,7 +182,7 @@ public class SCRapierEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    public boolean isGlowing() {
+    public boolean isCurrentlyGlowing() {
         return level.isClientSide() && getOwner() instanceof StandEntity && 
                 ((StandEntity) getOwner()).getUser() == ClientUtil.getClientPlayer() || super.isCurrentlyGlowing();
     }

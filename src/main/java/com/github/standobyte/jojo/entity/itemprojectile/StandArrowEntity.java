@@ -268,11 +268,6 @@ public class StandArrowEntity extends AbstractArrow {
         compound.put("Arrow", arrowItem.save(new CompoundTag()));
         compound.putBoolean("DealtDamage", dealtDamage);
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
     
 //    public static class EntityPierce {
 //        private static final List<PierceBehavior> ARROW_PIERCE_BEHAVIOR = new ArrayList<>();

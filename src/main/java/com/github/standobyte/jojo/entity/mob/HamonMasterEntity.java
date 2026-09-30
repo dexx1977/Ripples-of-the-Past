@@ -93,7 +93,7 @@ public class HamonMasterEntity extends Mob implements Npc, IMobPowerUser, IEntit
 
     // FIXME hamon master liquid walking
     @Override
-    public boolean canStandOnFluid(Fluid fluid) {
+    public boolean canStandOnFluid(net.minecraft.world.level.material.FluidState fluid) {
         return hamonPower.getTypeSpecificData(ModPowers.HAMON.get()).map(hamon -> 
         hamon.isSkillLearned(ModHamonSkills.LIQUID_WALKING.get()))
                 .orElse(false);
@@ -159,10 +159,6 @@ public class HamonMasterEntity extends Mob implements Npc, IMobPowerUser, IEntit
     }
 
     @Deprecated
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
     @Deprecated
     @Override

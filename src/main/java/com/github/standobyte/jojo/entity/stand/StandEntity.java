@@ -239,7 +239,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public boolean isGlowing() {
+    public boolean isCurrentlyGlowing() {
         return super.isCurrentlyGlowing();
     }
     
@@ -1015,7 +1015,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void knockback(float strength, double xRatio, double zRatio) {
+    public void knockback(double strength, double xRatio, double zRatio) {
         LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(this, strength, xRatio, zRatio);
         if (event.isCanceled()) return;
         strength = event.getStrength();
@@ -2797,7 +2797,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public boolean isAffectedByPotions() { return false; }
 
     @Override
-    public boolean causeFallDamage(float distance, float damageMultiplier) { return false; }
+    public boolean causeFallDamage(float distance, float damageMultiplier, net.minecraft.world.damagesource.DamageSource source) { return false; }
 
     @Override
     public boolean onClimbable() { return false; }

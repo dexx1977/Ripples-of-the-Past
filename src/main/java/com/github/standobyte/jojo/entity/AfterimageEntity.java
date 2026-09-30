@@ -131,11 +131,6 @@ public class AfterimageEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         if (originUuid != null) {
             Entity entity = ((ServerLevel) level).getEntity(originUuid);

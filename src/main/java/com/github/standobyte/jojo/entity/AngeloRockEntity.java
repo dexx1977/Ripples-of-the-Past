@@ -615,9 +615,4 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         angeloRockBlocks.clear();
         NetworkUtil.readCollection(additionalData, PrevBlockInfo::fromBuf).forEach(block -> angeloRockBlocks.put(block.pos, block));
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 }

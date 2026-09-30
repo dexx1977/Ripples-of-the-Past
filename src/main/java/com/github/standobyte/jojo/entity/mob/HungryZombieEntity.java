@@ -152,8 +152,10 @@ public class HungryZombieEntity extends Zombie {
     }
     
     @Override
-    protected int getExperienceReward(Player player) {
-        return isEntityOwner(player) ? 0 : super.getExperienceReward(player);
+    protected int getExperienceReward() {
+        // 1.20.1 does not hand the killer to this method
+        Player player = this.lastHurtByPlayer;
+        return player != null && isEntityOwner(player) ? 0 : super.getExperienceReward();
     }
     
     @Override
@@ -213,7 +215,7 @@ public class HungryZombieEntity extends Zombie {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance difficulty) {}
+    protected void populateDefaultEquipmentSlots(net.minecraft.util.RandomSource random, DifficultyInstance difficulty) {}
 
     @Override
     protected ItemStack getSkull() {

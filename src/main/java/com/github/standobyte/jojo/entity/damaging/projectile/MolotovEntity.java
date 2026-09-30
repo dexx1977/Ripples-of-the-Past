@@ -140,10 +140,5 @@ public class MolotovEntity extends ThrowableItemProjectile implements ItemSuppli
             }
         }
     }
-    
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
 }

@@ -642,11 +642,6 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(tickCount);
         buffer.writeVarInt(duration);

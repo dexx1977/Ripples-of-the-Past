@@ -232,11 +232,6 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
         super.addAdditionalSaveData(compound);
         compound.putInt("Age", tickCount);
     }
-
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
     
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
