@@ -144,7 +144,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     PrimedTnt tnt = (PrimedTnt) targetEntity;
                     if (task.getTick() == 0 || tnt.getFuse() < 80) {
                         if (!world.isClientSide()) {
-                            tnt.setFuse(tnt.getLife() + 2);
+                            tnt.setFuse(tnt.getFuse() + 2);
                         }
                     }
                     else {
@@ -305,7 +305,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
 
     private static final Optional<Pair<ItemStack[], Integer>> EXISTS = Optional.of(Pair.of(new ItemStack[0], 0));
     private Optional<Pair<ItemStack[], Integer>> convertTo(ItemStack item, Level world, 
-            @Nullable Predicate<Recipe<?>> additionalCondition, Random random, boolean createItems) {
+            @Nullable Predicate<Recipe<?>> additionalCondition, net.minecraft.util.RandomSource random, boolean createItems) {
         if (item.isEmpty()) return Optional.empty();
         
         if (item.getItem() == Items.ENCHANTED_BOOK)     return createItems ? Optional.of(Pair.of(new ItemStack[]{new ItemStack(Items.BOOK)}, 1)) : EXISTS;
@@ -337,17 +337,17 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     Recipe<?> randomRecipe = recipesOfPreferredType.get(random.nextInt(recipesOfPreferredType.size()));
                     ItemStack[] ingredients = getIngredients(randomRecipe);
                     if (ingredients.length == 0) return Optional.empty();
-                    return Optional.of(Pair.of(ingredients, randomRecipe.getResultItem().getCount()));
+                    return Optional.of(Pair.of(ingredients, randomRecipe.getResultItem(world.registryAccess()).getCount()));
                 });
     }
     
     private boolean outputMatches(Recipe<?> recipe, ItemStack stack) {
-        return recipe.getResultItem().getItem() == stack.getItem() && recipe.getResultItem().getCount() <= stack.getCount();
+        return recipe.getResultItem(null).getItem() == stack.getItem() && recipe.getResultItem(null).getCount() <= stack.getCount();
     }
     
     private boolean bannedItem(ItemStack stack, Level world) {
         return world.getRecipeManager().getRecipes().stream().anyMatch(recipe -> 
-        recipe.getResultItem().getItem() == stack.getItem() && recipe instanceof BlastingRecipe);
+        recipe.getResultItem(world.registryAccess()).getItem() == stack.getItem() && recipe instanceof BlastingRecipe);
     }
 
     private ItemStack[] getIngredients(Recipe<?> recipe) {

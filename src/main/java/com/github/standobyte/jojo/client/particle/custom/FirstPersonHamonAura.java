@@ -175,12 +175,12 @@ public class FirstPersonHamonAura {
         lightTexture.turnOnLightLayer();
         Runnable enable = () -> {
             RenderSystem.enableDepthTest();
-            RenderSystem.enableFog();
+            // 1.20.1 sets the fog up per frame, so there is no per draw enable
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
         };
         GuiDraw.pushMatrix();
-        RenderSystem.multMatrix(pMatrixStack.last().pose());
+        // the pose stack is passed to the draws in 1.20.1, no global matrix needed
 
         enable.run();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -252,7 +252,7 @@ public class FirstPersonHamonAura {
         RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();
         lightTexture.turnOffLightLayer();
-        RenderSystem.disableFog();
+        net.minecraft.client.renderer.FogRenderer.setupNoFog();
     }
     
     private static void renderParticle(IFirstPersonParticle particle, VertexConsumer buffer, 
@@ -275,7 +275,7 @@ public class FirstPersonHamonAura {
         
         particle.renderSprite(IDENTITY_MATRIX, buffer, light, partialTick, avector3f);
     }
-    private static final Matrix4f IDENTITY_MATRIX = Util.make(new Matrix4f(), Matrix4f::setIdentity);
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f();
     
     
     
@@ -301,7 +301,7 @@ public class FirstPersonHamonAura {
         protected TextureAtlasSprite sprite;
         protected final SpriteSet sprites;
 
-        protected Quaternionf renderRot = new Quaternionf(Quaternionf.ONE);
+        protected Quaternionf renderRot = new Quaternionf();
         protected final HumanoidArm handSide;
         protected float yRot;
         protected float xRot;
@@ -313,10 +313,10 @@ public class FirstPersonHamonAura {
         protected static final Quaternionf RIGHT_ROT;
         protected static final Quaternionf LEFT_ROT;
         static {
-            RIGHT_ROT = new Quaternionf(Quaternionf.ONE);
+            RIGHT_ROT = new Quaternionf();
             RIGHT_ROT.mul(Axis.YP.rotation(RIGHT_Y_ROT));
             RIGHT_ROT.mul(Axis.XP.rotation(RIGHT_X_ROT));
-            LEFT_ROT = new Quaternionf(Quaternionf.ONE);
+            LEFT_ROT = new Quaternionf();
             LEFT_ROT.mul(Axis.YP.rotation(LEFT_Y_ROT));
             LEFT_ROT.mul(Axis.XP.rotation(LEFT_X_ROT));
         }
@@ -454,7 +454,7 @@ public class FirstPersonHamonAura {
             this.yd = (Math.random() * 2.0 - 1.0) * 0.4;
             this.zd = (Math.random() * 2.0 - 1.0) * 0.4;
             double f = (Math.random() + Math.random() + 1.0) * 0.15;
-            double f1 = Mth.sqrt(xd * xd + yd * yd + zd * zd);
+            double f1 = Mth.sqrt((float) (xd * xd + yd * yd + zd * zd));
             this.xd = xd / f1 * f * 0.4;
             this.yd = yd / f1 * f * 0.4 + 0.1;
             this.zd = zd / f1 * f * 0.4;
