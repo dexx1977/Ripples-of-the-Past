@@ -126,7 +126,21 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-3. Mob kill hook: 1.16.5 overrode `Mob.killed(ServerLevel, LivingEntity)` (and
+3. Magic damage audit (done): the 1.16.5 sources call setMagic() nowhere; the only
+   reader is bleed(), which skips bleeding for magical damage and now asks
+   DamageTypeTags.WITCH_RESISTANT_TO - the tag Mojang introduced for exactly that flag
+   (the witch resists it). No mod damage type may join it, so the mod ships no override
+   of that tag and the vanilla members (magic, indirect_magic, sonic_boom, thorns)
+   apply. bypassMagic() means "ignores Resistance", not "is magical", and maps to
+   BYPASSES_RESISTANCE. Two call sites were fixed: jojo:mowzie_sun had asked for
+   armour bypass, resistance bypass and fire in 1.16.5 (bypassArmor/bypassMagic/
+   setIsFire) but was in no tag, and jojo:healthLink had been put into both bypass tags
+   although its old source bypassed nothing.
+4. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+   bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
+   change these in 1.20.1, so each call site has to pick a damage type carrying the
+   right tags. Still to do.
+5. Mob kill hook: 1.16.5 overrode `Mob.killed(ServerLevel, LivingEntity)` (and
    `awardKillScore`) to react to a mob killing something. Neither method exists in
    the 1.20.1 classes (checked in the mapped jar), so those overrides have to move to
    a hook that does exist - a `LivingDeathEvent` listener or overrides of the attack

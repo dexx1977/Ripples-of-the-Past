@@ -202,7 +202,7 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
 
     @Override
     public boolean cancelHeldOnGettingAttacked(IStandPower power, DamageSource dmgSource, float dmgAmount) {
-        return dmgAmount >= 4F && "healthLink".equals(dmgSource.msgId);
+        return dmgAmount >= 4F && dmgSource.is(com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.HEALTH_LINK);
     }
     
     @Override
