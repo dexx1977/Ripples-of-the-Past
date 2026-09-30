@@ -220,7 +220,7 @@ public class ForgeBusEventSubscriber {
     @SubscribeEvent
     public static void onEntityTracking(PlayerEvent.StartTracking event) {
         Entity entityTracked = event.getTarget();
-        ServerPlayer player = (ServerPlayer) event.getPlayer();
+        ServerPlayer player = (ServerPlayer) event.getEntity();
         if (entityTracked instanceof LivingEntity) {
             LivingEntity livingTracked = (LivingEntity) entityTracked;
             INonStandPower.getNonStandPowerOptional(livingTracked).ifPresent(power -> {
@@ -249,7 +249,7 @@ public class ForgeBusEventSubscriber {
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
         Player original = event.getOriginal();
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
 
         // When the original player is removed (death or leaving a dimension) its
         // capabilities may already be invalidated by the time this fires, which
@@ -292,11 +292,11 @@ public class ForgeBusEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        ServerPlayer player = (ServerPlayer) event.getPlayer();
+        ServerPlayer player = (ServerPlayer) event.getEntity();
         SaveFileUtilCapProvider.getSaveFileCap(player).onPlayerLogIn(player);
         JojoModConfig.Common.SyncedValues.syncWithClient(player);
-        syncPowerData(event.getPlayer());
-        IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(power -> {
+        syncPowerData(event.getEntity());
+        IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(power -> {
             if (power.hasPower()) {
                 power.getType().unlockNewActions(power);
             }
@@ -305,12 +305,12 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
-        syncPowerData(event.getPlayer());
+        syncPowerData(event.getEntity());
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
-        syncPowerData(event.getPlayer());
+        syncPowerData(event.getEntity());
     }
     
     private static void syncPowerData(Player player) {
@@ -329,7 +329,7 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayer) event.getPlayer());
+        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayer) event.getEntity());
     }
     
     

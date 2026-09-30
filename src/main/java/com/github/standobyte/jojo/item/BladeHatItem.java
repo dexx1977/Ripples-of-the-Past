@@ -23,6 +23,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
 public class BladeHatItem extends CustomModelArmorItem {
+    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
+    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+
     
     public BladeHatItem(ArmorMaterial material, EquipmentSlot slot, Properties builder) {
         super(material, slot, builder);

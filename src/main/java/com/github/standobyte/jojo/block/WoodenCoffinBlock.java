@@ -194,7 +194,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         @SubscribeEvent
         public static void setRespawnLocation(PlayerSetSpawnEvent event) {
             if (isBlockCoffin(event.getEntity().level, Optional.ofNullable(event.getNewSpawn()))
-                    && !isEntityVampire(event.getPlayer())) {
+                    && !isEntityVampire(event.getEntity())) {
                 event.setCanceled(true);
             }
         }
@@ -249,7 +249,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent
         public static void onServerPlayerRespawn(PlayerRespawnEvent event) {
-            ServerPlayer player = (ServerPlayer) event.getPlayer();
+            ServerPlayer player = (ServerPlayer) event.getEntity();
             respawnInsideCoffin(player, player.getRespawnPosition());
         }
         

@@ -97,7 +97,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             modelPreventedCrouch = null;
             
             PlayerModel<?> model = event.getRenderer().getModel();
-            AbstractClientPlayer player = (AbstractClientPlayer) event.getPlayer();
+            AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
             for (AnimHandler<?> animHandler : PREVENT_CROUCH) {
                 IAnimation animLayer = animHandler.getAnimLayer(player);
                 if (animLayer != null && animLayer.isActive()) {

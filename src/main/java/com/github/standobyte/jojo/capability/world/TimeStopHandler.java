@@ -390,17 +390,17 @@ public class TimeStopHandler {
     
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getEntity());
     }
     
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
-        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getEntity());
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
-        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getEntity());
     }
     
     private static void sendWorldTimeStopData(ServerPlayer player) {
@@ -421,7 +421,7 @@ public class TimeStopHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         if (player instanceof ServerPlayer) {
             ServerPlayer serverPlayer = (ServerPlayer) player;
             if (serverPlayer.getServer().getPlayerList().getPlayerCount() <= 1) {

@@ -70,7 +70,7 @@ public class CustomVillagerTrades {
             LivingEntity targetLiving = (LivingEntity) target;
             target.getCapability(MerchantDataProvider.CAPABILITY).ifPresent(merchantData -> {
                 Villager asVillager = target instanceof Villager ? (Villager) target : null;
-                Player player = event.getPlayer();
+                Player player = event.getEntity();
                 
                 if (merchantData.refusesTradingWith(player)) {
                     if (asVillager != null) {

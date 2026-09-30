@@ -19,6 +19,9 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class HamonTempleStructure extends Structure<NoneFeatureConfiguration> {
+    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
+    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+
 
     public HamonTempleStructure(Codec<NoneFeatureConfiguration> codec) {
         super(codec);

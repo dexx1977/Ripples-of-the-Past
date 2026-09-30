@@ -43,6 +43,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
 public class MolotovItem extends Item {
+    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
+    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+
 
     public MolotovItem(Properties pProperties) {
         super(pProperties);

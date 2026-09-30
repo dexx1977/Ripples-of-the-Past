@@ -30,6 +30,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
 public class ClackersItem extends Item {
+    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
+    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+
     public static final int TICKS_MAX_POWER = 20;
     
     private final Multimap<Attribute, AttributeModifier> attributeModifiers;

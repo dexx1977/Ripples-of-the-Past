@@ -385,14 +385,14 @@ public class ClientEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
-        Player entity = event.getPlayer();
+        Player entity = event.getEntity();
         PlayerRenderer renderer = event.getRenderer();
         if (mc.player != entity) {
             float partialTick = event.getPartialRenderTick();
-            event.getPlayer().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
+            event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.limitPlayerHeadRot();
             });
-            ContinuousActionInstance.getCurrentAction(event.getPlayer()).ifPresent(action -> action.onPreRender(partialTick));
+            ContinuousActionInstance.getCurrentAction(event.getEntity()).ifPresent(action -> action.onPreRender(partialTick));
         }
         BladeHatArmorModel.modifyOuterLayer(renderer.getModel(), entity);
     }
@@ -1658,7 +1658,7 @@ public class ClientEventHandler {
     
     @SubscribeEvent
     public void addTooltipLines(ItemTooltipEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         ItemStack item = event.getItemStack();
         if (player != null) {
             Optional<IStandPower> powerOptional = IStandPower.getStandPowerOptional(player).resolve();

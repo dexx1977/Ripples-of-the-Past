@@ -359,7 +359,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelStunnedPlayerInteraction(PlayerInteractEvent event) {
-        if (event.isCancelable() && ModStatusEffects.isStunned(event.getPlayer())) {
+        if (event.isCancelable() && ModStatusEffects.isStunned(event.getEntity())) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }
@@ -367,7 +367,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelItemPickupInStun(EntityItemPickupEvent event) {
-        if (ModStatusEffects.isStunned(event.getPlayer())) {
+        if (ModStatusEffects.isStunned(event.getEntity())) {
             event.setCanceled(true);
         }
     }
@@ -400,7 +400,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onUseItem(PlayerInteractEvent.RightClickItem event) {
         if (ModInteractionUtil.isSquidInkPasta(event.getItemStack())) {
-            InkPastaItem.useWithHamon(event.getWorld(), event.getPlayer(), event.getHand()).ifPresent(result -> {
+            InkPastaItem.useWithHamon(event.getWorld(), event.getEntity(), event.getHand()).ifPresent(result -> {
                 event.setCanceled(true);
                 event.setCancellationResult(result.getResult());
             });
@@ -1035,7 +1035,7 @@ public class GameplayEventHandler {
     @SubscribeEvent
     public static void syncTrackedEffects(PlayerEvent.StartTracking event) {
         if (event.getTarget() instanceof LivingEntity) {
-            ServerPlayer player = (ServerPlayer) event.getPlayer();
+            ServerPlayer player = (ServerPlayer) event.getEntity();
             LivingEntity tracked = (LivingEntity) event.getTarget();
             for (Map.Entry<MobEffect, MobEffectInstance> effectEntry : tracked.getActiveEffectsMap().entrySet()) {
                 if (ModStatusEffects.isEffectTracked(effectEntry.getKey())) {
@@ -1047,7 +1047,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         if (!player.level.isClientSide() && event.getHand() == InteractionHand.MAIN_HAND) {
             ServerLevel world = (ServerLevel) player.level;
             Entity target = event.getTarget();
@@ -1093,7 +1093,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void cancelChestOpenWhenPossessing(PlayerInteractEvent.RightClickBlock event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         if (MCUtil.getGameMode(player) == GameType.SPECTATOR && IPlayerPossess.getPossessedEntity(player) != null) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
@@ -1103,13 +1103,13 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
     public static void tripwireInteract(PlayerInteractEvent.RightClickBlock event) {
         if (event.getHand() == InteractionHand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
-            Player player = event.getPlayer();
+            Player player = event.getEntity();
             if (!player.isSpectator() && MCUtil.isHandFree(player, InteractionHand.MAIN_HAND)) {
                 Level world = player.level;
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() == Blocks.TRIPWIRE) {
-                    INonStandPower.getNonStandPowerOptional(event.getPlayer()).ifPresent(power -> {
+                    INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> {
                         power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                             if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
                                 event.setCanceled(true);
@@ -1129,13 +1129,13 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void furnaceInteract(PlayerInteractEvent.RightClickBlock event) {
         if (event.getHand() == InteractionHand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
-            Player player = event.getPlayer();
+            Player player = event.getEntity();
             if (!player.isSpectator()) {
                 Level world = player.level;
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() instanceof AbstractFurnaceBlock) {
-                    IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(power -> {
+                    IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(power -> {
                         if (power.isActive() && power.getType() == ModStands.MAGICIANS_RED.getStandType()) {
                             BlockEntity tileEntity = world.getBlockEntity(pos);
                             if (tileEntity instanceof AbstractFurnaceBlockEntity) {
@@ -1158,7 +1158,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         IStandPower.getStandPowerOptional(player).ifPresent(stand -> {
             stand.getContinuousEffects().onStandUserLogout((ServerPlayer) player);
         });
@@ -1487,7 +1487,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onMobInteract(PlayerInteractEvent.EntityInteract event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         Entity target = event.getTarget();
         InteractionHand hand = event.getHand();
         ItemStack item = player.getItemInHand(hand);
@@ -1591,7 +1591,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWakeUp(PlayerWakeUpEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         
         if (!event.wakeImmediately() && !event.updateWorld()) {
             IStandPower.getStandPowerOptional(player).ifPresent(stand -> {
@@ -1634,9 +1634,9 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
         if (event.getNewGameMode() == GameType.CREATIVE) {
-            Player player = event.getPlayer();
-            INonStandPower.getNonStandPowerOptional(event.getPlayer()).ifPresent(power -> power.resetCooldowns());
-            IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(stand -> stand.resetCooldowns());
+            Player player = event.getEntity();
+            INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> power.resetCooldowns());
+            IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> stand.resetCooldowns());
             player.removeEffect(ModStatusEffects.IMMOBILIZE.get());
             player.removeEffect(ModStatusEffects.STUN.get());
             player.removeEffect(ModStatusEffects.HAMON_SHOCK.get());

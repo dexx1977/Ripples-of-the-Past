@@ -126,7 +126,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     
     @SubscribeEvent
     public void onEntityRender(RenderPlayerEvent.Post event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         KosmXWallClimbKeyframePlayer animStuff = getWallClimbAnimPlayer(player);
         if (animStuff != null && animStuff.isActive()) {
             animStuff.onRender();
