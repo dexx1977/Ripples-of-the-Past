@@ -1,6 +1,6 @@
 # Ripples of the Past 1.16.5 → 1.20.1 移植进展
 
-> 本文是阶段性简报（最近更新：第 8 轮工作结束时）。
+> 本文是阶段性简报（最近更新：第 60 轮工作结束时）。
 > 详细的任务清单、验收标准与逐轮记录见 [`migration/README.md`](README.md)。
 
 ## 1. 任务目标
@@ -20,8 +20,9 @@
 | 工作分支 | `codex/forge-1.20.1`（仓库 `Ripples-of-the-Past-1.20.1`） |
 | 基线提交 | 上游 1.16.5 `72862a5826ed45d1dc26e90b37853097acda35de` |
 | 工具链 | Java 17、Forge 1.20.1-47.4.10、ForgeGradle 6.0.54、Gradle 8.8、官方（Mojang）映射、Mixin 0.8.5 |
-| 编译错误数 | **8,819 → 1,876**（最新一次 `./gradlew compileJava`） |
-| 迁移提交数 | 33（相对 1.16.5 基线；每个系统一个里程碑，均未推送） |
+| 编译错误数 | **492**（一次性 javac 报告数；轨迹 8,819 → 2,580 → 492） |
+| 迁移提交数 | 121（相对 1.16.5 基线；每个系统一个里程碑，均未推送） |
+| 当前阶段 | **长尾文件清理**（单文件 3–8 处），随后进入 Mixin/AT 复核 |
 | 运行时测试 | **尚未开始**（构建尚未通过，不能宣称已测试） |
 
 构建命令：
@@ -65,11 +66,20 @@ python3 migration/tools/analyze_errors.py .porting/build-NN.log --symbols
 
 ## 4. 剩余工作
 
-1. **屏幕层渲染**：`renderBackground`/`drawShadow`/`renderToolTip` 各重载与少量 Tab GUI。
-2. **Hamon Master 可弯曲衣物几何**：原 `IBendHelper.create(...).addBendedCuboid(...)` 在 1.20.1 无对应 API，需基于 bendy-lib 4.0.0 的 `MutableModelPart`/`BendableCuboid.Builder` 重建（已在 README 记录，未做占位）。
-3. **标签 / 杂项 API**：`ModTags`（`EntityTypeTags.createOptional` → `TagKey.create`）、registry `ENTITIES`、`getCategory()`、`RenderWorldLastEvent`、`enableAlphaTest`、`getBuffer`/`getInputStream` 等零散改动。
-4. **Mixin 与 AT 复核**：目标选择器、SRG 字符串、注入点逐一核对。
-5. **运行时测试（尚未开始）**：需要先编译通过，再在 `1.20.1-Forge` 实例中放入模组 jar 与前置（playerAnimator、bendy-lib）后，依次测试客户端、单人世界、专用服务器（专用服务器需关注客户端专用类隔离）。
+1. **长尾编译错误（约 492 处，单文件 3–8 处）**：以「整文件扫荡」方式推进，已清零的文件包括 `ClientSetup`、`GameplayEventHandler`、`MCUtil`、`CustomRenderType`、`LifeformsMetMobs`、`ClientConsciousnessEntity`、`HudLayoutEditingScreen`、`LifeformsList`、`ClientModSettingsScreen`（含控件）、`GELifeImbueGlint`、`ClientTickingSoundsHelper`、`NetworkUtil`、`WoodenCoffinBlock`、`GETransformationRenderer`、`ClientEventHandler`（部分）、`FirstPersonHamonAura`、`CrazyDiamondPreviousState` 等。
+2. **Mixin 与 AT 复核**：目标选择器、SRG 字符串、注入点逐一核对；`VanillaKeyEntry` 依赖的原版屏幕 Mixin 字段（`selectedKey`）也在其中。
+3. **Hamon Master 可弯曲衣物几何**：已按 bendy-lib 4.0.0 的 `MutableModelPart`/`BendableCuboid.Builder` 完成（原 `IBendHelper.create(...)` 在 1.20.1 无对应 API）。
+4. **编译通过后的运行时测试（尚未开始）**：先在 `1.20.1-Forge` 实例中放入模组 jar 与前置（playerAnimator、bendy-lib），依次测试客户端、单人世界、专用服务器（注意客户端专用类隔离）。
+
+## 4.1 已接受的有意差异（均已写入 README，非静默降级）
+
+| 项目 | 1.16.5 行为 | 1.20.1 现状 | 影响 |
+| --- | --- | --- | --- |
+| Stand 发言消息 | 经 `ForgeHooks.onServerChatEvent`，其他模组可取消/改写 | 构造后按**系统消息**广播 | 其他模组无法再拦截该条消息；文本与发起者名不变 |
+| `Screen#passEvents` | 任意屏幕可设置该字段以放行输入，模组读取它决定按键处理 | 1.20.1 无该字段、也无等价查询 | 模组自有 `WasdAllowingScreen` 行为已恢复；**第三方/原版**中靠该字段放行输入的屏幕，如今会拦截模组按键 |
+| 拍立得离屏渲染 | 手工触发 `BasicEventHooks.onRenderTickStart/End` | 该 Forge 钩子类已删除，不再手工触发 | 离屏渲染期间其他模组的 render-tick 处理器不再被额外调用一次 |
+| 柱人自爆伤害源 | `ON_FIRE` + `setExplosion()` | 自定义 `jojo:on_fire_explosion`（`message_id` 仍为 `onFire`），**同时**加入 `is_fire` 与 `is_explosion` | 完整恢复火焰与爆炸两类语义（**非差异**，记录以说明取舍） |
+| 魔法伤害判定 | `DamageSource#isMagic()` | 模组自有 `jojo:magic` 标签（magic / indirect_magic / thorns） | 严格保持 1.16.5 集合，未纳入 1.20.1 新增的 `sonic_boom` |
 
 ## 5. 约束与安全边界（本次无人值守阶段）
 
