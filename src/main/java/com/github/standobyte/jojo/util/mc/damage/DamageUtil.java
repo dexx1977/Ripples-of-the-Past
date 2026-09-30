@@ -110,7 +110,7 @@ public class DamageUtil {
     }
     
     public static DamageSource bloodDrainDamage(Entity srcDirect) {
-        return ModDamageTypes.source(srcDirect, BLOOD_DRAIN_MSG);
+        return ModDamageTypes.source(srcDirect, ModDamageTypes.BLOOD_DRAIN);
     }
     
     public static boolean entityTakesUVDamage(Entity target, boolean sun) {
@@ -287,7 +287,7 @@ public class DamageUtil {
     }
     
     public static DamageSource roadRollerDamage(RoadRollerEntity entity) {
-        return ModDamageTypes.source(entity, ModDamageTypes.key(ROAD_ROLLER_MSG));
+        return ModDamageTypes.source(entity, ModDamageTypes.ROAD_ROLLER);
     }
     
     public static boolean dealDamageAndSetOnFire(Entity entity, Predicate<Entity> hurtEntity, int fireSeconds, boolean stand) {

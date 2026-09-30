@@ -34,6 +34,8 @@ public final class ModDamageTypes {
     public static final ResourceKey<DamageType> EYE_OF_ENDER_SHARDS = key("eye_of_ender_shards");
     public static final ResourceKey<DamageType> STONE_MASK = key("stone_mask");
     public static final ResourceKey<DamageType> HEALTH_LINK = key("health_link");
+    public static final ResourceKey<DamageType> BLOOD_DRAIN = key("blood_drain");
+    public static final ResourceKey<DamageType> ROAD_ROLLER = key("road_roller");
     /** The old on fire source with the explosion flag, in both the fire and explosion tags. */
     public static final ResourceKey<DamageType> ON_FIRE_EXPLOSION = key("on_fire_explosion");
 
