@@ -82,7 +82,7 @@ public class AfterimageEntity extends Entity implements IEntityAdditionalSpawnDa
         
         if (!level.isClientSide() && originEntity.isSprinting() && shouldRender()) {
             level.getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(8), mob -> 
-            mob.getTarget() == originEntity && mob.canSee(this)).forEach(mob -> {
+            mob.getTarget() == originEntity && mob.hasLineOfSight(this)).forEach(mob -> {
                 if (mob.getRandom().nextDouble() < 0.01) {
                     MCUtil.loseTarget(mob, originEntity);
                 }

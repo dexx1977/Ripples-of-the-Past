@@ -39,7 +39,7 @@ public class LightBeamEntity extends DamagingEntity {
         if (shooter != null) {
             target = rayTrace()[0];
             if (target.getType() != HitResult.Type.MISS) {
-                length = Mth.sqrt(shooter.distanceToSqr(target.getLocation()));
+                length = Mth.sqrt((float) shooter.distanceToSqr(target.getLocation()));
             }
         }
     }

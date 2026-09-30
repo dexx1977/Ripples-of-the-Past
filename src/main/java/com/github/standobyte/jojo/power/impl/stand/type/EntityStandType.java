@@ -140,7 +140,7 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
                 if (miss == null) {
                     Vec3 lookVec = cameraEntity.getLookAngle();
                     Vec3 eyePos = cameraEntity.getEyePosition(1);
-                    miss = BlockHitResult.miss(eyePos, Direction.getNearest(lookVec.x, lookVec.y, lookVec.z), new BlockPos(eyePos));
+                    miss = BlockHitResult.miss(eyePos, Direction.getNearest(lookVec.x, lookVec.y, lookVec.z), BlockPos.containing(eyePos));
                 }
                 return miss;
             }

@@ -153,7 +153,7 @@ public class MathUtil {
         }
     }
     
-    public static <T> Optional<T> getRandomWeightedInt(Iterable<T> items, ToIntFunction<T> getWeight, Random random) {
+    public static <T> Optional<T> getRandomWeightedInt(Iterable<T> items, ToIntFunction<T> getWeight, net.minecraft.util.RandomSource random) {
         ToIntFunction<T> getWeightSafe = element -> Math.max(getWeight.applyAsInt(element), 0);
         int weightSum = StreamSupport.stream(items.spliterator(), false)
                 .mapToInt(getWeightSafe).sum();
@@ -171,7 +171,7 @@ public class MathUtil {
         return Optional.empty();
     }
     
-    public static <T> Optional<T> getRandomWeightedDouble(Iterable<T> items, ToDoubleFunction<T> getWeight, Random random) {
+    public static <T> Optional<T> getRandomWeightedDouble(Iterable<T> items, ToDoubleFunction<T> getWeight, net.minecraft.util.RandomSource random) {
         ToDoubleFunction<T> getWeightSafe = element -> Math.max(getWeight.applyAsDouble(element), 0);
         double weightSum = StreamSupport.stream(items.spliterator(), false)
                 .mapToDouble(getWeightSafe).sum();

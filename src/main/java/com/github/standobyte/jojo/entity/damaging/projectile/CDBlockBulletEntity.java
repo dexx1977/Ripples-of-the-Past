@@ -125,7 +125,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
         
         if (hurt) {
             if (block == Blocks.NOTE_BLOCK) {
-                target.playSound(NoteBlockInstrument.values()[random.nextInt(NoteBlockInstrument.values().length)].getSoundEvent(), 
+                target.playSound(NoteBlockInstrument.values()[random.nextInt(NoteBlockInstrument.values().length)].getSoundEvent().value(), 
                         5.0F, (float) Math.pow(2.0D, (double) (random.nextInt(24) - 12) / 12.0D));
             }
             

@@ -463,7 +463,7 @@ public class ActionsOverlayGui extends AbstractGui {
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         if (mc.options.getCameraType().isFirstPerson()
-                && !(mc.getDebugOverlay().showDebugScreen() && !mc.player.isReducedDebugInfo() && !mc.options.reducedDebugInfo().get())) {
+                && !(mc.options.renderDebug && !mc.player.isReducedDebugInfo() && !mc.options.reducedDebugInfo().get())) {
             RenderSystem.defaultBlendFunc();
             renderCrosshair(matrixStack, screenWidth, screenHeight, partialTick);
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

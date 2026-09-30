@@ -38,7 +38,7 @@ public class SCFlameSwingEntity extends MRFlameEntity {
     @Override
     protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
-            if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
+            if (ForgeEventFactory.getMobGriefingEvent(level, this)) {
                 super.afterBlockHit(blockRayTraceResult, blockDestroyed);
             }
         }

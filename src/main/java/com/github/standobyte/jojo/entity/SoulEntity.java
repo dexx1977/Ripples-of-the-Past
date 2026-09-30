@@ -380,7 +380,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     public void aiStep() {
         if (this.isControlledByLocalInstance()) {
             this.lerpSteps = 0;
-            this.setPacketCoordinates(this.getX(), this.getY(), this.getZ());
+            this.syncPacketPositionCodec(this.getX(), this.getY(), this.getZ()); // setPacketCoordinates is gone
         }
 
         if (this.lerpSteps > 0) {

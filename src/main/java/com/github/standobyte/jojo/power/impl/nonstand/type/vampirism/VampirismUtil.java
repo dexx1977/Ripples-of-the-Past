@@ -62,7 +62,7 @@ public class VampirismUtil {
     private static float getSunDamage(LivingEntity entity) {
         Level world = entity.level;
         if (isSunny(world)) {
-            float brightness = entity.getBrightness();
+            float brightness = entity.getLightLevelDependentMagicValue();
             BlockPos blockPos = entity.getVehicle() instanceof Boat ? 
                     (BlockPos.containing(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ())).above()
                     : BlockPos.containing(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ());
@@ -139,7 +139,7 @@ public class VampirismUtil {
                                     .map(pillarman -> pillarman.isStoneFormEnabled()).orElse(false)).orElse(false) || 
                                     INonStandPower.getNonStandPowerOptional(target).map(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get())
                                             .map(pillarman -> pillarman.getEvolutionStage() > 1).orElse(false)).orElse(false));
-                        CommonReflection.setTargetConditions(targetGoal, new TargetingConditions().range(CommonReflection.getTargetDistance(targetGoal)).selector(
+                        CommonReflection.setTargetConditions(targetGoal, TargetingConditions.forCombat().range(CommonReflection.getTargetDistance(targetGoal)).selector(
                                 oldPredicate != null ? oldPredicate.and(undeadPredicate) : undeadPredicate));
                     }
                 }

@@ -40,7 +40,7 @@ public class StandUtil {
     
     @Deprecated
     @Nullable
-    public static StandType<?> randomStand(Player entity, Random random) {
+    public static StandType<?> randomStand(Player entity, net.minecraft.util.RandomSource random) {
         return randomStandOrError(entity, random).left().orElse(null);
     }
     

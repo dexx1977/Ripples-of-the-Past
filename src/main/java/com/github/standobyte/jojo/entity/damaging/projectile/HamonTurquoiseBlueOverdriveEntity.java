@@ -85,7 +85,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
                         (random.nextDouble() - 0.5),
                         (random.nextDouble() - 0.5))
                         .normalize().scale(random.nextDouble() * radius));
-                if (level.isWaterAt(new BlockPos(sparkVec))) {
+                if (level.isWaterAt(BlockPos.containing(sparkVec))) {
                     level.addParticle(ModParticles.HAMON_SPARK_BLUE.get(), false, sparkVec.x, sparkVec.y, sparkVec.z, 0, 0, 0);
                 }
             }

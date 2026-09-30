@@ -192,7 +192,7 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
     @Override
     protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
-        blockState = NbtUtils.readBlockState(nbt.getCompound("Block"));
+        blockState = NbtUtils.readBlockState(net.minecraft.core.registries.BuiltInRegistries.BLOCK.asLookup(), nbt.getCompound("Block"));
         if (blockState.getBlock() == Blocks.AIR) {
             blockState = Blocks.COBBLESTONE.defaultBlockState();
         }

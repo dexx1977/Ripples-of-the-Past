@@ -27,7 +27,7 @@ public class OstSoundList {
     
     private RegistryObject<SoundEvent> register(ResourceLocation resLoc, DeferredRegister<SoundEvent> register, String postfix) {
         String path = resLoc.getPath() + postfix;
-        return register.register(path, () -> new SoundEvent(new ResourceLocation(resLoc.getNamespace(), path)));
+        return register.register(path, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(resLoc.getNamespace(), path)));
     }
     
     public SoundEvent get(int index) {

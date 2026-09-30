@@ -94,7 +94,7 @@ public class PillarmanTempleEngravingEntity extends HangingEntity implements IEn
 
     @Override
     public void lerpTo(double x, double y, double z, float yRot, float xRot, int posRotationIncrements, boolean teleport) {
-        BlockPos blockPos = pos.offset(x - this.getX(), y - this.getY(), z - this.getZ());
+        BlockPos blockPos = com.github.standobyte.jojo.util.general.MathUtil.offset(pos, x - this.getX(), y - this.getY(), z - this.getZ());
         this.setPos((double)blockPos.getX(), (double)blockPos.getY(), (double)blockPos.getZ());
     }
 

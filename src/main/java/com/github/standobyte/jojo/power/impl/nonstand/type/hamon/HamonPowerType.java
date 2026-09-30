@@ -228,7 +228,8 @@ public class HamonPowerType extends NonStandPowerType<HamonData> {
                             .stream().filter(entity -> !(entity instanceof StandEntity)).collect(Collectors.toList());
                     if (!entitiesBehind.isEmpty()) {
                         if (world.isClientSide()) {
-                            if (user instanceof LocalPlayer && ((LocalPlayer) user).sprintTime == 0) {
+                            // 1.20.1 removed LocalPlayer#sprintTime, not sprinting is the same check
+                            if (user instanceof LocalPlayer && !user.isSprinting()) {
                                 PacketManager.sendToServer(new ClRunAwayPacket());
                             }
                         }

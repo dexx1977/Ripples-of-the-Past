@@ -167,7 +167,8 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
                         BlockState blockState = level.getBlockState(blockPos);
                         if (JojoModUtil.canEntityDestroy(world, blockPos, level.getBlockState(blockPos), owner)
                                 && !MRFlameEntity.meltIceAndSnow(level, blockState, blockPos) && blockState.isFlammable(level, blockPos, Direction.UP)) {
-                            blockState.catchFire(level, blockPos, Direction.UP, getOwner());
+                            // Forge removed BlockState#catchFire; place the fire it would have placed (removed right below)
+                            level.setBlockAndUpdate(blockPos, net.minecraft.world.level.block.BaseFireBlock.getState(level, blockPos));
                             CrazyDiamondRestoreTerrain.rememberBrokenBlock(world, blockPos, blockState, 
                                     Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList());
                             level.removeBlock(blockPos, false);

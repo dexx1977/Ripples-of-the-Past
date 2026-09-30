@@ -261,7 +261,7 @@ public class ChunkCap {
             
             PrevBlockInfo block = new PrevBlockInfo(
                     NbtUtils.readBlockPos(nbt.getCompound("Pos")), 
-                    NbtUtils.readBlockState(nbt.getCompound("State")), 
+                    NbtUtils.readBlockState(net.minecraft.core.registries.BuiltInRegistries.BLOCK.asLookup(), nbt.getCompound("State")), 
                     drops, 
                     nbt.getBoolean("Keep"));
             block.tickCount = nbt.getInt("TickCount");

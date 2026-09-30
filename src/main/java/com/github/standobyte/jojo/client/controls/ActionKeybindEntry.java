@@ -108,7 +108,7 @@ public class ActionKeybindEntry {
     public void removeKeybindFromMap() {
         if (keybind != null) {
             ClientReflection.getAllKeybindingMap().remove(keybind.getName());
-            InputHandler.getInstance().keyBindingMap.removeKey(keybind);
+            InputHandler.getInstance().keyBindingMap.remove(keybind);
         }
     }
     

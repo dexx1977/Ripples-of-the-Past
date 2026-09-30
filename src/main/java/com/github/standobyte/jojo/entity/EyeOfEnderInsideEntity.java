@@ -33,9 +33,9 @@ public class EyeOfEnderInsideEntity extends EyeOfEnder {
     }
 
     @Override
-    public void positionRider(Entity rider) {
+    public void positionRider(Entity rider, Entity.MoveFunction moveFunction) {
         if (this.hasPassenger(rider)) {
-            rider.setPos(getX(), getY() + (getBbHeight() - rider.getBbHeight()) / 2, getZ());
+            moveFunction.accept(rider, getX(), getY() + (getBbHeight() - rider.getBbHeight()) / 2, getZ());
         }
     }
     

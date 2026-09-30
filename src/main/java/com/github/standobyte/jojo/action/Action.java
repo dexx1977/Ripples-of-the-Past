@@ -174,7 +174,7 @@ public abstract class Action<P extends IPower<P, ?>> implements RegistryEntry<Ac
         case ENTITY:
             Entity targetEntity = target.getEntity();
             double rangeSq = getMaxRangeSqEntityTarget();
-            if (!performer.canSee(targetEntity)) {
+            if (!performer.hasLineOfSight(targetEntity)) {
                 rangeSq /= 4.0D;
             }
             double distanceToEntity = JojoModUtil.getDistance(performer, targetEntity.getBoundingBox());

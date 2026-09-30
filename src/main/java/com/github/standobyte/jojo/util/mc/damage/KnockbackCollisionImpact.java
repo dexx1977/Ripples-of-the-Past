@@ -61,6 +61,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.block.Blocks;
 
 public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
     private final Entity entity;
@@ -392,7 +393,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                     }
                     
                     if (wallDamage.floatValue() > 0) {
-                        hurtTarget(entity, DamageSource.FLY_INTO_WALL, wallDamage.floatValue());
+                        hurtTarget(entity, entity.level().damageSources().flyIntoWall(), wallDamage.floatValue());
                     }
                 }
 

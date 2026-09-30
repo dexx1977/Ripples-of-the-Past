@@ -72,7 +72,7 @@ public class HamonBlockChargeEntity extends Entity {
                     AABB aabb = new AABB(blockPos).inflate(range);
                     List<Entity> targets = level.getEntities(this, aabb);
                     targets.forEach(entity -> {
-                        entity.hurt(cactusDamageSource, 0.2F * (3F * range * range - (float) entity.distanceToSqr(pos)));
+                        entity.hurt(entity.damageSources().cactus(), 0.2F * (3F * range * range - (float) entity.distanceToSqr(pos)));
                     });
                     entityData.set(CACTUS_EXPLOSION, true);
                     MCUtil.destroyBlock(level, blockPos, false, null);

@@ -149,9 +149,9 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void positionRider(Entity entity) {
+    public void positionRider(Entity entity, Entity.MoveFunction moveFunction) {
        if (hasPassenger(entity)) {
-           entity.setPos(getX(), getY() + (getBbHeight() - entity.getBbHeight()) / 2, getZ());
+           moveFunction.accept(entity, getX(), getY() + (getBbHeight() - entity.getBbHeight()) / 2, getZ());
         }
     }
     

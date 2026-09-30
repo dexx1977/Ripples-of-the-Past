@@ -221,7 +221,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     
     private static final int WAVE_TICK_LENGTH = 15;
     private static final int WAVE_ADD_TICK = 4;
-    private final Predicate<LivingEntity> filter = 
+    private final Predicate<net.minecraft.world.entity.Entity> filter = 
             EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_CREATIVE_OR_SPECTATOR)
             .and(entity -> !entity.is(getUser()));
     private final List<AABB> hitboxes = Util.make(new ArrayList<>(WAVE_TICK_LENGTH), list -> {

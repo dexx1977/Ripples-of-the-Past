@@ -465,7 +465,7 @@ public class HamonUtil {
             if (dmgSource.is(net.minecraft.world.damagesource.DamageTypes.CACTUS)) {
                 return CACTUS;
             }
-            else if (dmgSource == DamageSource.SWEET_BERRY_BUSH) {
+            else if (dmgSource.is(net.minecraft.world.damagesource.DamageTypes.SWEET_BERRY_BUSH)) {
                 return BERRY_BUSH;
             }
             return null;
@@ -568,7 +568,7 @@ public class HamonUtil {
         
         return item == ModItems.GOLD_EXPERIENCE_BODY_TISSUE.get() ||
                 item instanceof EggItem || 
-                ItemTags.getAllTags().getTagOrEmpty(RAW_FISH_TAG).contains(item) || item == Items.COD || item == Items.SALMON || item == Items.TROPICAL_FISH || item == Items.PUFFERFISH ||
+                item.builtInRegistryHolder().is(RAW_FISH_TAG) || item == Items.COD || item == Items.SALMON || item == Items.TROPICAL_FISH || item == Items.PUFFERFISH ||
                 item instanceof MobBucketItem;
     }
     private static final ResourceLocation RAW_FISH_TAG = new ResourceLocation("forge", "raw_fishes");

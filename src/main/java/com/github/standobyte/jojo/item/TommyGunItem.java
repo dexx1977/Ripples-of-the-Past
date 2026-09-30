@@ -204,8 +204,13 @@ public class TommyGunItem extends Item {
     }
 
     @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        return 1 - ((double) getAmmo(stack) / (double) MAX_AMMO);
+    public int getBarWidth(ItemStack stack) {
+        return Math.round(13.0F * (float) getAmmo(stack) / (float) MAX_AMMO);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return net.minecraft.util.Mth.hsvToRgb(Math.max(0.0F, (float) getAmmo(stack) / (float) MAX_AMMO) / 3.0F, 1.0F, 1.0F);
     }
 
     /** The gun the mod's tab showed, with a full clip. */
