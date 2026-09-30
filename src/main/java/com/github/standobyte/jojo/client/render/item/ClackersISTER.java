@@ -150,8 +150,8 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
                 }
                 
                 if (entity.isAlive() && !shouldSit) {
-                    limbSwingAmount = Mth.lerp(partialTick, entity.animationSpeedOld, entity.animationSpeed);
-                    limbSwing = entity.animationPosition - entity.animationSpeed * (1.0F - partialTick);
+                    limbSwingAmount = Mth.lerp(partialTick, entity.walkAnimation.speedOld, entity.walkAnimation.speed);
+                    limbSwing = entity.walkAnimation.position - entity.walkAnimation.speed * (1.0F - partialTick);
                     if (entity.isBaby()) {
                         limbSwing *= 3.0F;
                     }

@@ -342,7 +342,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
         @Override
         public void renderButton(PoseStack matrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
             Minecraft mc = Minecraft.getInstance();
-            Minecraft.getInstance().getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
+            Minecraft.getInstance().GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
             
             if (isHidden) {
                 RenderSystem.setShaderColor(1, 1, 1, 0.25F);

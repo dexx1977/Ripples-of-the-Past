@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.action.non_stand;
 
+import net.minecraft.world.damagesource.DamageTypes;
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +25,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -58,7 +59,7 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
     }
     
     private static boolean dealPhysicalDamage(LivingEntity user, Entity target) {
-        return target.hurt(new EntityDamageSource(user instanceof Player ? "player" : "mob", user), 
+        return target.hurt(ModDamageTypes.source(user, user instanceof Player ? DamageTypes.PLAYER_ATTACK : DamageTypes.MOB_ATTACK), 
                 DamageUtil.getDamageWithoutHeldItem(user));
     }
     

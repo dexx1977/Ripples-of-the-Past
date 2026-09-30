@@ -60,12 +60,12 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
         
         rightCapeBinding = new ModelPart(this);
         rightCapeBinding.setPos(-2.0F, 12.0F, 0.0F);
-        body.addChild(rightCapeBinding);
+        ModelPart.addChild(body, rightCapeBinding);
         ClientUtil.setRotationAngle(rightCapeBinding, 0.0F, 0.0F, 0.0873F);
         
         rightCape = new ModelPart(this);
         rightCape.setPos(-2.0F, 12.0F, 2.0F);
-        body.addChild(rightCape);
+        ModelPart.addChild(body, rightCape);
         ClientUtil.setRotationAngle(rightCape, 0.2182F, 0.0F, 0.1745F);
 
         lowRightCape = new ModelPart(this);
@@ -74,12 +74,12 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
 
         leftCapeBinding = new ModelPart(this);
         leftCapeBinding.setPos(2.0F, 12.0F, 0.0F);
-        body.addChild(leftCapeBinding);
+        ModelPart.addChild(body, leftCapeBinding);
         ClientUtil.setRotationAngle(leftCapeBinding, 0.0F, 0.0F, -0.0873F);
 
         leftCape = new ModelPart(this);
         leftCape.setPos(2.0F, 12.0F, 2.0F);
-        body.addChild(leftCape);
+        ModelPart.addChild(body, leftCape);
         ClientUtil.setRotationAngle(leftCape, 0.2182F, 0.0F, -0.1745F);
         
         lowLeftCape = new ModelPart(this);
@@ -121,25 +121,25 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
             
 //            ModelRenderer rightShoulder = new ModelRenderer(this);
 //            rightShoulder.setPos(-1.0F, -1.0F, 0.0F);
-//            rightArm.addChild(rightShoulder);
+//            ModelPart.addChild(rightArm, rightShoulder);
 //            ClientUtil.setRotationAngle(rightShoulder, 0.0F, 0.0F, -0.0873F);
 //            rightShoulder.texOffs(40, 16).addBox(-2.0F, -1.0F, -2.0F, 4.0F, 2.0F, 4.0F, 0.25F, false);
 //
 //            ModelRenderer rightCuff = new ModelRenderer(this);
 //            rightCuff.setPos(-1.0F, 7.0F, 0.0F);
-//            rightArm.addChild(rightCuff);
+//            ModelPart.addChild(rightArm, rightCuff);
 //            ClientUtil.setRotationAngle(rightCuff, 0.0F, 0.0F, 0.0436F);
 //            rightCuff.texOffs(40, 24).addBox(-2.0F, -1.0F, -2.0F, 4.0F, 2.0F, 4.0F, 0.25F, false);
 //
 //            ModelRenderer leftShoulder = new ModelRenderer(this);
 //            leftShoulder.setPos(1.0F, -1.0F, 0.0F);
-//            leftArm.addChild(leftShoulder);
+//            ModelPart.addChild(leftArm, leftShoulder);
 //            ClientUtil.setRotationAngle(leftShoulder, 0.0F, 0.0F, 0.0873F);
 //            leftShoulder.texOffs(0, 16).addBox(-2.0F, -1.0F, -2.0F, 4.0F, 2.0F, 4.0F, 0.25F, false);
 //
 //            ModelRenderer leftCuff = new ModelRenderer(this);
 //            leftCuff.setPos(1.0F, 7.0F, 0.0F);
-//            leftArm.addChild(leftCuff);
+//            ModelPart.addChild(leftArm, leftCuff);
 //            ClientUtil.setRotationAngle(leftCuff, 0.0F, 0.0F, -0.0436F);
 //            leftCuff.texOffs(0, 24).addBox(-2.0F, -1.0F, -2.0F, 4.0F, 2.0F, 4.0F, 0.25F, false);
         }

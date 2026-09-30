@@ -33,7 +33,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 
 		bladeRight = new ModelPart(this);
 		bladeRight.setPos(-0.9F, 9.0F, 5.9F);
-		rightArm.addChild(bladeRight);
+		ModelPart.addChild(rightArm, bladeRight);
 		setRotationAngle(bladeRight, 0.0F, 3.1416F, 0.0F);
 		bladeRight.texOffs(0, 0).addBox(0.2F, -2.8F, -1.0F, 1.0F, 3.0F, 5.0F, 0.0F, false);
 		bladeRight.texOffs(0, 8).addBox(0.2F, -2.8F, -4.0F, 1.0F, 2.0F, 3.0F, 0.0F, false);
@@ -46,7 +46,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 
 		bladeLeft = new ModelPart(this);
 		bladeLeft.setPos(2.3F, 9.0F, 5.9F);
-		leftArm.addChild(bladeLeft);
+		ModelPart.addChild(leftArm, bladeLeft);
 		setRotationAngle(bladeLeft, 0.0F, 3.1416F, 0.0F);
 		bladeLeft.texOffs(0, 0).addBox(0.2F, -2.8F, -1.0F, 1.0F, 3.0F, 5.0F, 0.0F, false);
 		bladeLeft.texOffs(0, 8).addBox(0.2F, -2.8F, -4.0F, 1.0F, 2.0F, 3.0F, 0.0F, false);

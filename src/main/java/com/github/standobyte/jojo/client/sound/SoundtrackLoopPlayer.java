@@ -57,7 +57,7 @@ public class SoundtrackLoopPlayer {
     
     protected void start() {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        startingSound = new BackgroundSound(start.getLocation(), category, volume, pitch, false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, false);
+        startingSound = new BackgroundSound(start.getLocation(), category, volume, pitch, false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, false);
         soundManager.play(startingSound);
     }
     
@@ -134,7 +134,7 @@ public class SoundtrackLoopPlayer {
     public void finish() {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         if (!finished) {
-            SoundInstance sound = new SimpleSoundInstance(finish.getLocation(), category, volume, pitch, false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, false);
+            SoundInstance sound = new SimpleSoundInstance(finish.getLocation(), category, volume, pitch, false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, false);
             soundManager.play(sound);
         }
         forceStop();

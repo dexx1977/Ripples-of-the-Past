@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.entity.damaging;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.scores.Team;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.core.Direction;
-import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.core.BlockPos;
@@ -209,7 +209,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityAdditi
             damageSource = new IndirectStandEntityDamageSource("arrow", this, owner).setProjectile();
         }
         else {
-            damageSource = new IndirectEntityDamageSource("arrow", this, owner).setProjectile();
+            damageSource = ModDamageTypes.source(this, owner, ModDamageTypes.key("arrow"));
         }
         
         float knockbackReduction = knockbackMultiplier();

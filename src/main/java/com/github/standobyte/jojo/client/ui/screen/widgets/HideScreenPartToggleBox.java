@@ -20,7 +20,7 @@ public class HideScreenPartToggleBox extends ToggleBox {
     
     @Override
     public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        Minecraft.getInstance().getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
+        Minecraft.getInstance().GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
         int texX = 208;
         int texY = 104;
         if (getState()) texX += width;

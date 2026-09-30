@@ -25,7 +25,7 @@ public class WalkmanTrackSound extends ResolvedLocationTickingSound {
             break;
         }
         
-        attenuation = SoundInstance.AttenuationType.NONE;
+        attenuation = SoundInstance.Attenuation.NONE;
         relative = true;
     }
 

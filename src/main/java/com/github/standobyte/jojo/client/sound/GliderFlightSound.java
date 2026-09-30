@@ -64,7 +64,7 @@ public class GliderFlightSound extends AbstractTickableSoundInstance {
     
     // looping sounds only change position when the sound plays over, the elytra loop sound is too long for that
     private void manualAttenuation() {
-        if (attenuation == SoundInstance.AttenuationType.LINEAR) {
+        if (attenuation == SoundInstance.Attenuation.LINEAR) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player.getVehicle() != glider) {
                 Vec3 cameraPos = mc.gameRenderer.getMainCamera().getPosition();

@@ -494,7 +494,7 @@ public class ClientUtil {
         Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
                 sound.getLocation(), 
                 SoundSource.RECORDS, 
-                volume, pitch, false, 0, SoundInstance.AttenuationType.NONE, 
+                volume, pitch, false, 0, SoundInstance.Attenuation.NONE, 
                 0, 0, 0, true));
     }
     

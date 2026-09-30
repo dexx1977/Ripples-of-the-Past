@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.entity.damaging.projectile.ownerbound;
 
+import net.minecraft.world.damagesource.DamageTypes;
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
@@ -25,7 +27,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -178,7 +179,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
 
     @Override
     protected DamageSource getDamageSource(LivingEntity owner) {
-        return new IndirectEntityDamageSource(owner instanceof Player ? "player" : "mob", this, owner);
+        return ModDamageTypes.source(this, owner, owner instanceof Player ? DamageTypes.PLAYER_ATTACK : DamageTypes.MOB_ATTACK);
     }
     
     private Optional<INonStandPower> userPower = Optional.empty();

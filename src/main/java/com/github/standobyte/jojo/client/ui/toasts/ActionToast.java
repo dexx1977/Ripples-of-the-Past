@@ -75,7 +75,7 @@ public class ActionToast implements Toast {
         int actionIndex = timeMs / actionShowUpTime % actionsCount;
         
         ResourceLocation actionIcon = actionIcons.get(actionIndex);
-        toastGui.getMinecraft().getTextureManager().bind(actionIcon);
+        toastGui.getMinecraft().GuiDraw.bind(actionIcon);
         GuiDraw.blit(matrixStack, 8, 8, 0, 0, 16, 16, 16, 16);
     }
     

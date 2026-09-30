@@ -106,6 +106,8 @@ Compilation is the current gate; the counts below are javac errors from
 | Vanilla model part typing where vanilla models supply the parts | 2,278 |
 | Damage sources on the 1.20.1 damage type registry | 2,226 |
 | Remaining damage sources, isRemoved, texture binding calls | 2,200 |
+| HUD overlays on RegisterGuiOverlaysEvent/RenderGuiOverlayEvent | 2,131 |
+| Walk animation state, child attachment, sound attenuation, texture binds | 2,124 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
@@ -120,7 +122,7 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-3. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
+2. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
    registration changed, `WorldGenRegistries`/`DimensionStructuresSettings` are
    gone (datapack worldgen), and the AT that strips `final` from `StructureStart`
    still has to be added.

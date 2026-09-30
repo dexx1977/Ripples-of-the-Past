@@ -71,7 +71,7 @@ public class HamonTechniqueSlotElement {
 
         x += this.x;
         y += this.y;
-        Minecraft.getInstance().getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
+        Minecraft.getInstance().GuiDraw.bind(HamonSkillsTabGui.HAMON_SKILLS);
         GuiDraw.blit(matrixStack, x, y, 0, 156, 28, 28, 256, 256);
         
         x++;

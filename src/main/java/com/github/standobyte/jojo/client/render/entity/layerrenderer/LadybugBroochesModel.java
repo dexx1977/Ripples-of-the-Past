@@ -26,7 +26,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
         
         broochRight = new ModelPart(this);
         broochRight.setPos(-2.85F, 4.625F, -2.4F);
-        body.addChild(broochRight);
+        ModelPart.addChild(body, broochRight);
         broochRight.texOffs(24, 2).addBox(-1.5F, -2.0F, -1.0F, 3.0F, 4.0F, 2.0F, -0.6F, false);
 
         ModelPart broochPin1 = new ModelPart(this);
@@ -37,7 +37,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
 
         broochLeft = new ModelPart(this);
         broochLeft.setPos(2.85F, 4.625F, -2.4F);
-        body.addChild(broochLeft);
+        ModelPart.addChild(body, broochLeft);
         broochLeft.texOffs(24, 2).addBox(-1.5F, -2.0F, -1.0F, 3.0F, 4.0F, 2.0F, -0.6F, false);
 
         ModelPart broochPin2 = new ModelPart(this);
@@ -48,7 +48,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
 
         broochBottom = new ModelPart(this);
         broochBottom.setPos(0.05F, 10.125F, -2.4F);
-        body.addChild(broochBottom);
+        ModelPart.addChild(body, broochBottom);
         broochBottom.texOffs(24, 2).addBox(-1.5F, -2.0F, -1.0F, 3.0F, 4.0F, 2.0F, -0.6F, false);
 
         ModelPart broochPin3 = new ModelPart(this);

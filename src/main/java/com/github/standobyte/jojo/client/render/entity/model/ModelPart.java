@@ -39,6 +39,8 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
  * their constructors; models that never declare it keep the old 64x64 default.</p>
  */
 public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
+    private static final String CHILD_NAME_PREFIX = "part";
+    private static int childCount = 0;
     private static final Map<Class<?>, Field[]> TEX_SIZE_FIELDS = new ConcurrentHashMap<>();
     private static final int DEFAULT_TEX_SIZE = 64;
 
@@ -135,6 +137,11 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         this.texWidth = texWidth;
         this.texHeight = texHeight;
         return this;
+    }
+
+    /** Attaches a child to a part of any model, including inherited vanilla parts. */
+    public static void addChild(net.minecraft.client.model.geom.ModelPart parent, ModelPart child) {
+        parent.children.put("part_" + parent.children.size(), child);
     }
 
     public ModelPart addChild(ModelPart child) {

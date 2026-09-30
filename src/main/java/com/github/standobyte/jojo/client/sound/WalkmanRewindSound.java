@@ -16,7 +16,7 @@ public class WalkmanRewindSound extends AbstractTickableSoundInstance {
         x = 0;
         y = 0;
         z = 0;
-        attenuation = SoundInstance.AttenuationType.NONE;
+        attenuation = SoundInstance.Attenuation.NONE;
         relative = true;
     }
 

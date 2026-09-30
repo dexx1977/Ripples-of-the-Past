@@ -103,8 +103,8 @@ public class ConsciousnessRenderer extends EntityRenderer<ClientConsciousnessEnt
         float f8 = 0.0F;
         float f5 = 0.0F;
         if (!shouldSit && csnsEntity.isAlive()) {
-            f8 = Mth.lerp(partialTick, csnsEntity.animationSpeedOld, csnsEntity.animationSpeed);
-            f5 = csnsEntity.animationPosition - csnsEntity.animationSpeed * (1.0F - partialTick);
+            f8 = Mth.lerp(partialTick, csnsEntity.walkAnimation.speedOld, csnsEntity.walkAnimation.speed);
+            f5 = csnsEntity.walkAnimation.position - csnsEntity.walkAnimation.speed * (1.0F - partialTick);
             if (player.isBaby()) {
                 f5 *= 3.0F;
             }

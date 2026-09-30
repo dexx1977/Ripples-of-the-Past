@@ -65,7 +65,7 @@ public class HamonSkillDescBox {
     }
     
     public void renderBg(PoseStack matrixStack, int x, int y, int mouseX, int mouseY) {
-        Minecraft.getInstance().getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
+        Minecraft.getInstance().GuiDraw.bind(HamonSkillsTabGui.HAMON_SKILLS);
         GuiDraw.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 206, WIDTH + 6, HEIGHT + 6, 256, 256);
         
         GuiDraw.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 156, WIDTH + 6, HEIGHT + 6, 256, 256);

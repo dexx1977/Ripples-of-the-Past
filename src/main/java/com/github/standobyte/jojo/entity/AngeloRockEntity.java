@@ -454,9 +454,9 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         if (angeloEntity != null && !entityData.get(CREATION_COMPLETE)) {
             angeloEntity.hurtTime = 0;
             angeloEntity.deathTime = 0;
-            angeloEntity.animationPosition = 0;
-            angeloEntity.animationSpeed = 0;
-            angeloEntity.animationSpeedOld = 0;
+            angeloEntity.walkAnimation.position = 0;
+            angeloEntity.walkAnimation.speed = 0;
+            angeloEntity.walkAnimation.speedOld = 0;
             angeloEntity.addEffect(new MobEffectInstance(ModStatusEffects.IMMOBILIZE.get(), 10, 0, false, false, true));
             angeloEntity.setPosAndOldPos(getX(), getY(), getZ());
             angeloEntity.setPose(Pose.STANDING);

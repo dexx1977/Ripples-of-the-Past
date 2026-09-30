@@ -87,7 +87,7 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         hair = new ModelPart(this);
         hair.setPos(0.0F, -8.0F, 0.0F);
-        head.addChild(hair);
+        ModelPart.addChild(head, hair);
         
 
         hair1 = new ModelPart(this);
@@ -385,7 +385,7 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
-        body.addChild(upperPart);
+        ModelPart.addChild(body, upperPart);
         
 
         torso = new ModelPart(this);
@@ -404,7 +404,7 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         leftShoulder = new ModelPart(this);
         leftShoulder.setPos(3.5F, 0.55F, 0.0F);
-        torso.addChild(leftShoulder);
+        ModelPart.addChild(torso, leftShoulder);
         setRotationAngle(leftShoulder, 0.0F, 0.0F, 0.0436F);
         leftShoulder.texOffs(23, 23).addBox(-0.65F, -1.8F, -2.75F, 6.0F, 2.0F, 5.0F, 0.15F, true);
         leftShoulder.texOffs(24, 25).addBox(-0.5F, -1.66F, -2.6F, 1.0F, 2.0F, 1.0F, 0.3F, true);
@@ -412,7 +412,7 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         rightShoulder = new ModelPart(this);
         rightShoulder.setPos(-3.5F, 0.55F, 0.0F);
-        torso.addChild(rightShoulder);
+        ModelPart.addChild(torso, rightShoulder);
         setRotationAngle(rightShoulder, 0.0F, 0.0F, -0.0436F);
         rightShoulder.texOffs(0, 23).addBox(-5.35F, -1.8F, -2.75F, 6.0F, 2.0F, 5.0F, 0.15F, false);
         rightShoulder.texOffs(24, 25).addBox(-0.5F, -1.66F, -2.6F, 1.0F, 2.0F, 1.0F, 0.3F, false);
@@ -420,12 +420,12 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         frontFabric = new ModelPart(this);
         frontFabric.setPos(0.0F, 10.5F, -2.15F);
-        torso.addChild(frontFabric);
+        ModelPart.addChild(torso, frontFabric);
         frontFabric.texOffs(0, 86).addBox(-2.0F, -0.5F, 0.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 
         backFabric = new ModelPart(this);
         backFabric.setPos(0.0F, 10.5F, 2.15F);
-        torso.addChild(backFabric);
+        ModelPart.addChild(torso, backFabric);
         backFabric.texOffs(0, 92).addBox(-2.0F, -0.5F, 0.0F, 4.0F, 5.0F, 0.0F, 0.0F, false);
 
         leftArmXRot = new ModelPart(this);
@@ -442,12 +442,12 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftArmJoint);
+        ModelPart.addChild(leftArm, leftArmJoint);
         leftArmJoint.texOffs(32, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
         leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftForeArm);
+        ModelPart.addChild(leftArm, leftForeArm);
         leftForeArm.texOffs(32, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
         leftForeArm.texOffs(48, 95).addBox(-2.0F, -0.1F, -2.0F, 4.0F, 2.0F, 4.0F, 0.185F, false);
         leftForeArm.texOffs(48, 95).addBox(-2.0F, 3.0F, -2.0F, 4.0F, 3.0F, 4.0F, 0.15F, false);
@@ -470,12 +470,12 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightArmJoint);
+        ModelPart.addChild(rightArm, rightArmJoint);
         rightArmJoint.texOffs(0, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
         rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightForeArm);
+        ModelPart.addChild(rightArm, rightForeArm);
         rightForeArm.texOffs(0, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
         rightForeArm.texOffs(16, 95).addBox(-2.0F, -0.1F, -2.0F, 4.0F, 2.0F, 4.0F, 0.185F, false);
         rightForeArm.texOffs(16, 95).addBox(-2.0F, 3.0F, -2.0F, 4.0F, 3.0F, 4.0F, 0.15F, false);
@@ -486,7 +486,7 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         leftLegXRot = new ModelPart(this);
         leftLegXRot.setPos(2.0F, 12.0F, 0.0F);
-        body.addChild(leftLegXRot);
+        ModelPart.addChild(body, leftLegXRot);
         
 
         leftLeg = new XRotationModelRenderer(this);
@@ -498,19 +498,19 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLegJoint);
+        ModelPart.addChild(leftLeg, leftLegJoint);
         leftLegJoint.texOffs(96, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
         leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLowerLeg);
+        ModelPart.addChild(leftLeg, leftLowerLeg);
         leftLowerLeg.texOffs(96, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
         leftLowerLeg.texOffs(112, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.15F, false);
         leftLowerLeg.texOffs(108, 102).addBox(-2.0F, 0.8F, -2.0F, 4.0F, 1.0F, 4.0F, 0.1F, true);
 
         rightLegXRot = new ModelPart(this);
         rightLegXRot.setPos(-2.0F, 12.0F, 0.0F);
-        body.addChild(rightLegXRot);
+        ModelPart.addChild(body, rightLegXRot);
         
 
         rightLeg = new XRotationModelRenderer(this);
@@ -522,12 +522,12 @@ public class StarPlatinumModel extends HumanoidStandModel<StarPlatinumEntity> {
 
         rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLegJoint);
+        ModelPart.addChild(rightLeg, rightLegJoint);
         rightLegJoint.texOffs(64, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
         rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLowerLeg);
+        ModelPart.addChild(rightLeg, rightLowerLeg);
         rightLowerLeg.texOffs(64, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
         rightLowerLeg.texOffs(80, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.15F, false);
         rightLowerLeg.texOffs(76, 102).addBox(-2.0F, 0.8F, -2.0F, 4.0F, 1.0F, 4.0F, 0.1F, false);

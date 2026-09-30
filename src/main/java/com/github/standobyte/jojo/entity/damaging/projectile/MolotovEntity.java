@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.entity.damaging.projectile;
 
+import net.minecraft.world.damagesource.DamageTypes;
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.List;
 
 import com.github.standobyte.jojo.capability.entity.hamonutil.ProjectileHamonChargeCap;
@@ -16,7 +18,6 @@ import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.AABB;
@@ -80,7 +81,7 @@ public class MolotovEntity extends ThrowableItemProjectile implements ItemSuppli
         if (!level.isClientSide) {
             Entity entity = pResult.getEntity();
             Entity owner = getOwner();
-            entity.hurt(owner != null ? new EntityDamageSource(DamageSource.IN_FIRE.msgId, owner) : DamageSource.IN_FIRE, 2);
+            entity.hurt(owner != null ? ModDamageTypes.source(owner, DamageTypes.IN_FIRE) : ModDamageTypes.source(entity, DamageTypes.IN_FIRE), 2);
             entity.setSecondsOnFire(10);
             setBlocksOnFire(this.blockPosition(), 2);
             setEntitiesOnFire(this.blockPosition(), 2);

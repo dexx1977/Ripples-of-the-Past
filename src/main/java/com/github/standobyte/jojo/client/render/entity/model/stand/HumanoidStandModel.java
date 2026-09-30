@@ -97,7 +97,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         model.upperPart = new ModelPart(model);
         model.upperPart.setPos(0.0F, 12.0F, 0.0F);
-        model.body.addChild(model.upperPart);
+        model.ModelPart.addChild(body, model.upperPart);
 
         model.torso = new ModelPart(model);
         model.torso.setPos(0.0F, -12.0F, 0.0F);
@@ -113,11 +113,11 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         model.leftArmJoint = new ModelPart(model);
         model.leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        model.leftArm.addChild(model.leftArmJoint);
+        model.ModelPart.addChild(leftArm, model.leftArmJoint);
 
         model.leftForeArm = new ModelPart(model);
         model.leftForeArm.setPos(0.0F, 4.0F, 0.0F);
-        model.leftArm.addChild(model.leftForeArm);
+        model.ModelPart.addChild(leftArm, model.leftForeArm);
 
         model.rightArmXRot = new ModelPart(model);
         model.rightArmXRot.setPos(-6.0F, -10.0F, 0.0F);
@@ -129,15 +129,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         model.rightArmJoint = new ModelPart(model);
         model.rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        model.rightArm.addChild(model.rightArmJoint);
+        model.ModelPart.addChild(rightArm, model.rightArmJoint);
 
         model.rightForeArm = new ModelPart(model);
         model.rightForeArm.setPos(0.0F, 4.0F, 0.0F);
-        model.rightArm.addChild(model.rightForeArm);
+        model.ModelPart.addChild(rightArm, model.rightForeArm);
 
         model.leftLegXRot = new ModelPart(model);
         model.leftLegXRot.setPos(2.0F, 12.0F, 0.0F);
-        model.body.addChild(model.leftLegXRot);
+        model.ModelPart.addChild(body, model.leftLegXRot);
 
         model.leftLeg = new XRotationModelRenderer(model);
         model.leftLeg.setPos(0.0F, 0.0F, 0.0F);
@@ -145,15 +145,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         model.leftLegJoint = new ModelPart(model);
         model.leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        model.leftLeg.addChild(model.leftLegJoint);
+        model.ModelPart.addChild(leftLeg, model.leftLegJoint);
 
         model.leftLowerLeg = new ModelPart(model);
         model.leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        model.leftLeg.addChild(model.leftLowerLeg);
+        model.ModelPart.addChild(leftLeg, model.leftLowerLeg);
 
         model.rightLegXRot = new ModelPart(model);
         model.rightLegXRot.setPos(-2.0F, 12.0F, 0.0F);
-        model.body.addChild(model.rightLegXRot);
+        model.ModelPart.addChild(body, model.rightLegXRot);
 
         model.rightLeg = new XRotationModelRenderer(model);
         model.rightLeg.setPos(0.0F, 0.0F, 0.0F);
@@ -161,11 +161,11 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         model.rightLegJoint = new ModelPart(model);
         model.rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        model.rightLeg.addChild(model.rightLegJoint);
+        model.ModelPart.addChild(rightLeg, model.rightLegJoint);
 
         model.rightLowerLeg = new ModelPart(model);
         model.rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        model.rightLeg.addChild(model.rightLowerLeg);
+        model.ModelPart.addChild(rightLeg, model.rightLowerLeg);
 
         model.head          .texOffs(0, 0)    .addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F, false);
         model.torso         .texOffs(0, 64)   .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.0F, false);
@@ -198,7 +198,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
-        body.addChild(upperPart);
+        ModelPart.addChild(body, upperPart);
 
 
         torso = new ModelPart(this);
@@ -211,11 +211,11 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftArmJoint);
+        ModelPart.addChild(leftArm, leftArmJoint);
 
         leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftForeArm);
+        ModelPart.addChild(leftArm, leftForeArm);
 
         rightArm = convertLimb(new ModelPart(this));
         rightArm.setPos(-6.0F, -10.0F, 0.0F);
@@ -223,35 +223,35 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
 
         rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightArmJoint);
+        ModelPart.addChild(rightArm, rightArmJoint);
 
         rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightForeArm);
+        ModelPart.addChild(rightArm, rightForeArm);
 
         leftLeg = convertLimb(new ModelPart(this));
         leftLeg.setPos(2.0F, 12.0F, 0.0F);
-        body.addChild(leftLeg);
+        ModelPart.addChild(body, leftLeg);
 
         leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLegJoint);
+        ModelPart.addChild(leftLeg, leftLegJoint);
 
         leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLowerLeg);
+        ModelPart.addChild(leftLeg, leftLowerLeg);
 
         rightLeg = convertLimb(new ModelPart(this));
         rightLeg.setPos(-2.0F, 12.0F, 0.0F);
-        body.addChild(rightLeg);
+        ModelPart.addChild(body, rightLeg);
 
         rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLegJoint);
+        ModelPart.addChild(rightLeg, rightLegJoint);
 
         rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLowerLeg);
+        ModelPart.addChild(rightLeg, rightLowerLeg);
         
         
         baseHumanoidBoxGenerators = ImmutableMap.<Supplier<ModelPart>, Consumer<ModelPart>>builder()

@@ -60,7 +60,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
         
         headRight_r1 = new ModelPart(this);
         headRight_r1.setPos(0.1296F, 24.0F, -0.18F);
-        head.addChild(headRight_r1);
+        ModelPart.addChild(head, headRight_r1);
         setRotationAngle(headRight_r1, 0.0F, 0.0478F, 0.0F);
         headRight_r1.texOffs(6, 15).addBox(-4.1F, -31.4F, -3.2F, 1.0F, 3.0F, 5.0F, -0.4F, false);
         headRight_r1.texOffs(6, 23).addBox(-4.1F, -28.0F, -3.2F, 1.0F, 2.0F, 5.0F, -0.4F, false);
@@ -68,7 +68,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         headLeft_r1 = new ModelPart(this);
         headLeft_r1.setPos(-0.1296F, 24.0F, -0.18F);
-        head.addChild(headLeft_r1);
+        ModelPart.addChild(head, headLeft_r1);
         setRotationAngle(headLeft_r1, 0.0F, -0.0478F, 0.0F);
         headLeft_r1.texOffs(26, 15).addBox(3.1F, -31.4F, -3.2F, 1.0F, 3.0F, 5.0F, -0.4F, true);
         headLeft_r1.texOffs(26, 23).addBox(3.1F, -28.0F, -3.2F, 1.0F, 2.0F, 5.0F, -0.4F, true);
@@ -76,7 +76,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         beakUpper = new ModelPart(this);
         beakUpper.setPos(0.0F, -1.0F, -4.0F);
-        head.addChild(beakUpper);
+        ModelPart.addChild(head, beakUpper);
 
         ModelPart beakUpper2;
         ModelPart beakUpperLeft;
@@ -119,7 +119,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         beakLower = new ModelPart(this);
         beakLower.setPos(0.0F, -0.75F, -4.75F);
-        head.addChild(beakLower);
+        ModelPart.addChild(head, beakLower);
         beakLower.texOffs(79, 17).addBox(-1.0F, 0.0F, -4.75F, 2.0F, 1.0F, 6.0F, 0.0F, false);
         beakLower.texOffs(65, 20).addBox(-1.5F, 0.0F, -1.75F, 3.0F, 1.0F, 3.0F, 0.0F, false);
         beakLower.texOffs(72, 25).addBox(-1.0F, -0.3F, -3.75F, 2.0F, 1.0F, 4.0F, 0.0F, false);
@@ -138,7 +138,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         feather = new ModelPart(this);
         feather.setPos(0.0F, -6.5F, 4.5F);
-        head.addChild(feather);
+        ModelPart.addChild(head, feather);
         setRotationAngle(feather, 0.3927F, 0.0F, 0.0F);
         feather.texOffs(30, 8).addBox(-1.0F, -0.5F, -1.0F, 2.0F, 1.0F, 6.0F, 0.0F, false);
         feather.texOffs(40, 12).addBox(-1.0F, 0.5F, 4.0F, 2.0F, 1.0F, 1.0F, 0.0F, false);
@@ -157,7 +157,7 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
-        body.addChild(upperPart);
+        ModelPart.addChild(body, upperPart);
         
 
         torso = new ModelPart(this);
@@ -174,12 +174,12 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftArmJoint);
+        ModelPart.addChild(leftArm, leftArmJoint);
         leftArmJoint.texOffs(32, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
         leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftForeArm);
+        ModelPart.addChild(leftArm, leftForeArm);
         leftForeArm.texOffs(32, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
         rightArm = convertLimb(new ModelPart(this));
@@ -189,42 +189,42 @@ public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
 
         rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightArmJoint);
+        ModelPart.addChild(rightArm, rightArmJoint);
         rightArmJoint.texOffs(0, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
         rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightForeArm);
+        ModelPart.addChild(rightArm, rightForeArm);
         rightForeArm.texOffs(0, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
         leftLeg = convertLimb(new ModelPart(this));
         leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        body.addChild(leftLeg);
+        ModelPart.addChild(body, leftLeg);
         leftLeg.texOffs(96, 108).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
         leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLegJoint);
+        ModelPart.addChild(leftLeg, leftLegJoint);
         leftLegJoint.texOffs(96, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
         leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLowerLeg);
+        ModelPart.addChild(leftLeg, leftLowerLeg);
         leftLowerLeg.texOffs(96, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
         rightLeg = convertLimb(new ModelPart(this));
         rightLeg.setPos(-1.9F, 12.0F, 0.0F);
-        body.addChild(rightLeg);
+        ModelPart.addChild(body, rightLeg);
         rightLeg.texOffs(64, 108).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
         rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLegJoint);
+        ModelPart.addChild(rightLeg, rightLegJoint);
         rightLegJoint.texOffs(64, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
         rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLowerLeg);
+        ModelPart.addChild(rightLeg, rightLowerLeg);
         rightLowerLeg.texOffs(64, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
     }
 

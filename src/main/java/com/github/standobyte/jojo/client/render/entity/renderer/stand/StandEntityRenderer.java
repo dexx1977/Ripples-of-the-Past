@@ -251,8 +251,8 @@ public class StandEntityRenderer<T extends StandEntity, M extends StandEntityMod
         float walkAnimSpeed = 0.0F;
         float walkAnimPos = 0.0F;
         if (entity.isAlive()) {
-            walkAnimSpeed = Mth.lerp(partialTick, entity.animationSpeedOld, entity.animationSpeed);
-            walkAnimPos = entity.animationPosition - entity.animationSpeed * (1.0F - partialTick);
+            walkAnimSpeed = Mth.lerp(partialTick, entity.walkAnimation.speedOld, entity.walkAnimation.speed);
+            walkAnimPos = entity.walkAnimation.position - entity.walkAnimation.speed * (1.0F - partialTick);
             if (entity.isBaby()) {
                 walkAnimPos *= 3.0F;
             }
@@ -428,11 +428,11 @@ public class StandEntityRenderer<T extends StandEntity, M extends StandEntityMod
         matrixStack.pushPose();
         model.attackTime = this.getAttackAnim(entity, partialTick);
         model.young = entity.isBaby();
-        float walkAnimSpeed = entity.animationPosition - entity.animationSpeed * (1.0F - partialTick);
+        float walkAnimSpeed = entity.walkAnimation.position - entity.walkAnimation.speed * (1.0F - partialTick);
         if (entity.isBaby()) {
             walkAnimSpeed *= 3.0F;
         }
-        float walkAnimPos = Math.min(Mth.lerp(partialTick, entity.animationSpeedOld, entity.animationSpeed), 1.0F);
+        float walkAnimPos = Math.min(Mth.lerp(partialTick, entity.walkAnimation.speedOld, entity.walkAnimation.speed), 1.0F);
         float ticks = getBob(entity, partialTick);
         float yBodyRotation = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
         float yHeadRotation = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);

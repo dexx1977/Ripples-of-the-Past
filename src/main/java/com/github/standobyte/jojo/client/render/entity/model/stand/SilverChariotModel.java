@@ -71,7 +71,7 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
 
         backCord = new ModelPart(this);
         backCord.setPos(0.0F, -4.0F, 2.55F);
-        head.addChild(backCord);
+        ModelPart.addChild(head, backCord);
         setRotationAngle(backCord, 0.0873F, 0.0F, 0.0F);
         backCord.texOffs(25, 11).addBox(-2.5F, -2.55F, -0.5F, 5.0F, 1.0F, 1.0F, -0.433F, false);
         backCord.texOffs(29, 13).addBox(1.5F, -2.417F, -0.5F, 1.0F, 3.0F, 1.0F, -0.433F, false);
@@ -82,13 +82,13 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
         
         cube_r1 = new ModelPart(this);
         cube_r1.setPos(4.25F, -4.45F, -0.25F);
-        head.addChild(cube_r1);
+        ModelPart.addChild(head, cube_r1);
         setRotationAngle(cube_r1, 0.0F, 0.0F, -0.1309F);
         cube_r1.texOffs(32, 13).addBox(-4.0F, -3.25F, -2.0F, 4.0F, 4.0F, 4.0F, -0.35F, true);
 
         cube_r2 = new ModelPart(this);
         cube_r2.setPos(-4.25F, -4.45F, -0.25F);
-        head.addChild(cube_r2);
+        ModelPart.addChild(head, cube_r2);
         setRotationAngle(cube_r2, 0.0F, 0.0F, 0.1309F);
         cube_r2.texOffs(0, 13).addBox(0.0F, -3.25F, -2.0F, 4.0F, 4.0F, 4.0F, -0.35F, false);
 
@@ -99,7 +99,7 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
 
         upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
-        body.addChild(upperPart);
+        ModelPart.addChild(body, upperPart);
         
 
         torso = new ModelPart(this);
@@ -120,12 +120,12 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
 
         leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(-0.5F, 4.0F, 0.0F);
-        leftArm.addChild(leftArmJoint);
+        ModelPart.addChild(leftArm, leftArmJoint);
         leftArmJoint.texOffs(32, 101).addBox(-1.0F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, -0.1F, true);
 
         leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
-        leftArm.addChild(leftForeArm);
+        ModelPart.addChild(leftArm, leftForeArm);
         leftForeArm.texOffs(32, 119).addBox(-2.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, true);
 
         rightArm = convertLimb(new ModelPart(this));
@@ -136,12 +136,12 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
 
         rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.5F, 4.0F, 0.0F);
-        rightArm.addChild(rightArmJoint);
+        ModelPart.addChild(rightArm, rightArmJoint);
         rightArmJoint.texOffs(0, 101).addBox(-1.0F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, -0.1F, false);
 
         rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
-        rightArm.addChild(rightForeArm);
+        ModelPart.addChild(rightArm, rightForeArm);
         rightForeArm.texOffs(0, 119).addBox(-1.0F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, false);
 
         rapier = new ModelPart(this);
@@ -157,32 +157,32 @@ public class SilverChariotModel extends HumanoidStandModel<SilverChariotEntity> 
 
         leftLeg = convertLimb(new ModelPart(this));
         leftLeg.setPos(1.4F, 12.0F, 0.0F);
-        body.addChild(leftLeg);
+        ModelPart.addChild(body, leftLeg);
         leftLeg.texOffs(96, 110).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, false);
 
         leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLegJoint);
+        ModelPart.addChild(leftLeg, leftLegJoint);
         leftLegJoint.texOffs(96, 105).addBox(-1.0F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, -0.1F, true);
 
         leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        leftLeg.addChild(leftLowerLeg);
+        ModelPart.addChild(leftLeg, leftLowerLeg);
         leftLowerLeg.texOffs(96, 119).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, false);
 
         rightLeg = convertLimb(new ModelPart(this));
         rightLeg.setPos(-1.4F, 12.0F, 0.0F);
-        body.addChild(rightLeg);
+        ModelPart.addChild(body, rightLeg);
         rightLeg.texOffs(64, 110).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, false);
 
         rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLegJoint);
+        ModelPart.addChild(rightLeg, rightLegJoint);
         rightLegJoint.texOffs(64, 105).addBox(-1.0F, -1.5F, -1.0F, 2.0F, 3.0F, 2.0F, -0.1F, false);
 
         rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
-        rightLeg.addChild(rightLowerLeg);
+        ModelPart.addChild(rightLeg, rightLowerLeg);
         rightLowerLeg.texOffs(64, 119).addBox(-1.5F, 0.0F, -1.5F, 3.0F, 6.0F, 3.0F, 0.0F, false);
     }
 

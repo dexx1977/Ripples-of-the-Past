@@ -31,7 +31,7 @@ public class StandOstSound extends AbstractTickableSoundInstance implements Tick
         this.z = 0;
         this.looping = false;
         this.delay = 0;
-        this.attenuation = SoundInstance.AttenuationType.NONE;
+        this.attenuation = SoundInstance.Attenuation.NONE;
         this.relative = true;
         
         Options options = mc.options;

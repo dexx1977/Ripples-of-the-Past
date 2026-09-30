@@ -1552,7 +1552,7 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     public static void renderRadialIndicator(PoseStack matrixStack, float x, float y, float ratio) {
-        Minecraft.getInstance().getTextureManager().bind(RADIAL_INDICATOR);
+        Minecraft.getInstance().GuiDraw.bind(RADIAL_INDICATOR);
 //        int deg = (int) (ratio * 360F);
 //        BlitFloat.blitFloat(matrixStack, x + 1.5F, y + 1.5F, deg % 19 * 13, deg / 19 * 13, 13, 13, 256, 256);
         RadialBar.render(matrixStack, x, y, 0, ratio, 0, 0, 234, 234, 13, 13, 256, 256, 0);
