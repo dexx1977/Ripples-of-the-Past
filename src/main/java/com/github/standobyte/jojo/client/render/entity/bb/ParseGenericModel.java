@@ -251,7 +251,7 @@ public class ParseGenericModel {
                         x0, y0, z0, 
                         size[0], size[1], size[2], 
                         0, 0, 0, 
-                        false, texWidth, texHeight);
+                        false, texWidth, texHeight, null);
                 
                 ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
                 

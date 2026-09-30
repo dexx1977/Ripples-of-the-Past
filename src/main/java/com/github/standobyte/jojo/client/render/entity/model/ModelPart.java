@@ -56,6 +56,13 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         this(owner, 0, 0);
     }
 
+    /** The 1.16.5 constructor that took the texture size and the texture offsets. */
+    public ModelPart(int texWidth, int texHeight, int texOffsX, int texOffsY) {
+        this((Object) null, texOffsX, texOffsY);
+        this.texWidth = texWidth;
+        this.texHeight = texHeight;
+    }
+
     public ModelPart(@Nullable Object owner, int texOffsX, int texOffsY) {
         super(new ArrayList<>(), new LinkedHashMap<>());
         this.texOffsU = texOffsX;

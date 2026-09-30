@@ -15,7 +15,7 @@ public class SlopeModelBox extends ModelPart.Cube {
                 pOriginX, pOriginY1, pOriginZ, 
                 pDimensionX, (pOriginY2 - pOriginY1) + pDimensionY, pDimensionZ, 
                 pGrowX, pGrowY, pGrowZ, 
-                pMirror, pTexWidthScaled, pTexHeightScaled);
+                pMirror, pTexWidthScaled, pTexHeightScaled, null);
         
         ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
         float x1 = pOriginX + pDimensionX;

@@ -29,7 +29,7 @@ public class MeshModelBox extends ModelPart.Cube {
                 builder.maxY - builder.minY, 
                 builder.maxZ - builder.minZ, 
                 0, 0, 0, 
-                false, 1, 1);
+                false, 1, 1, null);
         
         ModelPart.Polygon[] quads = builder.quads.toArray(new ModelPart.Polygon[0]);
         this.polygons = quads;
