@@ -136,7 +136,11 @@ Known remaining work, roughly in the order it should be tackled:
    armour bypass, resistance bypass and fire in 1.16.5 (bypassArmor/bypassMagic/
    setIsFire) but was in no tag, and jojo:healthLink had been put into both bypass tags
    although its old source bypassed nothing.
-4. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+4. Approximation: the pillarman self detonation used the vanilla on fire damage
+   source with the explosion flag. 1.20.1 damage properties come from the type and no
+   vanilla type is both fire and explosion, so the fire source is kept (same death
+   message, still no bleeding) and the explosion flag (blast protection) is lost.
+5. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
    bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
    change these in 1.20.1, so each call site has to pick a damage type carrying the
    right tags. Still to do.
