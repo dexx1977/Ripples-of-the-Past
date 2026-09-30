@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import java.util.function.Consumer;
@@ -481,6 +482,12 @@ public class ClientSetup {
         }, ModItems.CASSETTE_RECORDED.get());
     }
     
+    
+    @SubscribeEvent
+    public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(com.github.standobyte.jojo.client.ui.text.JojoSpriteTooltipComponent.class, 
+                com.github.standobyte.jojo.client.ui.text.JojoSpriteClientTooltipComponent::new);
+    }
     
     @SubscribeEvent
     public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {

@@ -1381,25 +1381,16 @@ public class ClientEventHandler {
         GuiDraw.drawCenteredString(matrixStack, mc.font, Component.translatable("jojo.to_be_continued"), x + 61, y + 8, 0x525544);
     }
     
+    // the sprite lines become tooltip components, which is how 1.20.1 draws them
     @SubscribeEvent
-    // 1.20.1 has no post text tooltip event; the extras are drawn while the tooltip
-    // colours are chosen, which still runs with the tooltip position available
-    public void onTooltipRender(RenderTooltipEvent.Color event) {
-        List<? extends FormattedText> lines = event.getTooltipElements().stream()
-                .map(element -> element.left().orElse(null))
-                .filter(java.util.Objects::nonNull)
-                .collect(java.util.stream.Collectors.toList());
-        int x = event.getX();
-        int y = event.getY();
-        for (int i = 0; i < lines.size(); i++) {
-            FormattedText line = lines.get(i);
-            if (line instanceof JojoTextComponentWrapper) {
-                ((JojoTextComponentWrapper) line).tooltipRenderExtra(GuiDraw.graphics().pose(), x, y - 0.5f);
+    public void onTooltipRender(net.minecraftforge.client.event.RenderTooltipEvent.GatherComponents event) {
+        List<com.mojang.datafixers.util.Either<FormattedText, net.minecraft.world.inventory.tooltip.TooltipComponent>> elements = event.getTooltipElements();
+        for (int i = 0; i < elements.size(); i++) {
+            FormattedText line = elements.get(i).left().orElse(null);
+            if (line instanceof JojoTextComponentWrapper wrapper && !wrapper.getSprites().isEmpty()) {
+                elements.set(i, com.mojang.datafixers.util.Either.right(
+                        new com.github.standobyte.jojo.client.ui.text.JojoSpriteTooltipComponent(wrapper)));
             }
-            if (i == 0) {
-                y += 2;
-            }
-            y += 10;
         }
     }
     

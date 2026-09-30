@@ -47,6 +47,10 @@ public class JojoTextComponentWrapper extends MutableComponent {
         return this;
     }
     
+    public List<Either<ResourceLocation, TextureAtlasSprite>> getSprites() {
+        return sprites;
+    }
+
     public JojoTextComponentWrapper addSprite(TextureAtlasSprite sprite) {
         sprites.add(Either.right(sprite));
         return this;
