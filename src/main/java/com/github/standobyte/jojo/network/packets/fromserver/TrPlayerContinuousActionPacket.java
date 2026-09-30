@@ -65,7 +65,7 @@ public class TrPlayerContinuousActionPacket {
             buf.writeEnum(msg.packetType);
             switch (msg.packetType) {
             case SET_ACTION:
-                NetworkUtil.writeOptional(buf, msg.action, buf::writeRegistryId);
+                NetworkUtil.writeOptional(buf, msg.action, (modifier, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.ACTIONS.getRegistry(), modifier));
                 break;
             case SET_PHASE:
                 buf.writeEnum(msg.phase);

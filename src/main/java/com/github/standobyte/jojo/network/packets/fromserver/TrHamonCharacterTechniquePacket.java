@@ -47,7 +47,7 @@ public class TrHamonCharacterTechniquePacket {
         @Override
         public void encode(TrHamonCharacterTechniquePacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
-            NetworkUtil.writeOptional(buf, msg.technique, buf::writeRegistryId);
+            NetworkUtil.writeOptional(buf, msg.technique, (value, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.HAMON_CHARACTER_TECHNIQUES.getRegistry(), value));
             buf.writeBoolean(msg.playPickSound);
         }
 

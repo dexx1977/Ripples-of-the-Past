@@ -24,7 +24,7 @@ public class ClHamonLearnButtonPacket {
 
         @Override
         public void encode(ClHamonLearnButtonPacket msg, FriendlyByteBuf buf) {
-            buf.writeRegistryId(msg.skill);
+            buf.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.HAMON_SKILLS.getRegistry(), msg.skill);
         }
 
         @Override

@@ -46,7 +46,7 @@ public class PreviousStandTypesPacket {
             if (!msg.clear) {
                 buf.writeBoolean(msg.sendingAll);
                 if (msg.sendingAll) {
-                    NetworkUtil.writeCollection(buf, msg.allStands, (buffer, stand) -> buffer.writeRegistryId(stand.getRegistry(), stand), false);
+                    NetworkUtil.writeCollection(buf, msg.allStands, (stand, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.STANDS.getRegistry(), stand), false);
                 }
                 else {
                     buf.writeRegistryId(msg.newStand.getRegistry(), msg.newStand);

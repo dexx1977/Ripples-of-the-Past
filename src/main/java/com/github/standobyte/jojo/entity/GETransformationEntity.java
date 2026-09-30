@@ -890,7 +890,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             byte yaw = (byte) Mth.floor(entity.yRot * 256.0F / 360.0F);
             byte headYaw = (byte) (entity.getYHeadRot() * 256.0F / 360.0F);
             
-            buffer.writeRegistryId(entity.getType());
+            buffer.writeRegistryId(net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES, entity.getType());
             buffer.writeByte(pitch);
             buffer.writeByte(yaw);
             buffer.writeByte(headYaw);

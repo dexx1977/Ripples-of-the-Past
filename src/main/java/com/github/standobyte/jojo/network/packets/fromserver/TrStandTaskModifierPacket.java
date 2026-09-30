@@ -28,7 +28,7 @@ public class TrStandTaskModifierPacket {
         @Override
         public void encode(TrStandTaskModifierPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.standEntityId);
-            buf.writeRegistryId(msg.action);
+            buf.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.ACTIONS.getRegistry(), msg.action);
         }
 
         @Override

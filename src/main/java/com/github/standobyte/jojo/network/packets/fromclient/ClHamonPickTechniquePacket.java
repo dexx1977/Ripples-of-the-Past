@@ -24,7 +24,7 @@ public class ClHamonPickTechniquePacket {
     
         @Override
         public void encode(ClHamonPickTechniquePacket msg, FriendlyByteBuf buf) {
-            buf.writeRegistryId(msg.technique);
+            buf.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.HAMON_CHARACTER_TECHNIQUES.getRegistry(), msg.technique);
         }
 
         @Override

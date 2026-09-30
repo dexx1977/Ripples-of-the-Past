@@ -26,7 +26,7 @@ public class HamonSkillAddPacket {
 
         @Override
         public void encode(HamonSkillAddPacket msg, FriendlyByteBuf buf) {
-            buf.writeRegistryId(msg.skill);
+            buf.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.HAMON_SKILLS.getRegistry(), msg.skill);
         }
 
         @Override

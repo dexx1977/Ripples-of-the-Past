@@ -24,7 +24,7 @@ public class PreviousPowerTypesPacket {
 
         @Override
         public void encode(PreviousPowerTypesPacket msg, FriendlyByteBuf buf) {
-            NetworkUtil.writeCollection(buf, msg.types, buf::writeRegistryId, false);
+            NetworkUtil.writeCollection(buf, msg.types, (value, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.NON_STAND_POWERS.getRegistry(), value), false);
         }
 
         @Override

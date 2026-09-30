@@ -156,7 +156,7 @@ public class StandInstance {
     }
     
     public void toBuf(FriendlyByteBuf buf) {
-        buf.writeRegistryId(standType);
+        buf.writeRegistryId(standType.getRegistry(), standType);
         
         Set<StandPart> missingParts = EnumSet.complementOf(parts);
         buf.writeVarInt(missingParts.size());

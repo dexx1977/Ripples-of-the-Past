@@ -296,7 +296,7 @@ public class StandEntityTask {
                 
                 task.target.writeToBuf(buf);
                 
-                NetworkUtil.writeCollection(buf, task.taskModifiers, buf::writeRegistryId, false);
+                NetworkUtil.writeCollection(buf, task.taskModifiers, (modifier, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.ACTIONS.getRegistry(), modifier), false);
                 
                 task.action.taskWriteAdditional(task, buf);
             }

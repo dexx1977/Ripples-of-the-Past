@@ -34,7 +34,7 @@ public class StandAssignmentDataPacket {
         @Override
         public void encode(StandAssignmentDataPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeOptional(buf, msg.stands, 
-                    list -> NetworkUtil.writeCollection(buf, list, buf::writeRegistryId, false));
+                    list -> NetworkUtil.writeCollection(buf, list, (value, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.STANDS.getRegistry(), value), false));
         }
 
         @Override

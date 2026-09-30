@@ -194,7 +194,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
             setTarget(((ServerLevel) level).getEntity(targetUUID));
         }
         super.writeSpawnData(buffer);
-        NetworkUtil.writeOptionally(buffer, block, buffer::writeRegistryId);
+        NetworkUtil.writeOptionally(buffer, block, (value, b) -> b.writeRegistryId(net.minecraftforge.registries.ForgeRegistries.BLOCKS, value));
         NetworkUtil.writeOptionally(buffer, homingTarget.map(target -> target.getId()).orElse(null), buffer::writeInt);
     }
 

@@ -237,9 +237,9 @@ public class StandActionLearningProgress {
         
         
         public void toBuf(FriendlyByteBuf buffer) {
-            buffer.writeRegistryId(action);
+            buffer.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.ACTIONS.getRegistry(), action);
             buffer.writeFloat(points);
-            buffer.writeRegistryId(standType);
+            buffer.writeRegistryId(standType.getRegistry(), standType);
         }
         
         public static StandActionLearningEntry fromBuf(FriendlyByteBuf buffer) {

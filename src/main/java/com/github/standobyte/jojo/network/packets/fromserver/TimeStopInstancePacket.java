@@ -67,7 +67,7 @@ public class TimeStopInstancePacket {
                 buf.writeInt(msg.timeStopperId);
                 buf.writeBoolean(msg.action != null);
                 if (msg.action != null) {
-                    buf.writeRegistryId(msg.action);
+                    buf.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.ACTIONS.getRegistry(), msg.action);
                 }
                 break;
             case SET_TICKS:

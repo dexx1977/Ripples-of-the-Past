@@ -38,7 +38,7 @@ public class TrTypeNonStandPowerPacket {
             boolean noPowerType = msg.powerType == null;
             buf.writeBoolean(noPowerType);
             buf.writeInt(msg.entityId);
-            if (!noPowerType) buf.writeRegistryId(msg.powerType);
+            if (!noPowerType) buf.writeRegistryId(msg.powerType.getRegistry(), msg.powerType);
         }
 
         @Override

@@ -68,7 +68,7 @@ public class TrStandEffectPacket {
                 buf.writeInt(msg.userId);
                 buf.writeInt(msg.effectId);
                 buf.writeInt(msg.targetId);
-                buf.writeRegistryId(msg.effectFactory);
+                buf.writeRegistryId(msg.effectFactory.getRegistry(), msg.effectFactory);
                 buf.writeBoolean(msg.isUser);
                 
                 buf.writeVarInt(msg.effect.tickCount);

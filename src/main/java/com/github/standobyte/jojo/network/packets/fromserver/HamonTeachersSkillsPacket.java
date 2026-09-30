@@ -32,7 +32,7 @@ public class HamonTeachersSkillsPacket {
         public void encode(HamonTeachersSkillsPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.teacherNearby);
             if (msg.teacherNearby) {
-                NetworkUtil.writeCollection(buf, msg.skills, buf::writeRegistryId, false);
+                NetworkUtil.writeCollection(buf, msg.skills, (value, b) -> b.writeRegistryId(com.github.standobyte.jojo.init.power.JojoCustomRegistries.HAMON_SKILLS.getRegistry(), value), false);
             }
         }
 
