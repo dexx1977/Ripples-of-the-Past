@@ -394,7 +394,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
         PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(this, pSound, this.getSoundSource(), pVolume, pPitch);
         if (event.isCanceled() || event.getSound() == null) return;
         pSound = event.getSound();
-        pVolume = event.getVolume();
+        pVolume = event.getOriginalVolume();
         pPitch = event.getPitch();
         this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), pSound, this.getSoundSource(), pVolume, pPitch, false);
     }

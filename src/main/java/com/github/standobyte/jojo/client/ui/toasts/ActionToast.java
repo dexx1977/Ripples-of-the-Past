@@ -55,8 +55,8 @@ public class ActionToast implements Toast {
             GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
-            mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
-            mc.font.draw(matrixStack, description, 30.0F, 18.0F, -16777216);
+            GuiDraw.drawString(matrixStack, mc.font, NAME, 30.0F, 7.0F, -11534256);
+            GuiDraw.drawString(matrixStack, mc.font, description, 30.0F, 18.0F, -16777216);
             matrixStack.pushPose();
             matrixStack.scale(0.5F, 0.5F, 1.0F);
             

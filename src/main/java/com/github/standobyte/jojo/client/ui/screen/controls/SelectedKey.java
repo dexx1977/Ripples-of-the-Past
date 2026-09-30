@@ -31,7 +31,7 @@ public class SelectedKey {
         return getKeybind() == null;
     }
     
-    void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Input keyCode) {
+    void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Key keyCode) {
         if (customActionKeybind != null) {
             customActionKeybind.setKeyModifierAndCode(keyModifier, keyCode);
         }

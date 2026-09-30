@@ -242,7 +242,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         textY += 2;
         for (int i = 0; i < strengthDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, strengthDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, strengthDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
         }
         
         textY += 15;
@@ -252,7 +252,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         textY += 2;
         for (int i = 0; i < controlDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, controlDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, controlDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
         }
         
         textY += 15;
@@ -262,7 +262,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         textY += 2;
         for (int i = 0; i < breathingDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, breathingDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, breathingDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
         }
         
         textY += 11;
@@ -301,20 +301,20 @@ public class HamonStatsTabGui extends HamonTabGui {
         exercises4Y = textY;
         for (int i = 0; i < exercisesDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, exercisesDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, exercisesDescLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
         }
         
         textY += 4;
         if (screen.hamon.breathingCanGoDown(minecraft.player)) {
             for (int i = 0; i < this.breathingDeteriorationLines.size(); i++) {
                 textY += minecraft.font.lineHeight;
-                minecraft.font.draw(matrixStack, breathingDeteriorationLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, minecraft.font, breathingDeteriorationLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
             }
         }
         if (JojoModConfig.getCommonConfigInstance(true).breathingHamonStatGap.get() >= 0) {
             for (int i = 0; i < this.breathingStatGapLines.size(); i++) {
                 textY += minecraft.font.lineHeight;
-                minecraft.font.draw(matrixStack, breathingStatGapLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, minecraft.font, breathingStatGapLines.get(i), (float) textX, (float) textY, 0xFFFFFF);
             }
         }
         

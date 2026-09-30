@@ -49,8 +49,8 @@ public class HamonSkillToast implements Toast {
             GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
-            mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
-            mc.font.draw(matrixStack, description, 30.0F, 18.0F, -16777216);
+            GuiDraw.drawString(matrixStack, mc.font, NAME, 30.0F, 7.0F, -11534256);
+            GuiDraw.drawString(matrixStack, mc.font, description, 30.0F, 18.0F, -16777216);
             AbstractHamonSkill skill = skills.get((int)(delta / Math.max(1L, 5000L / (long)skills.size()) % (long)skills.size()));
             TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
             GuiDraw.bind(textureAtlasSprite.atlas().location());

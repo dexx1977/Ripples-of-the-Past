@@ -296,7 +296,7 @@ public class ClientUtil {
     }
 
     public static void drawCenteredStringNoShadow(PoseStack matrixStack, Font font, Component line, float x, float y, int color) {
-        font.draw(matrixStack, line, x - font.width(line) / 2, y, color);
+        GuiDraw.drawString(matrixStack, font, line, x - font.width(line) / 2, y, color);
     }
     
     public static void drawLines(PoseStack matrixStack, Font font, List<FormattedCharSequence> lines, 
@@ -314,7 +314,7 @@ public class ClientUtil {
                 font.drawShadow(matrixStack, line, lineX, lineY, color);
             }
             else {
-                font.draw(matrixStack, line, lineX, lineY, color);
+                GuiDraw.drawString(matrixStack, font, line, lineX, lineY, color);
             }
         }
     }

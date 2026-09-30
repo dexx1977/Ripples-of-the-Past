@@ -384,7 +384,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
             if (cassetteItem.hasCustomHoverName()) {
                 Component cassetteName = cassetteItem.getHoverName();
                 FormattedCharSequence reorderingProc = cassetteName.getVisualOrderText();
-                font.draw(matrixStack, reorderingProc, 110 - font.width(reorderingProc) / 2, 66, 0x404040);
+                GuiDraw.drawString(matrixStack, font, reorderingProc, 110 - font.width(reorderingProc) / 2, 66, 0x404040);
             }
             
             if (tracksToShow != null && !tracksToShow.isEmpty()) {
@@ -402,7 +402,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                         trackName.withStyle(ChatFormatting.UNDERLINE);
                     }
 
-                    font.draw(matrixStack, trackName, 42, 13 + i * 9, 0x404040);
+                    GuiDraw.drawString(matrixStack, font, trackName, 42, 13 + i * 9, 0x404040);
                     i++;
                 }
             }

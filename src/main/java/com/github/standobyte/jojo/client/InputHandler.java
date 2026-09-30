@@ -191,7 +191,7 @@ public class InputHandler {
             }
 
             @Override
-            public void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Input keyCode) {
+            public void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Key keyCode) {
                 if (!keyCode.equals(this.getKey()) || !keyCode.equals(this.getDefaultKey())) {
                     ClientModSettings.getInstance().editSettings(settings -> settings.poseOnLmbRmb = false);
                 }
@@ -199,7 +199,7 @@ public class InputHandler {
             }
             
             @Override
-            public void setKey(InputConstants.Input pInput) {
+            public void setKey(InputConstants.Key pInput) {
                 if (wasJustReset) {
                     wasJustReset = false;
                 }
@@ -1120,8 +1120,8 @@ public class InputHandler {
     }
     
     private boolean mouseButtonsSwapped = false;
-    private InputConstants.Input lmbKey;
-    private InputConstants.Input rmbKey;
+    private InputConstants.Key lmbKey;
+    private InputConstants.Key rmbKey;
     
     public void mouseButtonsInvertTick() {
         if (!mouseButtonsSwapped) {

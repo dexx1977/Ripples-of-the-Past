@@ -97,15 +97,19 @@ Compilation is the current gate; the counts below are javac errors from
 | Materials/blocks/tool tags and small API changes | 5,540 |
 | Model layer rebuilt on the 1.20.1 geometry API | 3,546 |
 | Client registration, widgets, render state calls | 3,181 |
+| GUI/HUD drawing through GuiGraphics (GuiDraw), tooltips | 2,747 |
+| Creative tab on the 1.20.1 builder API | 2,719 |
+| Small API batch (input keys, sound events, item RNG, font draws) | 2,642 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets.
 
 Known remaining work, roughly in the order it should be tackled:
 
-1. GUI/HUD drawing: `AbstractGui` is gone, drawing goes through `GuiGraphics`
-   (blit/fill/drawString and the tooltip calls), and the HUD/screen code passes
-   `PoseStack` today. This is the largest remaining cluster (~700 errors).
+1. HUD overlays: `RenderGameOverlayEvent` became `RegisterGuiOverlaysEvent` plus
+   `RenderGuiOverlayEvent`, so the mod's overlay handlers (actions HUD, stand
+   effects instead of the potion icons, multi-line overlay message) still have to
+   be registered and their signatures converted.
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).

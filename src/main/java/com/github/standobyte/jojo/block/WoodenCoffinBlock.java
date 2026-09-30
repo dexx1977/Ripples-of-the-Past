@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.block;
 
 import static net.minecraft.block.BedBlock.OCCUPIED;
-import static net.minecraft.block.BedBlock.PART;
+import static net.minecraft.world.level.block.BedBlock.PART;
 
 import java.util.Optional;
 import java.util.Random;

@@ -39,7 +39,7 @@ public class ShortKeybindTextComponent extends Component {
         return () -> key.getKeyModifier().getCombinedName(key.getKey(), () -> getDisplayName(key.getKey()));
     }
     
-    protected Component getDisplayName(InputConstants.Input input) {
+    protected Component getDisplayName(InputConstants.Key input) {
         if (SHORT_NAMES.containsKey(input.getName())) {
 //            return SHORT_NAMES.get(input.getName());
         }

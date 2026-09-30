@@ -20,7 +20,7 @@ import net.minecraftforge.client.settings.KeyModifier;
 public class ActionKeybindEntry {
     private ResourceLocation actionId;
     private KeyModifier keyModifier;
-    private InputConstants.Input keyCode;
+    private InputConstants.Key keyCode;
     
     private OnKeyPress onKeyPress = OnKeyPress.PERFORM;
     private KeyActiveType hudInteraction = KeyActiveType.INSIDE_HUD;
@@ -145,7 +145,7 @@ public class ActionKeybindEntry {
         return keybind;
     }
     
-    public void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Input keyCode) {
+    public void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Key keyCode) {
         this.keyModifier = keyModifier;
         this.keyCode = keyCode;
         keybind.setKeyModifierAndCode(keyModifier, keyCode);
@@ -183,7 +183,7 @@ public class ActionKeybindEntry {
         return createNewKey(modifier, inputType.getOrCreate(key));
     }
     
-    static KeyMapping createNewKey(KeyModifier modifier, InputConstants.Input keyCode) {
+    static KeyMapping createNewKey(KeyModifier modifier, InputConstants.Key keyCode) {
         KeyMapping keyBinding = new KeyMapping(
                 JojoMod.MOD_ID + ".key.action." + String.valueOf(KEY_ID.getAndIncrement()), 
                 QuickAccessKeyConflictContext.INSTANCE, keyCode, 

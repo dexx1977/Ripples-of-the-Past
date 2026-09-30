@@ -1316,7 +1316,7 @@ public class GameplayEventHandler {
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
-        volume = event.getVolume();
+        volume = event.getOriginalVolume();
         player.connection.send(new ClientboundSoundPacket(sound, category, player.getX(), player.getY(), player.getZ(), volume, pitch));
     }
     

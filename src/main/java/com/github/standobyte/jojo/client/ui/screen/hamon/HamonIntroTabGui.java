@@ -81,7 +81,7 @@ public class HamonIntroTabGui extends HamonTabGui {
         textY += 2;
         for (int i = 0; i < aboutText.size(); i++) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, aboutText.get(i), (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, aboutText.get(i), (float) textX, (float) textY, 0xFFFFFF);
         }
         
         textY += 15;
@@ -90,47 +90,47 @@ public class HamonIntroTabGui extends HamonTabGui {
         textY += 2;
         for (FormattedCharSequence line : breathTextBar) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
         }
         y1 = textY + 11;
         
         textY += 24;
         for (FormattedCharSequence line : breathTextEnergy) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
         }
         
         for (FormattedCharSequence line : breathTextAbility) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
         }
         y2 = textY + 36;
         
         textY += 49;
         for (FormattedCharSequence line : breathTextStabilityTitle) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, line, (float) textX + 14, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX + 14, (float) textY, 0xFFFFFF);
         }
         breathStabilityInfoToggle.getWidgetExtension().setY(screen.windowPosY() + textY + 15 - intScrollY);
         if (breathStabilityInfoToggle.getState()) {
             textY += 3;
             for (FormattedCharSequence line : breathTextStability) {
                 textY += minecraft.font.lineHeight;
-                minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
             }
             y3 = textY + 12;
             
             textY += 14;
             for (FormattedCharSequence line : breathTextStability2) {
                 textY += minecraft.font.lineHeight;
-                minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
             }
         }
 
         textY += 15;
         for (FormattedCharSequence line : statsTransitionText) {
             textY += minecraft.font.lineHeight;
-            minecraft.font.draw(matrixStack, line, (float) textX, (float) textY, 0xFFFFFF);
+            GuiDraw.drawString(matrixStack, minecraft.font, line, (float) textX, (float) textY, 0xFFFFFF);
         }
         
         setMaxY(textY + 15 - intScrollY);

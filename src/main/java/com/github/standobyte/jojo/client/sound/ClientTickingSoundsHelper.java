@@ -58,7 +58,7 @@ public abstract class ClientTickingSoundsHelper {
         }
         soundEvent = event.getSound();
         category = event.getCategory();
-        volume = event.getVolume();
+        volume = event.getOriginalVolume();
         pitch = event.getPitch();
 
         SoundInstance sound = new EntityBoundSoundInstance(soundEvent, category, volume, pitch, entity);
@@ -101,7 +101,7 @@ public abstract class ClientTickingSoundsHelper {
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
-        volume = event.getVolume();
+        volume = event.getOriginalVolume();
         pitch = event.getPitch();
         
         SoundInstance soundPlayed = new StoppableEntityTickableSound<StandEntity>(sound, category, volume, pitch, looping, stand, 
@@ -120,7 +120,7 @@ public abstract class ClientTickingSoundsHelper {
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
-        volume = event.getVolume();
+        volume = event.getOriginalVolume();
         pitch = event.getPitch();
         
         StandCrySoundHandler.create(category, volume, pitch, false, stand, 
@@ -142,7 +142,7 @@ public abstract class ClientTickingSoundsHelper {
                 if (event.isCanceled() || event.getSound() == null) return;
                 sound = event.getSound();
                 category = event.getCategory();
-                volume = event.getVolume();
+                volume = event.getOriginalVolume();
                 pitch = event.getPitch();
 
                 mc.getSoundManager().play(new StandUnsummonTickableSound(sound, category, volume, pitch, user, stand));
@@ -161,7 +161,7 @@ public abstract class ClientTickingSoundsHelper {
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
-        volume = event.getVolume();
+        volume = event.getOriginalVolume();
         mc.getSoundManager().play(new EntityBoundSoundInstance(sound, category, volume, pitch, entity));
     }
     

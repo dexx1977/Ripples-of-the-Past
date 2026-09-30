@@ -269,7 +269,7 @@ public class StandStatsRenderer {
             for (int i = 1; i < 6; i++) {
                 if (STAT_LETTERS.size() <= i) break;
                 String letter = STAT_LETTERS.get(i);
-                mc.font.draw(matrixStack, Component.literal(letter), 
+                GuiDraw.drawString(matrixStack, mc.font, Component.literal(letter), 
                         3.5f, -18.5f - (i - 1) * 9f, 
                         ClientUtil.addAlpha(invertBnW ? 0xFFFFFF : 0x000000, bordersAlpha));
             }

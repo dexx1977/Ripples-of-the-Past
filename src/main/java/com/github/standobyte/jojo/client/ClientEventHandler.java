@@ -1104,17 +1104,17 @@ public class ClientEventHandler {
         float arrowXpNumX = xpNumX + font.width(xpLevels);
         float numberY = screenHeight - 31 - 4;
         
-        font.draw(matrixStack, xpLevels, xpNumX + 1, numberY, 0);
-        font.draw(matrixStack, xpLevels, xpNumX - 1, numberY, 0);
-        font.draw(matrixStack, xpLevels, xpNumX, numberY + 1, 0);
-        font.draw(matrixStack, xpLevels, xpNumX, numberY - 1, 0);
-        font.draw(matrixStack, xpLevels, xpNumX, numberY, 0x80FF20);
+        GuiDraw.drawString(matrixStack, font, xpLevels, xpNumX + 1, numberY, 0);
+        GuiDraw.drawString(matrixStack, font, xpLevels, xpNumX - 1, numberY, 0);
+        GuiDraw.drawString(matrixStack, font, xpLevels, xpNumX, numberY + 1, 0);
+        GuiDraw.drawString(matrixStack, font, xpLevels, xpNumX, numberY - 1, 0);
+        GuiDraw.drawString(matrixStack, font, xpLevels, xpNumX, numberY, 0x80FF20);
         
-        font.draw(matrixStack, arrowLevels, arrowXpNumX + 1, numberY, 0);
-        font.draw(matrixStack, arrowLevels, arrowXpNumX - 1, numberY, 0);
-        font.draw(matrixStack, arrowLevels, arrowXpNumX, numberY + 1, 0);
-        font.draw(matrixStack, arrowLevels, arrowXpNumX, numberY - 1, 0);
-        font.draw(matrixStack, arrowLevels, arrowXpNumX, numberY, 0xFFD820);
+        GuiDraw.drawString(matrixStack, font, arrowLevels, arrowXpNumX + 1, numberY, 0);
+        GuiDraw.drawString(matrixStack, font, arrowLevels, arrowXpNumX - 1, numberY, 0);
+        GuiDraw.drawString(matrixStack, font, arrowLevels, arrowXpNumX, numberY + 1, 0);
+        GuiDraw.drawString(matrixStack, font, arrowLevels, arrowXpNumX, numberY - 1, 0);
+        GuiDraw.drawString(matrixStack, font, arrowLevels, arrowXpNumX, numberY, 0xFFD820);
         
         mc.getProfiler().pop();
         
@@ -1170,7 +1170,7 @@ public class ClientEventHandler {
                     Component line = multiLineOverlayMessage.get(i);
                     int lineWidth = font.width(line);
                     ClientUtil.drawBackdrop(matrixStack, -font.width(line) / 2, -4, lineWidth, 1 - opacity);
-                    font.draw(matrixStack, line.getVisualOrderText(), -font.width(line) / 2, -4, color | (opacity << 24));
+                    GuiDraw.drawString(matrixStack, font, line.getVisualOrderText(), -font.width(line) / 2, -4, color | (opacity << 24));
                     RenderSystem.translatef(0, -13, 0);
                 }
                 RenderSystem.disableBlend();

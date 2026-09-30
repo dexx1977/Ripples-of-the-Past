@@ -46,11 +46,11 @@ public class MetEntityTypeToast implements Toast {
             GuiDraw.bind(TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
-            mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -0xAFFFB0);
+            GuiDraw.drawString(matrixStack, mc.font, NAME, 30.0F, 7.0F, -0xAFFFB0);
             
             EntityType<?> entityType = entityTypes.get((int)(delta / Math.max(1L, 5000L / (long)entityTypes.size()) % (long)entityTypes.size()));
             Component description = entityType.getDescription();
-            mc.font.draw(matrixStack, description, 30.0F, 18.0F, -0x1000000);
+            GuiDraw.drawString(matrixStack, mc.font, description, 30.0F, 18.0F, -0x1000000);
             EntityTypeIcon.renderIcon(entityType, matrixStack, 8, 8);
 
             matrixStack.pushPose();

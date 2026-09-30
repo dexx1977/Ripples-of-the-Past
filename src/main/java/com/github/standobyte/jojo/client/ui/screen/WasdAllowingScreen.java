@@ -94,7 +94,7 @@ public class WasdAllowingScreen extends Screen {
     public void clickKey(Minecraft mc, int key, int scanCode, int action, int modifiers, KeyBindingMap keyBindingMap) {
         if (action == GLFW.GLFW_RELEASE || !acceptsKeyInput()) return;
         
-        InputConstants.Input inputmappings$input = InputConstants.getKey(key, scanCode);
+        InputConstants.Key inputmappings$input = InputConstants.getKey(key, scanCode);
         
         for (KeyMapping keybinding : keyBindingMap.lookupAll(inputmappings$input)) {
             if (keybinding != null) {

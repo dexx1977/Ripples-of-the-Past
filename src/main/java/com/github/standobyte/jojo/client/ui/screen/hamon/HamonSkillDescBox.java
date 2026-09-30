@@ -117,7 +117,7 @@ public class HamonSkillDescBox {
         for (int i = 0; i < skillDesc.size(); i++) {
             float lineY = this.y + y + EDGE_TEXT_OFFSET - yTextScroll + i * font.lineHeight;
             if (lineY + font.lineHeight >= this.y + y && lineY <= this.y + y + HEIGHT) {
-                font.draw(matrixStack, skillDesc.get(i), this.x + x + EDGE_TEXT_OFFSET, lineY, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, font, skillDesc.get(i), this.x + x + EDGE_TEXT_OFFSET, lineY, 0xFFFFFF);
             }
         }
         

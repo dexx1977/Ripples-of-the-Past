@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class EntityTypeIcon {
                 }
 
                 RenderSystem.disableDepthTest();
-                font.draw(matrixStack, firstLetter, x + (16 - widthNext) / 2, y + (16 - font.lineHeight + 1) / 2, 0xFFFFFF);
+                GuiDraw.drawString(matrixStack, font, firstLetter, x + (16 - widthNext) / 2, y + (16 - font.lineHeight + 1) / 2, 0xFFFFFF);
                 RenderSystem.enableDepthTest();
                 RenderSystem.enableBlend();
             }

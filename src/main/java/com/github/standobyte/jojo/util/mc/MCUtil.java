@@ -860,7 +860,7 @@ public class MCUtil {
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
             category = event.getCategory();
-            volume = event.getVolume();
+            volume = event.getOriginalVolume();
             pitch = event.getPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
@@ -884,7 +884,7 @@ public class MCUtil {
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
             category = event.getCategory();
-            volume = event.getVolume();
+            volume = event.getOriginalVolume();
             pitch = event.getPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     entity.getX(), entity.getY(), entity.getZ(), volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.controls.vanilla;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -70,7 +71,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
     public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         boolean isSelected = getSelectedKey.get() == this.key;
-        mc.font.draw(pMatrixStack, name, 
+        GuiDraw.drawString(pMatrixStack, mc.font, name, 
                 (float)(pLeft + 90 - maxNameWidth), (float)(pTop + pHeight / 2 - 9 / 2), 
                 0xFFFFFF);
         this.resetButton.x = pLeft + 190 + 20;

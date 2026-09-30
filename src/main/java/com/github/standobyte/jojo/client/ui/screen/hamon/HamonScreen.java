@@ -332,7 +332,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
                 mouseX, mouseY, this, HAMON_CATEGORY);
         RenderSystem.disableBlend();
         if (selectedTab != null) {
-            font.draw(matrixStack, selectedTab.getTitle(), windowX + 8, windowY + 6, 0x404040);
+            GuiDraw.drawString(matrixStack, font, selectedTab.getTitle(), windowX + 8, windowY + 6, 0x404040);
         }
     }
 
