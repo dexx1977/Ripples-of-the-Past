@@ -126,7 +126,12 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-3. TemporaryDimensionEffects: 1.16.5 stored sky/cloud/weather renderers on the
+3. Mob kill hook: 1.16.5 overrode `Mob.killed(ServerLevel, LivingEntity)` (and
+   `awardKillScore`) to react to a mob killing something. Neither method exists in
+   the 1.20.1 classes (checked in the mapped jar), so those overrides have to move to
+   a hook that does exist - a `LivingDeathEvent` listener or overrides of the attack
+   path - which is a behavioural decision rather than a rename.
+4. TemporaryDimensionEffects: 1.16.5 stored sky/cloud/weather renderers on the
    dimension effects object through Forge interfaces. Those interfaces are gone and
    1.20.1's DimensionSpecialEffects is a plain data holder (the drawing lives in
    LevelRenderer and is hooked through RenderLevelStageEvent), and the effects object
