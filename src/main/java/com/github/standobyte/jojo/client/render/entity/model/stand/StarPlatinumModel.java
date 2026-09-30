@@ -7,7 +7,7 @@ import java.util.List;
 import com.github.standobyte.jojo.client.render.entity.pose.XRotationModelRenderer;
 import com.github.standobyte.jojo.entity.stand.stands.StarPlatinumEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.util.Mth;
 
 //Made with Blockbench 4.8.3

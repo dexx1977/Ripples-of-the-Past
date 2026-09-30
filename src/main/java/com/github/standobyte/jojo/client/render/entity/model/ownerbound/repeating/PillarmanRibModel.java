@@ -2,12 +2,17 @@ package com.github.standobyte.jojo.client.render.entity.model.ownerbound.repeati
 
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.PillarmanRibEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 // Made with Blockbench 3.9.2
 
 
 public class PillarmanRibModel extends RepeatingModel<PillarmanRibEntity> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
 	private final ModelPart finger;
     private final ModelPart fingerExtending;
 

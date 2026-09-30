@@ -23,7 +23,7 @@ import com.google.gson.JsonParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Direction.Axis;
@@ -31,6 +31,11 @@ import org.joml.Vector3f;
 
 @SuppressWarnings("unused")
 public class ParseGeckoModel {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ModelParsed.UV.class, ModelParsed.UV.DESERIALIZER)
             .create();

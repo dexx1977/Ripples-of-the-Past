@@ -28,7 +28,7 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;

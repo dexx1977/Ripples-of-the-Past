@@ -46,7 +46,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.resources.model.Material;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.KeyMapping;

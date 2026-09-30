@@ -6,12 +6,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 // Made with Blockbench 3.9.2
 
 
 public class HamonCutterModel extends EntityModel<HamonCutterEntity> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private final ModelPart cutter;
 
     public HamonCutterModel() {

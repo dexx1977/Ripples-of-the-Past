@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
 @Deprecated

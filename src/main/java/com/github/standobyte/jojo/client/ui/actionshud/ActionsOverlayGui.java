@@ -93,6 +93,11 @@ import com.mojang.math.Axis;
 
 @SuppressWarnings("deprecation")
 public class ActionsOverlayGui extends AbstractGui {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     public static final ResourceLocation OVERLAY_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/overlay.png");
     protected static final ResourceLocation RADIAL_INDICATOR = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/radial_indicator.png");
     

@@ -5,7 +5,7 @@ import java.util.Map;
 import com.github.standobyte.jojo.client.render.entity.bb.EntityModelUnbaked;
 
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 /**
  * @deprecated Import the {@link com.github.standobyte.jojo.client.render.entity.bb.BlockbenchStandModelHelper} class instead.

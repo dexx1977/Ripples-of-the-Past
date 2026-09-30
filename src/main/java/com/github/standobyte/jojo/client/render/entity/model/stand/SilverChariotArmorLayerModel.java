@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.model.stand;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 // Made with Blockbench 3.9.2
 

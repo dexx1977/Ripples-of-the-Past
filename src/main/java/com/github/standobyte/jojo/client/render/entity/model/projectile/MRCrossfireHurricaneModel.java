@@ -13,6 +13,11 @@ import net.minecraft.core.Direction;
 
 
 public class MRCrossfireHurricaneModel extends EntityModel<MRCrossfireHurricaneEntity> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private final FlameModelRenderer ankh;
 
     public MRCrossfireHurricaneModel() {

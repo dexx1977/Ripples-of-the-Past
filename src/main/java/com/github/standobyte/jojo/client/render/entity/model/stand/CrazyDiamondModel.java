@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.client.render.entity.pose.anim.PosedActionAnim
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.stands.CrazyDiamondEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 
 // Made with Blockbench 4.1.3

@@ -44,7 +44,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.ArmedModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -341,14 +341,14 @@ public abstract class StandEntityModel<T extends StandEntity> extends AgeableLis
     }
 
     @Override
-    public abstract Iterable<ModelPart> headParts();
+    public abstract Iterable<net.minecraft.client.model.geom.ModelPart> headParts();
     
     @Override
-    public abstract Iterable<ModelPart> bodyParts();
+    public abstract Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts();
     
     public void forEachTopModelPart(Consumer<ModelPart> action) {
-        headParts().forEach(action);
-        bodyParts().forEach(action);
+        headParts().forEach(part -> action.accept((ModelPart) part));
+        bodyParts().forEach(part -> action.accept((ModelPart) part));
     }
     
     

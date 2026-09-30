@@ -52,7 +52,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -99,6 +99,11 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
  * otherwise it will crash on dedicated servers
  */
 public class ClientUtil {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     public static final ResourceLocation ADDITIONAL_UI = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/additional.png");
     public static final int MAX_MODEL_LIGHT = LightTexture.pack(15, 15);
     static boolean canSeeStands;

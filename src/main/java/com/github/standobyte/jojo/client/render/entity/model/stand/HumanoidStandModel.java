@@ -40,7 +40,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -50,6 +50,11 @@ import net.minecraft.world.phys.Vec3;
 
 
 public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<T> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     public ModelPart head;
     public ModelPart headRot;
     public ModelPart body;
@@ -886,12 +891,12 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
 
     @Override
-    public Iterable<ModelPart> headParts() {
+    public Iterable<net.minecraft.client.model.geom.ModelPart> headParts() {
         return ImmutableList.of(head);
     }
 
     @Override
-    public Iterable<ModelPart> bodyParts() {
+    public Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return ImmutableList.of(body);
     }
     

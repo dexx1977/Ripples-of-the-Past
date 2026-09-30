@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.entity.model.stand;
 
 import com.github.standobyte.jojo.entity.stand.stands.GoldExperienceEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 public class GoldExperienceModel extends HumanoidStandModel<GoldExperienceEntity> {
     private ModelPart theThing;

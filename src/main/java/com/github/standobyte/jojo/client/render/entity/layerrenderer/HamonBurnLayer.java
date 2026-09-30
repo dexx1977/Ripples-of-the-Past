@@ -30,6 +30,11 @@ import net.minecraft.util.Mth;
 
 public class HamonBurnLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     public HamonBurnLayer(RenderLayerParent<T, M> renderer) {
         super(renderer);
     }

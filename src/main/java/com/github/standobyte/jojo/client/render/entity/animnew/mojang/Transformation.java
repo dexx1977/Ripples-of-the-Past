@@ -5,7 +5,7 @@ import java.util.Arrays;
 import com.github.standobyte.jojo.client.render.entity.animnew.IModelRendererScale;
 import com.github.standobyte.jojo.client.render.entity.animnew.molang.KeyframeWithQuery;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import org.joml.Vector3f;
 
 public class Transformation {

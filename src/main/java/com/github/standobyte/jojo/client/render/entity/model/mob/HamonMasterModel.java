@@ -10,7 +10,7 @@ import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
     private IEntityAnimApplier<HamonMasterEntity, HamonMasterModel> sittingAnim;
@@ -198,7 +198,7 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
     
     
     @Override
-    protected Iterable<ModelPart> bodyParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(leftPants, rightPants, leftSleeve, rightSleeve, jacket));
     }
     

@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.render;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 
 @Deprecated

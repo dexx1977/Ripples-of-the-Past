@@ -4,13 +4,18 @@ import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 import com.github.standobyte.jojo.client.render.block.BlockSprites;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.MRRedBindEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 
 // Made with Blockbench 3.9.2
 
 
 public class MRRedBindModel extends RepeatingModel<MRRedBindEntity> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private final FlameModelRenderer flameRope;
 
     public MRRedBindModel() {

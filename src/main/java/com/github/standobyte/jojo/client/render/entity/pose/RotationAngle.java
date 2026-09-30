@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.entity.pose;
 
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.util.Mth;
 
 public class RotationAngle {

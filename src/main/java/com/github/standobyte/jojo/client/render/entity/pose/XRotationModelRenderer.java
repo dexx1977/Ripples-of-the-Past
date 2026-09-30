@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 @Deprecated
 // This type needs to exist to not break previously made Stand addons

@@ -21,7 +21,7 @@ import com.github.standobyte.jojo.client.render.entity.pose.anim.barrage.StandOn
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.InteractionHand;
 
 // Made with Blockbench 3.9.2

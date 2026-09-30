@@ -5,13 +5,18 @@ import java.util.Map;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 
 @Deprecated
 public class CustomVerticesModelBox extends ModelPart.ModelBox {
     
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private CustomVerticesModelBox(Builder builder, float texWidth, float texHeight, boolean mirror) {
         super(0, 0, 
                 builder.minX, 

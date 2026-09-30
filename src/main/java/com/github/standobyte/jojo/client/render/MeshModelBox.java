@@ -7,7 +7,7 @@ import com.github.standobyte.jojo.client.render.entity.bb.MeshVerticesHelper;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Vertex;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -15,6 +15,11 @@ import org.joml.Vector3f;
 
 public class MeshModelBox extends ModelPart.ModelBox {
     
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private MeshModelBox(Builder builder) {
         super(0, 0, 
                 builder.minX, 

@@ -7,13 +7,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
 
 // Made with Blockbench 3.9.2
 
 
 public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
+
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
 
     public SatiporojaScarfArmorModel(float size) {
         super(size);

@@ -20,7 +20,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ListModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 
 public class ModelCubeWeightedList {
     

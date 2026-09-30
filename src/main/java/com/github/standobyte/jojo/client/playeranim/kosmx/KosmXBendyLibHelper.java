@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.playeranim.kosmx;
 
 import dev.kosmx.playerAnim.impl.IBendHelper;
 import dev.kosmx.playerAnim.impl.animation.BendHelper;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 
 public class KosmXBendyLibHelper {

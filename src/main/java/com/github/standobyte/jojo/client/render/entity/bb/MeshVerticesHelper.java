@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.entity.bb;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import org.joml.Vector3f;
 
 /**

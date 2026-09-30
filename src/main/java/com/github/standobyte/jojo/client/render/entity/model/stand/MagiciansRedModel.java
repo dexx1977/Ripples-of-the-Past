@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3f;
 import com.mojang.math.Axis;
@@ -24,6 +24,11 @@ import com.mojang.math.Axis;
 
 
 public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private ModelPart beakUpper;
     private ModelPart beakLower;
     private ModelPart feather;

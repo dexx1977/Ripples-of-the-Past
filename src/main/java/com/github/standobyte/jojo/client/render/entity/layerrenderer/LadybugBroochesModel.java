@@ -3,10 +3,15 @@ package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
 
 public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<T> {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     public final ModelPart broochRight;
     public final ModelPart broochLeft;
     public final ModelPart broochBottom;
@@ -54,7 +59,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
     }
     
     @Override
-    protected Iterable<ModelPart> bodyParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return ImmutableList.of(body);
     }
 

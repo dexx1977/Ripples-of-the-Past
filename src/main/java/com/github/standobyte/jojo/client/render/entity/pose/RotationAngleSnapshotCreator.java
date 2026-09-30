@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import com.github.standobyte.jojo.client.render.entity.pose.anim.RotationAnglesSnapshot;
 
-import net.minecraft.client.model.geom.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.world.entity.Entity;
 
 public class RotationAngleSnapshotCreator<T extends Entity> {

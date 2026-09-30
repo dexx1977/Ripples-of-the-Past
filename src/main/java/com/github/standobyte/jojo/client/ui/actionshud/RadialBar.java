@@ -13,6 +13,11 @@ import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
 public class RadialBar {
+    // 1.20.1 has no ModelBase, so the texture size the parts are baked
+    // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
+    protected int texWidth = 64;
+    protected int texHeight = 64;
+
     private static final float PI = (float) Math.PI;
 
     // TODO breaks when using non-zero angle0 with fill > 0.5 (not planning to do that anyway, but when i've got nothing else to do might as well fix that)
