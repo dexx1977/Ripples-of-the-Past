@@ -81,6 +81,12 @@ self-contained.
 | 2 | same | `./gradlew runServer` with a temporary smoke data pack | dedicated server | `#minecraft:load` function placed mod blocks and summoned mod entities in the custom dimension, gave mod items, and set a mod block in the overworld: `[ROTP-TEST] start` and `[ROTP-TEST] done` with nothing failing in between |
 | 3 | `87a158318` | `./gradlew runClient --args="--quickPlaySingleplayer porttest"` | client (dev) | Mod loading, registries, texture atlases, armour models, model baking (`ModelEvent.ModifyBakingResult`) and `Sound engine started` all pass; the run then stops in the resource reload with `NoClassDefFoundError: team/unnamed/mocha/runtime/value/Value`, a ForgeGradle dev classpath limitation (the library is on the plain classpath while the mod's dev module is not allowed to read it). The production jar carries the relocated classes, so the shipped mod is unaffected |
 
+Two dev side workarounds were tried and both failed to make the library visible
+to the mod's dev module: keeping it on the Gradle runtime classpath (it is there,
+`dependencies --configuration runtimeClasspath` lists it) and switching it to
+Forge's `jarJar`. The build file was reverted to the shade plus relocate setup,
+which produces a self contained release jar.
+
 The client case 3 is **not** a full client pass: the world was never entered,
 because the resource reload aborts on the dev classpath issue above. The
 recommended way to finish client, singleplayer and multiplayer testing is to drop

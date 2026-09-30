@@ -125,7 +125,9 @@ say [ROTP-TEST] done
 
 客户端在资源重载阶段抛出 `NoClassDefFoundError: team/unnamed/mocha/runtime/value/Value`（`GeckoAnimLoader → MolangInterpreter.init()`）。原因：ForgeGradle 6 的 dev 运行把模组类放进模块层，而 `shade`/`implementation` 里的库只在普通类路径上，模组的 dev 模块读不到它。
 
-产物 jar 已确认**自包含且正确**：`dependency/standobyte/jojo/mocha/runtime/value/Value.class` 等重定位类已打包，模组类引用的是重定位后的包名（`javap` 验证）。因此该问题只影响 dev 运行，不影响发布产物。后续可选方案：用生产 jar 在真实 1.20.1 实例中测试（推荐），或把该库改为 `jarJar`/加入 dev 模块路径。
+产物 jar 已确认**自包含且正确**：`dependency/standobyte/jojo/mocha/runtime/value/Value.class` 等重定位类已打包，模组类引用的是重定位后的包名（`javap` 验证）。因此该问题只影响 dev 运行，不影响发布产物。已尝试的两种 dev 侧方案均无效：让库留在 Gradle 运行时类路径（`dependencies --configuration runtimeClasspath` 确实列出了它）、以及改用 Forge 的 `jarJar`。构建文件已回退到 shade + relocate 方案，产物 jar 自包含（重定位类 103 个）。
+
+后续可选方案：**用生产 jar 在真实 1.20.1 实例中测试（推荐）**；或在 dev 中把该库放进模块层（如给 modLocator 添加 library jar、或调整 ForgeGradle 的运行类路径）。
 
 ## 7. 本轮修复的运行时缺陷（编译通过后暴露）
 
