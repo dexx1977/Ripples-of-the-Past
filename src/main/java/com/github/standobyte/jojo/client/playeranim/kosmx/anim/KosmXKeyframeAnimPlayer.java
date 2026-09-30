@@ -375,7 +375,7 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
         public float getValueAtCurrentTick(float currentValue, 
                 int currentTick, float tickDelta, int beginTick, int returnToTick, int endTick, 
                 int stopTick, boolean isLoopStarted, boolean isInfinite, boolean isEasingBefore) {
-            return dev.kosmx.playerAnim.core.util.Mth.clampToRadian(super.getValueAtCurrentTick(dev.kosmx.playerAnim.core.util.Mth.clampToRadian(currentValue), 
+            return dev.kosmx.playerAnim.core.util.MathHelper.clampToRadian(super.getValueAtCurrentTick(dev.kosmx.playerAnim.core.util.MathHelper.clampToRadian(currentValue), 
                     currentTick, tickDelta, beginTick, returnToTick, endTick, 
                     stopTick, isLoopStarted, isInfinite, isEasingBefore));
         }

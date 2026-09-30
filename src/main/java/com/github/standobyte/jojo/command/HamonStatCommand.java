@@ -107,12 +107,14 @@ public class HamonStatCommand {
             }
         }
         else {
+            // the 1.20.1 sendSuccess takes a supplier, so the result count has to be final
+            final int successCount = success;
             if (targets.size() == 1) {
                 source.sendSuccess(() -> Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.single" : "commands.hamon.control." + msg + "success.single", 
                         level, targets.iterator().next().getDisplayName()), true);
             } else {
                 source.sendSuccess(() -> Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.multiple" : "commands.hamon.control." + msg + "success.multiple", 
-                        level, success), true);
+                        level, successCount), true);
             }
             return success;
         }
@@ -138,10 +140,11 @@ public class HamonStatCommand {
             }
         }
         else {
+            final int successCount = success;
             if (targets.size() == 1) {
                 source.sendSuccess(() -> Component.translatable("commands.hamon.breathing." + msg + "success.single", level, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(() -> Component.translatable("commands.hamon.breathing." + msg + "success.multiple", level, success), true);
+                source.sendSuccess(() -> Component.translatable("commands.hamon.breathing." + msg + "success.multiple", level, successCount), true);
             }
             return success;
         }

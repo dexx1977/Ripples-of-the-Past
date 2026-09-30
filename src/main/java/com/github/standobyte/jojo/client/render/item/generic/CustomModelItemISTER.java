@@ -92,11 +92,8 @@ public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLev
         } else {
             cull = true;
         }
-        if (itemModel.isLayered()) {
-            ForgeHooksClient.drawItemLayered(itemRenderer, itemModel, itemStack, matrixStack, buffer, combinedLight, combinedOverlay, cull);
-        }
-        else {
-            RenderType renderType = ItemBlockRenderTypes.getRenderType(itemStack, cull);
+        // 1.20.1 renders a model once per render type, which covers layered models too
+        for (RenderType renderType : itemModel.getRenderTypes(itemStack, cull)) {
             VertexConsumer vertexBuilder;
             if (cull) {
                 vertexBuilder = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, itemStack.hasFoil());

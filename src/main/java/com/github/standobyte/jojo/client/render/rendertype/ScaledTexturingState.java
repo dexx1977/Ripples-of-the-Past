@@ -15,6 +15,8 @@ public class ScaledTexturingState extends RenderStateShard.TexturingStateShard {
         super("jojo_scaled_texturing", 
                 () -> RenderSystem.setTextureMatrix(new org.joml.Matrix4f().scale(xScale, yScale, 1.0F)), 
                 RenderSystem::resetTextureMatrix);
+        this.xScale = xScale;
+        this.yScale = yScale;
     }
 
     public boolean equals(Object obj) {

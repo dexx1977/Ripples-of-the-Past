@@ -27,7 +27,6 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
     private final LivingEntityRenderer<T, M> renderer;
     private final net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     private ModelCubeWeightedList modelCubes;
-    private final EntityRendererProvider.Context context;
     private Entity arrow;
     private boolean slime;
     

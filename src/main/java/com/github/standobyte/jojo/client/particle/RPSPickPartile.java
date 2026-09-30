@@ -10,7 +10,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 public class RPSPickPartile extends BaseAshSmokeParticle {
     
     protected RPSPickPartile(ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, float size, SpriteSet sprite) {
-        super(world, x, y, z, 0, 0, 0, xSpeed, ySpeed, zSpeed, size, sprite, 1, 5, 0.004D, false);
+        super(world, x, y, z, 0, 0, 0, xSpeed, ySpeed, zSpeed, size, sprite, 1, 5, 0.004F, false);
         this.rCol = 1;
         this.gCol = 1;
         this.bCol = 1;

@@ -81,9 +81,11 @@ public class StandCommand {
                         standType.getName(), targets.iterator().next().getDisplayName()), true);
             }
             else {
+                // the 1.20.1 sendSuccess takes a supplier, so the count has to be final
+                final int successCount = i;
                 source.sendSuccess(() -> Component.translatable(
                         "commands.stand.give.success.multiple", 
-                        standType.getName(), i), true);
+                        standType.getName(), successCount), true);
             }
             return i;
         }
@@ -132,7 +134,8 @@ public class StandCommand {
                         targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(() -> Component.translatable("commands.stand.give.success.multiple.random", i), true);
+                final int successCount = i;
+                source.sendSuccess(() -> Component.translatable("commands.stand.give.success.multiple.random", successCount), true);
             }
         }
         return i;
@@ -167,9 +170,11 @@ public class StandCommand {
                     message = Component.translatable("commands.stand.remove.success.single.no_stand", 
                             targets.iterator().next().getDisplayName());
                 }
-                source.sendSuccess(() -> message, true);
+                final Component removeMessage = message;
+                source.sendSuccess(() -> removeMessage, true);
             } else {
-                source.sendSuccess(() -> Component.translatable("commands.stand.remove.success.multiple", i), true);
+                final int successCount = i;
+                source.sendSuccess(() -> Component.translatable("commands.stand.remove.success.multiple", successCount), true);
             }
             return i;
         }

@@ -16,7 +16,7 @@ public class HamonSparkEntityOffsetParticle extends EntityOffsetParticle {
         this.yd = (Math.random() * 2.0 - 1.0) * 0.4;
         this.zd = (Math.random() * 2.0 - 1.0) * 0.4;
         double f = (Math.random() + Math.random() + 1.0) * 0.15;
-        double f1 = Mth.sqrt(this.xd * this.xd + this.yd * this.yd + this.zd * this.zd);
+        double f1 = Mth.sqrt((float) (this.xd * this.xd + this.yd * this.yd + this.zd * this.zd));
         this.xd = this.xd / f1 * f * 0.4;
         this.yd = this.yd / f1 * f * 0.4 + 0.1;
         this.zd = this.zd / f1 * f * 0.4;

@@ -37,7 +37,7 @@ public class TommyGunISTER extends CustomModelItemISTER<TommyGunModel> {
         case GUI:
         case GROUND:
         case FIXED:
-            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
+            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null, 0);
             CustomModelItemISTER.renderItemNormally(matrixStack, itemStack, transformType, buffer, light, overlay, model);
             break;
         default:

@@ -91,8 +91,10 @@ public class StandDiscGiveCommand {
                 source.sendSuccess(() -> Component.translatable("commands.give.success.single", 1, 
                         Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), targets.iterator().next().getDisplayName()), true);
             } else {
+                // the 1.20.1 sendSuccess takes a supplier, so the count has to be final
+                final int successCount = i;
                 source.sendSuccess(() -> Component.translatable("commands.give.success.single", 1, 
-                        Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), i), true);
+                        Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), successCount), true);
             }
         }
         

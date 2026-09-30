@@ -65,9 +65,11 @@ public class JojoPowerCommand {
                         Component.translatable(powerType.getTranslationKey()), targets.iterator().next().getDisplayName()), true);
             }
             else {
+                // the 1.20.1 sendSuccess takes a supplier, so the count has to be final
+                final int successCount = i;
                 source.sendSuccess(() -> Component.translatable(
                         "commands.non_stand.give.success.multiple", 
-                        Component.translatable(powerType.getTranslationKey()), i), true);
+                        Component.translatable(powerType.getTranslationKey()), successCount), true);
             }
             return i;
         }
@@ -94,10 +96,13 @@ public class JojoPowerCommand {
             }
         } else {
             if (targets.size() == 1) {
+                // the 1.20.1 sendSuccess takes a supplier, so the captured values have to be final
+                final NonStandPowerType<?> removedPowerFinal = removedPower;
                 source.sendSuccess(() -> Component.translatable("commands.non_stand.remove.success.single", 
-                        removedPower != null ? Component.translatable(removedPower.getTranslationKey()) : "", targets.iterator().next().getDisplayName()), true);
+                        removedPowerFinal != null ? Component.translatable(removedPowerFinal.getTranslationKey()) : "", targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(() -> Component.translatable("commands.non_stand.remove.success.multiple", i), true);
+                final int successCount = i;
+                source.sendSuccess(() -> Component.translatable("commands.non_stand.remove.success.multiple", successCount), true);
             }
             return i;
         }

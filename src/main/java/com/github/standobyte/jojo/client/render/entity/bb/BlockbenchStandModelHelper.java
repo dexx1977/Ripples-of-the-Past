@@ -116,10 +116,11 @@ public class BlockbenchStandModelHelper {
         }
         
         for (ModelPart modelPart : editedParts) {
-            java.util.Collection<ModelPart> children = modelPart.children.values();
+            // 1.20.1 keeps the children in a named map, so the entries are replaced in place
+            java.util.Map<String, net.minecraft.client.model.geom.ModelPart> children = modelPart.children;
             if (!children.isEmpty()) {
                 remapParents.forEach((oldChild, newChild) -> {
-                    Collections.replaceAll(children, oldChild, newChild);
+                    children.replaceAll((name, child) -> child == oldChild ? newChild : child);
                 });
             }
         }

@@ -265,11 +265,8 @@ public class ClientUtil {
     }
     
     public static boolean resourceExists(ResourceLocation location) {
-        try {
-            return Minecraft.getInstance().getResourceManager().getResource(location) != null;
-        } catch (IOException e) {
-            return false;
-        }
+        // 1.20.1 returns an Optional instead of throwing
+        return Minecraft.getInstance().getResourceManager().getResource(location).isPresent();
     }
     
     public static <T extends Entity> EntityRendererProvider<T> logException(EntityRendererProvider<T> rendererProvider) {

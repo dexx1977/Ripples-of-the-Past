@@ -50,7 +50,9 @@ public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEnt
     @Nullable
     public static ResourceLocation getBlockTexture(BlockState blockState) {
         BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
-        List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, RANDOM, ModelData.EMPTY);
+        // the Forge overload also takes the render type to pick the quads from
+        List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, RANDOM, ModelData.EMPTY, 
+                net.minecraft.client.renderer.ItemBlockRenderTypes.getChunkRenderType(blockState));
         if (!quads.isEmpty()) {
             TextureAtlasSprite sprite = quads.get(0).getSprite();
             return getSpriteTexture(sprite).orElse(null);

@@ -71,7 +71,7 @@ public class StandControlMouseHelper extends MouseHandler {
             }
             
             resetMouseDelta();
-            double yInvert = minecraft.options.invertYMouse ? -1 : 1;
+            double yInvert = minecraft.options.invertYMouse().get() ? -1 : 1;
 
             minecraft.getTutorial().onMouse(velocityX, velocityY);
             standEntity.turn(velocityX, velocityY * yInvert);

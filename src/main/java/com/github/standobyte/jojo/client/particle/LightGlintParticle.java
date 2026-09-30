@@ -20,7 +20,7 @@ public class LightGlintParticle extends BaseAshSmokeParticle {
     
     protected LightGlintParticle(ClientLevel world, double x, double y, double z, 
             double xda, double yda, double zda, SpriteSet sprites) {
-        super(world, x, y, z, 0.1F, 0.1F, 0.1F, xda, yda, zda, 1.2F + 0.6F * RANDOM.nextFloat(), sprites, 0.3F, 8, 0.004D, false);
+        super(world, x, y, z, 0.1F, 0.1F, 0.1F, xda, yda, zda, 1.2F + 0.6F * RANDOM.nextFloat(), sprites, 0.3F, 8, 0.004F, false);
         this.rCol = 1;
         this.gCol = 1;
         this.bCol = 1;

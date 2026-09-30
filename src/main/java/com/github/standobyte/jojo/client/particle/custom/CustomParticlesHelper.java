@@ -248,7 +248,7 @@ public abstract class CustomParticlesHelper {
     }
     
     private static ParticleStatus calculateParticleLevel(Minecraft mc, ClientLevel world, boolean overrideLimiter) {
-        ParticleStatus status = mc.options.particles;
+        ParticleStatus status = mc.options.particles().get();
         if (overrideLimiter && status == ParticleStatus.MINIMAL && world.random.nextInt(10) == 0) {
             status = ParticleStatus.DECREASED;
         }

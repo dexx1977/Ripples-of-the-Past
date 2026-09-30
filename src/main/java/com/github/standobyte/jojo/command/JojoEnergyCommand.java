@@ -108,8 +108,10 @@ public class JojoEnergyCommand {
                         "commands.jojoenergy.set.success.single." + numType.toString().toLowerCase(), value, targets.iterator().next().getDisplayName()), true);
             }
             else {
+                // the 1.20.1 sendSuccess takes a supplier, so the count has to be final
+                final int successCount = i;
                 source.sendSuccess(() -> Component.translatable(
-                        "commands.jojoenergy.set.success.multiple." + numType.toString().toLowerCase(), value, i), true);
+                        "commands.jojoenergy.set.success.multiple." + numType.toString().toLowerCase(), value, successCount), true);
             }
             return i;
         }

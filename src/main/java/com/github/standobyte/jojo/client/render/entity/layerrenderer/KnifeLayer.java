@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.entity.itemprojectile.KnifeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,13 +14,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
 
 public class KnifeLayer<T extends LivingEntity, M extends PlayerModel<T>> extends StuckInBodyLayer<T, M> {
-    private final EntityRendererProvider.Context context;
-    private final net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher;
+    // a render layer has no dispatcher of its own
+    private final net.minecraft.client.renderer.entity.EntityRenderDispatcher dispatcher = 
+            net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     private KnifeEntity knife;
 
     public KnifeLayer(LivingEntityRenderer<T, M> renderer) {
         super(renderer);
-        this.dispatcher = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher();
     }
 
     @Override

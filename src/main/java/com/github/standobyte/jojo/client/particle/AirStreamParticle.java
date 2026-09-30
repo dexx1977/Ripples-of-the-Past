@@ -27,7 +27,7 @@ public class AirStreamParticle extends TextureSheetParticle {
         this.zd = zSpeed;
         quadSize *= 2;
         this.yRot = (float) Mth.atan2(xSpeed, zSpeed);
-        this.xRot = (float) Mth.atan2(ySpeed, Mth.sqrt(xSpeed * xSpeed + zSpeed * zSpeed));
+        this.xRot = (float) Mth.atan2(ySpeed, Mth.sqrt((float) (xSpeed * xSpeed + zSpeed * zSpeed)));
     }
 
     @Override

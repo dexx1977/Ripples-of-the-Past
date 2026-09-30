@@ -474,7 +474,9 @@ public class HamonStatsTabGui extends HamonTabGui {
                 maskNameTooltip = true;
             }
         }
-        breathMaskHoverable.withStyle(style -> style.withUnderlined(!maskNameTooltip));
+        // the style consumer needs a final flag
+        final boolean underlineMaskName = maskNameTooltip;
+        breathMaskHoverable.withStyle(style -> style.withUnderlined(!underlineMaskName));
     }
     
     private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("#.#");

@@ -16,8 +16,9 @@ public class ISTERItemCaptureEntity extends ItemOverrides {
     }
     
     @Override
-    public BakedModel resolve(BakedModel model, ItemStack item, @Nullable ClientLevel world, @Nullable LivingEntity entity) {
-        BlockEntityWithoutLevelRenderer ister = item.getItem().getItemStackTileEntityRenderer();
+    public BakedModel resolve(BakedModel model, ItemStack item, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
+        // 1.19 replaced Item#getItemStackTileEntityRenderer with the client item extensions
+        BlockEntityWithoutLevelRenderer ister = net.minecraftforge.client.extensions.common.IClientItemExtensions.of(item).getCustomRenderer();
         if (ister instanceof ISTERWithEntity) {
             ((ISTERWithEntity) ister).setEntity(entity);
         }

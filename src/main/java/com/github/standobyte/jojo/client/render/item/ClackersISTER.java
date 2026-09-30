@@ -57,7 +57,7 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
             renderThirdPerson(itemStack, transformType, matrixStack, buffer, light, overlay);
             break;
         default:
-            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
+            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null, 0);
             CustomModelItemISTER.renderItemNormally(matrixStack, itemStack, transformType, buffer, light, overlay, model);
             break;
         }

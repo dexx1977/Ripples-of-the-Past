@@ -115,7 +115,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
         int tick = (int) loopTick;
         float partialTick = loopTick - tick;
         Vec3f rot = get3DTransform("body", TransformType.ROTATION, tick, partialTick, Vec3f.ZERO);
-        matrixStack.mulPose(Axis.YP.rotation(-rot.getY()));
+        matrixStack.mulPose(com.mojang.math.Axis.YP.rotation(-rot.getY()));
     }
     
     private float getBarrageEffectLoopingTick(float rotAmount, HumanoidArm side) {
@@ -159,7 +159,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
             int tick = (int) loopTick;
             float partialTick = loopTick - tick;
             for (String partName : modelParts.keySet()) {
-                ModelPart part = modelParts.get(partName);
+                net.minecraft.client.model.geom.ModelPart part = modelParts.get(partName);
                 if (part != null) {
                     Vec3f rot = get3DTransform(partName, TransformType.ROTATION, tick, partialTick, new Vec3f(part.xRot, part.yRot, part.zRot));
                     
