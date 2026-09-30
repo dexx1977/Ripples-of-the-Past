@@ -21,7 +21,8 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
     protected int texHeight = 64;
 
     public SatiporojaScarfArmorModel(float size) {
-        super(size);
+        // 1.16.5's HumanoidModel(float) inflated every box; the helper bakes that mesh
+        super(ModelPart.humanoidRoot(size));
         texWidth = 32;
         texHeight = 32;
         head.cubes.clear();

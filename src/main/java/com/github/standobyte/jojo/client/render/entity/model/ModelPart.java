@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
@@ -159,6 +160,16 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
             root.children.put(name, new ModelPart(root, 0, 0));
         }
         return root;
+    }
+
+    /**
+     * The root the old {@code HumanoidModel(float size)} produced: the standard
+     * humanoid mesh with every box inflated by {@code size}, baked the 1.20.1 way.
+     */
+    public static net.minecraft.client.model.geom.ModelPart humanoidRoot(float inflate) {
+        return LayerDefinition.create(
+                net.minecraft.client.model.HumanoidModel.createMesh(new CubeDeformation(inflate), 0.0F), 64, 64)
+                .bakeRoot();
     }
 
     /** Attaches a child to a part of any model, including inherited vanilla parts. */

@@ -34,7 +34,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
     public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, 
             PoseStack matrixStack, MultiBufferSource buffer, int light, int overlay) {
         ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
-        BakedModel pModel = ir.getModel(itemStack, null, null);
+        BakedModel pModel = ir.getModel(itemStack, null, null, 0);
         
         RenderType rendertype = ItemBlockRenderTypes.getRenderType(itemStack, true);
         VertexConsumer ivertexbuilder = ItemRenderer.getFoilBufferDirect(
@@ -115,8 +115,9 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
             VertexConsumer vertexBuilder, int light, int overlay) {
         Matrix4f pose = poseEntry.pose();
         Matrix3f entry = poseEntry.normal();
-        Vector3f normal = quad.new Vector3f(normal);
-        normal.transform(entry);
+        // JOML has no Vector3f#copy / #transform, use the copy ctor and mul
+        Vector3f normal = new Vector3f(quad.normal);
+        normal.mul(entry);
         float x = normal.x();
         float y = normal.y();
         float z = normal.z();
@@ -127,7 +128,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
             float vertexY = vertex.pos.y() / 16.0F;
             float vertexZ = vertex.pos.z() / 16.0F;
             Vector4f vector4f = new Vector4f(vertexX, vertexY, vertexZ, 1.0F);
-            vector4f.transform(pose);
+            vector4f.mul(pose);
             vertexBuilder.vertex(vector4f.x(), vector4f.y(), vector4f.z(), 
                     1, 1, 1, 1, vertex.u, vertex.v, 
                     overlay, light, x, y, z);

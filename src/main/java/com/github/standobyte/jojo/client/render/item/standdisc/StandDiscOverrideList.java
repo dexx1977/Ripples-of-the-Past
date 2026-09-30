@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,7 +30,7 @@ public class StandDiscOverrideList extends ItemOverrides {
     }
     
     @Override
-    public BakedModel resolve(BakedModel model, ItemStack item, @Nullable ClientLevel world, @Nullable LivingEntity entity) {
+    public BakedModel resolve(BakedModel model, ItemStack item, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
         StandInstance discStand = StandDiscItem.getStandFromStack(item);
         if (discStand != null) {
             StandType<?> standType = discStand.getType();
@@ -40,7 +41,7 @@ public class StandDiscOverrideList extends ItemOverrides {
             }
         }
         
-        return wrappedOverrides.resolve(model, item, world, entity);
+        return wrappedOverrides.resolve(model, item, world, entity, seed);
     }
     
     public static void onModelRegistry(net.minecraftforge.client.event.ModelEvent.RegisterAdditional event) {

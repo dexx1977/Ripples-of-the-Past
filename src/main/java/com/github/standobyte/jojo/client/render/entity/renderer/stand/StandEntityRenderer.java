@@ -178,7 +178,7 @@ public class StandEntityRenderer<T extends StandEntity, M extends StandEntityMod
 
     public static final float PLAYER_RENDER_SCALE = 0.9375F;
     @Override
-    protected void scale(T entity, PoseStack matrixStack, float partialTick) {
+    public void scale(T entity, PoseStack matrixStack, float partialTick) { // LivingEntityRenderer#scale is public in 1.20.1
         matrixStack.scale(
                 PLAYER_RENDER_SCALE * entity.getType().getDimensions().width / 0.6F, 
                 PLAYER_RENDER_SCALE * entity.getType().getDimensions().height / 1.8F, 

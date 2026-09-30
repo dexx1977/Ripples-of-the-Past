@@ -19,13 +19,14 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.ModelDataManager;
 import net.minecraftforge.client.model.data.ModelData;
+import org.lwjgl.opengl.GL14;
 
 // A helper class for rendering translucent blocks overlay
 // as a quality-of-life feature for Crazy Diamond's terrain restoration ability
@@ -46,10 +47,11 @@ public class TranslucentBlockRenderHelper {
                                 RenderSystem.disableDepthTest();
                                 RenderSystem.enableBlend();
                                 RenderSystem.blendFunc(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA);
-                                RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 0.3F);
+                                // 1.20.1's RenderSystem no longer wraps glBlendColor, call GL directly
+                                GL14.glBlendColor(1.0F, 1.0F, 1.0F, 0.3F);
                             }, 
                             () -> {
-                                RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
+                                GL14.glBlendColor(1.0F, 1.0F, 1.0F, 1.0F);
                                 RenderSystem.defaultBlendFunc();
                                 RenderSystem.disableBlend();
                                 RenderSystem.enableDepthTest();
@@ -70,7 +72,8 @@ public class TranslucentBlockRenderHelper {
         blocks.forEach(block -> {
             BlockPos pos = block.pos;
             BlockState blockState = block.state;
-            ModelData tileData = ModelDataManager.getModelData(mc.level, pos);
+            // 1.20.1 fetches per-position model data from the level's ModelDataManager
+            ModelData tileData = mc.level.getModelDataManager().getAt(pos);
             if (tileData == null) tileData = ModelData.EMPTY;
             ModelData model = renderer.getBlockModel(blockState).getModelData(mc.level, pos, blockState, tileData);
             matrixStack.pushPose();
@@ -85,8 +88,10 @@ public class TranslucentBlockRenderHelper {
                 BakedModel bakedModel = renderer.getBlockModel(blockState);
                 int color = mc.getBlockColors().getColor(blockState, mc.level, pos, 0);
                 float[] rgb = ClientUtil.rgb(color);
-                renderer.getModelRenderer().renderModel(matrixStack.last(), buffers.getBuffer(ItemBlockRenderTypes.getRenderType(blockState, false)), 
-                        blockState, bakedModel, rgb[0], rgb[1], rgb[2], 0xF000F0, overlay, model);
+                // the Forge overload of renderModel also takes the RenderType
+                RenderType bufferRenderType = ItemBlockRenderTypes.getRenderType(blockState, false);
+                renderer.getModelRenderer().renderModel(matrixStack.last(), buffers.getBuffer(bufferRenderType), 
+                        blockState, bakedModel, rgb[0], rgb[1], rgb[2], 0xF000F0, overlay, model, bufferRenderType);
             }
             
             matrixStack.popPose();

@@ -188,7 +188,7 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
            Vector3f vector3f = avector3f[i];
            vector3f.add(-0.125F, 0, -0.125F);
            vector3f.rotate(Axis.XP.rotationDegrees(-camera.getXRot()));
-           vector3f.transform(Axis.YP.rotationDegrees(180 + camera.getYRot() - yBodyRot));
+           vector3f.rotate(Axis.YP.rotationDegrees(180 + camera.getYRot() - yBodyRot));
         }
         
         sparksHandler.render(matrixStack, bufferBuilder, partialTick, avector3f);

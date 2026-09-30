@@ -17,14 +17,19 @@ public class StoneMaskModel extends HumanoidModel<LivingEntity> {
     protected int texHeight = 64;
 
     public StoneMaskModel(float size) {
-        super(size);
+        // 1.16.5's HumanoidModel(float) inflated every box; the helper bakes that mesh
+        super(ModelPart.humanoidRoot(size));
         texWidth = 32;
         texHeight = 32;
 
-        head.setTexSize(texWidth, texHeight);
+        // a baked 1.20.1 part has no texture offset setter, so the mask is built
+        // with the model part helper and its cuboids take the head's place
+        ModelPart maskHead = new ModelPart(this);
+        maskHead.setTexSize(texWidth, texHeight);
+        maskHead.texOffs(2, 2).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 6.0F, 0.55F, false);
         head.cubes.clear();
+        head.cubes.addAll(maskHead.cubesMutable());
         head.setPos(0.0F, 0.0F, 0.0F);
-        head.texOffs(2, 2).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 6.0F, 0.55F, false);
     }
     
     @Override

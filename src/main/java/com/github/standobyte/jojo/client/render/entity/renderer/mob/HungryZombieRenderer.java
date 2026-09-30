@@ -7,6 +7,7 @@ import com.github.standobyte.jojo.entity.mob.HungryZombieEntity;
 import net.minecraft.client.renderer.entity.AbstractZombieRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.model.ZombieModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.resources.ResourceLocation;
 
@@ -15,7 +16,11 @@ public class HungryZombieRenderer extends AbstractZombieRenderer<HungryZombieEnt
     private static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/biped/hungry_zombie.png");
 
     public HungryZombieRenderer(EntityRendererProvider.Context context) {
-        super(context, new ZombieModel<>(0.0F, false), new ZombieModel<>(0.5F, true), new ZombieModel<>(1.0F, true));
+        // 1.20.1 bakes the base model and the two armor inflations as separate layers
+        super(context, 
+                new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE)), 
+                new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_INNER_ARMOR)), 
+                new ZombieModel<>(context.bakeLayer(ModelLayers.ZOMBIE_OUTER_ARMOR)));
     }
     
     @Override

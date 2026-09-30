@@ -173,7 +173,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
                 float axisf = - pair.getLeft();
                 Vector3f axis = new Vector3f((float) Math.cos(axisf), 0, (float) Math.sin(axisf));
                 //return this.setRotation(axis.getRadialQuaternion(bend));
-                matrices.mulPose(axis.rotation(bend));
+                matrices.mulPose(new org.joml.Quaternionf().rotationAxis(bend, axis));
                 matrices.translate(0, - offset, 0);
 
             }
@@ -223,7 +223,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
                 float bend = pair.getRight();
                 float axisf = - pair.getLeft();
                 Vector3f axis = new Vector3f((float) Math.cos(axisf), 0, (float) Math.sin(axisf));
-                matrixStack.mulPose(axis.rotation(bend));
+                matrixStack.mulPose(new org.joml.Quaternionf().rotationAxis(bend, axis));
                 matrixStack.translate(0, - offset, 0);
 
             }

@@ -28,14 +28,15 @@ public class HamonAuraParticleRenderType implements ParticleRenderType {
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-        RenderSystem.alphaFunc(GL11.GL_GREATER, 0.003921569F);
-        RenderSystem.disableLighting();
+        // 1.20.1 dropped RenderSystem#alphaFunc: the core profile has no alpha test.
+        // The blend func above already discards near-zero alpha pixels, so this is a no-op now.
+        // RenderSystem#disableLighting is gone too - 1.20.1 has no fixed function lighting.
 
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
         if (ClientModSettings.getSettingsReadOnly().hamonAuraBlur) {
             textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).setBlurMipmap(true, false);
         }
-        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.PARTICLE);
+        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
     }
 
     @SuppressWarnings("deprecation")
@@ -44,7 +45,6 @@ public class HamonAuraParticleRenderType implements ParticleRenderType {
         tessellator.end();
 
         Minecraft.getInstance().textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).restoreLastBlurMipmap();
-        RenderSystem.alphaFunc(GL11.GL_GREATER, 0.1F);
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
     }

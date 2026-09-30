@@ -11,17 +11,17 @@ import net.minecraft.client.renderer.entity.layers.CrossedArmsItemLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer;
 import net.minecraft.client.model.VillagerModel;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.resources.ResourceLocation;
 
 public class RockPaperScissorsKidRenderer extends MobRenderer<RockPaperScissorsKidEntity, VillagerModel<RockPaperScissorsKidEntity>> {
     private static final ResourceLocation VILLAGER_BASE_SKIN = new ResourceLocation("textures/entity/villager/villager.png");
 
     public RockPaperScissorsKidRenderer(EntityRendererProvider.Context context) {
-        super(context, new VillagerModel<>(0.0F), 0.5F);
-        addLayer(new CustomHeadLayer<>(this));
-        addLayer(new VillagerProfessionLayer<>(this, (ReloadableResourceManager) Minecraft.getInstance().getResourceManager(), "villager"));
-        addLayer(new CrossedArmsItemLayer<>(this));
+        super(context, new VillagerModel<>(context.bakeLayer(ModelLayers.VILLAGER)), 0.5F);
+        addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
+        addLayer(new VillagerProfessionLayer<>(this, Minecraft.getInstance().getResourceManager(), "villager"));
+        addLayer(new CrossedArmsItemLayer<>(this, context.getItemInHandRenderer()));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class RockPaperScissorsKidRenderer extends MobRenderer<RockPaperScissorsK
     }
 
     @Override
-    protected void scale(RockPaperScissorsKidEntity entity, PoseStack matrixStack, float partialTick) {
+    public void scale(RockPaperScissorsKidEntity entity, PoseStack matrixStack, float partialTick) { // LivingEntityRenderer#scale is public in 1.20.1
         float f = 0.9375F;
         if (entity.isBaby()) {
             f = (float)((double)f * 0.5D);

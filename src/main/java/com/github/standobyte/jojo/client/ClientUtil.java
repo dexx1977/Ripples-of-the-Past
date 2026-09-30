@@ -670,8 +670,8 @@ public class ClientUtil {
         if (faceOptional.isPresent()) {
             u0 /= ModelPart.textureWidthOf(model);
             v0 /= ModelPart.textureHeightOf(model);
-            u1 /= model.texWidth;
-            v1 /= model.texHeight;
+            u1 /= ModelPart.textureWidthOf(model);
+            v1 /= ModelPart.textureHeightOf(model);
             ModelPart.Polygon face = faceOptional.get();
             if (face.vertices[0].u < face.vertices[1].u) {
                 float swap = u0;
@@ -725,7 +725,9 @@ public class ClientUtil {
     
     public static boolean isMissingModel(BakedModel model, ItemModelShaper itemModelShaper) {
 //        return model == itemModelShaper.getModelManager().getMissingModel(); // you'd think that should work
-        return model instanceof SimpleBakedModel && (model.getParticleIcon() instanceof MissingTextureAtlasSprite);
+        // 1.20.1's MissingTextureAtlasSprite no longer extends TextureAtlasSprite, so compare the sprite name
+        return model instanceof SimpleBakedModel 
+                && model.getParticleIcon().contents().name().equals(MissingTextureAtlasSprite.getLocation());
     }
     
     
@@ -759,8 +761,8 @@ public class ClientUtil {
     }
     
     
-    public static Tooltip buttonMessageTooltip(Screen screen) {
-        return (Button button, PoseStack matrixStack, int x, int y) -> {
+    public static com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton.ITooltipRenderer buttonMessageTooltip(Screen screen) {
+        return (button, matrixStack, x, y) -> {
             com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, button.getMessage(), x, y);
         };
     }

@@ -29,7 +29,8 @@ public class BladeHatArmorModel extends HumanoidModel<LivingEntity> {
     private final ModelPart cube_r6;
 
     public BladeHatArmorModel(float size) {
-        super(size);
+        // 1.16.5's HumanoidModel(float) inflated every box; the helper bakes that mesh
+        super(ModelPart.humanoidRoot(size));
         texWidth = 64;
         texHeight = 64;
 

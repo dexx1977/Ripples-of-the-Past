@@ -28,7 +28,8 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
     public final ModelPart upperHalf;
     public final ModelPart lowerHalf;
     public final ModelPart shadow;
-    private final Map<ModelPart, List<ModelPart.Cube>> allCubesByParts;
+    // 1.20.1 types the children map with the vanilla part, so the keys are vanilla typed too
+    private final Map<net.minecraft.client.model.geom.ModelPart, List<ModelPart.Cube>> allCubesByParts;
     private final List<ModelPart.Cube> allCubes;
     private float progress;
     private final Set<ModelPart.Cube> visibleCubes;
@@ -978,10 +979,11 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
         cube_r20.texOffs(17, 6).addBox(-0.5F, -2.4F, -0.5F, 1.0F, 3.4F, 4.0F, 0.0F, false);
     }
     
-    private void addCubesFrom(ModelPart modelPart) {
+    private void addCubesFrom(net.minecraft.client.model.geom.ModelPart modelPart) {
         allCubesByParts.put(modelPart, new ArrayList<>(modelPart.cubes));
         allCubes.addAll(modelPart.cubes);
-        for (ModelPart child : modelPart.children) {
+        // 1.20.1 keeps the child parts in a name-keyed map, 1.16.5 used a list
+        for (net.minecraft.client.model.geom.ModelPart child : modelPart.children.values()) {
             addCubesFrom(child);
         }
     }
@@ -1008,8 +1010,8 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
             int renderParts = 1 + (int) (progress * allCubes.size());
             allCubes.stream().limit(renderParts).forEach(visibleCubes::add);
         }
-        for (Map.Entry<ModelPart, List<ModelPart.Cube>> modelPartEntry : this.allCubesByParts.entrySet()) {
-            ModelPart modelPart = modelPartEntry.getKey();
+        for (Map.Entry<net.minecraft.client.model.geom.ModelPart, List<ModelPart.Cube>> modelPartEntry : this.allCubesByParts.entrySet()) {
+            net.minecraft.client.model.geom.ModelPart modelPart = modelPartEntry.getKey();
             if (modelPart.visible) {
                 List<ModelPart.Cube> allCubes = modelPartEntry.getValue();
                 modelPart.cubes.clear();

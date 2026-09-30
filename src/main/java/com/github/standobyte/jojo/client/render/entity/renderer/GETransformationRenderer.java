@@ -37,7 +37,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ListModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -396,7 +395,8 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     private static void addSubPartsAndSelf(Set<net.minecraft.client.model.geom.ModelPart> modelParts, net.minecraft.client.model.geom.ModelPart modelRenderer) {
         modelParts.add(modelRenderer);
-        java.util.List<net.minecraft.client.model.geom.ModelPart> children = modelRenderer.children;
+        // 1.20.1 keeps the child parts in a name-keyed map, 1.16.5 used a list
+        Collection<net.minecraft.client.model.geom.ModelPart> children = modelRenderer.children.values();
         children.forEach(child -> addSubPartsAndSelf(modelParts, child));
     }
     
