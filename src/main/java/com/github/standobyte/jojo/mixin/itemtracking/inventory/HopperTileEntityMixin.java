@@ -19,8 +19,8 @@ import net.minecraft.world.level.Level;
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperTileEntityMixin extends RandomizableContainerBlockEntity {
     
-    protected HopperTileEntityMixin(BlockEntityType<?> type) {
-        super(type);
+    protected HopperTileEntityMixin(BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        super(type, pos, state);
     }
     
     @Shadow

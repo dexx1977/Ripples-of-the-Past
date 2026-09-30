@@ -20,8 +20,8 @@ import net.minecraft.world.level.Level;
 @Mixin(AbstractFurnaceBlockEntity.class)
 public abstract class AbstractFurnaceTEMixin extends BlockEntity {
     
-    public AbstractFurnaceTEMixin(BlockEntityType<?> type) {
-        super(type);
+    public AbstractFurnaceTEMixin(BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        super(type, pos, state);
     }
     
     @Inject(method = "getRecipesToAwardAndPopExperience", at = @At("HEAD"), cancellable = true)

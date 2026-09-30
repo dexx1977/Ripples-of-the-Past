@@ -19,8 +19,8 @@ import net.minecraft.world.level.Level;
 @Mixin(RandomizableContainerBlockEntity.class)
 public abstract class LockableLootTileEntityMixin extends BaseContainerBlockEntity {
     
-    protected LockableLootTileEntityMixin(BlockEntityType<?> type) {
-        super(type);
+    protected LockableLootTileEntityMixin(BlockEntityType<?> type, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        super(type, pos, state);
     }
     
     @Shadow

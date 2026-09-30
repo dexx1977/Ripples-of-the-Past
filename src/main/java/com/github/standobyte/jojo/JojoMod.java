@@ -93,7 +93,8 @@ public class JojoMod {
         ModPotions.POTIONS.register(modEventBus);
         ModRecipeSerializers.SERIALIZERS.register(modEventBus);
         ModSounds.SOUNDS.register(modEventBus);
-        ModStructures.STRUCTURES.register(modEventBus);
+        ModStructures.STRUCTURE_TYPES.register(modEventBus);
+        ModStructures.STRUCTURE_PIECES.register(modEventBus);
         ModStructures.FEATURES.register(modEventBus);
         ModTileEntities.TILE_ENTITIES.register(modEventBus);
     }

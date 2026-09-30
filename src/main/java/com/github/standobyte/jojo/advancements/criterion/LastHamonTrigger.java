@@ -35,7 +35,8 @@ public class LastHamonTrigger extends SimpleCriterionTrigger<LastHamonTrigger.In
     @Override
     protected LastHamonTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
             DeserializationContext conditionArrayParser) {
-        ContextAwarePredicate sourcePredicate = ContextAwarePredicate
+        // 1.20.1 moved the json parsing of entity predicates onto EntityPredicate
+        ContextAwarePredicate sourcePredicate = net.minecraft.advancements.critereon.EntityPredicate
                 .fromJson(json, "source", conditionArrayParser);
         return new LastHamonTrigger.Instance(id, playerPredicate, sourcePredicate);
     }

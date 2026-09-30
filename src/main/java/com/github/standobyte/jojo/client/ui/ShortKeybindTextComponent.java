@@ -102,7 +102,8 @@ public class ShortKeybindTextComponent implements Component {
         return getNestedComponent().getVisualOrderText();
     }
 
-    public ShortKeybindTextComponent plainCopy() {
+    @Override
+    public net.minecraft.network.chat.MutableComponent plainCopy() {
         return new ShortKeybindTextComponent(key);
     }
 

@@ -11,7 +11,7 @@ public class MultiSoundEvent extends SoundEvent {
     private final ResourceLocation[] resLocs;
 
     public MultiSoundEvent(ResourceLocation resLocFirst, ResourceLocation... resLocsNext) {
-        super(resLocFirst);
+        super(resLocFirst, 16.0F, false); // the old single argument constructor's defaults
         this.resLocs = new ResourceLocation[resLocsNext.length + 1];
         this.resLocs[0] = resLocFirst;
         System.arraycopy(resLocsNext, 0, this.resLocs, 1, resLocsNext.length);

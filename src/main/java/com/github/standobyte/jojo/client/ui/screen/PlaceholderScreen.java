@@ -38,7 +38,7 @@ public class PlaceholderScreen extends Screen implements IJojoScreen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
-        renderBackground(matrixStack, 0);
+        renderBackground(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics());
         renderWindow(matrixStack);
         defaultRenderTabs(matrixStack, mouseX, mouseY, this);
     }

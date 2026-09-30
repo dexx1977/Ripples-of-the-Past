@@ -20,7 +20,7 @@ public class ClientPlayNetHandlerMixin {
     private void jojoCancelVanillaClPacket(Packet<?> packet, CallbackInfo ci) {
         if (NetworkUtil.blockPacketsToServer && !(
                 packet instanceof ServerboundKeepAlivePacket || packet instanceof ServerboundMovePlayerPacket
-                || packet instanceof ServerboundChatPacket && ((ServerboundChatPacket) packet).getMessage().startsWith("/"))) {
+                || packet instanceof ServerboundChatPacket && ((ServerboundChatPacket) packet).message().startsWith("/"))) {
             ci.cancel();
         }
     }

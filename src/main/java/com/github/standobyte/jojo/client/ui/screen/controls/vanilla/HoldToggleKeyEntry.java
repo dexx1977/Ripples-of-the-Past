@@ -31,6 +31,13 @@ public class HoldToggleKeyEntry extends KeyBindsList.Entry {
     }
 
     @Override
+    public List<? extends net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+        List<net.minecraft.client.gui.narration.NarratableEntry> narratables = new ArrayList<>();
+        narratables.add(holdToggleButton);
+        return narratables;
+    }
+
+    @Override
     public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         holdToggleButton.x = pLeft + 105 + changeButton.getWidth() - 1;

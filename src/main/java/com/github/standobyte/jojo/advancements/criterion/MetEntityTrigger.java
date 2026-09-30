@@ -49,7 +49,7 @@ public class MetEntityTrigger extends SimpleCriterionTrigger<MetEntityTrigger.In
         }
 
         public static SummonedEntityTrigger.TriggerInstance metEntity(EntityPredicate.Builder entityBuilder) {
-            return new SummonedEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, ContextAwarePredicate.wrap(entityBuilder.build()));
+            return new SummonedEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, net.minecraft.advancements.critereon.EntityPredicate.wrap(entityBuilder.build()));
         }
         
         public boolean matches(LootContext pLootContext) {

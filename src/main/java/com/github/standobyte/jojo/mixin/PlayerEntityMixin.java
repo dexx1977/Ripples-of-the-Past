@@ -40,6 +40,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import com.github.standobyte.jojo.init.power.RegistryEntry;
 import net.minecraftforge.registries.RegistryManager;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity.RemovalReason;
 
 @Mixin(Player.class)
 public abstract class PlayerEntityMixin extends LivingEntityMixin implements PlayerMixinExtension, IPlayerLeap, IPlayerPossess {
@@ -197,7 +198,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
             if (possessedEntity != null) {
                 jojoPossessEntity(null, false, jojoPossessionContext);
                 if (possessedEntity.getType() == ModEntityTypes.ANGELO_ROCK.get()) {
-                    remove(((Entity) this) instanceof ServerPlayer);
+                    remove(((Entity) this) instanceof ServerPlayer ? RemovalReason.CHANGED_DIMENSION : RemovalReason.DISCARDED); // the old remove(keepData)
                 }
             }
         }
@@ -232,7 +233,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
                 if (registry != null) {
                     ResourceLocation objId = new ResourceLocation(ctxNbt.getString("Obj"));
                     if (registry.containsKey(objId)) {
-                        return registry.getValue(objId);
+                        return (RegistryEntry<?>) registry.getValue(objId);
                     }
                 }
             }

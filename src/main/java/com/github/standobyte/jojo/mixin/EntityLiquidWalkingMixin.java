@@ -98,7 +98,7 @@ public class EntityLiquidWalkingMixin {
         for (Map.Entry<Vec3, Double> entry : points.entrySet()) {
             for (int i = 0; ; i--) { // Check successive blocks downward
                 // Auto step is essentially just shifting the fall adjustment up by the step height
-                BlockPos landingPos = new BlockPos(entry.getKey()).offset(0.0, i + fluidStepHeight, 0.0);
+                BlockPos landingPos = com.github.standobyte.jojo.util.general.MathUtil.offset(BlockPos.containing(entry.getKey()), 0.0, i + fluidStepHeight, 0.0);
                 FluidState landingState = entity.getCommandSenderWorld().getFluidState(landingPos);
 
                 double distanceToFluidSurface = landingPos.getY() + landingState.getOwnHeight() - entity.getY();

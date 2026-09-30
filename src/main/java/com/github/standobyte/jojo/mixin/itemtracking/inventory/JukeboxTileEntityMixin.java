@@ -18,8 +18,8 @@ import net.minecraft.world.level.Level;
 @Mixin(JukeboxBlockEntity.class)
 public abstract class JukeboxTileEntityMixin extends BlockEntity {
     
-    public JukeboxTileEntityMixin(BlockEntityType<?> teType) {
-        super(teType);
+    public JukeboxTileEntityMixin(BlockEntityType<?> teType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        super(teType, pos, state);
     }
 
     @Shadow private ItemStack record;
