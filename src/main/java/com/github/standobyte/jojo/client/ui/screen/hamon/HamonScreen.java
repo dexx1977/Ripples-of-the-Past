@@ -137,6 +137,11 @@ public class HamonScreen extends Screen implements IJojoScreen {
         removeWidget(button);
     }
 
+    /** 1.16.5's Screen#addButton was public; 1.20.1's addRenderableWidget is protected. */
+    public <T extends AbstractWidget> T addButton(T button) {
+        return addRenderableWidget(button);
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
         clickedOnSkill = false;
@@ -359,14 +364,14 @@ public class HamonScreen extends Screen implements IJojoScreen {
     public void renderToolTip(PoseStack matrixStack, List<? extends FormattedCharSequence> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltipWrapped(matrixStack, font, new java.util.ArrayList<net.minecraft.network.chat.FormattedText>(tooltips), mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltip(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
     public void renderWrappedToolTip(PoseStack matrixStack, List<? extends FormattedText> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltipWrapped(matrixStack, font, new java.util.ArrayList<net.minecraft.network.chat.FormattedText>(tooltips), mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltipWrapped(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     

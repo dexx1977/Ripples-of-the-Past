@@ -289,7 +289,7 @@ public class StandEntityPunch implements IPunch {
                 }
 
                 if (disablesBlocking() && 
-                        targetLiving.getUseItem().isShield(targetLiving) && targetLiving instanceof Player) {
+                        targetLiving.getUseItem().getUseAnimation() == net.minecraft.world.item.UseAnim.BLOCK && targetLiving instanceof Player) {
                     DamageUtil.disableShield((Player) targetLiving, disableBlockingChance);
                 }
                 

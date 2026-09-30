@@ -545,7 +545,8 @@ public class GoldExperienceCreateLifeform extends StandAction {
         }
         
         if (entity instanceof ItemEntity) {
-            UUID thrower = ((ItemEntity) entity).getThrower();
+            Entity throwerEntity = ((ItemEntity) entity).getOwner();
+            UUID thrower = throwerEntity != null ? throwerEntity.getUUID() : null;
             if (thrower != null) {
                 tf.getTfSourceData().withFollowTarget(thrower, GETransformationEntity.FollowTargetMode.TRACK, geUser);
             }
@@ -573,7 +574,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
             Item bucketWithoutFish = fluid.getBucket();
             if (bucketWithoutFish != Items.AIR) {
                 transformedItem = new ItemStack(bucketWithoutFish);
-                bucketType.checkExtraContent(world, item, fishBucketPos);
+                bucketType.checkExtraContent(wouldBeThrower instanceof Player ? (Player) wouldBeThrower : null, world, item, fishBucketPos);
             }
         }
         if (transformedItem == null) {
@@ -629,7 +630,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                             if (online != null) {
                                 return online.getUUID();
                             }
-                            return Player.createPlayerUUID(name);
+                            return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(java.nio.charset.StandardCharsets.UTF_8));
                         })
                         .filter(id -> id != null).findFirst();
                 deliveryDest.ifPresent(destId -> tf.getTfSourceData().withFollowTarget(destId, GETransformationEntity.FollowTargetMode.DELIVERY, geUser));

@@ -5,6 +5,7 @@ import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Arrays;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.screens.Screen;
 
 
 public enum TabPositionType {
@@ -32,7 +33,7 @@ public enum TabPositionType {
         return max;
     }
 
-    public void draw(PoseStack matrixStack, AbstractGui gui, 
+    public void draw(PoseStack matrixStack, Screen gui, 
             int offsetX, int offsetY, 
             int screenWidth, int screenHeight,
             boolean isSelected, int index,

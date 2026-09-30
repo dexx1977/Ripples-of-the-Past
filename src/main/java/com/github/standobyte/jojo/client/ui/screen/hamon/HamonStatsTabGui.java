@@ -470,7 +470,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (exercisesDescLine >= 0 && exercisesDescLine < exercisesDescLines.size()) {
             Style style = minecraft.font.getSplitter().componentStyleAtWidth(exercisesDescLines.get(exercisesDescLine), mouseX - WINDOW_THIN_BORDER);
             if (style != null && style.getHoverEvent() != null) {
-                screen.renderComponentHoverEffect(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), style, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics().renderComponentHoverEffect(minecraft.font, style, mouseX, mouseY);
                 maskNameTooltip = true;
             }
         }

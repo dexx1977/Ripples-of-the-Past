@@ -30,7 +30,7 @@ public class StarPlatinumInhale extends StandEntityAction {
         
         Vec3 spLookVec = standEntity.getLookAngle();
         world.getEntities(standEntity, standEntity.getBoundingBox().inflate(RANGE, RANGE, RANGE), 
-                entity -> spLookVec.dot(entity.position().subtract(standEntity.position()).normalize()) > 0.886 && standEntity.canSee(entity)
+                entity -> spLookVec.dot(entity.position().subtract(standEntity.position()).normalize()) > 0.886 && standEntity.hasLineOfSight(entity)
                 && entity.distanceToSqr(standEntity) > 0.5
                 && (/*standEntity.isManuallyControlled() || */!entity.is(standEntity.getUser()))).forEach(entity -> {
                     if (entity.canUpdate()) {

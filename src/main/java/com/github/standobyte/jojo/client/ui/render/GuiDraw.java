@@ -89,6 +89,16 @@ public final class GuiDraw {
         graphics.blit(texture, x, y, blitOffset, (float) u, (float) v, width, height, texWidth, texHeight);
     }
 
+    /** The 1.16.5 form that took float source offsets. */
+    public static void blit(PoseStack poseStack, int x, int y, float u, float v, int width, int height, int texWidth, int texHeight) {
+        graphics.blit(texture, x, y, 0, u, v, width, height, texWidth, texHeight);
+    }
+
+    /** The 1.16.5 form that blitted an atlas sprite. */
+    public static void blit(PoseStack poseStack, int x, int y, int blitOffset, int width, int height, net.minecraft.client.renderer.texture.TextureAtlasSprite sprite) {
+        graphics.blit(x, y, blitOffset, width, height, sprite);
+    }
+
     /**
      * The 1.16.5 form with separate destination and source sizes. 1.20.1 draws a
      * source-sized region, and every call in this mod passes matching sizes, so the

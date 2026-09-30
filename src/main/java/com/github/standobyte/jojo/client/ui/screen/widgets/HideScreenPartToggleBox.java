@@ -35,11 +35,15 @@ public class HideScreenPartToggleBox extends ToggleBox {
         GuiDraw.blit(matrixStack, x, y, texX, texY, width, height);
         super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         if (isHovered()) {
-            Component text = getState() ? 
-                    Component.translatable("jojo.ui.spoiler.hide")
-                    : Component.translatable("jojo.ui.spoiler.show");
-            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+            renderToolTip(matrixStack, mouseX, mouseY);
         }
+    }
+
+    public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {
+        Component text = getState() ? 
+                Component.translatable("jojo.ui.spoiler.hide")
+                : Component.translatable("jojo.ui.spoiler.show");
+        GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
     }
     
     public enum Direction {

@@ -79,7 +79,7 @@ public class GoldExperienceBoneMeal extends StandEntityAction {
                 TreeLeavesDecay tree = TreeLeavesDecay.startDecay(world, blockPos, Integer.MAX_VALUE, 1);
                 if (tree != null) {
                     tree.logs.forEach(logPos -> {
-                        world.levelEvent(WorldEvents.BONEMEAL_PARTICLES, logPos, 5);
+                        world.levelEvent(net.minecraft.world.level.block.LevelEvent.PARTICLES_AND_SOUND_PLANT_GROWTH, logPos, 5);
                     });
                 }
                 

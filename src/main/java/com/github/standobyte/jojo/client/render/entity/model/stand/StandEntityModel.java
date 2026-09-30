@@ -131,7 +131,7 @@ public abstract class StandEntityModel<T extends StandEntity> extends AgeableLis
     
     protected void clearAllCubes(ModelPart modelPart) {
         modelPart.cubes.clear();
-        modelPart.children.forEach(this::clearAllCubes);
+        modelPart.children.values().forEach(child -> clearAllCubes((ModelPart) child));
     }
     
     public void setAnimatorSupplier(Supplier<IStandAnimator> supplier) {

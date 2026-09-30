@@ -27,7 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 public class GECreatedLifeformEffect extends StandEffectInstance {
     private GETransformationData source = new GETransformationData();
     private ItemStack originalAsItem = ItemStack.EMPTY;
-    private MutableComponent originalName = (Component) Component.empty();
+    private MutableComponent originalName = Component.empty();
     
     public GECreatedLifeformEffect() {
         this(ModStandEffects.GE_CREATED_LIFEFORM.get());

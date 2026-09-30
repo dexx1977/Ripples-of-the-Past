@@ -437,7 +437,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     
     
 
-    public static void addParticlesAroundBlock(Level world, BlockPos blockPos, Random random) {
+    public static void addParticlesAroundBlock(Level world, BlockPos blockPos, net.minecraft.util.RandomSource random) {
         if (world.isClientSide() && ClientUtil.canSeeStands()) {
             Vec3 posLLCorner = Vec3.atLowerCornerOf(blockPos).subtract(0.25, 0.25, 0.25);
             for (int i = 0; i < 24; i++) {

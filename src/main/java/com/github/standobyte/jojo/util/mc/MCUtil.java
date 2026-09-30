@@ -185,6 +185,14 @@ public class MCUtil {
             .put(LongArrayTag.class, 12)
             .build();
     
+    /** 1.20.1 has no harvest level, the requirement lives in the tool tags. */
+    public static int harvestLevel(net.minecraft.world.level.block.state.BlockState state) {
+        if (state.is(BlockTags.NEEDS_DIAMOND_TOOL)) return 3;
+        if (state.is(BlockTags.NEEDS_IRON_TOOL)) return 2;
+        if (state.is(BlockTags.NEEDS_STONE_TOOL)) return 1;
+        return 0;
+    }
+
     public static int getNbtId(Class<? extends Tag> clazz) {
         return NBT_ID.getOrDefault(clazz, -1);
     }

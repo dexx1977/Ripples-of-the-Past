@@ -165,7 +165,7 @@ public abstract class HamonTabGui extends AbstractGui {
     
     private List<IExtendedWidget> allWidgets = new ArrayList<>();
     protected void addRenderableWidget(IExtendedWidget button) {
-        screen.addRenderableWidget(button.thisAsWidget());
+        screen.addButton(button.thisAsWidget());
         allWidgets.add(button);
     }
     

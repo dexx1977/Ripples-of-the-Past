@@ -34,6 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.Level;
 import com.github.standobyte.jojo.util.mc.MCUtil;
+import net.minecraft.world.level.block.Blocks;
 
 public class CrazyDiamondBlockBullet extends StandEntityAction {
     public static final StandPose BLOCK_BULLET_SHOT_POSE = new StandPose("blockBullet");
@@ -56,7 +57,7 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
         if (!StandStatFormulas.isBlockBreakable(
                 power.isActive() ? ((StandEntity) power.getStandManifestation()).getAttackDamage()
                         : power.getType().getStats().getBasePower() + power.getType().getStats().getDevPower(power.getStatsDevelopment()), 
-                        blockState.getDestroySpeed(user.level, user.blockPosition()), blockState.getHarvestLevel())) {
+                        blockState.getDestroySpeed(user.level, user.blockPosition()), MCUtil.harvestLevel(blockState))) {
             return conditionMessage("stand_cant_break_block");
         }
         if (!hardMaterial(blockState)) {

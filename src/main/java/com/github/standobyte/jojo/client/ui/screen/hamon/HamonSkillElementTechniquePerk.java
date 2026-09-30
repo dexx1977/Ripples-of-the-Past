@@ -58,7 +58,7 @@ public class HamonSkillElementTechniquePerk extends HamonSkillGuiElement {
             super.renderSkillIcon(matrixStack, x, y);
         }
         if (itemIcon != null) {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(itemIcon, this.x + x, this.y + y);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics().renderFakeItem(itemIcon, this.x + x, this.y + y);
         }
     }
     

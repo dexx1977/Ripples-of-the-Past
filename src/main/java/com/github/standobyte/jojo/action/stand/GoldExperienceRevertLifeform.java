@@ -83,7 +83,7 @@ public class GoldExperienceRevertLifeform extends StandAction {
                 .map(effect -> ((GECreatedLifeformEffect) effect).getItemView())
                 .orElse(ItemStack.EMPTY);
         if (!sourceItem.isEmpty()) {
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(sourceItem, (int) x, (int) y);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics().renderFakeItem(sourceItem, (int) x, (int) y);
         }
         else {
             super.renderActionIcon(matrixStack, power, x, y);

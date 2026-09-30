@@ -159,7 +159,7 @@ public class TimeStopInstant extends StandAction {
             break;
         default:
             Vec3 pos = blinkPos;
-            BlockPos blockPos = new BlockPos(pos);
+            BlockPos blockPos = BlockPos.containing(pos);
             while (user.level.isEmptyBlock(blockPos.below()) && blockPos.getY() > 0) {
                 blockPos = blockPos.below();
             }

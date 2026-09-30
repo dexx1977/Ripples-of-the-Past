@@ -621,7 +621,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                                 double z = pos.z;
                                 
                                 for (; power > 0.0F; power -= 0.225F) {
-                                    BlockPos blockPos = new BlockPos(x, y, z);
+                                    BlockPos blockPos = BlockPos.containing(x, y, z);
                                     BlockState blockState = level.getBlockState(blockPos);
                                     FluidState fluidState = level.getFluidState(blockPos);
                                     Optional<Float> resistance = damageCalculator.getBlockExplosionResistance(this, level, blockPos, blockState, fluidState);

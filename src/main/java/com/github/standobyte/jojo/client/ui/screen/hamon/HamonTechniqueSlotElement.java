@@ -107,10 +107,10 @@ public class HamonTechniqueSlotElement {
             case LOCKED:
                 screen.renderToolTip(matrixStack, screen.getMinecraft().font.split(
                         Component.translatable("hamon.technique_slot.locked", HamonTechniqueManager.techniqueSkillRequirement(index, true)), 
-                        170), mouseX, mouseY);
+                        170), mouseX, mouseY, screen.getMinecraft().font);
                 break;
             case EMPTY_NEXT:
-                screen.renderToolTip(matrixStack, Component.translatable("hamon.technique_slot.free"), mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("hamon.technique_slot.free"), mouseX, mouseY);
                 break;
             case HAS_SKILL:
                 getSkillElement().ifPresent(skill -> {

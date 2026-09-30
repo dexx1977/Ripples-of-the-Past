@@ -13,7 +13,7 @@ public class HamonSkillElementRequirement extends HamonSkillGuiElement {
 
     @Override
     void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
-        hamonScreen.renderTooltip(matrixStack, 
+        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, 
                 name.withStyle(hamonScreen.hamon.isSkillLearned(getHamonSkill()) ? ChatFormatting.GREEN : ChatFormatting.RED), 
                 mouseX, mouseY);
     }

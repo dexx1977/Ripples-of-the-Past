@@ -60,7 +60,7 @@ import net.minecraft.server.level.ServerLevel;
  *
  */
 public class TrackerItemStack {
-    private static final Random RANDOM = new Random();
+    private static final net.minecraft.util.RandomSource RANDOM = net.minecraft.util.RandomSource.create();
     private final ItemStack itemStack;
     @Nullable private UUID trackerUuid;
     private UUID trackingPlayerId;

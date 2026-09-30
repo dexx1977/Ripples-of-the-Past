@@ -174,7 +174,7 @@ public interface IJojoScreen {
         x = x0;
         int tooltipTab = upperTabMouseOver(mouseX, mouseY, x, y, activeTabs.length);
         if (tooltipTab >= 0) {
-            screen.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
+            GuiDraw.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
         }
     }
     
@@ -210,7 +210,7 @@ public interface IJojoScreen {
         y = y0;
         int tooltipTab = getTabMouseOver(mouseX, mouseY, x, y, HumanoidArm.RIGHT, activeTabs.length);
         if (tooltipTab >= 0) {
-            screen.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
+            GuiDraw.renderToolTip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
         }
     }
     

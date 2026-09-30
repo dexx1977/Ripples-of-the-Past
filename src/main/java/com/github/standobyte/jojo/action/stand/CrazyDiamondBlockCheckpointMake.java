@@ -142,7 +142,7 @@ public class CrazyDiamondBlockCheckpointMake extends StandEntityAction {
             if (nbt.contains("CDCheckpoint", MCUtil.getNbtId(CompoundTag.class))) {
                 CompoundTag checkpointNbt = nbt.getCompound("CDCheckpoint");
                 if (checkpointNbt.contains("BlockState", MCUtil.getNbtId(CompoundTag.class))) {
-                    BlockState blockState = NbtUtils.readBlockState(checkpointNbt.getCompound("BlockState"));
+                    BlockState blockState = NbtUtils.readBlockState(net.minecraft.core.registries.BuiltInRegistries.BLOCK.asLookup(), checkpointNbt.getCompound("BlockState"));
                     if (blockState != Blocks.AIR.defaultBlockState()) {
                         return blockState;
                     }
