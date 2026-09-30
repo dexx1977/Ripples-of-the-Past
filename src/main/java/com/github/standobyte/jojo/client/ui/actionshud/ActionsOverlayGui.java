@@ -462,7 +462,7 @@ public class ActionsOverlayGui extends AbstractGui {
         PoseStack matrixStack = guiGraphics.pose();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
-        float partialTick = event.getPartialTicks();
+        float partialTick = event.getPartialTick();
         switch (event.getType()) {
         case CROSSHAIRS:
             if (mc.options.getCameraType().isFirstPerson()

@@ -16,10 +16,10 @@ public class HamonStatsPredicate {
     @Nullable
     private final MinMaxBounds.Ints controlLevel;
     @Nullable
-    private final MinMaxBounds.FloatBound breathingTrainingLevel;
+    private final MinMaxBounds.Doubles breathingTrainingLevel;
     
     public HamonStatsPredicate(MinMaxBounds.Ints strengthLevel, 
-            MinMaxBounds.Ints controlLevel, MinMaxBounds.FloatBound breathingTrainingLevel) {
+            MinMaxBounds.Ints controlLevel, MinMaxBounds.Doubles breathingTrainingLevel) {
         this.strengthLevel = strengthLevel;
         this.controlLevel = controlLevel;
         this.breathingTrainingLevel = breathingTrainingLevel;
@@ -43,7 +43,7 @@ public class HamonStatsPredicate {
             
             MinMaxBounds.Ints strength = MinMaxBounds.Ints.fromJson(jsonObject.get("strength_level"));
             MinMaxBounds.Ints control = MinMaxBounds.Ints.fromJson(jsonObject.get("control_level"));
-            MinMaxBounds.FloatBound breathingTraining = MinMaxBounds.FloatBound.fromJson(jsonObject.get("breathing_training_level"));
+            MinMaxBounds.Doubles breathingTraining = MinMaxBounds.Doubles.fromJson(jsonObject.get("breathing_training_level"));
             
             return new HamonStatsPredicate(strength, control, breathingTraining);
         }

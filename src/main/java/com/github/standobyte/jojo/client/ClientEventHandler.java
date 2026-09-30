@@ -375,7 +375,7 @@ public class ClientEventHandler {
         if (entity instanceof LivingEntity) {
             INonStandPower.getNonStandPowerOptional((LivingEntity) entity).ifPresent(power -> {
                 if (power.getHeldAction(true) == ModHamonActions.ZEPPELI_TORNADO_OVERDRIVE.get()) {
-                    matrixStack.mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialTicks()) * -2F % 360F));
+                    matrixStack.mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialTick()) * -2F % 360F));
                 }
             });
         }
@@ -1234,7 +1234,7 @@ public class ClientEventHandler {
                         ModPillarmanActions.PILLARMAN_DIVINE_SANDSTORM.get())
                         || LivingWallClimbing.getHandler(player).map(cap -> cap.isWallClimbing()).orElse(false)) {
                     renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getBuffers(), event.getLight(), 
-                            event.getPartialTicks(), event.getInterpolatedPitch(), player);
+                            event.getPartialTick(), event.getInterpolatedPitch(), player);
                     renderOtherHand = false;
                 }
                 
@@ -1243,7 +1243,7 @@ public class ClientEventHandler {
                     if (MCUtil.isHandFree(player, handToRender)) {
                         event.setCanceled(true);
                         renderHand(handToRender, event.getPoseStack(), event.getBuffers(), event.getLight(), 
-                                event.getPartialTicks(), event.getInterpolatedPitch(), player);
+                                event.getPartialTick(), event.getInterpolatedPitch(), player);
                     }
                 }
             }
@@ -1251,7 +1251,7 @@ public class ClientEventHandler {
             if (!item.isEmpty() && item.getItem() == ModItems.PHOTO.get()) {
                 event.setCanceled(true);
                 PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getBuffers(), event.getLight(), 
-                        event.getEquipProgress(), MCUtil.getHandSide(player, hand), event.getSwingProgress(), item, event.getPartialTicks());
+                        event.getEquipProgress(), MCUtil.getHandSide(player, hand), event.getSwingProgress(), item, event.getPartialTick());
             }
         }
     }
@@ -1643,7 +1643,7 @@ public class ClientEventHandler {
         Camera camera = mc.gameRenderer.getMainCamera();
         PoseStack matrixStack = event.getPoseStack();
         Matrix4f projMatrix = event.getProjectionMatrix();
-        float partialTick = event.getPartialTicks();
+        float partialTick = event.getPartialTick();
         findEntitiesOnScreen(matrixStack, projMatrix, camera, partialTick);
         ShaderEffectApplier.getInstance().updateTimeStopperScreenPos(matrixStack, projMatrix, camera, partialTick);
     }

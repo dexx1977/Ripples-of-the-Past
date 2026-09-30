@@ -208,8 +208,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent
         public static void setCoffinTime(SleepFinishedTimeEvent event) {
-            if (event.getLevel() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.getLevel();
+            if (event.level() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.level();
                 int playersCount = world.players().size();
                 if (world.players().stream()
                         .filter(player -> player.isSleeping() && isBlockCoffin(player.level, Optional.of(player.blockPosition())))
@@ -223,8 +223,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void skippedToNight(SleepFinishedTimeEvent event) {
-            if (event.getLevel() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.getLevel();
+            if (event.level() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.level();
                 world.players().stream()
                 .filter(player -> player.isSleeping())
                 .forEach(player -> {
@@ -235,7 +235,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
                             player.removeEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
                             player.removeEffect(MobEffects.WEAKNESS);
                         }
-                        long oldTime = event.getLevel().getLevelData().getDayTime();
+                        long oldTime = event.level().getLevelData().getDayTime();
                         int oldDayTime = (int) (oldTime % 24000L);
                         int newDayTime = (int) (event.getNewTime() % 24000L);
                         if (newDayTime >= 12600 && newDayTime < 23500 && 

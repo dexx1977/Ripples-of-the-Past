@@ -614,7 +614,7 @@ public class MCUtil {
 //
 //                Entity entity;
 //                try {
-//                    entity = type.create(world.getLevel());
+//                    entity = type.create(world.level());
 //                } catch (Exception exception) {
 //                    JojoMod.getLogger().warn("Failed to create mob", (Throwable)exception);
 //                    continue;
@@ -1050,7 +1050,7 @@ public class MCUtil {
     }
 
     private static boolean sendParticles(ServerLevel world, ServerPlayer player, boolean force, double x, double y, double z, Object packet) {
-        if (player.getLevel() != world) {
+        if (player.level() != world) {
             return false;
         } else {
             BlockPos blockpos = player.blockPosition();

@@ -188,7 +188,7 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
         for (int i = 0; i < 4; ++i) {
            Vector3f vector3f = avector3f[i];
            vector3f.add(-0.125F, 0, -0.125F);
-           vector3f.transform(Axis.XP.rotationDegrees(-camera.getXRot()));
+           vector3f.rotate(Axis.XP.rotationDegrees(-camera.getXRot()));
            vector3f.transform(Axis.YP.rotationDegrees(180 + camera.getYRot() - yBodyRot));
         }
         

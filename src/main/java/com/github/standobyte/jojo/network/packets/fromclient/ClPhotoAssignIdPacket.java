@@ -52,7 +52,7 @@ public class ClPhotoAssignIdPacket {
             long photoIntId = serverPhotos.incPolaroidPhotoId();
             PacketManager.sendToClient(new PhotoIdAssignedPacket(msg.photoUuid, photoIntId, player.getId() == msg.giveItemToPlayer), player);
             
-            Entity entity = player.getLevel().getEntity(msg.giveItemToPlayer);
+            Entity entity = player.level().getEntity(msg.giveItemToPlayer);
             if (entity instanceof LivingEntity) {
                 ItemStack photo = new ItemStack(ModItems.PHOTO.get());
                 PhotoItem.setPhotoId(photo, photoIntId);

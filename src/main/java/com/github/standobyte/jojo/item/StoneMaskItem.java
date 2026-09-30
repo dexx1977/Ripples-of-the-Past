@@ -185,7 +185,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
     protected boolean canPlace(BlockPlaceContext context, BlockState state) {
         Player playerentity = context.getPlayer();
         CollisionContext iselectioncontext = playerentity == null ? CollisionContext.empty() : CollisionContext.of(playerentity);
-        return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.getLevel().isUnobstructed(state, context.getClickedPos(), iselectioncontext);
+        return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.level().isUnobstructed(state, context.getClickedPos(), iselectioncontext);
     }
 
     protected boolean mustSurvive() {

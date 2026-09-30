@@ -156,7 +156,7 @@ public class ControllerStand {
         player.yBob = (float)((double)player.yBob + (double)(player.yRot - player.yBob) * 0.5D);
         PoseStack matrixStack = event.getPoseStack();
         MultiBufferSource buffer = event.getBuffers();
-        float partialTick = event.getPartialTicks();
+        float partialTick = event.getPartialTick();
         int light = mc.getEntityRenderDispatcher().getPackedLightCoords(stand, partialTick);
         StandEntityRenderer renderer = (StandEntityRenderer<?, ?>)mc.getEntityRenderDispatcher().<StandEntity>getRenderer(stand);
 //        renderer.renderFirstPersonArms(matrixStack, buffer, light, stand, partialTick);

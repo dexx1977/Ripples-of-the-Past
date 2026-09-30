@@ -15,7 +15,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 
-public class ToggleSwitch extends Button {
+public class ToggleSwitch extends CustomButton {
     protected static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png");
     
     private final Orientation orientation;

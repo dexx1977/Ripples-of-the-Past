@@ -186,7 +186,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.event.TickEvent.WorldTickEvent;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.PlayLevelSoundEvent;
@@ -346,8 +346,8 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.getLevel() instanceof ServerLevel) {
-            MinecraftServer server = ((ServerLevel) event.getLevel()).getServer();
+        if (event.level() instanceof ServerLevel) {
+            MinecraftServer server = ((ServerLevel) event.level()).getServer();
             for (RegistryObject<? extends Feature<?>> featureSupplier : ModStructures.FEATURES.getEntries()) {
                 Feature<?> feature = (Feature<?>) featureSupplier.get();
                 if (feature instanceof LoadMeFeature) {

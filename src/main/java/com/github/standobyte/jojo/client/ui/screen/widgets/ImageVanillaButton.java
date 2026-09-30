@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 
-public class ImageVanillaButton extends Button {
+public class ImageVanillaButton extends CustomButton {
     private final ResourceLocation resourceLocation;
     private final int xTexStart;
     private final int yTexStart;
@@ -47,7 +47,7 @@ public class ImageVanillaButton extends Button {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, pWidth, pHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
-                pOnPress, NO_TOOLTIP, pMessage);
+                pOnPress, null, pMessage);
     }
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
@@ -67,7 +67,7 @@ public class ImageVanillaButton extends Button {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, iconWidth, iconHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
-                pOnPress, NO_TOOLTIP, Component.empty());
+                pOnPress, null, Component.empty());
     }
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 

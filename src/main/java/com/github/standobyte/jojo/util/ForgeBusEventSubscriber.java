@@ -336,14 +336,14 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.getLevel() instanceof Level) {
-            if (event.getLevel() instanceof ServerLevel) {
-                ServerLevel serverWorld = (ServerLevel) event.getLevel();
+        if (event.level() instanceof Level) {
+            if (event.level() instanceof ServerLevel) {
+                ServerLevel serverWorld = (ServerLevel) event.level();
                 addDimensionalSpacing(serverWorld);
             }
-            EntityTypeToInstance.init((Level) event.getLevel());
+            EntityTypeToInstance.init((Level) event.level());
         }
-        EntityTypeToInstance.init((Level) event.getLevel());
+        EntityTypeToInstance.init((Level) event.level());
     }
     
     private static void addDimensionalSpacing(ServerLevel serverWorld) {

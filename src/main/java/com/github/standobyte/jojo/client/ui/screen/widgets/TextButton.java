@@ -13,7 +13,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
-public class TextButton extends Button {
+public class TextButton extends CustomButton {
     private Font font;
     
     public TextButton(int pX, int pY, Component pMessage, 
@@ -24,7 +24,7 @@ public class TextButton extends Button {
 
     public TextButton(int pX, int pY, Component pMessage, 
             Button.OnPress pOnPress, Font font) {
-        this(pX, pY, pMessage, pOnPress, NO_TOOLTIP, font);
+        this(pX, pY, pMessage, pOnPress, null, font);
     }
 
     @Override

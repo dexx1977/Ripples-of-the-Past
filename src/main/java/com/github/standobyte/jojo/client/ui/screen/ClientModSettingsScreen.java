@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
@@ -448,7 +449,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
     
     
     
-    private static class ScrollingStringButton extends Button {
+    private static class ScrollingStringButton extends CustomButton {
         private Alignment alignment = Alignment.LEFT;
         
         public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage,

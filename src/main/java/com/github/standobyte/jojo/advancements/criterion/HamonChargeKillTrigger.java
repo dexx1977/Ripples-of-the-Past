@@ -50,9 +50,9 @@ public class HamonChargeKillTrigger extends SimpleCriterionTrigger<HamonChargeKi
             });
         }
         else if (chargedBlockPos != null) {
-            BlockState blockState = player.getLevel().getBlockState(chargedBlockPos);
+            BlockState blockState = player.level().getBlockState(chargedBlockPos);
             trigger(player, (criterion) -> {
-               return criterion.matches(killed, killedLootCtx, blockState, chargedBlockPos, player.getLevel());
+               return criterion.matches(killed, killedLootCtx, blockState, chargedBlockPos, player.level());
             });
         }
     }

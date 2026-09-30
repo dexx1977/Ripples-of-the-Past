@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
 
-public class ItemButton extends Button {
+public class ItemButton extends CustomButton {
     private final ItemStack item;
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
@@ -19,7 +19,7 @@ public class ItemButton extends Button {
             Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
-                pOnPress, NO_TOOLTIP, Component.empty());
+                pOnPress, null, Component.empty());
     }
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 

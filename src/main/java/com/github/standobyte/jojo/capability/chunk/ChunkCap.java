@@ -110,7 +110,7 @@ public class ChunkCap {
     
             if (!blocksToSync.isEmpty()) {
                 PacketManager.sendToTrackingChunk(new BrokenChunkBlocksPacket(blocksToSync, false), chunk);
-//                syncedTo = ((ServerChunkProvider) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)
+//                syncedTo = ((ServerChunkProvider) chunk.level().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false)
 //                        .collect(Collectors.toSet());
             }
         }
@@ -118,7 +118,7 @@ public class ChunkCap {
 
     // FIXME fix the blocks resetting on client after being synced
     public void onChunkLoad(ServerPlayer player) {
-//        if (!chunk.getLevel().isClientSide() && !syncedTo.contains(player) && !brokenBlocks.isEmpty()) {
+//        if (!chunk.level().isClientSide() && !syncedTo.contains(player) && !brokenBlocks.isEmpty()) {
 //            PacketManager.sendToClient(new BrokenChunkBlocksPacket(brokenBlocks.values(), true), player);
 //            syncedTo.add(player);
 //        }
