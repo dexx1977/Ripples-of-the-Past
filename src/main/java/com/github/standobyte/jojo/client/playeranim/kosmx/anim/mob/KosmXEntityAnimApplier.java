@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.mob;
 
+import com.github.standobyte.jojo.client.playeranim.kosmx.KosmXBendyLibHelper;
+import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler.BendablePart;
 import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.client.ClientTicking;
 import com.github.standobyte.jojo.client.playeranim.IEntityAnimApplier;
@@ -62,11 +64,12 @@ public abstract class KosmXEntityAnimApplier<T extends LivingEntity, M extends H
             
             Pair<Float, Float> torsoBend = pose.getBend("torso");
             Pair<Float, Float> bodyBend = pose.getBend("body");
-            modelWithMixin.getTorso().bend(new Pair<>(torsoBend.getLeft() + bodyBend.getLeft(), torsoBend.getRight() + bodyBend.getRight()));
-            modelWithMixin.getLeftArm().bend(pose.getBend("leftArm"));
-            modelWithMixin.getLeftLeg().bend(pose.getBend("leftLeg"));
-            modelWithMixin.getRightArm().bend(pose.getBend("rightArm"));
-            modelWithMixin.getRightLeg().bend(pose.getBend("rightLeg"));
+            KosmXBendyLibHelper.bend(model, BendablePart.TORSO,
+                    torsoBend.getLeft() + bodyBend.getLeft(), torsoBend.getRight() + bodyBend.getRight());
+            KosmXBendyLibHelper.bend(model, BendablePart.LEFT_ARM, pose.getBend("leftArm"));
+            KosmXBendyLibHelper.bend(model, BendablePart.LEFT_LEG, pose.getBend("leftLeg"));
+            KosmXBendyLibHelper.bend(model, BendablePart.RIGHT_ARM, pose.getBend("rightArm"));
+            KosmXBendyLibHelper.bend(model, BendablePart.RIGHT_LEG, pose.getBend("rightLeg"));
         }
     }
 

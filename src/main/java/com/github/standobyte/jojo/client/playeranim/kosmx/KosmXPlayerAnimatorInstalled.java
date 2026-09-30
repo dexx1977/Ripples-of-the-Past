@@ -26,7 +26,6 @@ import dev.kosmx.playerAnim.core.util.Pair;
 import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.impl.Helper;
 import dev.kosmx.playerAnim.impl.IAnimatedPlayer;
-import dev.kosmx.playerAnim.impl.IBendHelper;
 import dev.kosmx.playerAnim.impl.IMutableModel;
 import dev.kosmx.playerAnim.impl.IPlayerModel;
 import dev.kosmx.playerAnim.impl.IUpperPartHelper;
@@ -119,42 +118,19 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
     @Override
     public float[] getBend(HumanoidModel<?> model, BendablePart part) {
         if (Helper.isBendEnabled() && model instanceof IMutableModel) {
-            IMutableModel bendyModel = (IMutableModel) model;
-            AnimationProcessor anim = bendyModel.getEmoteSupplier().get();
+            AnimationProcessor anim = ((IMutableModel) model).getEmoteSupplier().get();
             if (anim != null && anim.isActive()) {
-                IBendHelper mutablePart = getMutablePart(bendyModel, part);
-                if (mutablePart != null) {
-                    return KosmXBendyLibHelper.getBend(mutablePart);
-                }
+                return KosmXBendyLibHelper.getBend(model, part);
             }
         }
         return super.getBend(model, part);
     }
     
     @Override
-    public void setBend(HumanoidModel<?> model, BendablePart part, float axis, float angle) {
+    public void setBend(HumanoidModel<?> model, BendablePart part, float bendX, float bendY) {
         if (Helper.isBendEnabled() && model instanceof IMutableModel) {
-            IBendHelper mutablePart = getMutablePart((IMutableModel) model, part);
-            if (mutablePart != null) {
-                mutablePart.bend(axis, angle);
-            }
+            KosmXBendyLibHelper.bend(model, part, bendX, bendY);
         }
-    }
-    
-    private IBendHelper getMutablePart(IMutableModel model, BendablePart neededPart) {
-        switch (neededPart) {
-        case TORSO:
-            return model.getTorso();
-        case LEFT_ARM:
-            return model.getLeftArm();
-        case RIGHT_ARM:
-            return model.getRightArm();
-        case LEFT_LEG:
-            return model.getLeftLeg();
-        case RIGHT_LEG:
-            return model.getRightLeg();
-        }
-        return null;
     }
     
     @Override

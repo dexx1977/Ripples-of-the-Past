@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.barrage;
 
+import com.github.standobyte.jojo.client.playeranim.kosmx.KosmXBendyLibHelper;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +23,6 @@ import dev.kosmx.playerAnim.core.util.Easing;
 import dev.kosmx.playerAnim.core.util.MathHelper;
 import dev.kosmx.playerAnim.core.util.Pair;
 import dev.kosmx.playerAnim.core.util.Vec3f;
-import dev.kosmx.playerAnim.impl.IBendHelper;
-import dev.kosmx.playerAnim.impl.IMutableModel;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.model.HumanoidModel;
@@ -41,8 +41,8 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
 
     private final Map<String, BodyPart> bodyParts;
     
-    private final Map<String, ModelPart> modelParts;
-    private final Map<String, IBendHelper> sameModelPartsBendable;
+    private final Map<String, net.minecraft.client.model.geom.ModelPart> modelParts;
+    private final Map<String, net.minecraft.client.model.geom.ModelPart> sameModelPartsBendable;
     private final PlayerModel<AbstractClientPlayer> model;
 
     public KosmXPlayerBarrageAnim(PlayerModel<AbstractClientPlayer> model) {
@@ -60,19 +60,19 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
             if (model != null) {
                 switch (part.getKey()) {
                 case "head":
-                    addModelPart(part.getKey(), m -> m.head, m -> null);
+                    addModelPart(part.getKey(), m -> m.head);
                     break;
                 case "leftArm":
-                    addModelPart(part.getKey(), m -> m.leftArm, IMutableModel::getLeftArm);
+                    addModelPart(part.getKey(), m -> m.leftArm);
                     break;
                 case "rightArm":
-                    addModelPart(part.getKey(), m -> m.rightArm, IMutableModel::getRightArm);
+                    addModelPart(part.getKey(), m -> m.rightArm);
                     break;
                 case "leftLeg":
-                    addModelPart(part.getKey(), m -> m.leftLeg, IMutableModel::getLeftLeg);
+                    addModelPart(part.getKey(), m -> m.leftLeg);
                     break;
                 case "rightLeg":
-                    addModelPart(part.getKey(), m -> m.rightLeg, IMutableModel::getRightLeg);
+                    addModelPart(part.getKey(), m -> m.rightLeg);
                     break;
                 }
             }
@@ -80,14 +80,13 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
     }
     
     private void addModelPart(String key, 
-            Function<HumanoidModel<?>, ModelPart> part, 
-            Function<IMutableModel, IBendHelper> partBendable) {
-        modelParts.put(key, part.apply(model));
-        if (model instanceof IMutableModel) {
-            IBendHelper bendable = partBendable.apply((IMutableModel) model);
-            if (bendable != null) {
-                sameModelPartsBendable.put(key, bendable);
-            }
+            Function<HumanoidModel<?>, net.minecraft.client.model.geom.ModelPart> part) {
+        net.minecraft.client.model.geom.ModelPart modelPart = part.apply(model);
+        modelParts.put(key, modelPart);
+        // the arms and legs are the parts the animation bends; the head is not,
+        // which the old null bendable supplier expressed
+        if (!"head".equals(key)) {
+            sameModelPartsBendable.put(key, modelPart);
         }
     }
     
@@ -173,10 +172,10 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
                     part.yRot = rot.getY();
                     part.zRot = rot.getZ();
                     
-                    IBendHelper partBendable = sameModelPartsBendable.get(partName);
-                    if (partBendable != null) {
+                    net.minecraft.client.model.geom.ModelPart bendablePart = sameModelPartsBendable.get(partName);
+                    if (bendablePart != null) {
                         Vec3f bend = get3DTransform(partName, ItemDisplayContext.BEND, tick, partialTick, Vec3f.ZERO);
-                        partBendable.bend(new Pair<>(bend.getX(), bend.getY()));
+                        KosmXBendyLibHelper.bend(bendablePart, Direction.UP, bend.getX(), bend.getY());
                     }
                 }
             }

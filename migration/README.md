@@ -109,6 +109,7 @@ Compilation is the current gate; the counts below are javac errors from
 | HUD overlays on RegisterGuiOverlaysEvent/RenderGuiOverlayEvent | 2,131 |
 | Walk animation state, child attachment, sound attenuation, texture binds | 2,124 |
 | Custom buttons (renderWidget), widget Tooltips, scene translate calls | 2,073 |
+| PlayerAnimator bending on the 1.20.1 stateless bend API | 2,044 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
@@ -123,13 +124,18 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-2. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
+2. The Hamon Master's bendable clothing geometry. 1.16.5 built it with
+   `IBendHelper.create(part, mirror, supplier).addBendedCuboid(...)`, which the
+   1.20.1 playerAnimator API no longer has; the geometry has to be rebuilt on
+   bendy-lib 4.0.0's `MutableModelPart`/`BendableCuboid.Builder` (the rest of the
+   bend handling is already ported, see KosmXBendyLibHelper).
+3. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
    registration changed, `WorldGenRegistries`/`DimensionStructuresSettings` are
    gone (datapack worldgen), and the AT that strips `final` from `StructureStart`
    still has to be added.
 4. Mixins and access transformers: targets, descriptors and SRG names still need
    a pass, plus `ObfuscationReflectionHelper` strings.
-5. Optional integrations: bendy-lib's `IBendHelper` API changed, JEI/Vampirism
+6. Optional integrations: bendy-lib's `IBendHelper` API changed, JEI/Vampirism
    entry points need their 1.20.1 shapes.
 
 Runtime testing has not started: the build does not compile yet, so nothing has
