@@ -5,25 +5,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.renderer.RenderStateShard;
 
-public class ScaledTexturingState extends RenderStateShard.TexturingState {
+public class ScaledTexturingState extends RenderStateShard.TexturingStateShard {
     private final float xScale;
     private final float yScale;
 
     @SuppressWarnings("deprecation")
     public ScaledTexturingState(float xScale, float yScale) {
-        super("jojo_scaled_texturing", () -> {
-            RenderSystem.matrixMode(5890);
-            GuiDraw.pushMatrix();
-            RenderSystem.loadIdentity();
-            RenderSystem.scalef(xScale, yScale, 1);
-            RenderSystem.matrixMode(5888);
-        }, () -> {
-            RenderSystem.matrixMode(5890);
-            GuiDraw.popMatrix();
-            RenderSystem.matrixMode(5888);
-        });
-        this.xScale = xScale;
-        this.yScale = yScale;
+        // 1.20.1 scales the texture through its matrix
+        super("jojo_scaled_texturing", 
+                () -> RenderSystem.setTextureMatrix(new org.joml.Matrix4f().scale(xScale, yScale, 1.0F)), 
+                RenderSystem::resetTextureMatrix);
     }
 
     public boolean equals(Object obj) {

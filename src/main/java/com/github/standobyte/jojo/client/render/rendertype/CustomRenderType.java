@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CustomRenderType extends RenderType {
     
-    private CustomRenderType(String name, VertexFormat format, int mode, int bufferSize,
+    private CustomRenderType(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize,
             boolean affectCrumbling, boolean sortOnUpload, Runnable setupState, Runnable clearState) {
         super(name, format, mode, bufferSize, affectCrumbling, sortOnUpload, setupState, clearState);
     }
@@ -24,13 +24,12 @@ public class CustomRenderType extends RenderType {
         RenderType.CompositeState renderType$state = RenderType.CompositeState.builder()
                 .setTextureState(new RenderStateShard.TextureStateShard(glintTexture, true, false))
                 .setWriteMaskState(COLOR_WRITE)
-                .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
                 .setTransparencyState(GLINT_TRANSPARENCY)
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setTexturingState(ENTITY_GLINT_TEXTURING)
                 .createCompositeState(false);
-        return RenderType.create("jojo_proj_shield", DefaultVertexFormat.BLOCK, 7, 256, false, true, renderType$state);
+        return RenderType.create("jojo_proj_shield", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, true, renderType$state);
     }
     
     
@@ -39,13 +38,12 @@ public class CustomRenderType extends RenderType {
         RenderType.CompositeState renderType$state = RenderType.CompositeState.builder()
                 .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
                 .setWriteMaskState(COLOR_WRITE)
-                .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
                 .setTransparencyState(GLINT_TRANSPARENCY)
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setTexturingState(ENTITY_GLINT_TEXTURING)
                 .createCompositeState(false);
-        return RenderType.create("jojo_ge_lifeform", DefaultVertexFormat.BLOCK, 7, 256, false, true, renderType$state);
+        return RenderType.create("jojo_ge_lifeform", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, false, true, renderType$state);
     }
     
     public static RenderType goldExperienceLifeformOverlay(ResourceLocation overlayTexture, float xScale, float yScale) {
@@ -53,16 +51,14 @@ public class CustomRenderType extends RenderType {
                 .setTextureState(new RenderStateShard.TextureStateShard(overlayTexture, false, false))
                 .setTexturingState(new ScaledTexturingState(xScale, yScale))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                .setDiffuseLightingState(DIFFUSE_LIGHTING)
-                .setAlphaState(DEFAULT_ALPHA)
                 .setCullState(NO_CULL)
                 .setLightmapState(LIGHTMAP)
                 .setOverlayState(OVERLAY)
                 .createCompositeState(false);
-        return create("jojo_ge_lifeform_overlay", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, true, rendertype$state);
+        return create("jojo_ge_lifeform_overlay", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, rendertype$state);
     }
     
-    private static final RenderType GE_IMBUED_GLINT = RenderType.create("jojo_ge_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT = RenderType.create("jojo_ge_glint", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -75,7 +71,7 @@ public class CustomRenderType extends RenderType {
         return GE_IMBUED_GLINT;
     }
     
-    private static final RenderType GE_IMBUED_GLINT_DIRECT = RenderType.create("jojo_ge_glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT_DIRECT = RenderType.create("jojo_ge_glint_direct", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -88,7 +84,7 @@ public class CustomRenderType extends RenderType {
         return GE_IMBUED_GLINT_DIRECT;
     }
     
-    private static final RenderType GE_IMBUED_GLINT_TRANSLUCENT = create("jojo_ge_glint_translucent", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT_TRANSLUCENT = create("jojo_ge_glint_translucent", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
