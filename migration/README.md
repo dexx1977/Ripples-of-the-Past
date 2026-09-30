@@ -100,6 +100,10 @@ Compilation is the current gate; the counts below are javac errors from
 | GUI/HUD drawing through GuiGraphics (GuiDraw), tooltips | 2,747 |
 | Creative tab on the 1.20.1 builder API | 2,719 |
 | Small API batches (input keys, sound events, item RNG, font draws, getEntity) | 2,580 |
+| SRG reflection names translated from mapping data | 2,580 |
+| Low-level geometry (Cube/Polygon/Vertex), custom cubes, blockbench parsers | 2,331 |
+| Buttons via the builder API, screens passing GuiGraphics | 2,318 |
+| Vanilla model part typing where vanilla models supply the parts | 2,278 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
