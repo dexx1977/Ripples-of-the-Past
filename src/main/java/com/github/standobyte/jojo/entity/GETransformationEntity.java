@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.entity;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,7 +111,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
     
     public GETransformationEntity withOwner(LivingEntity user) {
-        this.owner.setThrower(user);
+        this.owner.setOwner(user);
         return this;
     }
     
@@ -163,7 +164,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 }
                 BlockEntity tileEntity = null;
                 if (source.sourceTileEntityNbt != null) {
-                    tileEntity = BlockEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
+                    tileEntity = BlockEntity.loadStatic(blockPos, blockToPlace, source.sourceTileEntityNbt);
                 }
                 Block.dropResources(blockToPlace, level, blockPos, tileEntity, owner.getEntity(level), ItemStack.EMPTY);
                 // FIXME items in chest-like tile entities are lost
@@ -220,9 +221,9 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 else {
                     level.setBlock(blockPos, blockToPlace, 3);
                     if (source.sourceTileEntityNbt != null) {
-                        BlockEntity tileEntity = BlockEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
+                        BlockEntity tileEntity = BlockEntity.loadStatic(blockPos, blockToPlace, source.sourceTileEntityNbt);
                         if (tileEntity != null) {
-                            level.setBlockEntity(blockPos, tileEntity);
+                            level.setBlockEntity(tileEntity);
                         }
                     }
                 }
@@ -291,7 +292,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             double inertia = 0.98;
             if (onGround) {
                 inertia = level.getBlockState(BlockPos.containing(getX(), getY() - 1.0, getZ()))
-                        .getSlipperiness(level, BlockPos.containing(getX(), getY() - 1.0, getZ()), this) * 0.98;
+                        .getFriction(level, BlockPos.containing(getX(), getY() - 1.0, getZ()), this) * 0.98;
             }
             deltaMovement = deltaMovement.multiply(inertia, 0.98, inertia);
             
@@ -697,7 +698,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             this.sourceBlockState = blockState;
             this.sourceBlockPos = blockPos;
             if (tileEntity != null) {
-                sourceTileEntityNbt = tileEntity.save(new CompoundTag());
+                sourceTileEntityNbt = tileEntity.saveWithoutMetadata();
             }
             return this;
         }

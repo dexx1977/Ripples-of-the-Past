@@ -174,7 +174,7 @@ public class MCUtil {
         CommandSourceStack src = user.createCommandSourceStack()
                 .withMaximumPermission(4)
                 .withSuppressedOutput();
-        return server.getCommands().performCommand(src, command);
+        return server.getCommands().performPrefixedCommand(src, command);
     }
     
     // NBT helper functions
@@ -413,7 +413,7 @@ public class MCUtil {
                         double d8 = center.getZ();
 
                         for (; f > 0.0F; f -= 0.225F) {
-                            BlockPos blockpos = new BlockPos(d4, d6, d8);
+                            BlockPos blockpos = BlockPos.containing(d4, d6, d8);
                             BlockState blockstate = world.getBlockState(blockpos);
                             FluidState fluidstate = world.getFluidState(blockpos);
                             Optional<Float> optional = blockstate.isAir() && fluidstate.isEmpty()
@@ -458,8 +458,8 @@ public class MCUtil {
         }
         
         ChunkMap chunkMap = ((ServerLevel) entity.level).getChunkSource().chunkMap;
-        Int2ObjectMap<ChunkMap.EntityTracker> entityMap = chunkMap.entityMap;
-        ChunkMap.EntityTracker tracker = entityMap.get(entity.getId());
+        Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = chunkMap.entityMap;
+        ChunkMap.TrackedEntity tracker = entityMap.get(entity.getId());
         return tracker != null ? tracker.seenBy : Collections.emptySet();
     }
     
