@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.item;
 
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import java.util.List;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,7 +23,7 @@ public class RoadRollerBakedModel implements BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction direction, @Nonnull Random rand) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction direction, @Nonnull RandomSource rand) {
         return this.existingModel.getQuads(state, direction, rand);
     }
 

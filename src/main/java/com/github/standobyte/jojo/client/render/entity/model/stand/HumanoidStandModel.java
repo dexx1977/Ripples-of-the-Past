@@ -409,7 +409,8 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         List<ModelPart> allModelParts = new ArrayList<>();
         addChildren(mainPart, allModelParts);
         ModelPart randomPart = allModelParts.get(random.nextInt(allModelParts.size()));
-        ObjectList<ModelPart.Cube> cubes = randomPart.cubes;
+        // 1.20.1 keeps the cuboids in a plain list, 1.16.5 used a fastutil ObjectList
+        List<ModelPart.Cube> cubes = randomPart.cubes;
         if (!cubes.isEmpty()) {
             ModelPart.Cube cube = cubes.get(random.nextInt(cubes.size()));
             ModelPart.Polygon[] polygons = cube.polygons;
@@ -430,8 +431,8 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     
     private void addChildren(ModelPart parent, Collection<ModelPart> collection) {
         collection.add(parent);
-        for (ModelPart child : parent.children) {
-            addChildren(child, collection);
+        for (net.minecraft.client.model.geom.ModelPart child : parent.children.values()) { // 1.20.1 children are a name-keyed map
+            addChildren((ModelPart) child, collection);
         }
     }
     
@@ -958,8 +959,8 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     
     public static void addChildrenRecursive(ModelPart modelPart, Collection<ModelPart> collection) {
         collection.add(modelPart);
-        for (ModelPart child : modelPart.children) {
-            addChildrenRecursive(child, collection);
+        for (net.minecraft.client.model.geom.ModelPart child : modelPart.children.values()) { // 1.20.1 children are a name-keyed map
+            addChildrenRecursive((ModelPart) child, collection);
         }
     }
     
