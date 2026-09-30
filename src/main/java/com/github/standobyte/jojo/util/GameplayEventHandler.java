@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.util;
 
+import net.minecraftforge.event.entity.living.LivingEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -233,7 +234,7 @@ public class GameplayEventHandler {
     public static final boolean DELETE_ME = true;
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingTick(LivingUpdateEvent event) {
+    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
         VampirismUtil.tickSunDamage(entity);
         entity.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
@@ -302,7 +303,7 @@ public class GameplayEventHandler {
     @SubscribeEvent
     public static void onWorldTick(TickEvent.LevelTickEvent event) {
         if (event.side == LogicalSide.SERVER /* actually only ticks on server but ok */) {
-            ServerLevel world = (ServerLevel) event.world;
+            ServerLevel world = (ServerLevel) event.level;
             switch (event.phase) {
             case START:
                 break;
@@ -343,8 +344,8 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWorldLoad(LevelEvent.Load event) {
-        if (event.level() instanceof ServerLevel) {
-            MinecraftServer server = ((ServerLevel) event.level()).getServer();
+        if (event.getLevel() instanceof ServerLevel) {
+            MinecraftServer server = ((ServerLevel) event.getLevel()).getServer();
             for (RegistryObject<? extends Feature<?>> featureSupplier : ModStructures.FEATURES.getEntries()) {
                 Feature<?> feature = (Feature<?>) featureSupplier.get();
                 if (feature instanceof LoadMeFeature) {
@@ -390,7 +391,7 @@ public class GameplayEventHandler {
             VampirismUtil.editMobAiGoals((Mob) entity);
         }
 //        else if (entity.getType() == EntityType.PAINTING) {
-//            cutOutHands((PaintingEntity) event.getOwner());
+//            cutOutHands((PaintingEntity) event.getEntity());
 //        }
     }
     
@@ -470,7 +471,7 @@ public class GameplayEventHandler {
                             .orElse(false));
                 if (!KQUsers.isEmpty()) {
                     if (monaLisaFull) {
-                        painting.setVariant(ModPaintings.MONA_LISA_HANDS.get());
+                        painting.setVariant(ModPaintings.MONA_LISA_HANDS.getHolder().orElseThrow());
                         double x = painting.getX();
                         double z = painting.getZ();
                         if (x - (int) x != 0 && (int) (x + 0.04) != (int) x) {
@@ -483,7 +484,7 @@ public class GameplayEventHandler {
                     }
                 }
                 else if (monaLisaHands) {
-                    painting.setVariant(PaintingVariant.KEBAB);
+                    painting.setVariant(net.minecraft.core.registries.BuiltInRegistries.PAINTING_VARIANT.getHolderOrThrow(net.minecraft.world.entity.decoration.PaintingVariants.KEBAB));
                 }
             }
         }
@@ -1020,7 +1021,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionExpired(MobEffectEvent.Expired event) {
-        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getEffectInstance().getEffect());
+        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getEffectInstance().getEffect());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && ModStatusEffects.isEffectTracked(event.getEffectInstance().getEffect())) {
@@ -1309,12 +1310,13 @@ public class GameplayEventHandler {
     }
 
     private static void sendSoundToOnePlayer(ServerPlayer player, SoundEvent sound, SoundSource category, float volume, float pitch) {
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(player, sound, category, volume, pitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(player, soundHolder, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
-        sound = event.getSound();
+        soundHolder = event.getSound();
         category = event.getSource();
         volume = event.getOriginalVolume();
-        player.connection.send(new ClientboundSoundPacket(sound, category, player.getX(), player.getY(), player.getZ(), volume, pitch));
+        player.connection.send(new ClientboundSoundPacket(soundHolder, category, player.getX(), player.getY(), player.getZ(), volume, pitch, player.level().getRandom().nextLong()));
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -1327,7 +1329,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelHitSound(PlayLevelSoundEvent event) {
-        SoundEvent sound = event.getSound();
+        SoundEvent sound = event.getSound().value();
         if (AngeloRockEntity.cancelPlayerHitSound && (sound == SoundEvents.PLAYER_ATTACK_STRONG || sound == SoundEvents.PLAYER_ATTACK_WEAK/* || sound == SoundEvents.PLAYER_ATTACK_KNOCKBACK*/ /* is played before AngeloRockEntity#hurt is called so nope */)) {
             AngeloRockEntity.cancelPlayerHitSound = false;
             event.setCanceled(true);
@@ -1430,20 +1432,17 @@ public class GameplayEventHandler {
         for (ServerPlayer joseph : josephTechniqueUsers) {
             if (joseph.getChatVisibility() != ChatVisiblity.HIDDEN && joseph.getRandom().nextFloat() < 0.05F) {
                 String tlKey = "jojo.chat.joseph.next_line." + (joseph.getRandom().nextInt(3) + 1);
+                // 1.20.1 fires the chat event on the server side, so the message is used as built
                 Component message = Component.translatable("chat.type.text", joseph.getDisplayName(), 
                         Component.translatable(tlKey, event.getMessage()));
-                Language map = Language.getInstance();
-                if (map != null) {
-                    message = ForgeHooks.onServerChatEvent(joseph.connection, String.format(map.getOrDefault(tlKey), event.getMessage()), message);
-                }
-                if (message != null) {
+                {
                     JojoModUtil.sayVoiceLine(joseph, ModSounds.JOSEPH_GIGGLE.get());
                     joseph.server.getPlayerList().broadcastSystemMessage(message, false);
                 }
             }
         }
         
-        IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(stand -> stand.getResolveCounter().onChatMessage(event.getMessage()));
+        IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(stand -> stand.getResolveCounter().onChatMessage(event.getMessage().getString()));
     }
 
     private static final double STAND_MESSAGE_RANGE = 16;
@@ -1456,13 +1455,15 @@ public class GameplayEventHandler {
                     MinecraftServer server = playerSending.server;
                     
                     Component msg = Component.translatable("chat.type.text", 
-                            standEntity.getDisplayName(), ForgeHooks.newChatWithLinks(event.getMessage()));
+                            standEntity.getDisplayName(), event.getMessage());
                     Component msgUserTooltip = Component.translatable("chat.type.text", 
-                            getDisplayNameWithUser(standEntity, playerSending), ForgeHooks.newChatWithLinks(event.getMessage()));
+                            getDisplayNameWithUser(standEntity, playerSending), event.getMessage());
                     ClientboundSystemChatPacket messagePacket = new ClientboundSystemChatPacket(msg, false);
                     ClientboundSystemChatPacket messagePacketUser = new ClientboundSystemChatPacket(msgUserTooltip, false);
                     
-                    server.sendMessage(event.getComponent() /*sending the message with the original user name*/, playerSending.getUUID());
+                    // 1.20.1 cannot forge a signed player chat message, so the original
+                    // text is broadcast as a system message
+                    server.getPlayerList().broadcastSystemMessage(event.getMessage(), false);
                     for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                         if (player == playerSending || 
                                 player.level.dimension() == playerSending.level.dimension() 
@@ -1590,7 +1591,7 @@ public class GameplayEventHandler {
     public static void onWakeUp(PlayerWakeUpEvent event) {
         Player player = event.getEntity();
         
-        if (!event.wakeImmediately() && !event.updateWorld()) {
+        if (!event.wakeImmediately() && !event.updateLevel()) {
             IStandPower.getStandPowerOptional(player).ifPresent(stand -> {
                 if (stand.hasPower()) {
                     stand.setStamina(stand.getMaxStamina());
