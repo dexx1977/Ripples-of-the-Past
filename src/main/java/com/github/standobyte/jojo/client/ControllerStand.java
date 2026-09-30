@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -38,7 +39,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.client.player.Input;
 import net.minecraft.util.Mth;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
@@ -96,10 +96,9 @@ public class ControllerStand {
     
     
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onInputUpdate(InputUpdateEvent event) {
+    /** Called from the client input hook, which is where 1.20.1 hands the input over. */
+    public void onInputUpdate(net.minecraft.client.player.LocalPlayer player, Input input) {
         if (isControllingStand()) {
-            Input input = event.getMovementInput();
             stand.moveStandManually(input.leftImpulse, input.forwardImpulse, input.jumping, input.shiftKeyDown);
             // FIXME do not reset deltaMovement in manual control
             PacketManager.sendToServer(new ClStandManualMovementPacket(
@@ -229,7 +228,7 @@ public class ControllerStand {
         // running offset; 1.20.1 does not expose it)
         int leftHeight = 39;
         LivingEntity entity = StandUtil.getStandUser(stand);
-        ClientEventHandler.getInstance().renderHealthWithBleeding(entity, matrixStack, gui, event, width, height);
+        ClientEventHandler.getInstance().renderHealthWithBleeding(entity, matrixStack, gui, width, height);
     }
 
     private void renderCameraStandArmor(PoseStack matrixStack, Gui gui, int width, int height) {

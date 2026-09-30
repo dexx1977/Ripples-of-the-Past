@@ -6,59 +6,66 @@ import java.util.List;
 
 import com.github.standobyte.jojo.crafting.StandUserRecipe;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
-import com.mojang.blaze3d.vertex.PoseStack;
 
-import mezz.jei.plugins.vanilla.crafting.CraftingCategoryExtension;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
+import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
+import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 
-public class JeiStandUserRecipeExtension extends CraftingCategoryExtension<StandUserRecipe<?>> {
+public class JeiStandUserRecipeExtension implements ICraftingCategoryExtension {
+    private final StandUserRecipe<?> recipe;
     private final JeiStandIconDrawable standIconDrawable;
     private static final int STAND_ICON_X = 62;
     private static final int STAND_ICON_Y = 2;
     
     public JeiStandUserRecipeExtension(StandUserRecipe<?> recipe) {
-        super(recipe);
+        this.recipe = recipe;
         this.standIconDrawable = new JeiStandIconDrawable(recipe.getStandTypesView());
     }
     
+    /** The category lays the recipe out; this extension only draws its stand icons. */
     @Override
-    public void drawInfo(int recipeWidth, int recipeHeight, PoseStack matrixStack, double mouseX, double mouseY) {
-        standIconDrawable.draw(matrixStack, STAND_ICON_X, STAND_ICON_Y);
+    public void setRecipe(IRecipeLayoutBuilder builder, ICraftingGridHelper craftingGridHelper, IFocusGroup focuses) {}
+    
+    @Override
+    public void drawInfo(int recipeWidth, int recipeHeight, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        standIconDrawable.draw(guiGraphics, STAND_ICON_X, STAND_ICON_Y);
     }
     
     @Override
-    public List<Component> getTooltipStrings(double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder tooltip, double mouseX, double mouseY) {
         if (mouseX >= STAND_ICON_X && mouseX < STAND_ICON_X + standIconDrawable.getWidth() && 
                 mouseY >= STAND_ICON_Y && mouseY < STAND_ICON_Y + standIconDrawable.getHeight()) {
             Collection<StandType<?>> stands = recipe.getStandTypesView();
-            List<Component> tooltip = new ArrayList<>();
+            List<Component> lines = new ArrayList<>();
             
             if (!stands.isEmpty()) {
                 if (stands.size() == 1) {
                     for (StandType<?> stand : stands) {
-                        tooltip.add(Component.translatable("jojo.stand_user_crafting.jei_hint.single", stand.getName()));
+                        lines.add(Component.translatable("jojo.stand_user_crafting.jei_hint.single", stand.getName()));
                     }
                 }
                 else {
-                    tooltip.add(Component.translatable("jojo.stand_user_crafting.jei_hint.multiple"));
+                    lines.add(Component.translatable("jojo.stand_user_crafting.jei_hint.multiple"));
                     for (StandType<?> stand : stands) {
-                        tooltip.add(stand.getName());
+                        lines.add(stand.getName());
                     }
                 }
             }
             
             Collection<ResourceLocation> missingIds = recipe.getMissingIdsView();
             if (!missingIds.isEmpty()) {
-                tooltip.add(Component.translatable("jojo.stand_user_crafting.jei_hint.error"));
+                lines.add(Component.translatable("jojo.stand_user_crafting.jei_hint.error"));
                 for (ResourceLocation id : missingIds) {
-                    tooltip.add(Component.literal(id.toString()));
+                    lines.add(Component.literal(id.toString()));
                 }
             }
             
-            return tooltip;
+            lines.forEach(tooltip::add);
         }
-        
-        return super.getTooltipStrings(mouseX, mouseY);
     }
 }

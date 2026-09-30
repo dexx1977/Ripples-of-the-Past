@@ -26,7 +26,7 @@ public class HamonScreenButton extends CustomButton {
     }
     
     @Override
-    protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();

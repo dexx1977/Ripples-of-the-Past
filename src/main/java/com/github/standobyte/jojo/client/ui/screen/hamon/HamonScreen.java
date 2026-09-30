@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.entity.HumanoidArm;
@@ -70,7 +70,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
     public static int screenY;
 
     public HamonScreen() {
-        super(NarratorChatListener.NO_TITLE);
+        super(Component.empty());
     }
     
     private static IJojoScreen.TabCategory HAMON_CATEGORY;
@@ -269,7 +269,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         screenX = x;
         screenY = y;
         tabsWithSkillRequirements.clear();
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        renderBackground(guiGraphics);
         renderInside(matrixStack, mouseX, mouseY, x, y, partialTick);
         renderWindow(matrixStack, mouseX, mouseY, x, y);
         renderToolTips(matrixStack, mouseX, mouseY, x, y);
@@ -314,7 +314,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         }
         RenderSystem.defaultBlendFunc();
         for (HamonTabGui tabGui : selectableTabs) {
-            tabGui.drawIcon(matrixStack, windowX, windowY, itemRenderer);
+            tabGui.drawIcon(matrixStack, windowX, windowY, minecraft.getItemRenderer());
         }
         
         IJojoScreen.renderVerticalTabs(matrixStack, HumanoidArm.RIGHT, 
@@ -349,29 +349,24 @@ public class HamonScreen extends Screen implements IJojoScreen {
                 List<FormattedCharSequence> tooltipLines = new ArrayList<FormattedCharSequence>();
                 tooltipLines.add(hamonTabGui.getTitle().getVisualOrderText());
                 tooltipLines.addAll(hamonTabGui.additionalTabNameTooltipInfo());
-                renderToolTip(matrixStack, tooltipLines, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, tooltipLines, mouseX, mouseY);
                 break;
             }
         }
-    }
-    
-    @Override
-    public void renderComponentHoverEffect(net.minecraft.client.gui.GuiGraphics guiGraphics, @Nullable Style style, int mouseX, int mouseY) {
-        super.renderComponentHoverEffect(guiGraphics, style, mouseX, mouseY);
     }
 
     // these two overrides make the tooltip wrap at the right edge of the screen correctly
     public void renderToolTip(PoseStack matrixStack, List<? extends FormattedCharSequence> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltipWrapped(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltipWrapped(matrixStack, font, new java.util.ArrayList<net.minecraft.network.chat.FormattedText>(tooltips), mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
     public void renderWrappedToolTip(PoseStack matrixStack, List<? extends FormattedText> tooltips, 
             int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
-        GuiDraw.renderTooltipWrapped(matrixStack, font, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
+        GuiDraw.renderTooltipWrapped(matrixStack, font, new java.util.ArrayList<net.minecraft.network.chat.FormattedText>(tooltips), mouseX + tooltipOffsetX, mouseY + tooltipOffsetY);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
