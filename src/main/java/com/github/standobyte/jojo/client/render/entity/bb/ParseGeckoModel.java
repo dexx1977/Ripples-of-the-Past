@@ -167,7 +167,7 @@ public class ParseGeckoModel {
                         originJ.x(), originJ.y(), originJ.z(), 
                         size[0], size[1], size[2], 
                         inflate, inflate, inflate, 
-                        mirror, texWidth, texHeight, null);
+                        mirror, texWidth, texHeight, java.util.EnumSet.allOf(net.minecraft.core.Direction.class)); // 1.20.1 needs the visible faces
                 
                 if (uv instanceof BoxUV) { // UV needs to be remapped anyway, as if the sizes are integer
                     float x0 = originJ.x() - inflate;

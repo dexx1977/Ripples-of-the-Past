@@ -5,8 +5,9 @@ issueTrackerURL="https://github.com/StandoByte/Ripples-of-the-Past/issues"
 
 [[mods]]
     modId="jojo"
-    version="${file.jarVersion}"
-    displayName="Ripples of the Past"
+    # mirrors mod_version + snapshot_version in gradle.properties
+    version="0.2.2.2-port.1"
+    displayName="[UNOFFICIAL] Ripples of the Past"
     displayURL=''' 
 https://curseforge.com/minecraft/mc-mods/ripples-of-the-past/
 https://modrinth.com/mod/ripples-of-the-past
@@ -53,7 +54,9 @@ https://modrinth.com/mod/ripples-of-the-past
 '''
     authors="StandoByte"
     description='''
-    This mod adds items and supernatural powers (Hamon, vampirism and Stands) from the JoJo's Bizarre Adventure manga and anime series.'''
+    This mod adds items and supernatural powers (Hamon, vampirism and Stands) from the JoJo's Bizarre Adventure manga and anime series.
+
+    [UNOFFICIAL] Unofficial community port of this mod to Minecraft 1.20.1; not affiliated with or supported by the original author.'''
 
 [[dependencies.jojo]]
     modId="forge"

@@ -50,9 +50,17 @@ public class ClientItemRenderers {
 
     private static IClientItemExtensions renderer(Supplier<BlockEntityWithoutLevelRenderer> renderer) {
         return new IClientItemExtensions() {
+            // 1.16.5 created the renderer once through Item.Properties#setISTER; the
+            // extensions are asked repeatedly, so the instance is cached here (a new
+            // renderer would not have received its model from the resource reload)
+            private BlockEntityWithoutLevelRenderer instance;
+            
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return renderer.get();
+                if (instance == null) {
+                    instance = renderer.get();
+                }
+                return instance;
             }
         };
     }

@@ -251,7 +251,7 @@ public class ParseGenericModel {
                         x0, y0, z0, 
                         size[0], size[1], size[2], 
                         0, 0, 0, 
-                        false, texWidth, texHeight, null);
+                        false, texWidth, texHeight, java.util.EnumSet.allOf(net.minecraft.core.Direction.class)); // 1.20.1 needs the visible faces
                 
                 ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
                 
