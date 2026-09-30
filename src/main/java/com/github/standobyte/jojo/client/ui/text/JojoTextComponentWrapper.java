@@ -23,7 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 
-public class JojoTextComponentWrapper implements MutableComponent {
+public class JojoTextComponentWrapper extends MutableComponent {
     private static final Component[] SPRITE_OFFSET = Util.make(new Component[8], array -> {
         for (int i = 0; i < array.length; i++) {
             array[i] = Component.literal(StringUtils.repeat(" ", (i + 1) * 2));
@@ -33,6 +33,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
     private final MutableComponent component;
     
     public JojoTextComponentWrapper(MutableComponent component) {
+        super(component.getContents(), component.getSiblings(), component.getStyle());
         this.component = component;
     }
     
@@ -69,7 +70,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
     }
     
     @Override
-    public <T> Optional<T> visit(FormattedText.IStyledTextAcceptor<T> pAcceptor, Style pStyle) {
+    public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> pAcceptor, Style pStyle) {
         if (!sprites.isEmpty()) {
             int index = Math.min(sprites.size(), SPRITE_OFFSET.length) - 1;
             SPRITE_OFFSET[index].visit(pAcceptor, pStyle);
@@ -78,7 +79,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
     }
 
     @Override
-    public <T> Optional<T> visit(FormattedText.ITextAcceptor<T> pAcceptor) {
+    public <T> Optional<T> visit(FormattedText.ContentConsumer<T> pAcceptor) {
         if (!sprites.isEmpty()) {
             int index = Math.min(sprites.size(), SPRITE_OFFSET.length) - 1;
             SPRITE_OFFSET[index].visit(pAcceptor);
@@ -93,7 +94,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
     }
 
     @Override
-    public String getContents() {
+    public net.minecraft.network.chat.ComponentContents getContents() {
         return component.getContents();
     }
 

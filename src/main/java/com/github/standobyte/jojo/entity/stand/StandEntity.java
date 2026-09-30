@@ -2484,8 +2484,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     @Override
-    protected void onEffectAdded(MobEffectInstance effectInstance) {
-        super.onEffectAdded(effectInstance);
+    protected void onEffectAdded(MobEffectInstance effectInstance, Entity source) {
+        super.onEffectAdded(effectInstance, source);
         if (!level.isClientSide()) {
             LivingEntity user = getUser();
             if (user instanceof ServerPlayer) {
@@ -2499,8 +2499,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    protected void onEffectUpdated(MobEffectInstance effectInstance, boolean reapply) {
-        super.onEffectUpdated(effectInstance, reapply);
+    protected void onEffectUpdated(MobEffectInstance effectInstance, boolean reapply, Entity source) {
+        super.onEffectUpdated(effectInstance, reapply, source);
         if (!level.isClientSide()) {
             LivingEntity user = getUser();
             if (user instanceof ServerPlayer) {
@@ -2670,10 +2670,6 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
