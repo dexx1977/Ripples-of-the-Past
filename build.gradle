@@ -169,7 +169,6 @@ shadowJar {
     archiveClassifier = ''
     configurations = [project.configurations.shade]
     relocate 'team.unnamed.mocha', "dependency.${project.group}.mocha"
-    exclude 'team/unnamed/mocha/**'
     exclude 'javassist*'
     finalizedBy 'reobfShadowJar'
 }
