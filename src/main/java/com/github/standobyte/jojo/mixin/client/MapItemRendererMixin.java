@@ -16,8 +16,8 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 public class MapItemRendererMixin {
 
     @Inject(method = "render", at = @At(value = "HEAD"))
-    public void jojoOnRenderMapIcon(PoseStack matrixStack, MultiBufferSource buffer, 
-            MapItemSavedData mapData, boolean active, int packedLight, CallbackInfo ci) {
+    public void jojoOnRenderMapIcon(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, 
+            MapItemSavedData mapData, boolean active, int decorationIndex, CallbackInfo ci) {
         CustomIconMapRender.clCaptureIconRenderArgs(matrixStack, buffer, active, packedLight);
     }
 }

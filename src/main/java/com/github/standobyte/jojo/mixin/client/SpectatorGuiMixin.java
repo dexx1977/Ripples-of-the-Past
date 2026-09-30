@@ -15,7 +15,7 @@ import net.minecraft.client.gui.components.spectator.SpectatorGui;
 public class SpectatorGuiMixin {
 
     @Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true)
-    public void jojoCancelTooltipRender(PoseStack matrixStack, CallbackInfo ci) {
+    public void jojoCancelTooltipRender(net.minecraft.client.gui.GuiGraphics guiGraphics, CallbackInfo ci) {
         if (cancelRender()) ci.cancel();
     }
 

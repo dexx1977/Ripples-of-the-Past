@@ -152,10 +152,24 @@ jar {
     }
 }
 
+// 1.20.1 loads mods in a module layer, and a library that only sits on the plain
+// classpath cannot be read from the mod's development module. Unpacking the
+// shaded library into the mod's own output keeps the release jar unchanged (the
+// shaded copy is relocated and the plain one is excluded below), while giving the
+// development runs the classes inside the mod's module.
+tasks.register('unpackDevLibs', Copy) {
+    from { configurations.shade.collect { zipTree(it) } }
+    into layout.buildDirectory.dir('classes/java/main')
+    include 'team/unnamed/mocha/**'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+classes.dependsOn 'unpackDevLibs'
+
 shadowJar {
     archiveClassifier = ''
     configurations = [project.configurations.shade]
     relocate 'team.unnamed.mocha', "dependency.${project.group}.mocha"
+    exclude 'team/unnamed/mocha/**'
     exclude 'javassist*'
     finalizedBy 'reobfShadowJar'
 }

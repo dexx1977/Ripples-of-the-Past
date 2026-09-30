@@ -210,31 +210,18 @@ public class ClientSetup {
      * the mod declares them in is preserved.
      */
     private static final List<Consumer<EntityRenderersEvent.RegisterRenderers>> RENDERER_REGISTRATIONS = new ArrayList<>();
-    private static final List<KeyMapping> KEY_MAPPINGS = new ArrayList<>();
+    private static boolean renderersDeclared = false;
 
-    public static <T extends Entity> void registerRenderer(EntityType<T> entityType, EntityRendererProvider<T> rendererProvider) {
-        RENDERER_REGISTRATIONS.add(event -> event.registerEntityRenderer(entityType, rendererProvider));
-    }
-
-    public static KeyMapping registerKeyMapping(KeyMapping keyMapping) {
-        KEY_MAPPINGS.add(keyMapping);
-        return keyMapping;
-    }
-
-    @SubscribeEvent
-    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        RENDERER_REGISTRATIONS.forEach(registration -> registration.accept(event));
-    }
-
-    @SubscribeEvent
-    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-        KEY_MAPPINGS.forEach(event::register);
-    }
-
-    @SubscribeEvent
-    public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        Minecraft mc = Minecraft.getInstance();
-        
+    /**
+     * The 1.16.5 mod registered its renderers during client setup; 1.20.1 hands them
+     * out from EntityRenderersEvent.RegisterRenderers, which fires before that, so
+     * the declarations are made when the event is received.
+     */
+    private static void declareEntityRenderers() {
+        if (renderersDeclared) {
+            return;
+        }
+        renderersDeclared = true;
         registerRenderer(ModEntityTypes.BLADE_HAT.get(), BladeHatRenderer::new);
         registerRenderer(ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get(), SpaceRipperStingyEyesRenderer::new);
         registerRenderer(ModEntityTypes.TURQUOISE_BLUE_OVERDRIVE.get(), TurquoiseBlueOverdriveRenderer::new);
@@ -293,6 +280,35 @@ public class ClientSetup {
         registerRenderer(ModEntityTypes.PILLARMAN_VEINS.get(), PillarmanVeinRenderer::new);
         registerRenderer(ModEntityTypes.PILLARMAN_RIBS.get(), PillarmanRibRenderer::new);
         registerRenderer(ModEntityTypes.OBJECT.get(), SpriteObjectEntityRenderer::new);
+    }
+
+
+    private static final List<KeyMapping> KEY_MAPPINGS = new ArrayList<>();
+
+    public static <T extends Entity> void registerRenderer(EntityType<T> entityType, EntityRendererProvider<T> rendererProvider) {
+        RENDERER_REGISTRATIONS.add(event -> event.registerEntityRenderer(entityType, rendererProvider));
+    }
+
+    public static KeyMapping registerKeyMapping(KeyMapping keyMapping) {
+        KEY_MAPPINGS.add(keyMapping);
+        return keyMapping;
+    }
+
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        declareEntityRenderers();
+        RENDERER_REGISTRATIONS.forEach(registration -> registration.accept(event));
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KEY_MAPPINGS.forEach(event::register);
+    }
+
+    @SubscribeEvent
+    public static void onFMLClientSetup(FMLClientSetupEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        
         
         EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
         xxd = new ConsciousnessRenderer(new EntityRendererProvider.Context(dispatcher, mc.getItemRenderer(), 
