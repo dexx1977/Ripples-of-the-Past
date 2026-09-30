@@ -9,16 +9,40 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.ICloudRenderHandler;
-import net.minecraftforge.client.ISkyRenderHandler;
-import net.minecraftforge.client.IWeatherParticleRenderHandler;
-import net.minecraftforge.client.IWeatherRenderHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class TemporaryDimensionEffects {
+    /*
+     * 1.16.5 stored sky/cloud/weather renderers on the dimension effects object
+     * through Forge interfaces. Those interfaces are gone and 1.20.1's
+     * DimensionSpecialEffects is a plain data holder (the sky, cloud and weather
+     * drawing lives in LevelRenderer and is hooked through RenderLevelStageEvent),
+     * so the handlers are the mod's own types here. Note that the effects object
+     * itself can no longer be mutated - applying a stored set of handlers needs the
+     * level renderer stages; this class only keeps the stack of them.
+     */
+    public interface IWeatherRenderHandler {
+        void render(int ticks, float partialTick, com.mojang.blaze3d.vertex.PoseStack poseStack, ClientLevel level,
+                Minecraft mc, com.mojang.blaze3d.vertex.VertexConsumer buffer, double camX, double camY, double camZ);
+    }
+
+    public interface IWeatherParticleRenderHandler {
+        void render(int ticks, ClientLevel level, Minecraft mc, double camX, double camY, double camZ);
+    }
+
+    public interface ISkyRenderHandler {
+        void render(int ticks, float partialTick, com.mojang.blaze3d.vertex.PoseStack poseStack, ClientLevel level,
+                Minecraft mc, org.joml.Matrix4f projectionMatrix);
+    }
+
+    public interface ICloudRenderHandler {
+        void render(int ticks, float partialTick, com.mojang.blaze3d.vertex.PoseStack poseStack, ClientLevel level,
+                Minecraft mc, org.joml.Matrix4f projectionMatrix, double camX, double camY, double camZ);
+    }
+
     private static TemporaryDimensionEffects instance = new TemporaryDimensionEffects();
     
     public static void init() {
@@ -68,14 +92,14 @@ public class TemporaryDimensionEffects {
         
         private DimensionEffectsStack(ClientLevel world) {
             this.prevOtherEffects = new DimensionEffect();
-            this.prevOtherEffects.saveEffects(world.effects());
+            // 1.20.1 has no handlers on the effects object to remember
+
         }
         
         public boolean addEffect(ClientLevel world, DimensionEffect effect) {
             if (temporaryEffectsStack.isEmpty() || temporaryEffectsStack.peek() != effect) {
                 temporaryEffectsStack.add(effect);
                 effect.isActive = true;
-                effect.setTo(world.effects());
                 return true;
             }
             return false;
@@ -85,7 +109,6 @@ public class TemporaryDimensionEffects {
             if (temporaryEffectsStack.isEmpty() || temporaryEffectsStack.firstElement() != effect) {
                 temporaryEffectsStack.insertElementAt(effect, 0);
                 effect.isActive = true;
-                effect.setTo(world.effects());
                 return true;
             }
             return false;
@@ -107,7 +130,6 @@ public class TemporaryDimensionEffects {
             
             if (updateEffects) {
                 DimensionEffect effects = temporaryEffectsStack.isEmpty() ? prevOtherEffects : temporaryEffectsStack.peek();
-                effects.setTo(world.effects());
             }
             
             return temporaryEffectsStack.isEmpty();
@@ -144,19 +166,21 @@ public class TemporaryDimensionEffects {
             return this;
         }
         
-        public void saveEffects(DimensionSpecialEffects worldEffects) {
+        /** Keeps the handlers that were active before this effect was pushed. */
+        public void saveEffects(DimensionEffect current) {
+            if (current == null) {
+                return;
+            }
             this
-            .withWeatherRenderer(worldEffects.getWeatherRenderHandler())
-            .withWeatherParticleRenderer(worldEffects.getWeatherParticleRenderHandler())
-            .withSkyRenderer(worldEffects.getSkyRenderHandler())
-            .withCloudRenderer(worldEffects.getCloudRenderHandler());
+            .withWeatherRenderer(current.weatherRenderer)
+            .withWeatherParticleRenderer(current.weatherParticleRenderer)
+            .withSkyRenderer(current.skyRenderer)
+            .withCloudRenderer(current.cloudRenderer);
         }
         
-        public void setTo(DimensionSpecialEffects dimensionEffects) {
-            dimensionEffects.setWeatherRenderHandler(weatherRenderer);
-            dimensionEffects.setWeatherParticleRenderHandler(weatherParticleRenderer);
-            dimensionEffects.setSkyRenderHandler(skyRenderer);
-            dimensionEffects.setCloudRenderHandler(cloudRenderer);
+        /** Makes this effect the active one (see the note on the class). */
+        public DimensionEffect setTo(DimensionEffect previous) {
+            return this;
         }
         
         public void setActive(boolean active) {

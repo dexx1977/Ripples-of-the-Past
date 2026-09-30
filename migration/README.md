@@ -131,7 +131,14 @@ Known remaining work, roughly in the order it should be tackled:
    1.20.1 playerAnimator API no longer has; the geometry has to be rebuilt on
    bendy-lib 4.0.0's `MutableModelPart`/`BendableCuboid.Builder` (the rest of the
    bend handling is already ported, see KosmXBendyLibHelper).
-3. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
+3. TemporaryDimensionEffects: 1.16.5 stored sky/cloud/weather renderers on the
+   dimension effects object through Forge interfaces. Those interfaces are gone and
+   1.20.1's DimensionSpecialEffects is a plain data holder (the drawing lives in
+   LevelRenderer and is hooked through RenderLevelStageEvent), and the effects object
+   cannot be mutated, so the class now only keeps the per-dimension stack of the
+   mod's own handler sets. Applying a stored set needs the level renderer stages;
+   nothing in the mod registers handlers today, so no visible behaviour changed.
+4. Worldgen: `Structure` is not generic, `StructureStart`/`StructureFeature`
    registration changed, `WorldGenRegistries`/`DimensionStructuresSettings` are
    gone (datapack worldgen), and the AT that strips `final` from `StructureStart`
    still has to be added.
