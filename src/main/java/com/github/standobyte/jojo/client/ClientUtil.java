@@ -418,7 +418,7 @@ public class ClientUtil {
         RenderSystem.setShaderTexture(0, playerFace);
 
         GuiDraw.blit(matrixStack, x, y, 16, 16, 16, 16, 128, 128);
-        if (mc.options.modelParts().contains(PlayerModelPart.HAT)) {
+        if (mc.player != null && mc.player.isModelPartShown(PlayerModelPart.HAT)) {
             matrixStack.pushPose();
             matrixStack.translate(x, y, 0);
             matrixStack.scale(9F/8F, 9F/8F, 0);
@@ -497,12 +497,12 @@ public class ClientUtil {
         Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
                 sound.getLocation(), 
                 SoundSource.RECORDS, 
-                volume, pitch, false, 0, SoundInstance.Attenuation.NONE, 
+                volume, pitch, net.minecraft.util.RandomSource.create(), false, 0, SoundInstance.Attenuation.NONE, 
                 0, 0, 0, true));
     }
     
     public static int particlesSetting() {
-        return Minecraft.getInstance().options.particles.getId();
+        return Minecraft.getInstance().options.particles().get().getId();
     }
     
     public static float[] rgb(int color) {
@@ -668,8 +668,8 @@ public class ClientUtil {
         Optional<ModelPart.Polygon> faceOptional = Arrays.stream(cube.polygons)
                 .filter(quad -> quad.normal.equals(faceNormal)).findFirst();
         if (faceOptional.isPresent()) {
-            u0 /= model.texWidth;
-            v0 /= model.texHeight;
+            u0 /= ModelPart.textureWidthOf(model);
+            v0 /= ModelPart.textureHeightOf(model);
             u1 /= model.texWidth;
             v1 /= model.texHeight;
             ModelPart.Polygon face = faceOptional.get();
@@ -725,7 +725,7 @@ public class ClientUtil {
     
     public static boolean isMissingModel(BakedModel model, ItemModelShaper itemModelShaper) {
 //        return model == itemModelShaper.getModelManager().getMissingModel(); // you'd think that should work
-        return model instanceof SimpleBakedModel && (((SimpleBakedModel) model).getParticleIcon() instanceof MissingTextureAtlasSprite);
+        return model instanceof SimpleBakedModel && (model.getParticleIcon() instanceof MissingTextureAtlasSprite);
     }
     
     
@@ -733,9 +733,9 @@ public class ClientUtil {
         Vec3 cameraPos = camera.getPosition();
         Vec3 vecToEntity = posInWorld.subtract(cameraPos);
         
-        Matrix4f projectionMatrix = new Vector3f(projection);
+        Matrix4f projectionMatrix = new Matrix4f(projection);
         Matrix4f viewMatrix = matrixStack.last().pose();
-        projectionMatrix.multiply(viewMatrix);
+        projectionMatrix.mul(viewMatrix);
         Vector3f clip = MathUtil.multiplyPoint(projectionMatrix, vecToEntity);
         
         Vec2 posOnScreen = new Vec2(clip.x() * 0.5F + 0.5F, clip.y() * 0.5F + 0.5F);

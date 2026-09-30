@@ -356,7 +356,12 @@ public class ClientEventHandler {
             if (cap.isUsingZoomPunch()) {
                 M model = event.getRenderer().getModel();
                 if (model instanceof HumanoidModel) {
-                    ModelPart arm = entity.getMainArm() == HumanoidArm.LEFT ? ((HumanoidModel<?>) model).leftArm : ((HumanoidModel<?>) model).rightArm;
+                    ModelPart arm;
+                    if (entity.getMainArm() == HumanoidArm.LEFT) {
+                        arm = ((HumanoidModel<?>) model).leftArm;
+                    } else {
+                        arm = ((HumanoidModel<?>) model).rightArm;
+                    }
                     arm.visible = false;
                     if (model instanceof PlayerModel) {
                         arm = entity.getMainArm() == HumanoidArm.LEFT ? ((PlayerModel<?>) model).leftSleeve : ((PlayerModel<?>) model).rightSleeve;
@@ -1418,7 +1423,7 @@ public class ClientEventHandler {
                         }
                     };
                     statsBgAlphaSlider.visible = doStandStatsRender(screen);
-                    event.addWidget(statsBgAlphaSlider);
+                    event.getScreen().addRenderableWidget(statsBgAlphaSlider);
                     
                     ImageMutableButton invertBnWButton = new ImageMutableButton(screen.width - 8, screen.height - 7, 
                             8, 8, 464, 496, 8, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
@@ -1430,7 +1435,7 @@ public class ClientEventHandler {
                             });
                     invertBnWButton.xTexStart = ClientModSettings.getSettingsReadOnly().standStatsInvertBnW ? 472 : 464;
                     invertBnWButton.visible = doStandStatsRender(screen);
-                    event.addWidget(invertBnWButton);
+                    event.getScreen().addRenderableWidget(invertBnWButton);
                     
                     Button standStatsToggleButton = new ImageVanillaButton(screen.width - 28, screen.height - 28, 
                             20, 20, 492, 492, StandStatsRenderer.STAND_STATS_UI, 512, 512, 
@@ -1446,13 +1451,13 @@ public class ClientEventHandler {
                                 com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, message, x, y);
                             }, 
                             Component.empty());
-                    event.addWidget(standStatsToggleButton);
+                    event.getScreen().addRenderableWidget(standStatsToggleButton);
                 }
             });
         }
         
         else if (screen instanceof OptionsScreen) {
-            event.addWidget(ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
+            event.getScreen().addRenderableWidget(ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
         }
         
         else if (screen instanceof ControlsScreen) {
@@ -1569,7 +1574,7 @@ public class ClientEventHandler {
                 Button angeloRockDieButton = Button.builder(Component.translatable(mc.level.getLevelData().isHardcore() ? "deathScreen.spectate" : "deathScreen.respawn"), button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.respawn()))
                         .pos(x, y)
                         .size(200, 20).build();
-                event.addWidget(angeloRockDieButton);
+                event.getScreen().addRenderableWidget(angeloRockDieButton);
                 
                 Button angeloRockGruntButton = new ImageVanillaButton(x - 24, y, 20, 20, 
                         238, 150, 
@@ -1577,7 +1582,7 @@ public class ClientEventHandler {
                         button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.grunt())) {
                     @Override public void playDownSound(SoundManager pHandler) {}
                 };
-                event.addWidget(angeloRockGruntButton);
+                event.getScreen().addRenderableWidget(angeloRockGruntButton);
             }
         }
     }
