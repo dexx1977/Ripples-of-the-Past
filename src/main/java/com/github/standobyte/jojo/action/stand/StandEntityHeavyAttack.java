@@ -372,7 +372,8 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
     
     
     public static DamageSource explosionDmgSource(StandEntity stand) {
-        return stand.getDamageSource().setExplosion();
+        // the explosion flag lives in the damage type now
+        return com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.source(stand, "explosion.stand");
     }
     
     public static float calcExplosionRadius(StandEntity stand) {

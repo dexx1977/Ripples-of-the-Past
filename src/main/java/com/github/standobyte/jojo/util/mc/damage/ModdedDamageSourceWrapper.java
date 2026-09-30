@@ -107,18 +107,8 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
         return dmgSource.isProjectile();
     }
     
-    public DamageSource setProjectile() {
-        dmgSource.setProjectile();
-        return this;
-    }
-    
     public boolean isExplosion() {
         return dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION);
-    }
-    
-    public DamageSource setExplosion() {
-        dmgSource.setExplosion();
-        return this;
     }
     
     public boolean isBypassArmor() {
@@ -130,7 +120,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isBypassInvul() {
-        return dmgSource.isBypassInvul();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
     
     public boolean isBypassMagic() {
@@ -147,26 +137,6 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
         return dmgSource.getEntity();
     }
     
-    public DamageSource bypassArmor() {
-        dmgSource.bypassArmor();
-        return this;
-    }
-    
-    public DamageSource bypassInvul() {
-        dmgSource.bypassInvul();
-        return this;
-    }
-    
-    public DamageSource bypassMagic() {
-        dmgSource.bypassMagic();
-        return this;
-    }
-    
-    public DamageSource setIsFire() {
-        dmgSource.setIsFire();
-        return this;
-    }
-    
     public Component getLocalizedDeathMessage(LivingEntity pLivingEntity) {
         return dmgSource.getLocalizedDeathMessage(pLivingEntity);
     }
@@ -179,22 +149,12 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
         return dmgSource.getMsgId();
     }
     
-    public DamageSource setScalesWithDifficulty() {
-        dmgSource.setScalesWithDifficulty();
-        return this;
-    }
-    
     public boolean scalesWithDifficulty() {
-        return dmgSource.scalesWithDifficulty();
+        return dmgSource.typeHolder().value().scaling() == net.minecraft.world.damagesource.DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER;
     }
     
     public boolean isMagic() {
-        return dmgSource.isMagic();
-    }
-    
-    public DamageSource setMagic() {
-        dmgSource.setMagic();
-        return this;
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.WITCH_RESISTANT_TO);
     }
     
     public boolean isCreativePlayer() {

@@ -1141,7 +1141,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             return !(damageSrc instanceof IStandDamageSource && ((IStandDamageSource) damageSrc).standCanHitSelf());
         }
         if (
-                getUser() instanceof Player && ((Player) getUser()).abilities.invulnerable && !damageSrc.isBypassInvul()
+                getUser() instanceof Player && ((Player) getUser()).abilities.invulnerable && !damageSrc.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)
                 || damageSrc.is(net.minecraft.tags.DamageTypeTags.IS_FIRE) && !level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE)) {
             return true;
         }

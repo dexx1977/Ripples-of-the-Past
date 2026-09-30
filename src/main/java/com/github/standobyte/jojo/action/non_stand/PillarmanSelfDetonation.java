@@ -50,13 +50,15 @@ public class PillarmanSelfDetonation extends PillarmanAction {
     protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide) {
             PillarmanExplosion explosion = new PillarmanExplosion(world, user, 
-                    DamageSource.ON_FIRE.setExplosion(), null, 
+                    // 1.16.5 used the on fire source with the explosion flag; 1.20.1
+                    // damage properties come from the type, so the fire source stays
+                    com.github.standobyte.jojo.util.mc.damage.DamageUtil.damageSource(user, net.minecraft.world.damagesource.DamageTypes.ON_FIRE), null, 
                     user.getX(), user.getY(), user.getZ(), 3.0F, 
                     true, Explosion.BlockInteraction.DESTROY);
             CustomExplosion.explode(explosion);
             Player playerentity = user instanceof Player ? (Player)user : null;
             if (playerentity == null || !playerentity.abilities.instabuild) {
-                user.hurt(EntityDamageSource.explosion(user), 40F);
+                user.hurt(user.damageSources().explosion(user, user), 40F);
                 user.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200, 0));
             }
         }

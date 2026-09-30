@@ -102,8 +102,7 @@ public class ModInteractionUtil {
                         entityName.equals("super_nova")) {
                     boolean targetIsVampire = target instanceof Player && JojoModUtil.isPlayerJojoVampiric((Player) target);
                     if (targetIsVampire) {
-                        DamageSource extraDmgSource = ModDamageTypes.source(entity, damageSource.getEntity(), ModDamageTypes.key("mowzie_sun"))
-                                .bypassArmor().bypassMagic().setIsFire();
+                        DamageSource extraDmgSource = ModDamageTypes.source(entity, damageSource.getEntity(), ModDamageTypes.key("mowzie_sun"));
                         if (target.hurt(extraDmgSource, event.getAmount() * 4)) {
                             VampirismUtil.incSunBurn(target, 2);
                         }

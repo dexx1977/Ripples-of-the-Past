@@ -55,7 +55,8 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return damageSource != DamageSource.OUT_OF_WORLD && !damageSource.isCreativePlayer();
+        boolean creativePlayer = damageSource.getEntity() instanceof net.minecraft.world.entity.player.Player player && player.isCreative();
+        return !damageSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY) && !creativePlayer;
     }
 
     @Override

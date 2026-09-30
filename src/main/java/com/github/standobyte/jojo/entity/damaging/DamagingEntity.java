@@ -206,7 +206,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityAdditi
     protected DamageSource getDamageSource(LivingEntity owner) { // TODO damage sources/death messages
         DamageSource damageSource;
         if (standDamage() && owner != null) {
-            damageSource = new IndirectStandEntityDamageSource("arrow", this, owner).setProjectile();
+            damageSource = new IndirectStandEntityDamageSource("arrow", this, owner);
         }
         else {
             damageSource = ModDamageTypes.source(this, owner, ModDamageTypes.key("arrow"));
