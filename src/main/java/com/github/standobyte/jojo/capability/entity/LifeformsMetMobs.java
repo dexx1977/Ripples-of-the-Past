@@ -37,7 +37,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.registries.ForgeRegistries;
 import com.github.standobyte.jojo.util.mc.MCUtil;
@@ -108,26 +108,24 @@ public class LifeformsMetMobs {
         nativeMobsUpdateDelay = 20;
         
         BlockPos pos = user.blockPosition();
-        StructureManager structureManager = world.structureFeatureManager();
+        StructureManager structureManager = world.structureManager();
         ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
-        Biome biome = world.getBiome(pos);
-        Random notRandom = new SpawnRulesCheckNotRandom();
+        net.minecraft.core.Holder<Biome> biome = world.getBiome(pos);
+        net.minecraft.util.RandomSource notRandom = new SpawnRulesCheckNotRandom();
         
         nativeMobs.clear();
         for (MobCategory classification : MobCategory.values()) {
-            List<MobSpawnSettings.Spawners> spawners;
-            if (classification == MobCategory.MONSTER && structureManager.getStructureAt(pos, false, Structure.NETHER_BRIDGE).isValid()) {
-                spawners = Structure.NETHER_BRIDGE.getSpecialEnemies();
-            }
-            else {
-                spawners = chunkGenerator.getMobsAt(biome, structureManager, classification, pos);
-            }
-            nativeMobs.put(classification, spawners.stream()
+            // 1.20.1 chunk generators apply the structure spawn overrides themselves,
+            // so the nether bridge special case is not needed
+            net.minecraft.util.random.WeightedRandomList<MobSpawnSettings.SpawnerData> spawners = structureManager != null
+                    ? chunkGenerator.getMobsAt(biome, structureManager, classification, pos)
+                    : biome.value().getMobSettings().getMobs(classification);
+            nativeMobs.put(classification, spawners.unwrap().stream()
                     .map(spawner -> spawner.type)
                     .filter(type -> metBaseEntityTypesId.contains(MCUtil.id(type))
                             && GoldExperienceChooseLifeform.isValidLifeform(EntitySubtype.base(type), world)
-                            && ((SpawnPlacements.getPlacementType(type) == SpawnPlacements.PlacementType.IN_WATER) == world.getFluidState(pos).is(FluidTags.WATER))
-                            && SpawnPlacements.checkSpawnRules(type, world, MobSpawnType.SPAWNER, pos, notRandom))
+                            && ((SpawnPlacements.getPlacementType(type) == SpawnPlacements.Type.IN_WATER) == world.getFluidState(pos).is(FluidTags.WATER))
+                            && SpawnPlacements.checkSpawnRules(type, (net.minecraft.world.level.ServerLevelAccessor) world, MobSpawnType.SPAWNER, pos, notRandom))
                     .collect(Collectors.toList()));
         }
         
@@ -178,9 +176,19 @@ public class LifeformsMetMobs {
         }
     }
     
-    private static class SpawnRulesCheckNotRandom extends Random {
-        private static final long serialVersionUID = 1215500605941818217L;
-        @Override protected int next(int bits) { return 0; }
+    /** The spawn rules are checked without randomness, like the old fixed Random. */
+    private static class SpawnRulesCheckNotRandom implements net.minecraft.util.RandomSource {
+        @Override public net.minecraft.util.RandomSource fork() { return this; }
+        @Override public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() { throw new UnsupportedOperationException(); }
+        @Override public void setSeed(long seed) {}
+        @Override public int nextInt() { return 0; }
+        @Override public int nextInt(int bound) { return 0; }
+        @Override public long nextLong() { return 0L; }
+        @Override public boolean nextBoolean() { return false; }
+        @Override public float nextFloat() { return 0.0F; }
+        @Override public double nextDouble() { return 0.0D; }
+        @Override public double nextGaussian() { return 0.0D; }
+        @Override public void consumeCount(int count) {}
     }
     
 }
