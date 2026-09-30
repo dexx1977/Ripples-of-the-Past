@@ -76,12 +76,12 @@ public class StandCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.stand.give.success.single", 
                         standType.getName(), targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.stand.give.success.multiple", 
                         standType.getName(), i), true);
             }
@@ -128,11 +128,11 @@ public class StandCommand {
         }
         if (i > 0) {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.stand.give.success.single.random", 
+                source.sendSuccess(() -> Component.translatable("commands.stand.give.success.single.random", 
                         targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(Component.translatable("commands.stand.give.success.multiple.random", i), true);
+                source.sendSuccess(() -> Component.translatable("commands.stand.give.success.multiple.random", i), true);
             }
         }
         return i;
@@ -167,9 +167,9 @@ public class StandCommand {
                     message = Component.translatable("commands.stand.remove.success.single.no_stand", 
                             targets.iterator().next().getDisplayName());
                 }
-                source.sendSuccess(message, true);
+                source.sendSuccess(() -> message, true);
             } else {
-                source.sendSuccess(Component.translatable("commands.stand.remove.success.multiple", i), true);
+                source.sendSuccess(() -> Component.translatable("commands.stand.remove.success.multiple", i), true);
             }
             return i;
         }
@@ -180,7 +180,7 @@ public class StandCommand {
         if (power != null) {
             if (power.hasPower()) {
                 StandType<?> type = power.getType();
-                source.sendSuccess(Component.translatable("commands.stand.query.success", player.getDisplayName(), type.getName()), false);
+                source.sendSuccess(() -> Component.translatable("commands.stand.query.success", player.getDisplayName(), type.getName()), false);
                 return JojoCustomRegistries.STANDS.getNumericId(type.getRegistryName());
             }
         }

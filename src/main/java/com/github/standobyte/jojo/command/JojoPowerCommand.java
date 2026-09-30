@@ -60,12 +60,12 @@ public class JojoPowerCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.non_stand.give.success.single", 
                         Component.translatable(powerType.getTranslationKey()), targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.non_stand.give.success.multiple", 
                         Component.translatable(powerType.getTranslationKey()), i), true);
             }
@@ -94,10 +94,10 @@ public class JojoPowerCommand {
             }
         } else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.non_stand.remove.success.single", 
+                source.sendSuccess(() -> Component.translatable("commands.non_stand.remove.success.single", 
                         removedPower != null ? Component.translatable(removedPower.getTranslationKey()) : "", targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable("commands.non_stand.remove.success.multiple", i), true);
+                source.sendSuccess(() -> Component.translatable("commands.non_stand.remove.success.multiple", i), true);
             }
             return i;
         }

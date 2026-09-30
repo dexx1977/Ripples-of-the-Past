@@ -104,11 +104,11 @@ public class JojoEnergyCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.jojoenergy.set.success.single." + numType.toString().toLowerCase(), value, targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(Component.translatable(
+                source.sendSuccess(() -> Component.translatable(
                         "commands.jojoenergy.set.success.multiple." + numType.toString().toLowerCase(), value, i), true);
             }
             return i;
@@ -121,7 +121,7 @@ public class JojoEnergyCommand {
                 if (power.hasPower()) {
                     float energy = power.getEnergy();
                     float maxEnergy = power.getMaxEnergy();
-                    source.sendSuccess(Component.translatable("commands.jojoenergy.get.success", 
+                    source.sendSuccess(() -> Component.translatable("commands.jojoenergy.get.success", 
                             target.getDisplayName(), energy, maxEnergy, String.format("%.4f", energy / maxEnergy)), false);
                     return (int) energy;
                 }

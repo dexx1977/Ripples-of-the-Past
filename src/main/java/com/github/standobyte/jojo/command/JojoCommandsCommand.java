@@ -45,7 +45,7 @@ public class JojoCommandsCommand {
     }
 
     private static int writeContents(CommandContext<CommandSourceStack> ctx) {
-        ctx.getSource().sendSuccess(finalText, false);
+        ctx.getSource().sendSuccess(() -> finalText, false);
         return 0;
     }
 }

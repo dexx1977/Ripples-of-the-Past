@@ -55,7 +55,7 @@ public class RockPaperScissorsCommand {
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(command)));
                         })), player.getUUID()); 
-                ctx.getSource().sendSuccess(Component.translatable("jojo.rps.game_invite.sent", opponent.getDisplayName()), false);
+                ctx.getSource().sendSuccess(() -> Component.translatable("jojo.rps.game_invite.sent", opponent.getDisplayName()), false);
             }
             return 1;
         }

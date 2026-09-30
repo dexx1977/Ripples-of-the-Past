@@ -78,7 +78,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
             // generate the .json files
             int count = writeDefaultActionConfig(source.getServer(), standType.getAllUnlockableActions(), false);
             
-            source.sendSuccess(generatePackLink(source, 
+            source.sendSuccess(() -> generatePackLink(source, 
                     "commands.jojoconfigpack.abilities.stand", 
                     "commands.jojoconfigpack.abilities.stand.link_name", 
                     LOCAL_FILE_TOOLTIP, 
@@ -99,7 +99,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
             
             int count = writeDefaultActionConfig(source.getServer(), Collections.singletonList(action), true);
             
-            source.sendSuccess(generatePackLink(source, 
+            source.sendSuccess(() -> generatePackLink(source, 
                     "commands.jojoconfigpack.abilities.single", 
                     "commands.jojoconfigpack.abilities.single.link_name", 
                     LOCAL_FILE_TOOLTIP, 

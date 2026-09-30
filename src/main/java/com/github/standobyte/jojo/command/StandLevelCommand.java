@@ -40,7 +40,7 @@ public class StandLevelCommand {
     private static int getStandLevel(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
         IStandPower stand = getStands(Util.make(new ArrayList<>(), list -> list.add(target))).iterator().next();
         int level = stand.getResolveLevel();
-        source.sendSuccess(Component.translatable("commands.standlevel.query.success", target.getDisplayName(), level), false);
+        source.sendSuccess(() -> Component.translatable("commands.standlevel.query.success", target.getDisplayName(), level), false);
         return level;
     }
 
@@ -51,9 +51,9 @@ public class StandLevelCommand {
         }
         
         if (stands.size() == 1) {
-            source.sendSuccess(Component.translatable("commands.standlevel.add.success.single", levels, targets.iterator().next().getDisplayName()), true);
+            source.sendSuccess(() -> Component.translatable("commands.standlevel.add.success.single", levels, targets.iterator().next().getDisplayName()), true);
         } else {
-            source.sendSuccess(Component.translatable("commands.standlevel.add.success.multiple", levels, stands.size()), true);
+            source.sendSuccess(() -> Component.translatable("commands.standlevel.add.success.multiple", levels, stands.size()), true);
         }
         
         return stands.size();
@@ -66,9 +66,9 @@ public class StandLevelCommand {
         }
         
         if (stands.size() == 1) {
-            source.sendSuccess(Component.translatable("commands.standlevel.set.success.single", level, targets.iterator().next().getDisplayName()), true);
+            source.sendSuccess(() -> Component.translatable("commands.standlevel.set.success.single", level, targets.iterator().next().getDisplayName()), true);
         } else {
-            source.sendSuccess(Component.translatable("commands.standlevel.set.success.multiple", level, stands.size()), true);
+            source.sendSuccess(() -> Component.translatable("commands.standlevel.set.success.multiple", level, stands.size()), true);
         }
         
         return stands.size();

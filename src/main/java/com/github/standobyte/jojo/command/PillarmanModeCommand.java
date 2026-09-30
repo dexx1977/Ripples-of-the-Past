@@ -62,9 +62,9 @@ public class PillarmanModeCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.pillarman.stage.success.single", stage, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(() -> Component.translatable("commands.pillarman.stage.success.single", stage, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable("commands.pillarman.stage.success.multiple", stage, success), true);
+                source.sendSuccess(() -> Component.translatable("commands.pillarman.stage.success.multiple", stage, success), true);
             }
             return success;
         }
@@ -96,9 +96,9 @@ public class PillarmanModeCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.pillarman.mode.success.single", mode, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(() -> Component.translatable("commands.pillarman.mode.success.single", mode, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable("commands.pillarman.mode.success.multiple", mode, success), true);
+                source.sendSuccess(() -> Component.translatable("commands.pillarman.mode.success.multiple", mode, success), true);
             }
             return success;
         }

@@ -129,7 +129,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
         if (assignedStands.addAssignedStand(player.getGameProfile(), standType)) {
             saveStandAssignments(source);
             
-            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.added", 
+            source.sendSuccess(() -> Component.translatable("commands.jojoconfigpack.stand_assign.added", 
                     standType.getName(), player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -148,7 +148,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
         if (assignedStands.removeAssignedStand(player.getGameProfile(), standType, true)) {
             saveStandAssignments(source);
             
-            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.removed", 
+            source.sendSuccess(() -> Component.translatable("commands.jojoconfigpack.stand_assign.removed", 
                     standType.getName(), player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -167,7 +167,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
         if (assignedStands.remove(player.getGameProfile())) {
             saveStandAssignments(source);
             
-            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.cleared", 
+            source.sendSuccess(() -> Component.translatable("commands.jojoconfigpack.stand_assign.cleared", 
                     player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -183,7 +183,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     private int fullAssignmentsClear(CommandSourceStack source) throws CommandSyntaxException {
         assignedStands.clear();
         
-        source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.cleared_all") 
+        source.sendSuccess(() -> Component.translatable("commands.jojoconfigpack.stand_assign.cleared_all") 
                 .withStyle(style -> styleMessageWithLink(source, style)), 
                 true);
         source.getServer().getPlayerList().getPlayers().forEach(player -> syncToClient(player));

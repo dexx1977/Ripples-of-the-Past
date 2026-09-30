@@ -44,7 +44,7 @@ public class ConfigFolderLink implements IDataConfig {
             }
             else {
                 Path packPath = dataPackPath(src.getServer());
-                src.sendSuccess(Component.translatable("commands.jojoconfigpack.folder_link", 
+                src.sendSuccess(() -> Component.translatable("commands.jojoconfigpack.folder_link", 
                         Component.literal(getDataPackName()).withStyle(ChatFormatting.ITALIC)).withStyle(ChatFormatting.UNDERLINE).withStyle((style) -> {
                             return style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, packPath.normalize().toString()))

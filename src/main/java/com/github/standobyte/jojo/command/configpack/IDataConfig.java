@@ -73,7 +73,7 @@ public interface IDataConfig {
         }
         
         if (generatedPack) {
-            src.sendSuccess(generatePackLink(src, 
+            src.sendSuccess(() -> generatePackLink(src, 
                     "commands.jojoconfigpack.base_created", 
                     "commands.jojoconfigpack.base_created.link_name", 
                     "commands.jojoconfigpack.folder_link.tooltip", 

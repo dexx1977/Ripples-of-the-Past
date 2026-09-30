@@ -88,10 +88,10 @@ public class StandDiscGiveCommand {
         
         if (i > 0) {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.give.success.single", 1, 
+                source.sendSuccess(() -> Component.translatable("commands.give.success.single", 1, 
                         Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable("commands.give.success.single", 1, 
+                source.sendSuccess(() -> Component.translatable("commands.give.success.single", 1, 
                         Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), i), true);
             }
         }

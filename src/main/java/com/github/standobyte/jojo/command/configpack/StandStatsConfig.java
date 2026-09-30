@@ -94,7 +94,7 @@ public class StandStatsConfig extends JsonDataConfig {
                     .filter(stand -> stand.getSurvivalGameplayPool() == StandSurvivalGameplayPool.PLAYER_ARROW)
                     .collect(Collectors.toList()));
             
-            source.sendSuccess(generatePackLink(source, 
+            source.sendSuccess(() -> generatePackLink(source, 
                     "commands.jojoconfigpack.standstats.all", 
                     "commands.jojoconfigpack.standstats.all.link_name", 
                     LOCAL_FILE_TOOLTIP, 
@@ -114,7 +114,7 @@ public class StandStatsConfig extends JsonDataConfig {
             
             int count = writeDefaultStandStats(source.getServer(), Collections.singletonList(standType));
             
-            source.sendSuccess(generatePackLink(source, 
+            source.sendSuccess(() -> generatePackLink(source, 
                     "commands.jojoconfigpack.standstats.single", 
                     "commands.jojoconfigpack.standstats.single.link_name", 
                     LOCAL_FILE_TOOLTIP, 

@@ -59,7 +59,7 @@ public class JojoControlsCommand {
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("jojo.chat.controls.tooltip")));
             }));
         }
-        ctx.getSource().sendSuccess(text, false);
+        ctx.getSource().sendSuccess(() -> text, false);
         return 0;
     }
     

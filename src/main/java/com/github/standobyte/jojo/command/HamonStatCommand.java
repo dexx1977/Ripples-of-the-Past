@@ -108,10 +108,10 @@ public class HamonStatCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.single" : "commands.hamon.control." + msg + "success.single", 
+                source.sendSuccess(() -> Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.single" : "commands.hamon.control." + msg + "success.single", 
                         level, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.multiple" : "commands.hamon.control." + msg + "success.multiple", 
+                source.sendSuccess(() -> Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.multiple" : "commands.hamon.control." + msg + "success.multiple", 
                         level, success), true);
             }
             return success;
@@ -139,9 +139,9 @@ public class HamonStatCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(Component.translatable("commands.hamon.breathing." + msg + "success.single", level, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(() -> Component.translatable("commands.hamon.breathing." + msg + "success.single", level, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(Component.translatable("commands.hamon.breathing." + msg + "success.multiple", level, success), true);
+                source.sendSuccess(() -> Component.translatable("commands.hamon.breathing." + msg + "success.multiple", level, success), true);
             }
             return success;
         }
@@ -152,7 +152,7 @@ public class HamonStatCommand {
                 power -> power.getTypeSpecificData(ModPowers.HAMON.get()));
         if (playerHamon.isPresent()) {
             float level = playerHamon.get().getStatLevel(stat);
-            source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength.query.success" : "commands.hamon.control.query.success", 
+            source.sendSuccess(() -> Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength.query.success" : "commands.hamon.control.query.success", 
                     target.getDisplayName(), new DecimalFormat("#.##").format(level)), false);
             return (int) level;
         }
@@ -166,7 +166,7 @@ public class HamonStatCommand {
                 power -> power.getTypeSpecificData(ModPowers.HAMON.get()));
         if (playerHamon.isPresent()) {
             float level = playerHamon.get().getBreathingLevel();
-            source.sendSuccess(Component.translatable("commands.hamon.breathing.query.success", 
+            source.sendSuccess(() -> Component.translatable("commands.hamon.breathing.query.success", 
                     target.getDisplayName(), new DecimalFormat("#.##").format(level)), false);
             return (int) level;
         }
