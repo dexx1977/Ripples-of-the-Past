@@ -460,7 +460,7 @@ public class MCUtil {
         ChunkMap chunkMap = ((ServerLevel) entity.level).getChunkSource().chunkMap;
         Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = chunkMap.entityMap;
         ChunkMap.TrackedEntity tracker = entityMap.get(entity.getId());
-        return tracker != null ? tracker.seenBy : Collections.emptySet();
+        return tracker != null ? tracker.seenBy : Collections.<net.minecraft.server.level.ServerPlayer>emptySet();
     }
     
     
@@ -530,9 +530,9 @@ public class MCUtil {
     
     // i ain't using access transformers for this, this is ridiculous
     public static boolean itemAllowedIn(Item item, CreativeModeTab creativeTab) {
-        if (item.getCreativeTabs().stream().anyMatch(tab -> tab == creativeTab)) return true;
-        CreativeModeTab itemCategory = item.getItemCategory();
-        return itemCategory != null && (creativeTab == CreativeModeTab.TAB_SEARCH || creativeTab == itemCategory);
+        // 1.20.1 has no item to tab mapping; the tab lists its own items
+        return creativeTab == net.minecraft.core.registries.BuiltInRegistries.CREATIVE_MODE_TAB.get(net.minecraft.world.item.CreativeModeTabs.SEARCH)
+                || creativeTab.getDisplayItems().stream().anyMatch(stack -> stack.is(item));
     }
     
 
@@ -571,7 +571,7 @@ public class MCUtil {
     public static <T extends Entity> List<T> entitiesAround(Class<? extends T> clazz, Entity centerEntity, double radius, boolean includeSelf, @Nullable Predicate<? super T> filter) {
         Vec3 centerPos = centerEntity.getBoundingBox().getCenter();
         AABB aabb = new AABB(centerPos.subtract(radius, radius, radius), centerPos.add(radius, radius, radius));
-        return centerEntity.level.getEntitiesOfClass(clazz, aabb, entity -> (includeSelf || entity != centerEntity) && (filter == null || filter.test(entity)));
+        return centerEntity.level.getEntitiesOfClass((Class<T>) clazz, aabb, entity -> (includeSelf || entity != centerEntity) && (filter == null || filter.test(entity)));
     }
 
     public static Iterable<Entity> getAllEntities(Level world) {
@@ -760,7 +760,7 @@ public class MCUtil {
         while (iter.hasNext()) {
             BlockPos blockPos = iter.next();
             BlockState blockState = world.getBlockState(blockPos);
-            if (Level.isOutsideBuildHeight(blockPos) || blockState.isAir()
+            if (world.isOutsideBuildHeight(blockPos) || blockState.isAir()
                     || !JojoModUtil.canEntityDestroy(world, blockPos, blockState, entity)) {
                 iter.remove();
             }
@@ -821,7 +821,10 @@ public class MCUtil {
     }
     
     public static void blockCatchFire(Level world, BlockPos blockPos, BlockState blockState, @Nullable Direction face, @Nullable LivingEntity igniter) {
-        blockState.catchFire(world, blockPos, face, igniter);
+        // BlockState#catchFire is gone; the fire block is placed directly
+        if (blockState.isAir() || net.minecraft.world.level.block.BaseFireBlock.canBePlacedAt(world, blockPos, face != null ? face : Direction.UP)) {
+            world.setBlockAndUpdate(blockPos, net.minecraft.world.level.block.BaseFireBlock.getState(world, blockPos));
+        }
         if (blockState.getBlock() instanceof TntBlock) {
             CrazyDiamondRestoreTerrain.rememberBrokenBlock(world, blockPos, blockState, 
                     Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList());
@@ -856,15 +859,16 @@ public class MCUtil {
     public static void playSound(Level world, @Nullable Player clientHandled, double x, double y, double z, 
             SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         if (!world.isClientSide()) {
-            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
+            net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, soundHolder, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
-            sound = event.getSound();
+            soundHolder = event.getSound();
             category = event.getSource();
             volume = event.getOriginalVolume();
             pitch = event.getOriginalPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
-                            new ClientboundSoundPacket(sound, category, x, y, z, volume, pitch), condition);
+                            new ClientboundSoundPacket(soundHolder, category, x, y, z, volume, pitch, world.getRandom().nextLong()), condition);
         }
         else if (clientHandled != null && condition.test(clientHandled)) {
             world.playSound(clientHandled, x, y, z, sound, category, volume, pitch);
@@ -880,15 +884,16 @@ public class MCUtil {
     public static void playSound(Level world, @Nullable Player clientHandled, Entity entity, 
             SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         if (!world.isClientSide()) {
-            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(entity, sound, category, volume, pitch);
+            net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(entity, soundHolder, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
-            sound = event.getSound();
+            soundHolder = event.getSound();
             category = event.getSource();
             volume = event.getOriginalVolume();
             pitch = event.getOriginalPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     entity.getX(), entity.getY(), entity.getZ(), volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
-                            new ClientboundSoundEntityPacket(sound, category, entity, volume, pitch), condition);
+                            new ClientboundSoundEntityPacket(soundHolder, category, entity, volume, pitch, world.getRandom().nextLong()), condition);
         }
         else if (clientHandled != null && condition.test(clientHandled)) {
             world.playSound(clientHandled, entity, sound, category, volume, pitch);
@@ -1054,7 +1059,7 @@ public class MCUtil {
             return false;
         } else {
             BlockPos blockpos = player.blockPosition();
-            if (blockpos.closerThan(new Vec3(x, y, z), force ? 512.0D : 32.0D)) {
+            if (net.minecraft.world.phys.Vec3.atCenterOf(blockpos).closerThan(new Vec3(x, y, z), force ? 512.0D : 32.0D)) {
                 PacketManager.sendToClient(packet, player);
                 return true;
             } else {
@@ -1170,7 +1175,7 @@ public class MCUtil {
                     if (selector != null) {
                         Predicate<LivingEntity> oldPredicate = CommonReflection.getTargetSelector(selector);
                         Predicate<LivingEntity> geUserPredicate = target -> !userUuid.equals(target.getUUID());
-                        CommonReflection.setTargetConditions(targetGoal, new TargetingConditions().range(CommonReflection.getTargetDistance(targetGoal)).selector(
+                        CommonReflection.setTargetConditions(targetGoal, TargetingConditions.forCombat().range(CommonReflection.getTargetDistance(targetGoal)).selector(
                                 oldPredicate != null ? oldPredicate.and(geUserPredicate) : geUserPredicate));
                     }
                 }
@@ -1342,7 +1347,7 @@ public class MCUtil {
     }
 
     public static ResourceLocation id(StructurePieceType type) {
-        return ForgeRegistries.STRUCTURE_PIECE_TYPES.getKey(type);
+        return net.minecraft.core.registries.BuiltInRegistries.STRUCTURE_PIECE.getKey(type);
     }
 
     public static ResourceLocation id(PaintingVariant variant) {
