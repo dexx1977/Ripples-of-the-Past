@@ -7,7 +7,6 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.action.stand.effect.GEItemMarkEffect;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 
 import net.minecraft.client.Minecraft;
@@ -139,10 +138,10 @@ public abstract class GELifeImbueGlint extends RenderType {
     }
     
     private static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
-       return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glint()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+       return VertexMultiConsumer.create(pBuffer.getBuffer(glint()),pBuffer.getBuffer(pRenderType));
     }
     
     private static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
-       return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(pBuffer.getBuffer(glintDirect()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+       return VertexMultiConsumer.create(pBuffer.getBuffer(glintDirect()),pBuffer.getBuffer(pRenderType));
     }
 }

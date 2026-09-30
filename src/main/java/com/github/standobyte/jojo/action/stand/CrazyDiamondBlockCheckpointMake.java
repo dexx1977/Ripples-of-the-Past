@@ -54,7 +54,7 @@ public class CrazyDiamondBlockCheckpointMake extends StandEntityAction {
                 if (JojoModUtil.breakingBlocksEnabled(world)) {
                     BlockState blockState = world.getBlockState(pos);
                     List<ItemStack> drops = Block.getDrops(blockState, (ServerLevel) world, pos, 
-                            blockState.hasTileEntity() ? world.getBlockEntity(pos) : null);
+                            blockState.hasBlockEntity() ? world.getBlockEntity(pos) : null);
                     ItemStack item = drops.isEmpty() ? ItemStack.EMPTY : drops.get(0);
                     fillAnchorNbt(item, world, pos, blockState);
                     if (standEntity.breakBlockWithExternalDrops(pos, blockState, 

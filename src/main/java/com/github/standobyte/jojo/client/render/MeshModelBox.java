@@ -8,7 +8,6 @@ import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.model.Model;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
-import net.minecraft.client.model.geom.ModelPart.Vertex;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import org.joml.Vector3f;

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.entity.damaging.projectile;
 
+import com.github.standobyte.jojo.util.mc.MCUtil;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -129,7 +130,10 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     
     @Override
     protected DamageSource getDamageSource(LivingEntity owner) {
-        return super.getDamageSource(owner).setIsFire();
+        // the fire behaviour lives in the damage type (jojo:flame is in the
+        // vanilla is_fire tag and keeps the arrow death message)
+        return com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.source(this, owner, 
+                com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.key("flame"));
     }
 
     @Override

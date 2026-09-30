@@ -142,7 +142,8 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     
     @Override
     protected DamageSource getDamageSource(LivingEntity owner) {
-        return super.getDamageSource(owner).setIsFire();
+        return com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.source(this, owner, 
+                com.github.standobyte.jojo.util.mc.damage.ModDamageTypes.key("flame"));
     }
     
     @Override

@@ -240,7 +240,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
     @Override
     public boolean isGlowing() {
-        return super.isGlowing();
+        return super.isCurrentlyGlowing();
     }
     
     private <T extends StandEntity> void init(T thisEntity) {
@@ -988,7 +988,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     protected float getDamageAfterMagicAbsorb(DamageSource dmgSource, float dmgAmount) {
         dmgAmount = super.getDamageAfterMagicAbsorb(dmgSource, dmgAmount);
 
-        if (dmgSource.isBypassMagic()) return dmgAmount;
+        if (dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE)) return dmgAmount;
         LivingEntity user = getUser();
         if (user == null || user.is(this)) return dmgAmount;
 
@@ -1142,7 +1142,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
         if (
                 getUser() instanceof Player && ((Player) getUser()).abilities.invulnerable && !damageSrc.isBypassInvul()
-                || damageSrc.isFire() && !level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE)) {
+                || damageSrc.is(net.minecraft.tags.DamageTypeTags.IS_FIRE) && !level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE)) {
             return true;
         }
         
@@ -2557,7 +2557,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         if (!level.isClientSide() && !item.isEmpty()) {
             ItemStack heldItem = getItemBySlot(slot);
             if (!heldItem.isEmpty()) {
-                if (heldItem.sameItem(item) && ItemStack.tagMatches(heldItem, item)) {
+                if (heldItem.sameItem(item) && ItemStack.isSameItemSameTags(heldItem, item)) {
                     int toMove = Math.min(item.getCount(), heldItem.getMaxStackSize() - heldItem.getCount());
                     item.shrink(toMove);
                     heldItem.grow(toMove);

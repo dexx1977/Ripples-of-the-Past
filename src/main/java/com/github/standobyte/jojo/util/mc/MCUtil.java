@@ -794,7 +794,7 @@ public class MCUtil {
                 packet.addBlock(blockPos, oldState);
             }
             if (dropItems) {
-                BlockEntity tileentity = oldState.hasTileEntity() ? world.getBlockEntity(blockPos) : null;
+                BlockEntity tileentity = oldState.hasBlockEntity() ? world.getBlockEntity(blockPos) : null;
 
                 Block.getDrops(oldState, world, blockPos, tileentity, entity, ItemStack.EMPTY).forEach(itemStack -> {
                     CustomExplosion.addBlockDrops(dropPositions, itemStack, blockPos);

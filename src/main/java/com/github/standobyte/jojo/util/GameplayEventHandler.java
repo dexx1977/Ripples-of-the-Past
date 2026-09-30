@@ -898,9 +898,9 @@ public class GameplayEventHandler {
         if (world.isClientSide()
                 || dmgAmount < 0.98F
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource != DamageSource.FALL
-                || dmgSource.isFire()
+                || dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_FIRE)
                 || dmgSource.isMagic()
-                || dmgSource.isBypassMagic()
+                || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE)
                 || dmgSource.getMsgId().startsWith(DamageUtil.PILLAR_MAN_ABSORPTION.location().getPath())
                 || !JojoModUtil.canBleed(target)) return;
 

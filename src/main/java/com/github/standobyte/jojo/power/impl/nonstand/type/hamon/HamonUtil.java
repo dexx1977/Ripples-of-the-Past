@@ -462,7 +462,7 @@ public class HamonUtil {
         public abstract boolean rightBlock(BlockState blockState);
         
         @Nullable public static DamagingBlockType getType(DamageSource dmgSource) {
-            if (dmgSource == DamageSource.CACTUS) {
+            if (dmgSource.is(net.minecraft.world.damagesource.DamageTypes.CACTUS)) {
                 return CACTUS;
             }
             else if (dmgSource == DamageSource.SWEET_BERRY_BUSH) {

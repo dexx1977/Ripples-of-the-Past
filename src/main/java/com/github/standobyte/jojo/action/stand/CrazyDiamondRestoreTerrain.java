@@ -432,7 +432,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     private static boolean stacksMatch(ItemStack neededItem, ItemStack itemInQuestion) {
-        return (!itemInQuestion.isEmpty() && itemInQuestion.getItem() == neededItem.getItem() && ItemStack.tagMatches(itemInQuestion, neededItem));
+        return (!itemInQuestion.isEmpty() && itemInQuestion.getItem() == neededItem.getItem() && ItemStack.isSameItemSameTags(itemInQuestion, neededItem));
     }
     
     

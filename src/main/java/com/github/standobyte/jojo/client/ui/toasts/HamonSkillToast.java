@@ -47,7 +47,7 @@ public class HamonSkillToast implements Toast {
         } else {
             Minecraft mc = toastGui.getMinecraft();
             GuiDraw.bind(TEXTURE);
-            RenderSystem.color3f(1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             GuiDraw.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             GuiDraw.drawString(matrixStack, mc.font, NAME, 30.0F, 7.0F, -11534256);
             GuiDraw.drawString(matrixStack, mc.font, description, 30.0F, 18.0F, -16777216);

@@ -134,7 +134,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isBypassMagic() {
-        return dmgSource.isBypassMagic();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE);
     }
     
     @Nullable
@@ -172,7 +172,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isFire() {
-        return dmgSource.isFire();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_FIRE);
     }
     
     public String getMsgId() {

@@ -53,7 +53,7 @@ public class StandLinkDamageSource extends DamageSource {
 //
 //    @Override
 //    public boolean isFire() {
-//        return actualSource.isFire();
+//        return actualSource.is(net.minecraft.tags.DamageTypeTags.IS_FIRE);
 //    }
 //
 //    @Override

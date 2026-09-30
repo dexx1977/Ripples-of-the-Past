@@ -170,7 +170,7 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     @Override
     public boolean isGlowing() {
         return level.isClientSide() && !timeStop && wasRipped() && getOwner() instanceof StandEntity && 
-                ((StandEntity) getOwner()).getUser() == ClientUtil.getClientPlayer() || super.isGlowing();
+                ((StandEntity) getOwner()).getUser() == ClientUtil.getClientPlayer() || super.isCurrentlyGlowing();
     }
     
     @Override

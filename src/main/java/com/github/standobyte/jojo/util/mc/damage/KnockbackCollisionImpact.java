@@ -352,7 +352,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                             doGlassBleeding.setTrue();
                         }
                         if (blockState.is(Blocks.CACTUS)) {
-                            hurtTarget(entity, DamageSource.CACTUS, 1);
+                            hurtTarget(entity, entity.level().damageSources().cactus(), 1);
                         }
                         if (entity.isOnFire()) {
                             MCUtil.blockCatchFire(world, blockPos, blockState, null, asLiving);

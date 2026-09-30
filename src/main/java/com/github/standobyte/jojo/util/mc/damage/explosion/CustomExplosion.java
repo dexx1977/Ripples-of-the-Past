@@ -242,7 +242,7 @@ public abstract class CustomExplosion extends Explosion {
             if (!blockState.isAir()) {
                 level.getProfiler().push("explosion_blocks");
                 if (blockState.canDropFromExplosion(level, blockPos, this) && level instanceof ServerLevel) {
-                    BlockEntity tileEntity = blockState.hasTileEntity() ? level.getBlockEntity(blockPos) : null;
+                    BlockEntity tileEntity = blockState.hasBlockEntity() ? level.getBlockEntity(blockPos) : null;
                     LootContext.Builder lootCtxBuilder = (
                             new LootContext.Builder((ServerLevel)level))
                             .withRandom(level.random)

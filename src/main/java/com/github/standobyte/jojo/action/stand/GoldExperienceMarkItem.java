@@ -26,7 +26,6 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 
 import net.minecraft.client.Minecraft;
@@ -192,13 +191,11 @@ public class GoldExperienceMarkItem extends StandAction {
         }
         
         public static VertexConsumer getCompassFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
-            return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(
-                    pBuffer.getBuffer(CustomRenderType.geImbuedGlint()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+            return VertexMultiConsumer.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlint()),pBuffer.getBuffer(pRenderType));
         }
 
         public static VertexConsumer getCompassFoilBufferDirect(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry) {
-            return VertexMultiConsumer.create(new MatrixApplyingVertexBuilder(
-                    pBuffer.getBuffer(CustomRenderType.geImbuedGlintDirect()), pMatrixEntry.pose(), pMatrixEntry.normal()), pBuffer.getBuffer(pRenderType));
+            return VertexMultiConsumer.create(pBuffer.getBuffer(CustomRenderType.geImbuedGlintDirect()),pBuffer.getBuffer(pRenderType));
         }
 
         public static VertexConsumer getFoilBuffer(MultiBufferSource pBuffer, RenderType pRenderType) {
