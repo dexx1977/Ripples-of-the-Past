@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.sounds.SoundEvent;
 
 public class HamonBreath extends HamonAction {
 
@@ -45,12 +45,12 @@ public class HamonBreath extends HamonAction {
     }
 
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.hamonBreath.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.hamonBreath.setAnimEnabled(user, false);
     }
 }

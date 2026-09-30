@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.util.mc;
 
 import java.util.Random;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 
 // for voice lines with the same usage but different subtitles
 public class MultiSoundEvent extends SoundEvent {

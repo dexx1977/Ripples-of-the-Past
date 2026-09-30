@@ -12,7 +12,7 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 
 public class MagiciansRedFlameBurst extends StandEntityAction {
@@ -23,7 +23,7 @@ public class MagiciansRedFlameBurst extends StandEntityAction {
     }
     
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         Random random = standEntity.getRandom();
         if (!world.isClientSide()) {
 //            GeneralUtil.doFractionTimes(() -> {

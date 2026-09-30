@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.entity.model.stand;
 
 import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public class SilverChariotRapierFlameLayerModel extends SilverChariotModel {
     private FlameModelRenderer rapierBladeFlame;

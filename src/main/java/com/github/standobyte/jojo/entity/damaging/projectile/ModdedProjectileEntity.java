@@ -8,36 +8,36 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.DeflectedBulletPacket;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public abstract class ModdedProjectileEntity extends DamagingEntity {
-    private static final DataParameter<Boolean> IS_DEFLECTED = EntityDataManager.defineId(ModdedProjectileEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_DEFLECTED = SynchedEntityData.defineId(ModdedProjectileEntity.class, EntityDataSerializers.BOOLEAN);
     private int ownerId = -1;
     
-    protected ModdedProjectileEntity(EntityType<? extends ModdedProjectileEntity> type, LivingEntity shooter, World world) {
+    protected ModdedProjectileEntity(EntityType<? extends ModdedProjectileEntity> type, LivingEntity shooter, Level world) {
         super(type, shooter, world);
         if (!hasGravity()) {
             setNoGravity(true);
         }
     }
 
-    public ModdedProjectileEntity(EntityType<? extends ModdedProjectileEntity> type, World world) {
+    public ModdedProjectileEntity(EntityType<? extends ModdedProjectileEntity> type, Level world) {
         super(type, world);
     }
     
@@ -63,7 +63,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
 
     @Override
     public void shootFromRotation(Entity shooter, float xRot, float yRot, float yAxisRotOffset, float velocity, float inaccuracy) {
-        Vector3d shootingVec = Vector3d.directionFromRotation(xRot, yRot);
+        Vec3 shootingVec = Vec3.directionFromRotation(xRot, yRot);
         shoot(shootingVec.x, shootingVec.y, shootingVec.z, velocity, inaccuracy);
     }
     
@@ -74,7 +74,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
         super.shoot(x, y, z, velocity, inaccuracy);
-        Vector3d movement = getDeltaMovement();
+        Vec3 movement = getDeltaMovement();
         yRot = MathUtil.yRotDegFromVec(movement);
         xRot = MathUtil.xRotDegFromVec(movement);
         yRotO = yRot;
@@ -93,7 +93,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
     }
     
     protected void moveProjectile() {
-        Vector3d movementVec = getDeltaMovement();
+        Vec3 movementVec = getDeltaMovement();
         double x = getX();
         double y = getY();
         double z = getZ();
@@ -164,7 +164,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
         return 0.8;
     }
     
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (!level.isClientSide()) {
             remove();
         }
@@ -177,8 +177,8 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
             if (owner == null) {
                 return true;
             }
-            if (entity instanceof ProjectileEntity) {
-                Entity otherOwner = ((ProjectileEntity) entity).getOwner();
+            if (entity instanceof Projectile) {
+                Entity otherOwner = ((Projectile) entity).getOwner();
                 return otherOwner == null || owner.getUUID() != otherOwner.getUUID();
             }
             return true;
@@ -197,7 +197,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
         setIsDeflected(null, this.position());
     }
     
-    public void setIsDeflected(Vector3d deflectVec, Vector3d deflectPos) {
+    public void setIsDeflected(Vec3 deflectVec, Vec3 deflectPos) {
         if (!level.isClientSide()) {
             entityData.set(IS_DEFLECTED, true);
             if (hasDeflectedVisuals() && deflectVec != null) {
@@ -220,19 +220,19 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
     
     
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+    protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         super.onHitEntity(entityRayTraceResult);
         breakProjectile(TargetType.ENTITY, entityRayTraceResult);
     }
     
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         super.onHitBlock(blockRayTraceResult);
         breakProjectile(TargetType.BLOCK, blockRayTraceResult);
     }
     
     protected void rotateTowardsMovement(float rotationSpeed) {
-        Vector3d motionVec = getDeltaMovement();
+        Vec3 motionVec = getDeltaMovement();
         if (motionVec.lengthSqr() != 0) {
             yRot = MathUtil.yRotDegFromVec(motionVec);
             xRot = MathUtil.xRotDegFromVec(motionVec);
@@ -248,8 +248,8 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
             while(yRot - yRotO >= 180.0F) {
                 yRotO += 360.0F;
             }
-            yRot = MathHelper.lerp(rotationSpeed, yRotO, yRot);
-            xRot = MathHelper.lerp(rotationSpeed, xRotO, xRot);
+            yRot = Mth.lerp(rotationSpeed, yRotO, yRot);
+            xRot = Mth.lerp(rotationSpeed, xRotO, xRot);
         }
     }
     
@@ -300,7 +300,7 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         if (ownerId < 0) {
             LivingEntity owner = getOwner();
@@ -312,19 +312,19 @@ public abstract class ModdedProjectileEntity extends DamagingEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.ownerId = additionalData.readInt();
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("IsDeflected", entityData.get(IS_DEFLECTED));
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         entityData.set(IS_DEFLECTED, nbt.getBoolean("IsDeflected"));
     }

@@ -5,46 +5,46 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.BushBlock;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BushBlock;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 
 public class BladeHatEntity extends ItemNbtProjectileEntity implements IEntityAdditionalSpawnData {
-    private static final DataParameter<Boolean> RETURNING_TO_OWNER = EntityDataManager.defineId(BladeHatEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> RETURNING_TO_OWNER = SynchedEntityData.defineId(BladeHatEntity.class, EntityDataSerializers.BOOLEAN);
 
-    public BladeHatEntity(World world, double x, double y, double z, ItemStack thrownStack) {
+    public BladeHatEntity(Level world, double x, double y, double z, ItemStack thrownStack) {
         super(ModEntityTypes.BLADE_HAT.get(), world, x, y, z, thrownStack);
         this.setNoGravity(true);
         this.setBaseDamage(6.0F);
     }
 
-    public BladeHatEntity(World world, LivingEntity thrower, ItemStack thrownStack) {
+    public BladeHatEntity(Level world, LivingEntity thrower, ItemStack thrownStack) {
         super(ModEntityTypes.BLADE_HAT.get(), world, thrower, thrownStack);
         this.setNoGravity(true);
         this.setBaseDamage(6.0F);
     }
     
-    public BladeHatEntity(EntityType<? extends ItemNbtProjectileEntity> type, World world) {
+    public BladeHatEntity(EntityType<? extends ItemNbtProjectileEntity> type, Level world) {
         super(type, world);
     }
     
@@ -59,12 +59,12 @@ public class BladeHatEntity extends ItemNbtProjectileEntity implements IEntityAd
         }
         else if (!isInGround()) {
             if (!level.isClientSide()) {
-                Vector3d motionVec = this.getDeltaMovement();
-                Vector3d posVec = this.position();
-                Vector3d nextPosVec = posVec.add(motionVec);
-                RayTraceResult rayTraceResult = this.level.clip(new RayTraceContext(posVec, nextPosVec, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, this));
+                Vec3 motionVec = this.getDeltaMovement();
+                Vec3 posVec = this.position();
+                Vec3 nextPosVec = posVec.add(motionVec);
+                HitResult rayTraceResult = this.level.clip(new ClipContext(posVec, nextPosVec, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this));
                 if (rayTraceResult.getType() == Type.BLOCK) {
-                    BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+                    BlockPos blockPos = ((BlockHitResult) rayTraceResult).getBlockPos();
                     Block block = level.getBlockState(blockPos).getBlock();
                     if (block == Blocks.COBWEB || block == Blocks.TRIPWIRE || block instanceof BushBlock) {
                         MCUtil.destroyBlock(level, blockPos, true, null);
@@ -111,26 +111,26 @@ public class BladeHatEntity extends ItemNbtProjectileEntity implements IEntityAd
     
     @Override
     public double getBaseDamage() {
-        return super.getBaseDamage() + EnchantmentHelper.getDamageBonus(thrownStack, CreatureAttribute.UNDEFINED);
+        return super.getBaseDamage() + EnchantmentHelper.getDamageBonus(thrownStack, MobType.UNDEFINED);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         setReturningToOwner(compound.getBoolean("Returning"));
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("Returning", isReturningToOwner());
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {}
+    public void writeSpawnData(FriendlyByteBuf buffer) {}
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         ClientTickingSoundsHelper.playBladeHatSound(this);
     }
 

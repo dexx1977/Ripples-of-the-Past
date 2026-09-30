@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.capability.entity.living;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.TrKnivesCountPacket;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class LivingStuckObjects implements INBTSerializable<CompoundNBT> {
+public class LivingStuckObjects implements INBTSerializable<CompoundTag> {
     private final LivingEntity entity;
     private final StuckObjectsTracker knives;
     
@@ -28,24 +28,24 @@ public class LivingStuckObjects implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         knives.toNBT(nbt, "Knives");
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         knives.fromNBT(nbt, "Knives");
     }
     
-    public void onTracking(ServerPlayerEntity tracking) {
+    public void onTracking(ServerPlayer tracking) {
         knives.onTracking(tracking);
     }
     
     public void syncWithClient() {
-        if (entity instanceof ServerPlayerEntity) {
-            knives.syncWithPlayerEntity((ServerPlayerEntity) entity);
+        if (entity instanceof ServerPlayer) {
+            knives.syncWithPlayerEntity((ServerPlayer) entity);
         }
     }
     
@@ -97,20 +97,20 @@ public class LivingStuckObjects implements INBTSerializable<CompoundNBT> {
         }
         
         
-        public void toNBT(CompoundNBT mainNbt, String key) {
+        public void toNBT(CompoundTag mainNbt, String key) {
             mainNbt.putInt(key, count);
         }
         
-        public void fromNBT(CompoundNBT mainNbt, String key) {
+        public void fromNBT(CompoundTag mainNbt, String key) {
             count = mainNbt.getInt(key);
         }
         
         
-        public void onTracking(ServerPlayerEntity tracking) {
+        public void onTracking(ServerPlayer tracking) {
             PacketManager.sendToClient(makePacket(), tracking);
         }
         
-        public void syncWithPlayerEntity(ServerPlayerEntity entityAsPlayer) {
+        public void syncWithPlayerEntity(ServerPlayer entityAsPlayer) {
             PacketManager.sendToClient(makePacket(), entityAsPlayer);
         }
         

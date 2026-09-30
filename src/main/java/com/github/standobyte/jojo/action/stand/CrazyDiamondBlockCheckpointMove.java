@@ -12,16 +12,16 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondBlockCheckpointMove extends StandEntityAction {
 
@@ -49,12 +49,12 @@ public class CrazyDiamondBlockCheckpointMove extends StandEntityAction {
     }
 
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         LivingEntity user = userPower.getUser();
         if (user != null) {
             ItemStack heldItem = getBlockItemToUse(user);
             CrazyDiamondBlockCheckpointMake.getBlockPosMoveTo(world, heldItem).ifPresent(pos -> {
-                Vector3d posD = Vector3d.atCenterOf(pos);
+                Vec3 posD = Vec3.atCenterOf(pos);
                 Entity entity = user.getRootVehicle();
                 if (entity.distanceToSqr(posD) > 16) {
                     entity.setDeltaMovement(posD.subtract(entity.position()).normalize().scale(0.75));
@@ -84,14 +84,14 @@ public class CrazyDiamondBlockCheckpointMove extends StandEntityAction {
                     }
                 }
                 if (world.isClientSide() && ClientUtil.canSeeStands()) {
-                    CustomParticlesHelper.createCDRestorationParticle(user, user.getMainHandItem() == heldItem ? Hand.MAIN_HAND : Hand.OFF_HAND);
+                    CustomParticlesHelper.createCDRestorationParticle(user, user.getMainHandItem() == heldItem ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
                 }
             });
         }
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             @Nullable Phase from, @Nullable Phase to, StandEntityTask task, int nextPhaseTicks) {
         if (world.isClientSide()) {
             if (to == Phase.PERFORM) {
@@ -113,9 +113,9 @@ public class CrazyDiamondBlockCheckpointMove extends StandEntityAction {
     }
 
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         return CrazyDiamondBlockCheckpointMake.getBlockPosMoveTo(power.getUser().level, getBlockItemToUse(power.getUser())).map(pos -> 
-        (IFormattableTextComponent) new TranslationTextComponent(key, pos.getX(), pos.getY(), pos.getZ()))
+        (MutableComponent) Component.translatable(key, pos.getX(), pos.getY(), pos.getZ()))
                 .orElse(super.getTranslatedName(power, key));
     }
 }

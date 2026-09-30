@@ -12,11 +12,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData.Mode;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class PillarmanLightFlash extends PillarmanAction {
 
@@ -36,19 +36,19 @@ public class PillarmanLightFlash extends PillarmanAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         int range = 16;
         if (!world.isClientSide()) {
             for (LivingEntity entity : MCUtil.entitiesAround(
                     LivingEntity.class, user, range, false, entity -> 
                     entity.canSee(user) && !(entity instanceof StandEntity && user.is(((StandEntity) entity).getUser())))) {
                 if (user.distanceTo(entity) < 5) {
-                    entity.addEffect(new EffectInstance(Effects.BLINDNESS, 200, 0, true, true, false));
+                    entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, true, true, false));
                 } else {
-                    entity.addEffect(new EffectInstance(Effects.BLINDNESS, 80, 0, true, true, false));
+                    entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80, 0, true, true, false));
                 }
-                if (!(entity instanceof PlayerEntity) && !(entity instanceof StandEntity)) {
-                    entity.addEffect(new EffectInstance(ModStatusEffects.STUN.get(), 60, 0, true, true, false));
+                if (!(entity instanceof Player) && !(entity instanceof StandEntity)) {
+                    entity.addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), 60, 0, true, true, false));
                 }
             }
         }
@@ -57,24 +57,24 @@ public class PillarmanLightFlash extends PillarmanAction {
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
     	if (requirementsFulfilled) {
         	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(true);
     	}
     }
 
     @Override
-    public void stoppedHolding(World world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
     	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(false);
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.lightFlash.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.lightFlash.setAnimEnabled(user, false);
     }
 }

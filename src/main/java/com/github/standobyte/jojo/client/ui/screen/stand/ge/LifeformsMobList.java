@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
 import com.github.standobyte.jojo.modcompat.ModInteractionUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
 
@@ -19,12 +19,12 @@ public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
     }
     
     @Override
-    protected ITextComponent getValueName(LifeformEntityTypeEntry lifeformType) {
+    protected Component getValueName(LifeformEntityTypeEntry lifeformType) {
         return lifeformType.entityType.getDescription();
     }
 
     @Override
-    protected LifeformsList.LifeformEntry makeLifeformEntry(LifeformEntityTypeEntry lifeformType, ITextComponent name) {
+    protected LifeformsList.LifeformEntry makeLifeformEntry(LifeformEntityTypeEntry lifeformType, Component name) {
         return new MobEntry(name, lifeformType);
     }
     
@@ -54,7 +54,7 @@ public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
     }
     
     @Override
-    protected void renderHoveredTooltip(MatrixStack matrixStack, LifeformEntityTypeEntry entityType, int mouseX, int mouseY) {
+    protected void renderHoveredTooltip(PoseStack matrixStack, LifeformEntityTypeEntry entityType, int mouseX, int mouseY) {
         screen.renderHoveredTooltip(matrixStack, entityType.getCurrentSubtype(), mouseX, mouseY);
     }
     
@@ -62,13 +62,13 @@ public class LifeformsMobList extends LifeformsList<LifeformEntityTypeEntry> {
     public static class MobEntry extends LifeformsList.LifeformEntry {
         private final LifeformEntityTypeEntry entityType;
         
-        public MobEntry(ITextComponent valueName, LifeformEntityTypeEntry entityType) {
+        public MobEntry(Component valueName, LifeformEntityTypeEntry entityType) {
             super(valueName);
             this.entityType = entityType;
         }
 
         @Override
-        public void render(MatrixStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
             pMatrixStack.pushPose();
             pMatrixStack.scale(0.5F, 0.5F, 1);

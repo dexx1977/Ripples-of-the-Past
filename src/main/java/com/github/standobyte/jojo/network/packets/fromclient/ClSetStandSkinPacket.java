@@ -10,13 +10,13 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.play.server.SEntityMetadataPacket;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClSetStandSkinPacket {
     private final Optional<ResourceLocation> standSkin;
@@ -32,20 +32,20 @@ public class ClSetStandSkinPacket {
     public static class Handler implements IModPacketHandler<ClSetStandSkinPacket> {
     
         @Override
-        public void encode(ClSetStandSkinPacket msg, PacketBuffer buf) {
+        public void encode(ClSetStandSkinPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeOptional(buf, msg.standSkin, buf::writeResourceLocation);
             buf.writeResourceLocation(msg.standId);
         }
 
         @Override
-        public ClSetStandSkinPacket decode(PacketBuffer buf) {
+        public ClSetStandSkinPacket decode(FriendlyByteBuf buf) {
             return new ClSetStandSkinPacket(NetworkUtil.readOptional(buf, buf::readResourceLocation), 
                     buf.readResourceLocation());
         }
 
         @Override
         public void handle(ClSetStandSkinPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                 if (power.hasPower() && msg.standId.equals(power.getType().getRegistryName())) {
                     power.getStandInstance().ifPresent(stand -> {
@@ -58,11 +58,11 @@ public class ClSetStandSkinPacket {
                             if (power.getStandManifestation() instanceof StandEntity) {
                                 StandEntity standEntity = (StandEntity) power.getStandManifestation();
                                 
-                                SEntityMetadataPacket entityDataPacket = new SEntityMetadataPacket();
-                                PacketBuffer data = new PacketBuffer(Unpooled.buffer());
+                                ClientboundSetEntityDataPacket entityDataPacket = new ClientboundSetEntityDataPacket();
+                                FriendlyByteBuf data = new FriendlyByteBuf(Unpooled.buffer());
                                 data.writeVarInt(standEntity.getId());
-                                DataParameter<Optional<ResourceLocation>> dataParameter = StandEntity.DATA_PARAM_STAND_SKIN;
-                                int serializerId = DataSerializers.getSerializedId(dataParameter.getSerializer());
+                                EntityDataAccessor<Optional<ResourceLocation>> dataParameter = StandEntity.DATA_PARAM_STAND_SKIN;
+                                int serializerId = EntityDataSerializers.getSerializedId(dataParameter.getSerializer());
                                 if (serializerId >= 0) {
                                     data.writeByte(dataParameter.getId());
                                     data.writeVarInt(serializerId);

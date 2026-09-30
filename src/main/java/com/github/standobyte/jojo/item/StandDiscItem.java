@@ -19,24 +19,23 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.StoryPart;
 
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.BlockSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.minecraftforge.forgespi.language.IConfigurable;
@@ -49,7 +48,7 @@ public class StandDiscItem extends Item {
         super(properties);
 
         DispenserBlock.registerBehavior(this, new DefaultDispenseItemBehavior() {
-            protected ItemStack execute(IBlockSource blockSource, ItemStack stack) {
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
                 if (validStandDisc(stack, false)) {
                     StandInstance stand = getStandFromStack(stack, false);
                     if (MCUtil.dispenseOnNearbyEntity(blockSource, stack, entity -> {
@@ -66,14 +65,14 @@ public class StandDiscItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         IStandPower power = IStandPower.getPlayerStandPower(player);
         if (!world.isClientSide()) {
             if (validStandDisc(stack, false)) {
                 StandInstance stand = getStandFromStack(stack, false);
                 if (JojoModConfig.getCommonConfigInstance(false).isStandBanned(stand.getType())) {
-                    return ActionResult.fail(stack);
+                    return InteractionResultHolder.fail(stack);
                 }
                 
                 if (!player.abilities.instabuild) {
@@ -92,21 +91,21 @@ public class StandDiscItem extends Item {
                     if (!player.abilities.instabuild) {
                         stack.shrink(1);
                     }
-                    return ActionResult.success(stack);
+                    return InteractionResultHolder.success(stack);
                 }
                 else {
-                    return ActionResult.fail(stack);
+                    return InteractionResultHolder.fail(stack);
                 }
             } 
         }
         else if (!power.hasPower()) {
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
-        return ActionResult.fail(stack);
+        return InteractionResultHolder.fail(stack);
     }
     
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
         if (this.allowdedIn(group)) {
             boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT;
             List<StandType<?>> legalStands = new ArrayList<>();
@@ -123,7 +122,7 @@ public class StandDiscItem extends Item {
     }
     
     @Override
-    public boolean allowdedIn(ItemGroup creativeTab) {
+    public boolean allowdedIn(CreativeModeTab creativeTab) {
         return super.allowdedIn(creativeTab);
     }
     
@@ -134,20 +133,20 @@ public class StandDiscItem extends Item {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        PlayerEntity player = ClientUtil.getClientPlayer();
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+        Player player = ClientUtil.getClientPlayer();
         if (player != null) {
             if (validStandDisc(stack, true)) {
                 StandInstance stand = getStandFromStack(stack, true);
                 tooltip.add(stand.getName());
-                ITextComponent partName = StandSkinsManager.getInstance()
+                Component partName = StandSkinsManager.getInstance()
                         .getStandSkin(stand.getSelectedSkin())
                         .map(skin -> skin.getPartName(stand.getType()))
                         .orElse(stand.getType().getPartName());
                 tooltip.add(partName);
                 for (StandPart standPart : StandPart.values()) {
                     if (!stand.hasPart(standPart)) {
-                        tooltip.add(new TranslationTextComponent("jojo.disc.missing_part." + standPart.name().toLowerCase()).withStyle(TextFormatting.DARK_GRAY));
+                        tooltip.add(Component.translatable("jojo.disc.missing_part." + standPart.name().toLowerCase()).withStyle(ChatFormatting.DARK_GRAY));
                     }
                 }
             }
@@ -161,12 +160,12 @@ public class StandDiscItem extends Item {
             .map(authorsString -> authorsString instanceof String ? (String) authorsString : null)
             .ifPresent(authors -> {
                 authors = authors.replace(", StandoByte", "").replace("StandoByte, ", "");
-                tooltip.add(new TranslationTextComponent("item.jojo.stand_disc.addon_author", authors)
-                        .withStyle(TextFormatting.GRAY, TextFormatting.ITALIC));
+                tooltip.add(Component.translatable("item.jojo.stand_disc.addon_author", authors)
+                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
             });
         }
         
-        tooltip.add(new TranslationTextComponent("item.jojo.creative_only_tooltip").withStyle(TextFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("item.jojo.creative_only_tooltip").withStyle(ChatFormatting.DARK_GRAY));
     }
     
     @Deprecated
@@ -176,11 +175,11 @@ public class StandDiscItem extends Item {
     
     @Nullable
     public static StandInstance getStandFromStack(ItemStack stack) {
-        CompoundNBT nbt = stack.getTag();
-        if (nbt == null || !nbt.contains(STAND_TAG, MCUtil.getNbtId(CompoundNBT.class))) {
+        CompoundTag nbt = stack.getTag();
+        if (nbt == null || !nbt.contains(STAND_TAG, MCUtil.getNbtId(CompoundTag.class))) {
             return null;
         }
-        return StandInstance.fromNBT((CompoundNBT) nbt.get(STAND_TAG));
+        return StandInstance.fromNBT((CompoundTag) nbt.get(STAND_TAG));
     }
     
     public static boolean validStandDisc(ItemStack stack, boolean clientSide) {

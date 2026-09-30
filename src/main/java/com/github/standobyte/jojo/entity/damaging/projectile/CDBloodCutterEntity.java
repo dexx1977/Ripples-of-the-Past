@@ -14,20 +14,20 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.GameplayEventHandler;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
 
 public class CDBloodCutterEntity extends ModdedProjectileEntity {
     
-    public CDBloodCutterEntity(LivingEntity shooter, World world) {
+    public CDBloodCutterEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.CD_BLOOD_CUTTER.get(), shooter, world);
     }
 
-    public CDBloodCutterEntity(EntityType<? extends CDBloodCutterEntity> type, World world) {
+    public CDBloodCutterEntity(EntityType<? extends CDBloodCutterEntity> type, Level world) {
         super(type, world);
     }
 
@@ -41,8 +41,8 @@ public class CDBloodCutterEntity extends ModdedProjectileEntity {
         return 4.0F;
     }
     
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
-        if (targetType != TargetType.ENTITY || ((EntityRayTraceResult) hitTarget).getEntity() instanceof LivingEntity) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
+        if (targetType != TargetType.ENTITY || ((EntityHitResult) hitTarget).getEntity() instanceof LivingEntity) {
             super.breakProjectile(targetType, hitTarget);
             splashBlood();
         }

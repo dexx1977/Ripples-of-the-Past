@@ -4,8 +4,8 @@ import java.util.function.Predicate;
 
 import com.github.standobyte.jojo.entity.mob.HungryZombieEntity;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 
 public class ZombieNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
     private final HungryZombieEntity zombie;

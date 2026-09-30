@@ -15,37 +15,37 @@ import com.github.standobyte.jojo.power.impl.stand.StandPower;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
-public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IEntityAdditionalSpawnData {
+public class StandUserDummyEntity extends Mob implements IMobStandUser, IEntityAdditionalSpawnData {
     private IStandPower stand = new StandPower(this);
     private StandAction action;
     private boolean useAction = false;
     
-    public StandUserDummyEntity(World world) {
+    public StandUserDummyEntity(Level world) {
         super(ModEntityTypes.STAND_USER_DUMMY.get(), world);
     }
     
-    public StandUserDummyEntity(EntityType<? extends StandUserDummyEntity> type, World world) {
+    public StandUserDummyEntity(EntityType<? extends StandUserDummyEntity> type, Level world) {
         super(type, world);
     }
     
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> key) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         if (CommonReflection.getEntityCustomNameParameter().equals(key) && !level.isClientSide()) {
             updateStandAction();
@@ -54,7 +54,7 @@ public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IE
     
     private void updateStandAction() {
         this.action = null;
-        ITextComponent name = getCustomName();
+        Component name = getCustomName();
         if (name != null) {
             String nameStr = name.getString();
             if (nameStr.contains(":")) {
@@ -89,7 +89,7 @@ public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IE
     
     // TODO wear armor / hold items
     @Override
-    protected ActionResultType mobInteract(PlayerEntity player, Hand hand) {
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
         if (item.getItem() == ModItems.STAND_DISC.get()) {
             if (!this.level.isClientSide) {
@@ -105,9 +105,9 @@ public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IE
                     }
                     updateStandAction();
                 }
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else {
-                return ActionResultType.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
         else {
@@ -122,7 +122,7 @@ public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IE
                     stand.toggleSummon();
                 }
             }
-            return ActionResultType.sidedSuccess(level.isClientSide());
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
     }
     
@@ -132,28 +132,28 @@ public class StandUserDummyEntity extends MobEntity implements IMobStandUser, IE
     }
     
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
     }
     
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.put("Stand", stand.writeNBT());
     }
     
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        if (nbt.contains("Stand", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("Stand", MCUtil.getNbtId(CompoundTag.class))) {
             stand.readNBT(nbt.getCompound("Stand"));
             updateStandAction();
         }

@@ -14,18 +14,18 @@ import com.github.standobyte.jojo.init.power.non_stand.hamon.ModHamonSkills;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 import com.google.common.collect.Streams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public class HamonCharacterTechniqueBox {
     final CharacterHamonTechnique technique;
-    private final List<IReorderingProcessor> name;
+    private final List<FormattedCharSequence> name;
     private final List<HamonSkillElementTechniquePerk> perks;
     private final List<HamonSkillElementLearnable> skills = new ArrayList<>();
     private HamonScreenButton pickTechniqueButton;
@@ -34,7 +34,7 @@ public class HamonCharacterTechniqueBox {
     private final int width;
     private final int height;
     
-    public HamonCharacterTechniqueBox(CharacterHamonTechnique technique, int y, List<IReorderingProcessor> name, FontRenderer font) {
+    public HamonCharacterTechniqueBox(CharacterHamonTechnique technique, int y, List<FormattedCharSequence> name, Font font) {
         this.technique = technique;
         this.x = 8;
         this.y = y;
@@ -45,8 +45,8 @@ public class HamonCharacterTechniqueBox {
                 .collect(Collectors.toCollection(ArrayList::new));
         if (technique == ModHamonSkills.CHARACTER_CAESAR.get()) {
             perks.add(new HamonSkillElementTechniquePerk(this.x + (int) perks.stream().filter(perk -> perk.isVisible()).count() * 18, this.y, font, 
-                    new TranslationTextComponent("hamon.caesar_soap_hint.name"),
-                    new TranslationTextComponent("hamon.caesar_soap_hint.desc").withStyle(TextFormatting.ITALIC))
+                    Component.translatable("hamon.caesar_soap_hint.name"),
+                    Component.translatable("hamon.caesar_soap_hint.desc").withStyle(ChatFormatting.ITALIC))
                     .withItemIcon(new ItemStack(ModItems.SOAP.get())));
         }
         this.width = WINDOW_WIDTH - WINDOW_THIN_BORDER * 2 - 16;
@@ -54,7 +54,7 @@ public class HamonCharacterTechniqueBox {
     }
 
     @SuppressWarnings("deprecation")
-    public void render(MatrixStack matrixStack, HamonData hamon, int x, int y, int mouseX, int mouseY, boolean selected) {
+    public void render(PoseStack matrixStack, HamonData hamon, int x, int y, int mouseX, int mouseY, boolean selected) {
         int col1 = selected ? 0x80101000 : 0x80100010;
         int col2 = selected ? 0x5050FF00 : 0x505000FF;
         int col3 = selected ? 0x50287F00 : 0x5028007F;
@@ -84,14 +84,14 @@ public class HamonCharacterTechniqueBox {
         RenderSystem.disableBlend();
     }
     
-    public void drawText(MatrixStack matrixStack, FontRenderer font, HamonData hamon, int x, int y) {
+    public void drawText(PoseStack matrixStack, Font font, HamonData hamon, int x, int y) {
         int perksCount = renderPerks(hamon) ? (int) perks.stream().filter(HamonSkillElementTechniquePerk::isVisible).count() : 0;
         ClientUtil.drawLines(matrixStack, font, name, 
                 this.x + x + perksCount * 18 + 3, this.y + y + 1, 
                 0, 0xFFFFFF, true, false);
     }
     
-    public void drawTooltip(HamonScreen hamonScreen, MatrixStack matrixStack, int x, int y, int mouseX, int mouseY) {
+    public void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int x, int y, int mouseX, int mouseY) {
         x += this.x;
         y += this.y;
         

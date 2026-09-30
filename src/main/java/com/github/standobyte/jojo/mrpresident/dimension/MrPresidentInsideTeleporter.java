@@ -8,12 +8,12 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.capability.world.MrPresidentWorldDataProvider;
 import com.github.standobyte.jojo.init.ModStructures;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.ITeleporter;
 
 public class MrPresidentInsideTeleporter implements ITeleporter {
@@ -24,7 +24,7 @@ public class MrPresidentInsideTeleporter implements ITeleporter {
     }
 
     @Override
-    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destinationWorld,
+    public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destinationWorld,
                               float yaw, Function<Boolean, Entity> repositionEntity) {
         MrPresidentWorldData rooms = destinationWorld.getCapability(MrPresidentWorldDataProvider.CAPABILITY).orElse(null);
         if (rooms != null) {
@@ -44,7 +44,7 @@ public class MrPresidentInsideTeleporter implements ITeleporter {
                 ModStructures.CONFIGURED_MR_PRESIDENT_ROOM.get().place(destinationWorld, 
                         destinationWorld.getChunkSource().getGenerator(), destinationWorld.getRandom(), cornerPos);
             }
-            Vector3d pos = new Vector3d(cornerPos.getX() + 8, cornerPos.getY() + 6, cornerPos.getZ() + 8);
+            Vec3 pos = new Vec3(cornerPos.getX() + 8, cornerPos.getY() + 6, cornerPos.getZ() + 8);
             entity.teleportTo(pos.x, pos.y, pos.z);
         }
         
@@ -52,7 +52,7 @@ public class MrPresidentInsideTeleporter implements ITeleporter {
     }
     
     @Nullable
-    public static BlockPos getLowerCornerRoomPos(ServerWorld mrPresidentDimension, UUID roomId) {
+    public static BlockPos getLowerCornerRoomPos(ServerLevel mrPresidentDimension, UUID roomId) {
         MrPresidentWorldData rooms = mrPresidentDimension.getCapability(MrPresidentWorldDataProvider.CAPABILITY).orElse(null);
         if (rooms != null) {
             MrPresidentWorldData.ChunkSectionPos roomChunkSectionPos = rooms.getAllocatedRoom(roomId);
@@ -66,10 +66,10 @@ public class MrPresidentInsideTeleporter implements ITeleporter {
         return null;
     }
     
-    public static final Vector3i ROOM_SIZE = new Vector3i(16, 16, 16);
+    public static final Vec3i ROOM_SIZE = new Vec3i(16, 16, 16);
     
     @Override
-    public boolean playTeleportSound(ServerPlayerEntity player, ServerWorld sourceWorld, ServerWorld destWorld) {
+    public boolean playTeleportSound(ServerPlayer player, ServerLevel sourceWorld, ServerLevel destWorld) {
         return false;
     }
 

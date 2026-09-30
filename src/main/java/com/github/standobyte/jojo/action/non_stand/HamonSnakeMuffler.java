@@ -9,23 +9,23 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
 
 public class HamonSnakeMuffler {
     
     public static boolean snakeMuffler(LivingEntity target, DamageSource dmgSource, float dmgAmount) {
-        if (!target.level.isClientSide() && target.canUpdate() && target.isOnGround()) {
+        if (!target.level.isClientSide() && target.canUpdate() && target.onGround()) {
             Entity attacker = dmgSource.getEntity();
             if (attacker != null && dmgSource.getDirectEntity() == attacker && attacker instanceof LivingEntity
-                    && target instanceof PlayerEntity && target.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get()) {
+                    && target instanceof Player && target.getItemBySlot(EquipmentSlot.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get()) {
                 LivingEntity livingAttacker = (LivingEntity) attacker;
-                PlayerEntity playerTarget = (PlayerEntity) target;
+                Player playerTarget = (Player) target;
                 if (!playerTarget.getCooldowns().isOnCooldown(ModItems.SATIPOROJA_SCARF.get())) {
                     INonStandPower power = INonStandPower.getPlayerNonStandPower(playerTarget);
                     float energyCost = 500F;
@@ -38,7 +38,7 @@ public class HamonSnakeMuffler {
                                     JojoModUtil.sayVoiceLine(target, ModSounds.LISA_LISA_SNAKE_MUFFLER.get());
                                     power.consumeEnergy(energyCost);
                                     DamageUtil.dealHamonDamage(attacker, 0.75F, target, null);
-                                    livingAttacker.addEffect(new EffectInstance(Effects.GLOWING, 200));
+                                    livingAttacker.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
                                     SnakeMufflerEntity snakeMuffler = new SnakeMufflerEntity(target.level, target);
                                     snakeMuffler.setEntityToJumpOver(attacker);
                                     target.level.addFreshEntity(snakeMuffler);

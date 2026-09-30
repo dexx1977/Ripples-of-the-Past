@@ -4,19 +4,19 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class ModelPoseSided<T extends Entity> implements IModelPose<T> {
-    private final Map<HandSide, IModelPose<T>> poses = new EnumMap<>(HandSide.class);
+    private final Map<HumanoidArm, IModelPose<T>> poses = new EnumMap<>(HumanoidArm.class);
     
     public ModelPoseSided(IModelPose<T> poseLeft, IModelPose<T> poseRight) {
-        poses.put(HandSide.LEFT, poseLeft);
-        poses.put(HandSide.RIGHT, poseRight);
+        poses.put(HumanoidArm.LEFT, poseLeft);
+        poses.put(HumanoidArm.RIGHT, poseRight);
     }
 
     @Override
-    public void poseModel(float rotationAmount, T entity, float ticks, float yRotOffsetRad, float xRotRad, HandSide side) {
+    public void poseModel(float rotationAmount, T entity, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm side) {
         poses.get(side).poseModel(rotationAmount, entity, ticks, yRotOffsetRad, xRotRad, side);
     }
     

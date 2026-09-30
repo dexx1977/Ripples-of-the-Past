@@ -2,13 +2,13 @@ package com.github.standobyte.jojo.network.packets;
 
 import java.util.function.Supplier;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public interface IModPacketHandler<MSG> {
-    void encode(MSG msg, PacketBuffer buf);
+    void encode(MSG msg, FriendlyByteBuf buf);
     
-    MSG decode(PacketBuffer buf);
+    MSG decode(FriendlyByteBuf buf);
     
     default void enqueueHandleSetHandled(MSG msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {

@@ -7,12 +7,12 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.google.common.collect.Maps;
 
-import net.minecraft.item.DyeColor;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
 
 public class TrackSourceDye extends TrackSource {
     private final DyeColor color;
@@ -22,8 +22,8 @@ public class TrackSourceDye extends TrackSource {
         this.color = color;
     }
 
-    protected static TrackSource fromNBT(CompoundNBT nbt) {
-        if (nbt.contains("Color", MCUtil.getNbtId(IntNBT.class))) {
+    protected static TrackSource fromNBT(CompoundTag nbt) {
+        if (nbt.contains("Color", MCUtil.getNbtId(IntTag.class))) {
             int colorOrdinal = nbt.getInt("Color");
             if (colorOrdinal >= 0 && colorOrdinal < DyeColor.values().length) {
                 return new TrackSourceDye(DyeColor.values()[colorOrdinal]);
@@ -34,8 +34,8 @@ public class TrackSourceDye extends TrackSource {
     }
 
     @Override
-    protected CompoundNBT toNBT() {
-        CompoundNBT nbt = super.toNBT();
+    protected CompoundTag toNBT() {
+        CompoundTag nbt = super.toNBT();
         nbt.putInt("Color", color.ordinal());
         return nbt;
     }

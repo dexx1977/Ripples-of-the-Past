@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler.Benda
 import com.github.standobyte.jojo.client.playeranim.kosmx.anim.KosmXKeyframeAnimPlayer;
 import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXFixedFadeModifier;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import dev.kosmx.playerAnim.api.AnimUtils;
 import dev.kosmx.playerAnim.api.TransformType;
@@ -32,21 +32,22 @@ import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.mojang.math.Axis;
 
 public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerAnimator {
     private static final List<AnimHandler<? extends IAnimation>> PREVENT_CROUCH = new ArrayList<>();
@@ -94,7 +95,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             modelPreventedCrouch = null;
             
             PlayerModel<?> model = event.getRenderer().getModel();
-            AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) event.getPlayer();
+            AbstractClientPlayer player = (AbstractClientPlayer) event.getPlayer();
             for (AnimHandler<?> animHandler : PREVENT_CROUCH) {
                 IAnimation animLayer = animHandler.getAnimLayer(player);
                 if (animLayer != null && animLayer.isActive()) {
@@ -114,7 +115,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
     
     
     @Override
-    public float[] getBend(BipedModel<?> model, BendablePart part) {
+    public float[] getBend(HumanoidModel<?> model, BendablePart part) {
         if (Helper.isBendEnabled() && model instanceof IMutableModel) {
             IMutableModel bendyModel = (IMutableModel) model;
             AnimationProcessor anim = bendyModel.getEmoteSupplier().get();
@@ -129,7 +130,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
     }
     
     @Override
-    public void setBend(BipedModel<?> model, BendablePart part, float axis, float angle) {
+    public void setBend(HumanoidModel<?> model, BendablePart part, float axis, float angle) {
         if (Helper.isBendEnabled() && model instanceof IMutableModel) {
             IBendHelper mutablePart = getMutablePart((IMutableModel) model, part);
             if (mutablePart != null) {
@@ -155,37 +156,37 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
     }
     
     @Override
-    public Vector3d getBodyPos(AbstractClientPlayerEntity player, float partialTick) {
+    public Vec3 getBodyPos(AbstractClientPlayer player, float partialTick) {
         PlayerRenderer renderer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         PlayerModel<?> model = renderer.getModel();
         if (model instanceof IMutableModel) {
             AnimationProcessor anim = ((IMutableModel) model).getEmoteSupplier().get();
             if (anim != null && anim.isActive()) {
-                Vec3f pos = anim.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
-                float yRot = MathHelper.clamp(partialTick, player.yBodyRotO, player.yBodyRot);
+                Vec3f pos = anim.get3DTransform("body", ItemDisplayContext.POSITION, Vec3f.ZERO);
+                float yRot = Mth.clamp(partialTick, player.yBodyRotO, player.yBodyRot);
                 yRot = -yRot * MathUtil.DEG_TO_RAD;
-                return new Vector3d(-pos.getX(), -pos.getY(), -pos.getZ()).yRot(yRot);
+                return new Vec3(-pos.getX(), -pos.getY(), -pos.getZ()).yRot(yRot);
             }
         }
-        return Vector3d.ZERO;
+        return Vec3.ZERO;
     }
     
     
     @Override
-    public <T extends LivingEntity, M extends BipedModel<T>> void onArmorLayerInit(LayerRenderer<T, M> layer) {
+    public <T extends LivingEntity, M extends HumanoidModel<T>> void onArmorLayerInit(RenderLayer<T, M> layer) {
         ((IUpperPartHelper) layer).setUpperPart(false);
     }
     
     
     @Override
-    public <T extends LivingEntity, M extends BipedModel<T>> void heldItemLayerRender(
-            LivingEntity livingEntity, MatrixStack matrices, HandSide arm) {
+    public <T extends LivingEntity, M extends HumanoidModel<T>> void heldItemLayerRender(
+            LivingEntity livingEntity, PoseStack matrices, HumanoidArm arm) {
         if(Helper.isBendEnabled() && livingEntity instanceof IAnimatedPlayer){
             IAnimatedPlayer player = (IAnimatedPlayer) livingEntity;
             if(player.playerAnimator_getAnimation().isActive()){
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f data = anim.get3DTransform(arm == HandSide.LEFT ? "leftArm" : "rightArm", TransformType.BEND, new Vec3f(0f, 0f, 0f));
+                Vec3f data = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftArm" : "rightArm", ItemDisplayContext.BEND, new Vec3f(0f, 0f, 0f));
 
                 Pair<Float, Float> pair = new Pair<>(data.getX(), data.getY());
 
@@ -203,40 +204,40 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
     }
     
     @Override
-    public <T extends LivingEntity, M extends BipedModel<T>> void heldItemLayerChangeItemLocation(
-            LivingEntity livingEntity, MatrixStack matrices, HandSide arm) {
+    public <T extends LivingEntity, M extends HumanoidModel<T>> void heldItemLayerChangeItemLocation(
+            LivingEntity livingEntity, PoseStack matrices, HumanoidArm arm) {
         if (livingEntity instanceof IAnimatedPlayer) {
             IAnimatedPlayer player = (IAnimatedPlayer) livingEntity;
             if (player.playerAnimator_getAnimation().isActive()) {
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f rot = anim.get3DTransform(arm == HandSide.LEFT ? "leftItem" : "rightItem", TransformType.ROTATION, Vec3f.ZERO);
-                Vec3f pos = anim.get3DTransform(arm == HandSide.LEFT ? "leftItem" : "rightItem", TransformType.POSITION, Vec3f.ZERO).scale(1/16f);
+                Vec3f rot = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", ItemDisplayContext.ROTATION, Vec3f.ZERO);
+                Vec3f pos = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", ItemDisplayContext.POSITION, Vec3f.ZERO).scale(1/16f);
 
                 matrices.translate(pos.getX(), pos.getY(), pos.getZ());
 
-                matrices.mulPose(Vector3f.ZP.rotation(rot.getZ()));    //roll
-                matrices.mulPose(Vector3f.YP.rotation(rot.getY()));    //pitch
-                matrices.mulPose(Vector3f.XP.rotation(rot.getX()));    //yaw
+                matrices.mulPose(Axis.ZP.rotation(rot.getZ()));    //roll
+                matrices.mulPose(Axis.YP.rotation(rot.getY()));    //pitch
+                matrices.mulPose(Axis.XP.rotation(rot.getX()));    //yaw
             }
         }
     }
     
     @Override
-    public void setupLayerFirstPersonRender(BipedModel<?> layerModel) {
+    public void setupLayerFirstPersonRender(HumanoidModel<?> layerModel) {
         if (layerModel instanceof IPlayerModel && AnimUtils.disableFirstPersonAnim) {
             ((IPlayerModel) layerModel).playerAnimator_prepForFirstPersonRender();
         }
     }
     
     @Override
-    public void onItemLikeLayerRender(MatrixStack matrixStack, LivingEntity entity, HandSide side) {
+    public void onItemLikeLayerRender(PoseStack matrixStack, LivingEntity entity, HumanoidArm side) {
         if (Helper.isBendEnabled() && entity instanceof IAnimatedPlayer) {
             IAnimatedPlayer player = (IAnimatedPlayer) entity;
             if (player.playerAnimator_getAnimation().isActive()) {
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f data = anim.get3DTransform(side == HandSide.LEFT ? "leftArm" : "rightArm", TransformType.BEND, new Vec3f(0f, 0f, 0f));
+                Vec3f data = anim.get3DTransform(side == HumanoidArm.LEFT ? "leftArm" : "rightArm", ItemDisplayContext.BEND, new Vec3f(0f, 0f, 0f));
 
                 Pair<Float, Float> pair = new Pair<>(data.getX(), data.getY());
 
@@ -261,7 +262,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             this.id = id;
         }
         
-        protected abstract T createAnimLayer(AbstractClientPlayerEntity player);
+        protected abstract T createAnimLayer(AbstractClientPlayer player);
         
         public boolean isForgeEventHandler() {
             return false;
@@ -277,7 +278,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
         
         @SuppressWarnings("unchecked")
         @Nullable
-        protected final T getAnimLayer(AbstractClientPlayerEntity player) {
+        protected final T getAnimLayer(AbstractClientPlayer player) {
             return (T) PlayerAnimationAccess.getPlayerAssociatedData(player).get(id);
         }
     }
@@ -288,11 +289,11 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             super(id);
         }
         
-        protected boolean setAnimFromName(PlayerEntity player, ResourceLocation name) {
+        protected boolean setAnimFromName(Player player, ResourceLocation name) {
             return setAnimFromName(player, name, KosmXKeyframeAnimPlayer::new);
         }
         
-        protected boolean setAnimFromName(PlayerEntity player, ResourceLocation name, Function<KeyframeAnimation, IAnimation> createAnimPlayer) {
+        protected boolean setAnimFromName(Player player, ResourceLocation name, Function<KeyframeAnimation, IAnimation> createAnimPlayer) {
             IAnimation anim = getAnimFromName(name, createAnimPlayer);
             if (anim == null) {
                 return false;
@@ -300,9 +301,9 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             return setAnim(player, anim);
         }
         
-        protected boolean setAnim(PlayerEntity player, IAnimation anim) {
+        protected boolean setAnim(Player player, IAnimation anim) {
             if (player == null) return false;
-            ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayerEntity) player);
+            ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayer) player);
             if (animLayer == null) return false;
             animLayer.setAnimation(anim);
             return true;
@@ -322,15 +323,15 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
         }
         
         @Deprecated
-        protected boolean fadeOutAnim(PlayerEntity player, @Nullable AbstractFadeModifier fadeModifier, 
+        protected boolean fadeOutAnim(Player player, @Nullable AbstractFadeModifier fadeModifier, 
                 @Nullable IAnimation newAnimation) {
             return fadeOutAnim(player, null, newAnimation);
         }
         
-        protected boolean fadeOutAnim(PlayerEntity player, @Nullable KosmXFixedFadeModifier fadeModifier, 
+        protected boolean fadeOutAnim(Player player, @Nullable KosmXFixedFadeModifier fadeModifier, 
                 @Nullable IAnimation newAnimation) {
             if (player == null) return false;
-            ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayerEntity) player);
+            ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayer) player);
             if (animLayer != null) {
                 if (fadeModifier != null) {
                     boolean fadeInFromNothing = true;

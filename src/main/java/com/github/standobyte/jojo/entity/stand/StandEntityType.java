@@ -11,13 +11,13 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.FMLPlayMessages;
-import net.minecraftforge.fml.network.FMLPlayMessages.SpawnEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.FMLPlayMessages;
+import net.minecraftforge.network.FMLPlayMessages.SpawnEntity;
 
 public class StandEntityType<T extends StandEntity> extends EntityType<T> {
     private final StandEntityType.IStandFactory<T> factory;
@@ -45,8 +45,8 @@ public class StandEntityType<T extends StandEntity> extends EntityType<T> {
     protected StandEntityType(IStandFactory<T> factory, 
             boolean immuneToFire, float width, float height,
             Predicate<EntityType<?>> velocityUpdateSupplier, ToIntFunction<EntityType<?>> trackingRangeSupplier,
-            ToIntFunction<EntityType<?>> updateIntervalSupplier, BiFunction<SpawnEntity, World, T> customClientFactory) {
-        super(null, EntityClassification.MISC, true, false, immuneToFire, false, null, EntitySize.scalable(width, height),
+            ToIntFunction<EntityType<?>> updateIntervalSupplier, BiFunction<SpawnEntity, Level, T> customClientFactory) {
+        super(null, MobCategory.MISC, true, false, immuneToFire, false, null, EntityDimensions.scalable(width, height),
                 -1, -1, velocityUpdateSupplier, trackingRangeSupplier, updateIntervalSupplier, customClientFactory);
         this.factory = factory;
     }
@@ -87,18 +87,18 @@ public class StandEntityType<T extends StandEntity> extends EntityType<T> {
 
     @Nullable
     @Override
-    public T create(World world) {
+    public T create(Level world) {
         return factory.create(this, world);
     }
     
     @Override
-    public T customClientSpawn(FMLPlayMessages.SpawnEntity packet, World world) {
+    public T customClientSpawn(FMLPlayMessages.SpawnEntity packet, Level world) {
         T entity = super.customClientSpawn(packet, world);
         entity.beforeClientSpawn(packet, world);
         return entity;
     }
 
     public interface IStandFactory<T extends StandEntity> {
-        T create(StandEntityType<T> type, World world);
+        T create(StandEntityType<T> type, Level world);
     }
 }

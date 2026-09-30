@@ -8,33 +8,33 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.tileentity.PillarmanBossTileEntity;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class PillarmanBossMultiBlock extends Block {
     private static final int PART_WITH_TILE_ENTITY = 4;
-    public static final DirectionProperty FACING = HorizontalBlock.FACING;
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty PART = IntegerProperty.create("pillarman_part", 0, 5);
     protected static final VoxelShape NORTH_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 8.0D);
     protected static final VoxelShape SOUTH_SHAPE = Block.box(0.0D, 0.0D, 8.0D, 16.0D, 16.0D, 16.0D);
@@ -52,7 +52,7 @@ public class PillarmanBossMultiBlock extends Block {
      * v 45
      */
     @Override
-    public void playerWillDestroy(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         int multiBlockPart = state.getValue(PART);
         Direction right = rightDirection(state);
         BlockPos leftUpPos = pos.relative(right, -(multiBlockPart % 2)).relative(Direction.UP, multiBlockPart / 2);
@@ -73,10 +73,10 @@ public class PillarmanBossMultiBlock extends Block {
     
     @Override
     @Nullable
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos blockpos = context.getClickedPos();
         if (blockpos.getY() < 254) {
-            World world = context.getLevel();
+            Level world = context.getLevel();
             Direction right = context.getHorizontalDirection().getClockWise();
             for (int i = 0; i < 2; i++) {
                 for (int j = 0; j < 3; j++) {
@@ -91,7 +91,7 @@ public class PillarmanBossMultiBlock extends Block {
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         BlockPos up1 = pos.above();
         BlockPos up2 = up1.above();
         world.setBlock(up1, state.setValue(PART, 2), 3);
@@ -103,7 +103,7 @@ public class PillarmanBossMultiBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, PART);
     }
 
@@ -119,7 +119,7 @@ public class PillarmanBossMultiBlock extends Block {
     }
     
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         switch(state.getValue(FACING)) {
         case EAST:
             return EAST_SHAPE;
@@ -135,7 +135,7 @@ public class PillarmanBossMultiBlock extends Block {
     
     private static final float DAMAGE_AMOUNT = 4;
     @Override
-    public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
+    public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
         if (!world.isClientSide()) {
             if (world.getDifficulty() == Difficulty.PEACEFUL) {
                 return;
@@ -148,9 +148,9 @@ public class PillarmanBossMultiBlock extends Block {
                 }
                 
                 if (DamageUtil.dealPillarmanAbsorptionDamage(livingEntity, DAMAGE_AMOUNT, null)) {
-                    livingEntity.addEffect(new EffectInstance(ModStatusEffects.STUN.get(), 10, 0));
+                    livingEntity.addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), 10, 0));
                     BlockPos tileEntityPos = posByPart(state, pos, PART_WITH_TILE_ENTITY);
-                    TileEntity tileEntity = world.getBlockEntity(tileEntityPos);
+                    BlockEntity tileEntity = world.getBlockEntity(tileEntityPos);
                     if (tileEntity instanceof PillarmanBossTileEntity) {
                         ((PillarmanBossTileEntity) tileEntity).incAbsorbed();
                     }
@@ -180,7 +180,7 @@ public class PillarmanBossMultiBlock extends Block {
     }
     
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return ModTileEntities.SLUMBERING_PILLARMAN.get().create();
     }
 }

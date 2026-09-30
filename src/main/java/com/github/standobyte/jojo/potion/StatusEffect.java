@@ -3,14 +3,14 @@ package com.github.standobyte.jojo.potion;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
-public class StatusEffect extends Effect {
+public class StatusEffect extends MobEffect {
     private boolean isUncurable = false;
 
-    public StatusEffect(EffectType type, int liquidColor) {
+    public StatusEffect(MobEffectCategory type, int liquidColor) {
         super(type, liquidColor);
     }
     

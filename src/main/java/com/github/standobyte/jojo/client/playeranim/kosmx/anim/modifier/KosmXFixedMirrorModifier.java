@@ -7,7 +7,7 @@ import dev.kosmx.playerAnim.core.util.Vec3f;
 public class KosmXFixedMirrorModifier extends MirrorModifier {
     
     @Override
-    protected Vec3f transformVector(Vec3f value0, TransformType type) {
+    protected Vec3f transformVector(Vec3f value0, ItemDisplayContext type) {
         switch (type) {
         case BEND:
             // pretty sure only the y value is relevant, but why the hell is it being inverted in the mod's modifier?

@@ -3,19 +3,19 @@ package com.github.standobyte.jojo.client.resources;
 import com.github.standobyte.jojo.client.ResourcePathChecker;
 import com.github.standobyte.jojo.client.sound.barrage.StandCrySoundHandler;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
 
-public class ResourceReloadNotifier extends ReloadListener<Void> {
+public class ResourceReloadNotifier extends SimplePreparableReloadListener<Void> {
 
     @Override
-    protected Void prepare(IResourceManager resourceManager, IProfiler profiler) {
+    protected Void prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         return null;
     }
 
     @Override
-    protected void apply(Void __, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(Void __, ResourceManager resourceManager, ProfilerFiller profiler) {
         ResourcePathChecker.onResourcesReload();
         StandCrySoundHandler.clearCache();
     }

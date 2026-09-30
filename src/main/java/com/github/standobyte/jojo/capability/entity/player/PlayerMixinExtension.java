@@ -1,11 +1,11 @@
 package com.github.standobyte.jojo.capability.entity.player;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 public interface PlayerMixinExtension {
-    void toNBT(CompoundNBT forgeCapNbt);
-    void fromNBT(CompoundNBT forgeCapNbt);
-    void syncToClient(ServerPlayerEntity thisAsPlayer);
-    void syncToTracking(ServerPlayerEntity tracking);
+    void toNBT(CompoundTag forgeCapNbt);
+    void fromNBT(CompoundTag forgeCapNbt);
+    void syncToClient(ServerPlayer thisAsPlayer);
+    void syncToTracking(ServerPlayer tracking);
 }

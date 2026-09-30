@@ -1,37 +1,38 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.SpriteRenderer;
-import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.ItemSupplier;
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
+import com.mojang.math.Axis;
 
-public class MolotovRenderer<T extends Entity & IRendersAsItem> extends SpriteRenderer<T> {
+public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItemRenderer<T> {
 
-    public MolotovRenderer(EntityRendererManager renderManager, ItemRenderer itemRenderer, 
+    public MolotovRenderer(EntityRenderDispatcher renderManager, ItemRenderer itemRenderer, 
             float scale, boolean fullBright) {
         super(renderManager, itemRenderer, scale, fullBright);
     }
 
     @Override
     public void render(T pEntity, float pEntityYaw, float pPartialTicks, 
-            MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pPackedLight) {
+            PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {
         pMatrixStack.pushPose();
-        ActiveRenderInfo camera = entityRenderDispatcher.camera;
+        Camera camera = entityRenderDispatcher.camera;
         Matrix3f lighting = pMatrixStack.last().normal();
         lighting.setIdentity();
-        lighting.mul(Vector3f.XP.rotationDegrees(90));
-        lighting.mul(Vector3f.YP.rotationDegrees(camera.getYRot()));
+        lighting.mul(Axis.XP.rotationDegrees(90));
+        lighting.mul(Axis.YP.rotationDegrees(camera.getYRot()));
         
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
         pMatrixStack.popPose();
@@ -43,13 +44,13 @@ public class MolotovRenderer<T extends Entity & IRendersAsItem> extends SpriteRe
             float f1 = 0.5F;
             float f3 = pEntity.getBbHeight() / scale;
             float f4 = 0;
-            pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(-camera.getYRot()));
+            pMatrixStack.mulPose(Axis.YP.rotationDegrees(-camera.getYRot()));
             pMatrixStack.translate(0, 0.5, -0.3 + f3 * 0.02);
             float f5 = 0;
             int i = 0;
-            IVertexBuilder ivertexbuilder = pBuffer.getBuffer(Atlases.cutoutBlockSheet());
+            VertexConsumer ivertexbuilder = pBuffer.getBuffer(Sheets.cutoutBlockSheet());
 
-            for(MatrixStack.Entry matrixstack$entry = pMatrixStack.last(); f3 > 0.0F; ++i) {
+            for(PoseStack.Entry matrixstack$entry = pMatrixStack.last(); f3 > 0.0F; ++i) {
                 TextureAtlasSprite sprite = i % 2 == 0 ? ModelBakery.FIRE_0.sprite() : ModelBakery.FIRE_1.sprite();
                 float u0 = sprite.getU0();
                 float v0 = sprite.getV0();
@@ -75,7 +76,7 @@ public class MolotovRenderer<T extends Entity & IRendersAsItem> extends SpriteRe
         }
     }
 
-    private static void fireVertex(MatrixStack.Entry pMatrixEntry, IVertexBuilder pBuffer, 
+    private static void fireVertex(PoseStack.Entry pMatrixEntry, VertexConsumer pBuffer, 
             float pX, float pY, float pZ, float pTexU, float pTexV) {
         pBuffer.vertex(pMatrixEntry.pose(), pX, pY, pZ)
         .color(255, 255, 255, 255)

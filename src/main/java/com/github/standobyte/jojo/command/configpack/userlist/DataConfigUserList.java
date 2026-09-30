@@ -20,8 +20,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.Util;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.Util;
 
 public class DataConfigUserList<V extends UserListFixedEntry> {
     protected static final Logger LOGGER = LogManager.getLogger();
@@ -92,7 +92,7 @@ public class DataConfigUserList<V extends UserListFixedEntry> {
             L list = createListObject();
             
             for (JsonElement entryJson : entriesJsonArray) {
-                JsonObject jsonObject = JSONUtils.convertToJsonObject(entryJson, "entry");
+                JsonObject jsonObject = GsonHelper.convertToJsonObject(entryJson, "entry");
                 V playerEntry = deserializeEntry(jsonObject);
                 if (playerEntry.getPlayer() != null) {
                     list.add(playerEntry);

@@ -15,32 +15,32 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.network.chat.Component;
 
 public class StandVirusEffect extends StatusEffect implements IApplicableEffect {
     
     public StandVirusEffect(int liquidColor) {
-        super(EffectType.HARMFUL, liquidColor);
+        super(MobEffectCategory.HARMFUL, liquidColor);
     }
     
     @Override
     public boolean isApplicable(LivingEntity entity) {
         return !StandUtil.isEntityStandUser(entity) && 
-                (entity instanceof PlayerEntity || mobMayGetStand(entity));
+                (entity instanceof Player || mobMayGetStand(entity));
     }
     
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level.isClientSide()) {
             float damage = baseDamage(amplifier);
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) entity;
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
                 
                 boolean hasXpLevel = player.abilities.instabuild || player.experienceLevel > 0;
                 boolean stopEffect = false;
@@ -79,17 +79,17 @@ public class StandVirusEffect extends StatusEffect implements IApplicableEffect 
     }
     
     @Override
-    public void removeAttributeModifiers(LivingEntity entity, AttributeModifierManager attributeMap, int amplifier) {
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
         super.removeAttributeModifiers(entity, attributeMap, amplifier);
         if (!entity.level.isClientSide() && entity.isAlive()) {
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) entity;
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
                 IStandPower.getStandPowerOptional(player).ifPresent(
                         power -> {
                             StandType<?> stand = power.getStandArrowHandler().getStandToGive();
                             power.getStandArrowHandler().clearStandToGive();
                             if (stand == null) {
-                                Either<StandType<?>, ITextComponent> randomStandOrError = StandUtil.randomStandOrError(player, player.getRandom());
+                                Either<StandType<?>, Component> randomStandOrError = StandUtil.randomStandOrError(player, player.getRandom());
                                 stand = randomStandOrError.left().orElse(null);
                                 randomStandOrError.ifRight(error -> player.displayClientMessage(error, true));
                             }
@@ -122,7 +122,7 @@ public class StandVirusEffect extends StatusEffect implements IApplicableEffect 
         return Math.max(MAX_VIRUS_INHIBITION - inhibition, 0);
     }
     
-    public static int getEffectDurationToApply(PlayerEntity player) {
+    public static int getEffectDurationToApply(Player player) {
         return IStandPower.getStandPowerOptional(player).map(power -> {
             StandArrowHandler handler = power.getStandArrowHandler();
             return (handler.getStandXpLevelsRequirement(player.level.isClientSide(), ItemStack.EMPTY) + 1) * 20;

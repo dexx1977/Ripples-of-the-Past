@@ -18,20 +18,20 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.ByteNBT;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 public class EntityUtilCap {
     private final Entity entity;
-    private final MobEntity asMob;
+    private final Mob asMob;
     private Boolean prevNoAi;
     
     private KnockbackCollisionImpact kbImpact;
@@ -46,12 +46,12 @@ public class EntityUtilCap {
     
     public EntityUtilCap(Entity entity) {
         this.entity = entity;
-        this.asMob = entity instanceof MobEntity ? (MobEntity) entity : null;
+        this.asMob = entity instanceof Mob ? (Mob) entity : null;
         this.kbImpact = new KnockbackCollisionImpact(entity);
     }
     
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         if (!entity.canUpdate() && wasStoppedInTime()) {
             nbt.putBoolean("StoppedInTime", true);
             if (prevNoAi != null) nbt.putBoolean("PrevNoAi", prevNoAi);
@@ -60,11 +60,11 @@ public class EntityUtilCap {
         return nbt;
     }
     
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         stoppedInTime = nbt.getBoolean("StoppedInTime");
         if (stoppedInTime) {
             boolean isStoppedInTime = TimeStopHandler.isTimeStopped(entity.level, entity.blockPosition());
-            prevNoAi = MCUtil.getNbtElement(nbt, "PrevNoAi", ByteNBT.class).map(byteNbt -> byteNbt.getAsByte() != 0).orElse(null);
+            prevNoAi = MCUtil.getNbtElement(nbt, "PrevNoAi", ByteTag.class).map(byteNbt -> byteNbt.getAsByte() != 0).orElse(null);
             // updates the Entity#canUpdate field that Forge adds, since it is saved in NBT
             updateEntityTimeStop(isStoppedInTime);
         }
@@ -192,7 +192,7 @@ public class EntityUtilCap {
         if (entity.level.isClientSide()) return;
         if (entity.level.dimension() != ModDimensions.MR_PRESIDENT
                 || entity.isSpectator()
-                || (entity instanceof PlayerEntity) && ((PlayerEntity) entity).isCreative()) {
+                || (entity instanceof Player) && ((Player) entity).isCreative()) {
             mrPresidentRoomPos = null;
             return;
         }
@@ -201,14 +201,14 @@ public class EntityUtilCap {
         }
         else if (!mrPresidentRoomPos.isPosInsideSection(entity.blockPosition())) {
             BlockPos posMoveTo = mrPresidentRoomPos.blockPosition(8, 6, 8);
-            Vector3d pos = Vector3d.atBottomCenterOf(posMoveTo);
+            Vec3 pos = Vec3.atBottomCenterOf(posMoveTo);
             entity.moveTo(pos.x, pos.y, pos.z, entity.yRot, entity.xRot);
-            if (entity instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) entity).connection.send(
-                        new SPlayerPositionLookPacket(pos.x, pos.y, pos.z, 
-                                0, 0, Util.make(EnumSet.noneOf(SPlayerPositionLookPacket.Flags.class), set -> {
-                                    set.add(SPlayerPositionLookPacket.Flags.X_ROT);
-                                    set.add(SPlayerPositionLookPacket.Flags.Y_ROT);
+            if (entity instanceof ServerPlayer) {
+                ((ServerPlayer) entity).connection.send(
+                        new ClientboundPlayerPositionPacket(pos.x, pos.y, pos.z, 
+                                0, 0, Util.make(EnumSet.noneOf(ClientboundPlayerPositionPacket.Flags.class), set -> {
+                                    set.add(ClientboundPlayerPositionPacket.Flags.X_ROT);
+                                    set.add(ClientboundPlayerPositionPacket.Flags.Y_ROT);
                                 }), -1));
             }
         }

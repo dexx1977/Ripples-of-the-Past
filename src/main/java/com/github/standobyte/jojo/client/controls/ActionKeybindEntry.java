@@ -11,23 +11,23 @@ import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.settings.KeyModifier;
 
 public class ActionKeybindEntry {
     private ResourceLocation actionId;
     private KeyModifier keyModifier;
-    private InputMappings.Input keyCode;
+    private InputConstants.Input keyCode;
     
     private OnKeyPress onKeyPress = OnKeyPress.PERFORM;
     private KeyActiveType hudInteraction = KeyActiveType.INSIDE_HUD;
     private boolean isVisibleInHud = true;
     
     private Action<?> action;
-    private KeyBinding keybind;
+    private KeyMapping keybind;
     
     public transient int delay;
     
@@ -37,14 +37,14 @@ public class ActionKeybindEntry {
         if (keySaveDesc.indexOf(':') != -1) {
             String[] pts = keySaveDesc.split(":");
             keyModifier = KeyModifier.valueFromString(pts[1]);
-            keyCode = InputMappings.getKey(pts[0]);
+            keyCode = InputConstants.getKey(pts[0]);
         } else {
             keyModifier = KeyModifier.NONE;
-            keyCode = InputMappings.getKey(keySaveDesc);
+            keyCode = InputConstants.getKey(keySaveDesc);
         }
     }
     
-    ActionKeybindEntry(Action<?> action, InputMappings.Type inputType, int key) {
+    ActionKeybindEntry(Action<?> action, InputConstants.Type inputType, int key) {
         this.actionId = action.getRegistryName();
         this.action = action;
         this.keyModifier = KeyModifier.NONE;
@@ -52,7 +52,7 @@ public class ActionKeybindEntry {
         this.keybind = createNewKey(keyModifier, keyCode);
     }
     
-    ActionKeybindEntry(ResourceLocation actionId, InputMappings.Type inputType, int key) {
+    ActionKeybindEntry(ResourceLocation actionId, InputConstants.Type inputType, int key) {
         this.actionId = actionId;
         this.action = null;
         this.keyModifier = KeyModifier.NONE;
@@ -63,7 +63,7 @@ public class ActionKeybindEntry {
     void init() {
         Action<?> action = JojoCustomRegistries.ACTIONS.getValue(this.actionId);
         if (action != null) {
-            KeyBinding keyBinding = createNewKey(keyModifier, keyCode);
+            KeyMapping keyBinding = createNewKey(keyModifier, keyCode);
             this.action = action;
             this.keybind = keyBinding;
         }
@@ -78,7 +78,7 @@ public class ActionKeybindEntry {
         this.actionId = action.getRegistryName();
     }
     
-    public void setKeybind(InputMappings.Type inputType, int key) {
+    public void setKeybind(InputConstants.Type inputType, int key) {
         this.keyModifier = KeyModifier.NONE;
         this.keyCode = inputType.getOrCreate(key);
         removeKeybindFromMap();
@@ -129,7 +129,7 @@ public class ActionKeybindEntry {
         ActionKeybindEntry entry = new ActionKeybindEntry(action, keySaveDesc);
         try { entry.setOnPress(Enum.valueOf(OnKeyPress.class, jsonObj.get("onKeyPress").getAsString())); } catch (Exception notSpecified) {}
         try { entry.setHudInteraction(Enum.valueOf(KeyActiveType.class, jsonObj.get("withHud").getAsString())); } catch (Exception notSpecified) {}
-        try { entry.setVisibleInHud(JSONUtils.getAsBoolean(jsonObj, "hudIcon")); } catch (Exception notSpecified) {}
+        try { entry.setVisibleInHud(GsonHelper.getAsBoolean(jsonObj, "hudIcon")); } catch (Exception notSpecified) {}
         return entry;
     }
     
@@ -141,11 +141,11 @@ public class ActionKeybindEntry {
         return actionId;
     }
     
-    public KeyBinding getKeybind() {
+    public KeyMapping getKeybind() {
         return keybind;
     }
     
-    public void setKeyModifierAndCode(KeyModifier keyModifier, InputMappings.Input keyCode) {
+    public void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Input keyCode) {
         this.keyModifier = keyModifier;
         this.keyCode = keyCode;
         keybind.setKeyModifierAndCode(keyModifier, keyCode);
@@ -175,16 +175,16 @@ public class ActionKeybindEntry {
     
     
     private static final AtomicInteger KEY_ID = new AtomicInteger();
-    static KeyBinding createNewKey(InputMappings.Type inputType, int key) {
+    static KeyMapping createNewKey(InputConstants.Type inputType, int key) {
         return createNewKey(KeyModifier.NONE, inputType, key);
     }
     
-    static KeyBinding createNewKey(KeyModifier modifier, InputMappings.Type inputType, int key) {
+    static KeyMapping createNewKey(KeyModifier modifier, InputConstants.Type inputType, int key) {
         return createNewKey(modifier, inputType.getOrCreate(key));
     }
     
-    static KeyBinding createNewKey(KeyModifier modifier, InputMappings.Input keyCode) {
-        KeyBinding keyBinding = new KeyBinding(
+    static KeyMapping createNewKey(KeyModifier modifier, InputConstants.Input keyCode) {
+        KeyMapping keyBinding = new KeyMapping(
                 JojoMod.MOD_ID + ".key.action." + String.valueOf(KEY_ID.getAndIncrement()), 
                 QuickAccessKeyConflictContext.INSTANCE, keyCode, 
                 "key.categories." + JojoMod.MOD_ID + ".custom_keybinds");

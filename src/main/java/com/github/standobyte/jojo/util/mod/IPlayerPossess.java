@@ -4,17 +4,17 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.GameType;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public interface IPlayerPossess {
-    void jojoPossessEntity(@Nullable Entity entity, boolean asAlive, @Nullable IForgeRegistryEntry<?> context);
+    void jojoPossessEntity(@Nullable Entity entity, boolean asAlive, @Nullable RegistryEntry<?> context);
     @Nullable Entity jojoGetPossessedEntity();
     boolean jojoIsPossessingAsAlive();
     Optional<GameType> jojoGetPrePossessGameMode();
     void jojoSetPrePossessGameMode(Optional<GameType> gameType);
-    @Nullable IForgeRegistryEntry<?> jojoGetPossessionContext();
+    @Nullable RegistryEntry<?> jojoGetPossessionContext();
     void jojoOnPossessingDead();
     
     public static Entity getPossessedEntity(Entity possessing) {

@@ -1,26 +1,24 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 public class HideScreenPartToggleBox extends ToggleBox {
     protected final Screen screen;
     private final Direction elementDirection;
 
     public HideScreenPartToggleBox(int x, int y, Direction elementDirection, Screen screen) {
-        super(x, y, 12, 12, StringTextComponent.EMPTY, false);
+        super(x, y, 12, 12, Component.empty(), false);
         this.screen = screen;
         this.elementDirection = elementDirection;
     }
     
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft.getInstance().getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
         int texX = 208;
         int texY = 104;
@@ -35,10 +33,10 @@ public class HideScreenPartToggleBox extends ToggleBox {
     }
     
     @Override
-    public void renderToolTip(MatrixStack matrixStack, int mouseX, int mouseY) {
-        ITextComponent text = getState() ? 
-                new TranslationTextComponent("jojo.ui.spoiler.hide")
-                : new TranslationTextComponent("jojo.ui.spoiler.show");
+    public void renderToolTip(PoseStack matrixStack, int mouseX, int mouseY) {
+        Component text = getState() ? 
+                Component.translatable("jojo.ui.spoiler.hide")
+                : Component.translatable("jojo.ui.spoiler.show");
         screen.renderTooltip(matrixStack, text, mouseX, mouseY);
     }
     

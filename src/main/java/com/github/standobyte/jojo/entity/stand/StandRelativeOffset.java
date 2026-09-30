@@ -5,12 +5,12 @@ import java.util.Optional;
 import com.github.standobyte.jojo.capability.entity.player.PlayerClientBroadcastedSettings;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class StandRelativeOffset {
     private final double left;
@@ -51,29 +51,29 @@ public class StandRelativeOffset {
     }
     
     @Deprecated
-    public Vector3d getAbsoluteVec(float yRot, float xRot, StandEntity standEntity, LivingEntity user, double yDefault) {
+    public Vec3 getAbsoluteVec(float yRot, float xRot, StandEntity standEntity, LivingEntity user, double yDefault) {
         return getAbsoluteVec(yRot, xRot, standEntity, user, yDefault, Optional.empty());
     }
     
-    public Vector3d getAbsoluteVec(float yRot, float xRot, StandEntity standEntity, LivingEntity user, double yDefault, 
+    public Vec3 getAbsoluteVec(float yRot, float xRot, StandEntity standEntity, LivingEntity user, double yDefault, 
             Optional<PlayerClientBroadcastedSettings> userSettings) {
         double yOffset = 0;
         if (standEntity.isArmsOnlyMode() && user.getPose() != Pose.STANDING) {
             yOffset = (user.getDimensions(user.getPose()).height - user.getDimensions(Pose.STANDING).height) * 0.85F;
         }
-        Vector3d vec;
+        Vec3 vec;
         double left = this.left;
         
-        boolean invertSide = canInvertSide && userSettings.map(settings -> settings.standSide == HandSide.LEFT).orElse(false);
+        boolean invertSide = canInvertSide && userSettings.map(settings -> settings.standSide == HumanoidArm.LEFT).orElse(false);
         if (invertSide) {
             left = -left;
         }
         
         if (useXRot) {
-            vec = new Vector3d(left, 0, forward).xRot(-xRot * MathUtil.DEG_TO_RAD).yRot(-yRot * MathUtil.DEG_TO_RAD);
+            vec = new Vec3(left, 0, forward).xRot(-xRot * MathUtil.DEG_TO_RAD).yRot(-yRot * MathUtil.DEG_TO_RAD);
         }
         else {
-            vec = new Vector3d(left, (doYOffset ? y : yDefault) + yOffset, forward).yRot(-yRot * MathUtil.DEG_TO_RAD);
+            vec = new Vec3(left, (doYOffset ? y : yDefault) + yOffset, forward).yRot(-yRot * MathUtil.DEG_TO_RAD);
         }
         
         float standWidth = user.getBbWidth();
@@ -83,18 +83,18 @@ public class StandRelativeOffset {
         if (standWidth != defaultWidth || standHeight != defaultHeight) {
             double widthRatio = standWidth / defaultWidth;
             double heightRatio = standHeight / defaultHeight;
-            vec = new Vector3d(vec.x * widthRatio, vec.y * heightRatio, vec.z * widthRatio);
+            vec = new Vec3(vec.x * widthRatio, vec.y * heightRatio, vec.z * widthRatio);
         }
         return vec;
     }
 
     @Deprecated
-    public Vector3d toRelativeVec() {
-        return new Vector3d(left, y, forward);
+    public Vec3 toRelativeVec() {
+        return new Vec3(left, y, forward);
     }
 
     @Deprecated
-    public StandRelativeOffset withRelativeVec(Vector3d vec) {
+    public StandRelativeOffset withRelativeVec(Vec3 vec) {
         return new StandRelativeOffset(vec.x, vec.y, vec.z, this.doYOffset, this.useXRot, this.canInvertSide);
     }
     
@@ -125,7 +125,7 @@ public class StandRelativeOffset {
         double y = doYOffset ? this.y : yDefault;
         double z = forward;
         if (useXRot) {
-            Vector3d vec = new Vector3d(x, 0, z).xRot(-xRot * MathUtil.DEG_TO_RAD);
+            Vec3 vec = new Vec3(x, 0, z).xRot(-xRot * MathUtil.DEG_TO_RAD);
             x = vec.x;
             y = vec.y;
             z = vec.z;
@@ -141,14 +141,14 @@ public class StandRelativeOffset {
         StandRelativeOffset offset1 = this.makeSnapshot(yDefault, xRot);
         
         return new StandRelativeOffset(
-                MathHelper.lerp(lerp, offset0.left,    offset1.left),
-                MathHelper.lerp(lerp, offset0.y,       offset1.y),
-                MathHelper.lerp(lerp, offset0.forward, offset1.forward),
+                Mth.lerp(lerp, offset0.left,    offset1.left),
+                Mth.lerp(lerp, offset0.y,       offset1.y),
+                Mth.lerp(lerp, offset0.forward, offset1.forward),
                 true, false, canInvertSide);
     }
     
 
-    public void writeToBuf(PacketBuffer buf) {
+    public void writeToBuf(FriendlyByteBuf buf) {
         buf.writeDouble(left);
         buf.writeDouble(y);
         buf.writeDouble(forward);
@@ -157,7 +157,7 @@ public class StandRelativeOffset {
         buf.writeBoolean(canInvertSide);
     }
     
-    public static StandRelativeOffset readFromBuf(PacketBuffer buf) {
+    public static StandRelativeOffset readFromBuf(FriendlyByteBuf buf) {
         StandRelativeOffset offset = new StandRelativeOffset(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
         return offset;
     }

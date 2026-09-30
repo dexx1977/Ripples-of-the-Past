@@ -11,10 +11,10 @@ import com.github.standobyte.jojo.item.WalkmanItem;
 import com.github.standobyte.jojo.item.WalkmanDataCap.PlaybackMode;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ClWalkmanControlsPacket {
@@ -51,7 +51,7 @@ public class ClWalkmanControlsPacket {
     public static class Handler implements IModPacketHandler<ClWalkmanControlsPacket> {
 
         @Override
-        public void encode(ClWalkmanControlsPacket msg, PacketBuffer buf) {
+        public void encode(ClWalkmanControlsPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.packetType);
             buf.writeInt(msg.walkmanId);
             switch (msg.packetType) {
@@ -69,7 +69,7 @@ public class ClWalkmanControlsPacket {
         }
 
         @Override
-        public ClWalkmanControlsPacket decode(PacketBuffer buf) {
+        public ClWalkmanControlsPacket decode(FriendlyByteBuf buf) {
             Type packetType = buf.readEnum(Type.class);
             switch (packetType) {
             case VOLUME:
@@ -84,7 +84,7 @@ public class ClWalkmanControlsPacket {
 
         @Override
         public void handle(ClWalkmanControlsPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             findWalkman(player, msg.walkmanId).ifPresent(walkman -> {
                 WalkmanItem.editWalkmanData(walkman, walkmanData -> {
                     switch (msg.packetType) {
@@ -113,7 +113,7 @@ public class ClWalkmanControlsPacket {
             });
         }
         
-        private Optional<ItemStack> findWalkman(ServerPlayerEntity player, int walkmanId) {
+        private Optional<ItemStack> findWalkman(ServerPlayer player, int walkmanId) {
             if (player.containerMenu instanceof WalkmanItemContainer) {
                 ItemStack walkmanOpen = ((WalkmanItemContainer) player.containerMenu).getWalkmanItem();
                 if (checkId(walkmanOpen, walkmanId)) {

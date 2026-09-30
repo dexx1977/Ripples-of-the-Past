@@ -10,10 +10,10 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXHea
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXDivineSandstormHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
 
@@ -22,20 +22,20 @@ public class KosmXDivineSandstormHandler extends AnimLayerHandler<ModifierLayer<
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
-        return new ModifierLayer<>(null, new KosmXHeadRotationModifier(), new KosmXArmsRotationModifier(player, HandSide.LEFT, HandSide.RIGHT));
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
+        return new ModifierLayer<>(null, new KosmXHeadRotationModifier(), new KosmXArmsRotationModifier(player, HumanoidArm.LEFT, HumanoidArm.RIGHT));
     }
     
 
     private static final ResourceLocation ANIM = new ResourceLocation(JojoMod.MOD_ID, "divine_sandstorm");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         enabled &= !player.isPassenger();
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, ANIM);
+            return setAnimFromName((AbstractClientPlayer) player, ANIM);
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
         }
     }
 

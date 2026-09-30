@@ -15,16 +15,16 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.github.standobyte.jojo.util.mod.JojoModUtil.Direction2D;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
-public class GridList<T extends Widget & GridList.IGridElement> {
+public class GridList<T extends AbstractWidget & GridList.IGridElement> {
     @SuppressWarnings("unused")
     private final Screen screen;
     private final Button scrollLeftButton;
@@ -47,7 +47,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
     @Nullable private Predicate<T> filter;
     private boolean showHidden;
     
-    public static <O, T extends Widget & GridList.IGridElement> GridList<T> create(Iterable<O> originalObjects, 
+    public static <O, T extends AbstractWidget & GridList.IGridElement> GridList<T> create(Iterable<O> originalObjects, 
             Function<O, T> createElement, int maxColumnSize, 
             Screen screen, Consumer<Button> addButtons) {
         List<T> elements = new ArrayList<>();
@@ -63,7 +63,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
         return gridList;
     }
 
-    public static <T extends Widget & GridList.IGridElement> GridList<T> create(Iterable<T> elements, int maxColumnSize, 
+    public static <T extends AbstractWidget & GridList.IGridElement> GridList<T> create(Iterable<T> elements, int maxColumnSize, 
             Screen screen, Consumer<Button> addButtons) {
         return create(elements, Function.identity(), maxColumnSize, screen, addButtons);
     }
@@ -73,8 +73,8 @@ public class GridList<T extends Widget & GridList.IGridElement> {
         this.allElements = elementsList;
         this.maxColumnSize = maxColumnSize;
         this.visibleElementsCount = (int) elementsList.stream().filter(e -> e.visible).count();
-        this.scrollLeftButton =  new Button(-1, -1, 20, 20, new StringTextComponent("<"), b -> scrollColumns(-1));
-        this.scrollRightButton = new Button(-1, -1, 20, 20, new StringTextComponent(">"), b -> scrollColumns(1));
+        this.scrollLeftButton =  new Button(-1, -1, 20, 20, Component.literal("<"), b -> scrollColumns(-1));
+        this.scrollRightButton = new Button(-1, -1, 20, 20, Component.literal(">"), b -> scrollColumns(1));
     }
     
     public void setMaxWidth(int maxWidth) {
@@ -140,7 +140,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
         scrollRightButton.active = leftMostColumn < getColumnsCount() - getMaxRenderedColumns() - 1;
     }
     
-    private void doRender(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    private void doRender(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.enableBlend();
         
         for (T element : allElements) {
@@ -152,7 +152,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
         RenderSystem.disableBlend();
     }
     
-    public void renderGrid(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderGrid(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         updateGridLayout();
         doRender(matrixStack, mouseX, mouseY, partialTicks);
     }
@@ -179,8 +179,8 @@ public class GridList<T extends Widget & GridList.IGridElement> {
     }
     
     public boolean isMouseInsideGrid(double mouseX, double mouseY) {
-        int mouseColumn = MathHelper.floor((mouseX - x + columnGap * 0.5) / (columnWidth + columnGap));
-        int mouseRow    = MathHelper.floor((mouseY - y + rowGap * 0.5)    / (rowHeight   + rowGap));
+        int mouseColumn = Mth.floor((mouseX - x + columnGap * 0.5) / (columnWidth + columnGap));
+        int mouseRow    = Mth.floor((mouseY - y + rowGap * 0.5)    / (rowHeight   + rowGap));
         int columnsCount = Math.min(getMaxRenderedColumns() + 1, getColumnsCount());
         int rowsCount = getColumnSize(mouseColumn);
         return mouseColumn >= 0 && mouseColumn < columnsCount
@@ -333,7 +333,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
         this.selected = element;
         if (element.isPresent() && maxWidth.isPresent()) {
             int column = element.get().getColumn();
-            this.leftMostColumn = MathHelper.clamp(leftMostColumn, Math.max(column - getMaxRenderedColumns(), 0), column);
+            this.leftMostColumn = Mth.clamp(leftMostColumn, Math.max(column - getMaxRenderedColumns(), 0), column);
         }
     }
     
@@ -357,7 +357,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
                     if (elemOutOfBounds(selected)) {
                         setSelected(getVisibleAt(
                                 selected.getRow(), 
-                                MathHelper.clamp(selected.getColumn(), leftMostColumn, leftMostColumn + getMaxRenderedColumns())));
+                                Mth.clamp(selected.getColumn(), leftMostColumn, leftMostColumn + getMaxRenderedColumns())));
                     }
                 });
                 return true;
@@ -367,7 +367,7 @@ public class GridList<T extends Widget & GridList.IGridElement> {
     }
     
     public void setLeftMostColumn(int leftColumn) {
-        this.leftMostColumn = MathHelper.clamp(leftColumn, 0, Math.max(getColumnsCount() - getMaxRenderedColumns() - 1, 0));
+        this.leftMostColumn = Mth.clamp(leftColumn, 0, Math.max(getColumnsCount() - getMaxRenderedColumns() - 1, 0));
     }
     
     public int getLeftMostColumn() {

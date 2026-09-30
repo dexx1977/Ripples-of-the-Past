@@ -10,10 +10,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 public class VampirismHamonSuicide extends VampirismAction {
 
@@ -34,26 +34,26 @@ public class VampirismHamonSuicide extends VampirismAction {
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (world.isClientSide()) {
             ClientTickingSoundsHelper.playHamonEnergyConcentrationSound(user, 1.0F, this);
         }
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide()) {
             if (ticksHeld % 10 == 5) {
                 DamageUtil.dealHamonDamage(user, 4, user, null);
             }
             if (ticksHeld == 30) {
-                user.addEffect(new EffectInstance(ModStatusEffects.HAMON_SPREAD.get(), 100, 1));
+                user.addEffect(new MobEffectInstance(ModStatusEffects.HAMON_SPREAD.get(), 100, 1));
             }
         }
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             DamageUtil.dealHamonDamage(user, 200, user, null);
             power.getTypeSpecificData(ModPowers.VAMPIRISM.get()).ifPresent(vampirism -> {

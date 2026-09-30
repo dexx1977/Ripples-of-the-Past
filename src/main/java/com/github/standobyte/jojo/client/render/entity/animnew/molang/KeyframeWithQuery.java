@@ -8,7 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import net.minecraft.util.math.vector.Vector3f;
+import org.joml.Vector3f;
 import team.unnamed.mocha.MochaEngine;
 import team.unnamed.mocha.runtime.MochaFunction;
 

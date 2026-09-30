@@ -29,47 +29,46 @@ import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 
 public class StandUtil {
     
     @Deprecated
     @Nullable
-    public static StandType<?> randomStand(PlayerEntity entity, Random random) {
+    public static StandType<?> randomStand(Player entity, Random random) {
         return randomStandOrError(entity, random).left().orElse(null);
     }
     
     @Nonnull
-    public static Either<StandType<?>, ITextComponent> randomStandOrError(PlayerEntity entity, Random random) {
+    public static Either<StandType<?>, Component> randomStandOrError(Player entity, Random random) {
         if (!entity.level.isClientSide()) {
             List<StandType<?>> stands = arrowStands(entity.level.isClientSide()).collect(Collectors.toList());
             if (stands.isEmpty()) {
-                return Either.right(new TranslationTextComponent("jojo.arrow.no_stands"));
+                return Either.right(Component.translatable("jojo.arrow.no_stands"));
             }
             
             stands = PlayerStandAssignmentConfig.getInstance().limitToAssignedStands(entity, stands);
             if (stands.isEmpty()) {
-                return Either.right(new TranslationTextComponent("jojo.arrow.assigned_banned", entity.getName()));
+                return Either.right(Component.translatable("jojo.arrow.assigned_banned", entity.getName()));
             }
             
-            stands = JojoModConfig.getCommonConfigInstance(false).standRandomPoolFilter.get().limitStandPool((ServerWorld) entity.level, stands);
+            stands = JojoModConfig.getCommonConfigInstance(false).standRandomPoolFilter.get().limitStandPool((ServerLevel) entity.level, stands);
             if (stands.isEmpty()) {
-                return Either.right(new TranslationTextComponent("jojo.arrow.all_stands_taken"));
+                return Either.right(Component.translatable("jojo.arrow.all_stands_taken"));
             }
             
             stands = IStandPower.getStandPowerOptional(entity).resolve().get().getPreviousStandsSet().rigForUnusedStands(stands);
             Optional<StandType<?>> stand = MathUtil.getRandomWeightedDouble(stands, s -> s.getStats().getRandomWeight(), random);
             // fucking generics istg
-            Optional<Either<StandType<?>, ITextComponent>> wtf = stand.map(Either::left);
-            return wtf.orElse(Either.right(new TranslationTextComponent("jojo.arrow.no_stand_weights")));
+            Optional<Either<StandType<?>, Component>> wtf = stand.map(Either::left);
+            return wtf.orElse(Either.right(Component.translatable("jojo.arrow.no_stand_weights")));
             /* 
-             * return stand.map(Either::left).orElse(Either.right(new TranslationTextComponent("jojo.arrow.no_stands")));
+             * return stand.map(Either::left).orElse(Either.right(Component.translatable("jojo.arrow.no_stands")));
              *   ^ doesn't work because fuck you that's why
              */
         }
@@ -83,24 +82,24 @@ public class StandUtil {
     public enum StandRandomPoolFilter {
         NONE {
             @Override
-            public List<StandType<?>> limitStandPool(ServerWorld world, List<StandType<?>> availableStands) {
+            public List<StandType<?>> limitStandPool(ServerLevel world, List<StandType<?>> availableStands) {
                 return availableStands;
             }
         },
         LEAST_TAKEN {
             @Override
-            public List<StandType<?>> limitStandPool(ServerWorld world, List<StandType<?>> availableStands) {
+            public List<StandType<?>> limitStandPool(ServerLevel world, List<StandType<?>> availableStands) {
                 return SaveFileUtilCapProvider.getSaveFileCap(world.getServer()).getLeastTakenStands(availableStands);
             }
         },
         NOT_TAKEN {
             @Override
-            public List<StandType<?>> limitStandPool(ServerWorld world, List<StandType<?>> availableStands) {
+            public List<StandType<?>> limitStandPool(ServerLevel world, List<StandType<?>> availableStands) {
                 return SaveFileUtilCapProvider.getSaveFileCap(world.getServer()).getNotTakenStands(availableStands);
             }
         };
         
-        public abstract List<StandType<?>> limitStandPool(ServerWorld world /*TODO get stand pool limit data on client*/, List<StandType<?>> availableStands);
+        public abstract List<StandType<?>> limitStandPool(ServerLevel world /*TODO get stand pool limit data on client*/, List<StandType<?>> availableStands);
     }
     
     public static Stream<StandType<?>> arrowStands(boolean clientSide) {
@@ -130,30 +129,30 @@ public class StandUtil {
         return IStandPower.getStandPowerOptional(entity).map(IPower::hasPower).orElse(false);
     }
     
-    public static boolean clStandEntityVisibleTo(PlayerEntity player) {
+    public static boolean clStandEntityVisibleTo(Player player) {
         if (player == ClientUtil.getClientPlayer()) {
             return ClientUtil.canSeeStands();
         }
         return playerCanSeeStands(player);
     }
     
-    public static boolean playerCanSeeStands(PlayerEntity player) {
+    public static boolean playerCanSeeStands(Player player) {
         return JojoModUtil.seesInvisibleAsSpectator(player)
                 || isEntityStandUser(player) || player.hasEffect(ModStatusEffects.SPIRIT_VISION.get());
     }
     
-    public static boolean playerCanHearStands(PlayerEntity player) {
+    public static boolean playerCanHearStands(Player player) {
         return playerCanSeeStands(player);
     }
     
-    public static void setManualControl(PlayerEntity player, boolean manualControl, boolean keepPosition) {
+    public static void setManualControl(Player player, boolean manualControl, boolean keepPosition) {
         IStandPower.getStandPowerOptional(player).ifPresent(standPower -> {
             if (standPower.getStandManifestation() instanceof StandEntity) {
                 StandEntity standEntity = ((StandEntity) standPower.getStandManifestation());
                 if (!standEntity.isArmsOnlyMode()) {
                     if (!player.level.isClientSide()) {
                         standEntity.setManualControl(manualControl, keepPosition);
-                        PacketManager.sendToClient(new StandControlStatusPacket(manualControl, keepPosition), (ServerPlayerEntity) player);
+                        PacketManager.sendToClient(new StandControlStatusPacket(manualControl, keepPosition), (ServerPlayer) player);
                     }
                     else {
                         Minecraft mc = Minecraft.getInstance();

@@ -6,21 +6,21 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
 
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 
 public class BarrageHitSoundHandler {
     private Random random = new Random();
     
     private SoundEvent sound;
-    private Vector3d soundPos;
+    private Vec3 soundPos;
     private boolean pauseAfterNext;
     private boolean isBarraging = false;
     
     private double soundTickLast;
     private double nextSoundGap;
     
-    public void hit(SoundEvent sound, Vector3d punchPos) {
+    public void hit(SoundEvent sound, Vec3 punchPos) {
         this.sound = sound;
         this.soundPos = punchPos;
         this.pauseAfterNext = false;

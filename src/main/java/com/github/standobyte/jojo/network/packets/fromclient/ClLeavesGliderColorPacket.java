@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.entity.LeavesGliderEntity;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClLeavesGliderColorPacket {
     private final int entityId;
@@ -23,13 +23,13 @@ public class ClLeavesGliderColorPacket {
     public static class Handler implements IModPacketHandler<ClLeavesGliderColorPacket> {
 
         @Override
-        public void encode(ClLeavesGliderColorPacket msg, PacketBuffer buf) {
+        public void encode(ClLeavesGliderColorPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeInt(msg.color);
         }
 
         @Override
-        public ClLeavesGliderColorPacket decode(PacketBuffer buf) {
+        public ClLeavesGliderColorPacket decode(FriendlyByteBuf buf) {
             return new ClLeavesGliderColorPacket(buf.readInt(), buf.readInt());
         }
 

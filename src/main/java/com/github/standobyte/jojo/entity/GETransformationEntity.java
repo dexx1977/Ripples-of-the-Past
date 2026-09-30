@@ -27,62 +27,61 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.state.DirectionProperty;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
 public class GETransformationEntity extends Entity implements IEntityAdditionalSpawnData, IPassengerMixinReposition {
-    private static final DataParameter<Boolean> LIFE_FORM_SPAWNED = EntityDataManager.defineId(GETransformationEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> IS_TURNING_BACK = EntityDataManager.defineId(GETransformationEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> REVERSE_SIGNAL = EntityDataManager.defineId(GETransformationEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<OptionalInt> HOST_ID = EntityDataManager.defineId(GETransformationEntity.class, DataSerializers.OPTIONAL_UNSIGNED_INT);
+    private static final EntityDataAccessor<Boolean> LIFE_FORM_SPAWNED = SynchedEntityData.defineId(GETransformationEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_TURNING_BACK = SynchedEntityData.defineId(GETransformationEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> REVERSE_SIGNAL = SynchedEntityData.defineId(GETransformationEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<OptionalInt> HOST_ID = SynchedEntityData.defineId(GETransformationEntity.class, EntityDataSerializers.OPTIONAL_UNSIGNED_INT);
     
     private GETransformationData source = new GETransformationData();
     private EntityOwnerResolver owner = new EntityOwnerResolver();
@@ -94,14 +93,14 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     public int actionCooldown;
     
     private EntityOwnerResolver host = new EntityOwnerResolver();
-    private Vector3d hostFollowOffset = Vector3d.ZERO;
+    private Vec3 hostFollowOffset = Vec3.ZERO;
     
     
-    public GETransformationEntity(EntityType<?> type, World level) {
+    public GETransformationEntity(EntityType<?> type, Level level) {
         super(type, level);
     }
 
-    public GETransformationEntity(World pLevel) {
+    public GETransformationEntity(Level pLevel) {
         this(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), pLevel);
     }
     
@@ -159,19 +158,19 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             BlockState existingBlock = level.getBlockState(blockPos);
             if (!((existingBlock.isAir(level, blockPos) || existingBlock.getMaterial().isReplaceable())
                     && blockToPlace.canSurvive(level, blockPos))) {
-                if (!(blockToPlace.getBlock() instanceof AbstractFireBlock)) {
+                if (!(blockToPlace.getBlock() instanceof BaseFireBlock)) {
                     level.levelEvent(2001, blockPos, Block.getId(blockToPlace));
                 }
-                TileEntity tileEntity = null;
+                BlockEntity tileEntity = null;
                 if (source.sourceTileEntityNbt != null) {
-                    tileEntity = TileEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
+                    tileEntity = BlockEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
                 }
                 Block.dropResources(blockToPlace, level, blockPos, tileEntity, owner.getEntity(level), ItemStack.EMPTY);
                 // FIXME items in chest-like tile entities are lost
                 if (tileEntity != null) {
-                    if (tileEntity instanceof IInventory) {
-                        IInventory inventory = (IInventory) tileEntity;
-                        InventoryHelper.dropContents(level, blockPos, inventory);
+                    if (tileEntity instanceof Container) {
+                        Container inventory = (Container) tileEntity;
+                        Containers.dropContents(level, blockPos, inventory);
                     }
                 }
                 
@@ -181,8 +180,8 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         
         if (entityToSummon != null) {
             entityToSummon.copyPosition(this);
-            if (entityToSummon instanceof MobEntity) {
-                ((MobEntity) entityToSummon).setPersistenceRequired();
+            if (entityToSummon instanceof Mob) {
+                ((Mob) entityToSummon).setPersistenceRequired();
             }
             else if (entityToSummon instanceof ItemEntity) {
                 ((ItemEntity) entityToSummon).setNoPickUpDelay();
@@ -190,8 +189,8 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             copyStatus(this, entityToSummon);
             level.addFreshEntity(entityToSummon);
             if (!isTurningBack()) {
-                if (entityToSummon instanceof MobEntity) {
-                    MobEntity mob = (MobEntity) entityToSummon;
+                if (entityToSummon instanceof Mob) {
+                    Mob mob = (Mob) entityToSummon;
                     mob.playAmbientSound();
                     if (source.followTarget != null && source.followTargetMode != null) {
                         switch (source.followTargetMode) {
@@ -199,7 +198,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                             mob.targetSelector.addGoal(0, new SpecificTargetGoal(mob, source.followTarget, false, false));
                             break;
                         case AGGRO_FORGETFUL:
-                            Entity target = ((ServerWorld) level).getEntity(source.followTarget);
+                            Entity target = ((ServerLevel) level).getEntity(source.followTarget);
                             if (target instanceof LivingEntity) {
                                 mob.setTarget((LivingEntity) target);
                             }
@@ -221,7 +220,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 else {
                     level.setBlock(blockPos, blockToPlace, 3);
                     if (source.sourceTileEntityNbt != null) {
-                        TileEntity tileEntity = TileEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
+                        BlockEntity tileEntity = BlockEntity.loadStatic(blockToPlace, source.sourceTileEntityNbt);
                         if (tileEntity != null) {
                             level.setBlockEntity(blockPos, tileEntity);
                         }
@@ -255,7 +254,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 float timeAsBlock = getRenderAsItemTime();
                 if (timeLeft - 1 <= timeAsBlock && timeLeft > timeAsBlock) {
                     BlockPos blockPos = blockPosition();
-                    Vector3d pos = Vector3d.atBottomCenterOf(blockPos);
+                    Vec3 pos = Vec3.atBottomCenterOf(blockPos);
 //                    BlockPos blockPosNew = new BlockPos(pos);
 //                    if (!blockPosNew.equals(blockPos)) {
 //                        BlockPos diff = blockPosNew.subtract(blockPos);
@@ -269,7 +268,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         
         
         double f = getEyeHeight() - 0.11111111;
-        Vector3d deltaMovement = getDeltaMovement();
+        Vec3 deltaMovement = getDeltaMovement();
         if (isInWater() && getFluidHeight(FluidTags.WATER) > f) {
             setDeltaMovement(
                     deltaMovement.x * 0.99, 
@@ -353,8 +352,8 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
     
     @Override
-    public EntitySize getDimensions(Pose pPose) {
-        EntitySize size = new EntitySize(getBbWidth(), getBbHeight(), false);
+    public EntityDimensions getDimensions(Pose pPose) {
+        EntityDimensions size = new EntityDimensions(getBbWidth(), getBbHeight(), false);
         float scale = 0;
         
         float tfProgressTime = getTfProgressTime(0);
@@ -368,7 +367,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                         size = sourceEntity.getDimensions(pPose).scale(scale);
                     }
                     else {
-                        size = EntitySize.scalable(1, 1).scale(scale);
+                        size = EntityDimensions.scalable(1, 1).scale(scale);
                     }
                 }
             }
@@ -407,7 +406,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
     
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> key) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         if (REVERSE_SIGNAL.equals(key)) {
             if (entityData.get(REVERSE_SIGNAL)) {
@@ -434,7 +433,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
             else {
                 renderAsItemTime = ticks * prevItemTime / tickCount;
-                duration = MathHelper.ceil(renderAsItemTime);
+                duration = Mth.ceil(renderAsItemTime);
             }
             
             tickCount = duration - ticks;
@@ -462,7 +461,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
         }
         else {
-            World world = entity.level;
+            Level world = entity.level;
             GETransformationEntity tf = new GETransformationEntity(world)
                     .withTransformationTarget(entity)
                     .withDuration(TURN_BACK_TICKS)
@@ -487,10 +486,10 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                         .findFirst()
                         .map(property -> (DirectionProperty) property)
                         .flatMap(property -> {
-                            Vector3d lookVec = entity.getLookAngle();
+                            Vec3 lookVec = entity.getLookAngle();
                             Collection<Direction> possibleDirs = property.getPossibleValues();
                             return possibleDirs.stream()
-                                    .max(Comparator.comparingDouble(dir -> lookVec.dot(new Vector3d(dir.getStepX(), dir.getStepY(), dir.getStepZ()))))
+                                    .max(Comparator.comparingDouble(dir -> lookVec.dot(new Vec3(dir.getStepX(), dir.getStepY(), dir.getStepZ()))))
                                     .map(closestDir -> directionalBlock.setValue(property, closestDir));
                         });
                 rotated.ifPresent(rotatedBlock -> tf.source.sourceBlockState = rotatedBlock);
@@ -498,18 +497,18 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             
             copyStatus(entity, tf);
             
-            Vector3d pos = entity.position();
+            Vec3 pos = entity.position();
             tf.moveTo(pos.x, pos.y, pos.z, entity.yRot, entity.xRot);
             entity.level.addFreshEntity(tf);
             
             if (entity instanceof LivingEntity) {
                 LivingEntity living = (LivingEntity) entity;
                 CommonReflection.dropEquipment(living);
-                if (living instanceof FoxEntity) { // i'm pretty sure this is also supposed to be in dropEquipment, and not in dropAllDeathLoot
-                    ItemStack itemstack = living.getItemBySlot(EquipmentSlotType.MAINHAND);
+                if (living instanceof Fox) { // i'm pretty sure this is also supposed to be in dropEquipment, and not in dropAllDeathLoot
+                    ItemStack itemstack = living.getItemBySlot(EquipmentSlot.MAINHAND);
                     if (!itemstack.isEmpty()) {
                         living.spawnAtLocation(itemstack);
-                        living.setItemSlot(EquipmentSlotType.MAINHAND, ItemStack.EMPTY);
+                        living.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
                     }
                 }
             }
@@ -542,7 +541,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             boolean riding = startRiding(hostEntity, true);
             if (riding) {
                 float height = hostEntity.getBbHeight();
-                hostFollowOffset = new Vector3d(0, height - 0.5, 0);
+                hostFollowOffset = new Vec3(0, height - 0.5, 0);
             }
         }
         else if (getVehicle() == this.host.getEntity(level)) {
@@ -575,7 +574,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
     
     @Override
-    public Vector3d repositionPassenger(Entity vehicle) {
+    public Vec3 repositionPassenger(Entity vehicle) {
         if (hostFollowOffset != null && vehicle == host.getEntity(level)) {
             return vehicle.position().add(hostFollowOffset);
         }
@@ -589,7 +588,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 if (hostFollowOffset != null) {
                     BleedingEffect.setNextParticlesPos(host, host.position().add(hostFollowOffset).add(0, 0.5, 0));
                 }
-                host.addEffect(new EffectInstance(ModStatusEffects.BLEEDING.get(), 200, 1, false, false, true));
+                host.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING.get(), 200, 1, false, false, true));
             }
         }
     }
@@ -605,15 +604,15 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     
     
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         this.tickCount = nbt.getInt("Age");
         withDuration(nbt.getInt("Duration"));
         entityData.set(IS_TURNING_BACK, nbt.getBoolean("TurnBack"));
         actionCooldown = nbt.getInt("ActionCD");
         
         source.readNbt(nbt);
-        if (nbt.contains("TargetEntity", MCUtil.getNbtId(CompoundNBT.class))) {
-            CompoundNBT entityNbt = nbt.getCompound("TargetEntity");
+        if (nbt.contains("TargetEntity", MCUtil.getNbtId(CompoundTag.class))) {
+            CompoundTag entityNbt = nbt.getCompound("TargetEntity");
             target = EntityType.create(entityNbt, level).orElse(null);
         }
         owner.loadNbt(nbt, "Owner");
@@ -623,7 +622,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putInt("Age", tickCount);
         nbt.putInt("Duration", duration);
         nbt.putBoolean("TurnBack", entityData.get(IS_TURNING_BACK));
@@ -631,7 +630,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         
         source.writeNbt(nbt);
         if (target != null) {
-            CompoundNBT entityNbt = target.serializeNBT();
+            CompoundTag entityNbt = target.serializeNBT();
             nbt.put("TargetEntity", entityNbt);
         }
         owner.saveNbt(nbt, "Owner");
@@ -643,12 +642,12 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(tickCount);
         buffer.writeVarInt(duration);
         owner.writeNetwork(buffer);
@@ -662,7 +661,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         tickCount = additionalData.readVarInt();
         withDuration(additionalData.readVarInt());
         owner.readNetwork(additionalData);
@@ -687,10 +686,10 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         private UUID followTarget;
         private FollowTargetMode followTargetMode;
         private Entity sourceEntity;
-        private CompoundNBT sourceEntityNbt = null;
+        private CompoundTag sourceEntityNbt = null;
         private BlockState sourceBlockState;
         private BlockPos sourceBlockPos;
-        private CompoundNBT sourceTileEntityNbt = null;
+        private CompoundTag sourceTileEntityNbt = null;
         
         
         
@@ -699,11 +698,11 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             return this;
         }
         
-        public GETransformationData withBlockSource(BlockState blockState, BlockPos blockPos, @Nullable TileEntity tileEntity) {
+        public GETransformationData withBlockSource(BlockState blockState, BlockPos blockPos, @Nullable BlockEntity tileEntity) {
             this.sourceBlockState = blockState;
             this.sourceBlockPos = blockPos;
             if (tileEntity != null) {
-                sourceTileEntityNbt = tileEntity.save(new CompoundNBT());
+                sourceTileEntityNbt = tileEntity.save(new CompoundTag());
             }
             return this;
         }
@@ -726,7 +725,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             return this;
         }
         
-        public void copyFrom(GETransformationData other, World world) {
+        public void copyFrom(GETransformationData other, Level world) {
             this.followTarget = other.followTarget;
             this.sourceEntity = other.sourceEntity;
             this.sourceBlockState = other.sourceBlockState;
@@ -738,7 +737,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         /**
          * Call this during tick or before sending the data from server.
          */
-        public void resolveNbtRead(World world) {
+        public void resolveNbtRead(Level world) {
             if (sourceEntityNbt != null) {
                 withEntitySource(EntityType.create(sourceEntityNbt, world).orElse(null));
                 sourceEntityNbt = null;
@@ -747,13 +746,13 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         
         
         
-        public List<EffectInstance> getItemEffects() {
+        public List<MobEffectInstance> getItemEffects() {
             ItemStack item = ItemStack.EMPTY;
             if (sourceEntity instanceof ItemEntity) {
                 item = ((ItemEntity) sourceEntity).getItem();
             }
-            else if (sourceEntity instanceof PotionEntity) {
-                item = MCUtil.getItemOnServer((PotionEntity) sourceEntity);
+            else if (sourceEntity instanceof ThrownPotion) {
+                item = MCUtil.getItemOnServer((ThrownPotion) sourceEntity);
             }
             return !item.isEmpty() && item.hasTag() ? PotionUtils.getMobEffects(item) : Collections.emptyList();
         }
@@ -763,10 +762,10 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 if (sourceEntity instanceof ItemEntity) {
                     return ((ItemEntity) sourceEntity).getItem().copy();
                 }
-                else if (sourceEntity instanceof IRendersAsItem) {
-                    return ((IRendersAsItem) sourceEntity).getItem().copy();
+                else if (sourceEntity instanceof ItemSupplier) {
+                    return ((ItemSupplier) sourceEntity).getItem().copy();
                 }
-                else if (sourceEntity instanceof TNTEntity) {
+                else if (sourceEntity instanceof PrimedTnt) {
                     return new ItemStack(Items.TNT);
                 }
                 else if (sourceEntity.getType() == ModEntityTypes.ROAD_ROLLER.get()) {
@@ -775,8 +774,8 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 else if (sourceEntity.getType() == EntityType.END_CRYSTAL) {
                     return new ItemStack(Items.END_CRYSTAL);
                 }
-                else if (sourceEntity instanceof BoatEntity) {
-                    return new ItemStack(((BoatEntity) sourceEntity).getDropItem());
+                else if (sourceEntity instanceof Boat) {
+                    return new ItemStack(((Boat) sourceEntity).getDropItem());
                 }
             }
             else if (sourceBlockState != null) {
@@ -790,11 +789,11 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             return ItemStack.EMPTY;
         }
         
-        public IFormattableTextComponent clMakeSourceName() {
+        public MutableComponent clMakeSourceName() {
             if (sourceEntity != null) {
-                ITextComponent name = sourceEntity.getDisplayName();
-                if (name instanceof IFormattableTextComponent) {
-                    return (IFormattableTextComponent) name;
+                Component name = sourceEntity.getDisplayName();
+                if (name instanceof MutableComponent) {
+                    return (MutableComponent) name;
                 }
                 throw new ClassCastException("Why do ITextComponent and IFormattableTextComponent interfaces both exist? Why not just make ITextComponent formattable? Separating them doesn't even do shit, ffs OOP was a mistake");
             }
@@ -803,7 +802,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 return sourceBlockState.getBlock().getName(); // oh, look, this returns IFormattableTextComponent!
             }
             
-            return (StringTextComponent) StringTextComponent.EMPTY;
+            return (Component) Component.empty();
         }
         
         
@@ -833,16 +832,16 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         
         
         
-        public void writeNbt(CompoundNBT nbt) {
+        public void writeNbt(CompoundTag nbt) {
             if (sourceEntity != null) {
-                CompoundNBT entityNbt = sourceEntity.serializeNBT();
+                CompoundTag entityNbt = sourceEntity.serializeNBT();
                 nbt.put("GESourceEntity", entityNbt);
             }
             if (sourceBlockState != null) {
-                nbt.put("GESourceBlock", NBTUtil.writeBlockState(sourceBlockState));
+                nbt.put("GESourceBlock", NbtUtils.writeBlockState(sourceBlockState));
             }
             if (sourceBlockPos != null) {
-                nbt.put("GESourcePos", NBTUtil.writeBlockPos(sourceBlockPos));
+                nbt.put("GESourcePos", NbtUtils.writeBlockPos(sourceBlockPos));
             }
             if (sourceTileEntityNbt != null) {
                 nbt.put("GESourceTE", sourceTileEntityNbt);
@@ -855,17 +854,17 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
         }
         
-        public void readNbt(CompoundNBT nbt) {
-            if (nbt.contains("GESourceEntity", MCUtil.getNbtId(CompoundNBT.class))) {
+        public void readNbt(CompoundTag nbt) {
+            if (nbt.contains("GESourceEntity", MCUtil.getNbtId(CompoundTag.class))) {
                 sourceEntityNbt = nbt.getCompound("GESourceEntity");
             }
-            if (nbt.contains("GESourceBlock", MCUtil.getNbtId(CompoundNBT.class))) {
-                sourceBlockState = NBTUtil.readBlockState(nbt.getCompound("GESourceBlock"));
+            if (nbt.contains("GESourceBlock", MCUtil.getNbtId(CompoundTag.class))) {
+                sourceBlockState = NbtUtils.readBlockState(nbt.getCompound("GESourceBlock"));
             }
-            if (nbt.contains("GESourcePos", MCUtil.getNbtId(CompoundNBT.class))) {
-                sourceBlockPos = NBTUtil.readBlockPos(nbt.getCompound("GESourcePos"));
+            if (nbt.contains("GESourcePos", MCUtil.getNbtId(CompoundTag.class))) {
+                sourceBlockPos = NbtUtils.readBlockPos(nbt.getCompound("GESourcePos"));
             }
-            if (nbt.contains("GESourceTE", MCUtil.getNbtId(CompoundNBT.class))) {
+            if (nbt.contains("GESourceTE", MCUtil.getNbtId(CompoundTag.class))) {
                 sourceTileEntityNbt = nbt.getCompound("GESourceTE");
             }
             if (nbt.hasUUID("Owner")) {
@@ -874,13 +873,13 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
         }
         
-        public void toBuf(PacketBuffer buffer) {
+        public void toBuf(FriendlyByteBuf buffer) {
             writeEntityData(buffer, sourceEntity);
             NetworkUtil.writeOptionally(buffer, sourceBlockState, blockState -> NetworkUtil.writeBlockState(buffer, blockState));
             NetworkUtil.writeOptionally(buffer, sourceBlockPos, blockPos -> buffer.writeBlockPos(blockPos));
         }
         
-        public void fromBuf(PacketBuffer buffer, World world) {
+        public void fromBuf(FriendlyByteBuf buffer, Level world) {
             sourceEntity = readEntityData(buffer, world);
             sourceBlockState = NetworkUtil.readOptional(buffer, () -> NetworkUtil.readBlockState(buffer)).orElse(null);
             sourceBlockPos = NetworkUtil.readOptional(buffer, () -> buffer.readBlockPos()).orElse(null);
@@ -889,10 +888,10 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     
     
     
-    private static void writeEntityData(PacketBuffer buffer, Entity entityToWrite) {
+    private static void writeEntityData(FriendlyByteBuf buffer, Entity entityToWrite) {
         NetworkUtil.writeOptionally(buffer, entityToWrite, entity -> {
-            byte pitch = (byte) MathHelper.floor(entity.xRot * 256.0F / 360.0F);
-            byte yaw = (byte) MathHelper.floor(entity.yRot * 256.0F / 360.0F);
+            byte pitch = (byte) Mth.floor(entity.xRot * 256.0F / 360.0F);
+            byte yaw = (byte) Mth.floor(entity.yRot * 256.0F / 360.0F);
             byte headYaw = (byte) (entity.getYHeadRot() * 256.0F / 360.0F);
             
             buffer.writeRegistryId(entity.getType());
@@ -904,9 +903,9 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 ((IEntityAdditionalSpawnData) entity).writeSpawnData(buffer);
             }
             
-            List<EntityDataManager.DataEntry<?>> entityData = entity.getEntityData().getAll();
+            List<SynchedEntityData.DataEntry<?>> entityData = entity.getEntityData().getAll();
             try {
-                EntityDataManager.pack(entityData, buffer);
+                SynchedEntityData.pack(entityData, buffer);
             } catch (IOException e) {
                 JojoMod.getLogger().error("Failed to write entity data for Gold Experience's transformation render for entity of type {}", entity.getType().getRegistryName());
                 e.printStackTrace();
@@ -914,7 +913,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         });
     }
     
-    private static Entity readEntityData(PacketBuffer buffer, World world) {
+    private static Entity readEntityData(FriendlyByteBuf buffer, Level world) {
         return NetworkUtil.readOptional(buffer, () -> {
             EntityType<?> type = buffer.readRegistryIdSafe(EntityType.class);
             Entity entity = type.create(world);
@@ -924,7 +923,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             float headYaw = (buffer.readByte() * 360) / 256.0F;
             
             entity.yRot = yaw % 360.0F;
-            entity.xRot = MathHelper.clamp(pitch, -90.0F, 90.0F) % 360.0F;
+            entity.xRot = Mth.clamp(pitch, -90.0F, 90.0F) % 360.0F;
             entity.yRotO = entity.yRot;
             entity.xRotO = entity.xRot;
             entity.setYHeadRot(headYaw);
@@ -940,7 +939,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
             
             try {
-                List<EntityDataManager.DataEntry<?>> entityData = EntityDataManager.unpack(buffer);
+                List<SynchedEntityData.DataEntry<?>> entityData = SynchedEntityData.unpack(buffer);
                 entity.getEntityData().assignValues(entityData);
             } catch (IOException e) {
                 JojoMod.getLogger().error("Failed to read entity data for Gold Experience's transformation render for entity of type {}", entity.getType().getRegistryName());

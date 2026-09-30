@@ -10,20 +10,19 @@ import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.IPowerType;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
-public class ActionToast implements IToast {
-    protected static final ITextComponent NAME = new TranslationTextComponent("jojo.action.toast.title");
+public class ActionToast implements Toast {
+    protected static final Component NAME = Component.translatable("jojo.action.toast.title");
     protected static final int TIME_MS = 5000;
-    protected final ITextComponent description;
+    protected final Component description;
     protected final IActionToastType toastType;
     protected final List<ResourceLocation> actionIcons = Lists.newArrayList();
     private ResourceLocation powerTypeIcon;
@@ -32,21 +31,21 @@ public class ActionToast implements IToast {
     
     protected ActionToast(IActionToastType type, ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
         this.toastType = type;
-        this.description = new TranslationTextComponent("jojo.action.toast." + type.getName() + ".description");
+        this.description = Component.translatable("jojo.action.toast." + type.getName() + ".description");
         this.powerTypeIcon = powerTypeIcon;
         this.actionIcons.add(actionIcon);
     }
     
     @SuppressWarnings("deprecation")
     @Override
-    public IToast.Visibility render(MatrixStack matrixStack, ToastGui toastGui, long timeMs) {
+    public Toast.Visibility render(PoseStack matrixStack, ToastComponent toastGui, long timeMs) {
         if (changed) {
             lastChanged = (int) timeMs;
             changed = false;
         }
         
         if (actionIcons.isEmpty()) {
-            return IToast.Visibility.HIDE;
+            return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
             mc.getTextureManager().bind(TEXTURE);
@@ -58,22 +57,22 @@ public class ActionToast implements IToast {
             matrixStack.scale(0.5F, 0.5F, 1.0F);
             
             mc.getTextureManager().bind(powerTypeIcon);
-            ToastGui.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
+            ToastComponent.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
             
             matrixStack.popPose();
             renderIcon(matrixStack, toastGui, (int) timeMs);
-            return timeMs - lastChanged >= TIME_MS ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            return timeMs - lastChanged >= TIME_MS ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }
     }
     
-    protected void renderIcon(MatrixStack matrixStack, ToastGui toastGui, int timeMs) {
+    protected void renderIcon(PoseStack matrixStack, ToastComponent toastGui, int timeMs) {
         int actionsCount = actionIcons.size();
         int actionShowUpTime = Math.max(1, TIME_MS / actionsCount);
         int actionIndex = timeMs / actionShowUpTime % actionsCount;
         
         ResourceLocation actionIcon = actionIcons.get(actionIndex);
         toastGui.getMinecraft().getTextureManager().bind(actionIcon);
-        ToastGui.blit(matrixStack, 8, 8, 0, 0, 16, 16, 16, 16);
+        ToastComponent.blit(matrixStack, 8, 8, 0, 0, 16, 16, 16, 16);
     }
     
     protected void addAction(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
@@ -84,7 +83,7 @@ public class ActionToast implements IToast {
     }
     
     public static <P extends IPower<P, T>, T extends IPowerType<P, T>> void addOrUpdate(
-            ToastGui toastGui, IActionToastType type, Action<P> action, IPower<P, T> power) {
+            ToastComponent toastGui, IActionToastType type, Action<P> action, IPower<P, T> power) {
         ActionToast toast = toastGui.getToast(ActionToast.class, type);
         ResourceLocation actionIcon = action.getIconTexture((P) power);
         ResourceLocation powerTypeIcon = power.clGetPowerTypeIcon();
@@ -138,13 +137,13 @@ public class ActionToast implements IToast {
         }
         
         @Override
-        public IToast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
+        public Toast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
             return new ActionToast(this, actionIcon, powerTypeIcon);
         }
     }
     
     public static interface IActionToastType {
         String getName();
-        IToast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon);
+        Toast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon);
     }
 }

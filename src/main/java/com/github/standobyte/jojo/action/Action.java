@@ -33,30 +33,35 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
-public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<Action<?>> {
+public abstract class Action<P extends IPower<P, ?>> implements RegistryEntry<Action<?>> {
+    @Override
+    public IForgeRegistry<Action<?>> getRegistry() {
+        return JojoCustomRegistries.ACTIONS.getRegistry();
+    }
+
     private static final Map<Supplier<? extends Action<?>>, Supplier<? extends Action<?>>> SHIFT_VARIATIONS = new HashMap<>(); 
     
     public final int holdDurationToFire;
@@ -218,13 +223,13 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
     public abstract float getCostToRender(P power, ActionTarget target);
     
     protected ActionConditionResult checkHeldItems(LivingEntity user, P power) {
-        if (needsFreeMainHand && needsFreeOffHand && !MCUtil.areHandsFree(user, Hand.MAIN_HAND, Hand.OFF_HAND)) {
+        if (needsFreeMainHand && needsFreeOffHand && !MCUtil.areHandsFree(user, InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND)) {
             return conditionMessage("hands");
         }
-        if (needsFreeMainHand && !MCUtil.isHandFree(user, Hand.MAIN_HAND)) {
+        if (needsFreeMainHand && !MCUtil.isHandFree(user, InteractionHand.MAIN_HAND)) {
             return conditionMessage("hand");
         }
-        if (needsFreeOffHand && !MCUtil.isHandFree(user, Hand.OFF_HAND)) {
+        if (needsFreeOffHand && !MCUtil.isHandFree(user, InteractionHand.OFF_HAND)) {
             return conditionMessage("hand");
         }
         return ActionConditionResult.POSITIVE;
@@ -270,7 +275,7 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         return this;
     }
     
-    public void clWriteExtraData(PacketBuffer buf) {}
+    public void clWriteExtraData(FriendlyByteBuf buf) {}
     
     public boolean enabledInHudDefault() {
         return true;
@@ -281,11 +286,11 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
     }
     
     public static ActionConditionResult conditionMessage(String postfix) {
-        return ActionConditionResult.createNegative(new TranslationTextComponent("jojo.message.action_condition." + postfix));
+        return ActionConditionResult.createNegative(Component.translatable("jojo.message.action_condition." + postfix));
     }
     
     public static ActionConditionResult conditionMessage(String postfix, Object... args) {
-        return ActionConditionResult.createNegative(new TranslationTextComponent("jojo.message.action_condition." + postfix, args));
+        return ActionConditionResult.createNegative(Component.translatable("jojo.message.action_condition." + postfix, args));
     }
     
     public Action<P> getShiftVariationIfPresent() {
@@ -309,50 +314,50 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         return false;
     }
     
-    public void onClick(World world, LivingEntity user, P power) {}
+    public void onClick(Level world, LivingEntity user, P power) {}
     
-    public void afterClick(World world, LivingEntity user, P power, boolean passedRequirements) {}
+    public void afterClick(Level world, LivingEntity user, P power, boolean passedRequirements) {}
     
-    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, World world, LivingEntity user, P power) {}
+    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, Level world, LivingEntity user, P power) {}
     
-    public ActionTarget targetBeforePerform(World world, LivingEntity user, P power, ActionTarget target) {
+    public ActionTarget targetBeforePerform(Level world, LivingEntity user, P power, ActionTarget target) {
         return target;
     }
     
     @Deprecated
-    public void onPerform(World world, LivingEntity user, P power, ActionTarget target) {
+    public void onPerform(Level world, LivingEntity user, P power, ActionTarget target) {
         onPerform(world, user, power, target, null);
     }
     
-    public void onPerform(World world, LivingEntity user, P power, ActionTarget target, @Nullable PacketBuffer extraInput) {
-        if (user instanceof ServerPlayerEntity) {
-            ModCriteriaTriggers.ACTION_PERFORM.get().trigger((ServerPlayerEntity) user, this);
+    public void onPerform(Level world, LivingEntity user, P power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
+        if (user instanceof ServerPlayer) {
+            ModCriteriaTriggers.ACTION_PERFORM.get().trigger((ServerPlayer) user, this);
         }
         perform(world, user, power, target, extraInput);
-        if (swingHand() && !withUserPunch() && user instanceof PlayerEntity) {
-            ((PlayerEntity) user).resetAttackStrengthTicker();
+        if (swingHand() && !withUserPunch() && user instanceof Player) {
+            ((Player) user).resetAttackStrengthTicker();
         }
     }
     
-    protected void perform(World world, LivingEntity user, P power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    protected void perform(Level world, LivingEntity user, P power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         perform(world, user, power, target);
     }
     
-    protected void perform(World world, LivingEntity user, P power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, P power, ActionTarget target) {
     }
     
-    public void startedHolding(World world, LivingEntity user, P power, ActionTarget target, boolean requirementsFulfilled) {}
+    public void startedHolding(Level world, LivingEntity user, P power, ActionTarget target, boolean requirementsFulfilled) {}
     
-    public boolean clHeldStartAnim(PlayerEntity user) { return false; }
-    public void clHeldStopAnim(PlayerEntity user) {}
+    public boolean clHeldStartAnim(Player user) { return false; }
+    public void clHeldStopAnim(Player user) {}
     
-    public void onHoldTick(World world, LivingEntity user, P power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    public void onHoldTick(Level world, LivingEntity user, P power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         holdTick(world, user, power, ticksHeld, target, requirementsFulfilled);
     }
     
-    protected void holdTick(World world, LivingEntity user, P power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {}
+    protected void holdTick(Level world, LivingEntity user, P power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {}
     
-    public void stoppedHolding(World world, LivingEntity user, P power, int ticksHeld, boolean willFire) {}
+    public void stoppedHolding(Level world, LivingEntity user, P power, int ticksHeld, boolean willFire) {}
     
     @Deprecated
     public boolean isHeldSentToTracking() {
@@ -454,7 +459,7 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         return false;
     }
     
-    public void appendWarnings(List<ITextComponent> warnings, P power, PlayerEntity clientPlayerUser) {}
+    public void appendWarnings(List<Component> warnings, P power, Player clientPlayerUser) {}
     
     public boolean greenSelection(P power, ActionConditionResult conditionCheck) {
         return false;
@@ -467,16 +472,16 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         return this.translationKey;
     }
     
-    public IFormattableTextComponent getTranslatedName(P power, String key) {
-        return new TranslationTextComponent(key);
+    public MutableComponent getTranslatedName(P power, String key) {
+        return Component.translatable(key);
     }
     
-    public IFormattableTextComponent getNameShortened(P power, String key) {
+    public MutableComponent getNameShortened(P power, String key) {
         return getTranslatedName(power, ClientUtil.getShortenedTranslationKey(key));
     }
     
-    public IFormattableTextComponent getNameLocked(P power) {
-        return new TranslationTextComponent("jojo.layout_edit.locked");
+    public MutableComponent getNameLocked(P power) {
+        return Component.translatable("jojo.layout_edit.locked");
     }
     
     @Deprecated
@@ -500,7 +505,7 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         return iconTexture.get();
     }
     
-    public void renderActionIcon(MatrixStack matrixStack, P power, float x, float y) {
+    public void renderActionIcon(PoseStack matrixStack, P power, float x, float y) {
         Minecraft mc = Minecraft.getInstance();
         ResourceLocation icon = getIconTexture(power);
         mc.getTextureManager().bind(icon);
@@ -632,7 +637,7 @@ public abstract class Action<P extends IPower<P, ?>> extends ForgeRegistryEntry<
         }
         
         public T heldWalkSpeed(float walkSpeed) {
-            this.heldWalkSpeed = MathHelper.clamp(walkSpeed, 0, 1);
+            this.heldWalkSpeed = Mth.clamp(walkSpeed, 0, 1);
             return getThis();
         }
         

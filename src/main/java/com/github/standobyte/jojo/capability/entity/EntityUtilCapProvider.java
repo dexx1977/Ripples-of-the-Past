@@ -1,14 +1,14 @@
 package com.github.standobyte.jojo.capability.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class EntityUtilCapProvider implements ICapabilitySerializable<INBT>{
+public class EntityUtilCapProvider implements ICapabilitySerializable<Tag>{
     @CapabilityInject(EntityUtilCap.class)
     public static Capability<EntityUtilCap> CAPABILITY = null;
     private LazyOptional<EntityUtilCap> instance;
@@ -23,13 +23,13 @@ public class EntityUtilCapProvider implements ICapabilitySerializable<INBT>{
     }
 
     @Override
-    public INBT serializeNBT() {
+    public Tag serializeNBT() {
         return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Entity capability LazyOptional is not attached.")), null);
     }
 
     @Override
-    public void deserializeNBT(INBT nbt) {
+    public void deserializeNBT(Tag nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Entity capability LazyOptional is not attached.")), null, nbt);
     }

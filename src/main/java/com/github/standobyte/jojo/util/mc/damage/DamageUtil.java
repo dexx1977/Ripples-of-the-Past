@@ -32,28 +32,28 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonPartEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.CombatRules;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.damagesource.CombatRules;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.IndirectEntityDamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
@@ -113,7 +113,7 @@ public class DamageUtil {
                     .map(pillarman -> !pillarman.isStoneFormEnabled()).orElse(true)) {
                 
                 if (sun) {
-                    return (living instanceof PlayerEntity || JojoModConfig.getCommonConfigInstance(false).undeadMobsSunDamage.get())
+                    return (living instanceof Player || JojoModConfig.getCommonConfigInstance(false).undeadMobsSunDamage.get())
                             && target.getType() != EntityType.WITHER
                             && !living.hasEffect(ModStatusEffects.SUN_RESISTANCE.get());
                 }
@@ -152,7 +152,7 @@ public class DamageUtil {
             if (type == EntityType.BLAZE || type == EntityType.MAGMA_CUBE || type == EntityType.STRIDER) {
                 amount *= 5F;
             }
-            else if (((LivingEntity) target).getMobType() == CreatureAttribute.UNDEAD) {
+            else if (((LivingEntity) target).getMobType() == MobType.UNDEAD) {
                 amount *= 0.5F;
             }
             DamageSource dmgSource = srcDirect == null ? COLD : 
@@ -188,7 +188,7 @@ public class DamageUtil {
                 return false;
             }
             
-            boolean scarf = livingTarget.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get();
+            boolean scarf = livingTarget.getItemBySlot(EquipmentSlot.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get();
             if (scarf) {
                 if (targetPower.map(power -> power.getType() == ModPowers.HAMON.get()).orElse(false)) {
                     return false;
@@ -229,8 +229,8 @@ public class DamageUtil {
             
             if (hurtThroughInvulTicks(target, dmgSource, amount)) {
                 HamonUtil.createHamonSparkParticlesEmitter(target, amount / (HamonData.MAX_HAMON_STRENGTH_MULTIPLIER * 5), attack.soundVolumeMultiplier, attack.hamonParticle);
-                if (scarf && undeadTarget && livingTarget instanceof ServerPlayerEntity) {
-                    ModCriteriaTriggers.VAMPIRE_HAMON_DAMAGE_SCARF.get().trigger((ServerPlayerEntity) livingTarget);
+                if (scarf && undeadTarget && livingTarget instanceof ServerPlayer) {
+                    ModCriteriaTriggers.VAMPIRE_HAMON_DAMAGE_SCARF.get().trigger((ServerPlayer) livingTarget);
                 }
                 attackerHamon.ifPresent(hamon -> {
                     if (undeadTarget && !scarf && hamon.isSkillLearned(ModHamonSkills.HAMON_SPREAD.get())) {
@@ -245,11 +245,11 @@ public class DamageUtil {
     }
     
     public static class HamonAttackProperties {
-        private IParticleData hamonParticle = ModParticles.HAMON_SPARK.get();
+        private ParticleOptions hamonParticle = ModParticles.HAMON_SPARK.get();
         private boolean srcEntityHamonMultiplier = true;
         private float soundVolumeMultiplier = 1.0F;
         
-        public HamonAttackProperties hamonParticle(IParticleData particleType) {
+        public HamonAttackProperties hamonParticle(ParticleOptions particleType) {
             this.hamonParticle = particleType != null ? particleType : ModParticles.HAMON_SPARK.get();
             return this;
         }
@@ -321,7 +321,7 @@ public class DamageUtil {
     }
     
     public static DamageSource enderDragonDamageHack(DamageSource damageSource, Entity target) {
-        if (target instanceof EnderDragonEntity || target instanceof EnderDragonPartEntity) {
+        if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
             damageSource.setExplosion();
         }
         return damageSource;
@@ -332,15 +332,15 @@ public class DamageUtil {
             float armor = (float) armoredTarget.getArmorValue();
             if (armor > 0) {
                 float toughness = (float) armoredTarget.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
-                armorPiercing = MathHelper.clamp(armorPiercing, 0, 1);
-                float damagePierced = MathHelper.lerp(armorPiercing, CombatRules.getDamageAfterAbsorb(damage, armor, toughness), damage);
+                armorPiercing = Mth.clamp(armorPiercing, 0, 1);
+                float damagePierced = Mth.lerp(armorPiercing, CombatRules.getDamageAfterAbsorb(damage, armor, toughness), damage);
                 damage = MathUtil.inverseArmorProtectionDamage(damagePierced, armor, toughness);
             }
         }
         return damage;
     }
     
-    public static void disableShield(PlayerEntity target, float chance) {
+    public static void disableShield(Player target, float chance) {
         if (!target.level.isClientSide() && target.getRandom().nextFloat() < chance) {
             target.getCooldowns().addCooldown(target.getUseItem().getItem(), 100);
             target.stopUsingItem();
@@ -363,8 +363,8 @@ public class DamageUtil {
     
     public static void knockback(LivingEntity target, float strength, float yRotDeg) {
         target.knockback(strength, 
-                (double) MathHelper.sin(yRotDeg * MathUtil.DEG_TO_RAD), 
-                (double) (-MathHelper.cos(yRotDeg * MathUtil.DEG_TO_RAD)));
+                (double) Mth.sin(yRotDeg * MathUtil.DEG_TO_RAD), 
+                (double) (-Mth.cos(yRotDeg * MathUtil.DEG_TO_RAD)));
     }
     
     public static void upwardsKnockback(LivingEntity target, float strength) {
@@ -382,7 +382,7 @@ public class DamageUtil {
     }
     
     public static void knockback3d(LivingEntity target, float strength, float xRot, float yRot) {
-        Vector3d knockbackVec = Vector3d.directionFromRotation(xRot, yRot);
+        Vec3 knockbackVec = Vec3.directionFromRotation(xRot, yRot);
         LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(target, strength, knockbackVec.x, knockbackVec.z);
         boolean addVertical = true;
         if (event.isCanceled()) {
@@ -393,7 +393,7 @@ public class DamageUtil {
         }
         
         strength = event.getStrength();
-        knockbackVec = new Vector3d(event.getRatioX(), knockbackVec.y, event.getRatioZ()).normalize();
+        knockbackVec = new Vec3(event.getRatioX(), knockbackVec.y, event.getRatioZ()).normalize();
         strength *= (1.0F - (float) target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
         
         if (strength != 0) {
@@ -412,8 +412,8 @@ public class DamageUtil {
         pStrength *= 1 - target.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
         if (pStrength > 0) {
             target.hasImpulse = true;
-            Vector3d speedCur = target.getDeltaMovement();
-            Vector3d knockback = (new Vector3d(pRatioX, 0.0D, pRatioZ)).normalize().scale(pStrength);
+            Vec3 speedCur = target.getDeltaMovement();
+            Vec3 knockback = (new Vec3(pRatioX, 0.0D, pRatioZ)).normalize().scale(pStrength);
             target.setDeltaMovement(
                     speedCur.x - knockback.x, 
                     Math.min(0.4D, speedCur.y + (double)pStrength), 
@@ -426,12 +426,12 @@ public class DamageUtil {
     }
     
     public static boolean isShieldBlockAngle(LivingEntity target, DamageSource damageSource) {
-        Vector3d damagePos = damageSource.getSourcePosition();
+        Vec3 damagePos = damageSource.getSourcePosition();
         if (damagePos != null) {
-            Vector3d targetViewVec = target.getViewVector(1.0F);
-            Vector3d vecToTarget = damagePos.vectorTo(target.position());
+            Vec3 targetViewVec = target.getViewVector(1.0F);
+            Vec3 vecToTarget = damagePos.vectorTo(target.position());
             vecToTarget = vecToTarget.normalize();
-            vecToTarget = new Vector3d(vecToTarget.x, 0, vecToTarget.z); // it's not normalized anymore though?
+            vecToTarget = new Vec3(vecToTarget.x, 0, vecToTarget.z); // it's not normalized anymore though?
             if (vecToTarget.dot(targetViewVec) < 0.0D) {
                 return true;
             }
@@ -441,8 +441,8 @@ public class DamageUtil {
     }
     
     public static void suffocateTick(LivingEntity entity, float speed) {
-        if (entity.canBreatheUnderwater() || entity instanceof PlayerEntity && JojoModUtil.isUndeadOrVampiric((PlayerEntity) entity)
-                || JojoModUtil.isDyingBody(entity) || entity instanceof IronGolemEntity) return;
+        if (entity.canBreatheUnderwater() || entity instanceof Player && JojoModUtil.isUndeadOrVampiric((Player) entity)
+                || JojoModUtil.isDyingBody(entity) || entity instanceof IronGolem) return;
         
         if (entity.getAirSupply() > 0) {
             Optional<HamonData> hamonOptional = INonStandPower.getNonStandPowerOptional(entity).resolve().flatMap(power -> power.getTypeSpecificData(ModPowers.HAMON.get()));
@@ -452,7 +452,7 @@ public class DamageUtil {
                 hamon.suffocateTick(speed);
             }
             
-            int airReduction = MathUtil.fractionRandomInc((double) entity.getMaxAirSupply() * MathHelper.clamp(speed, 0.0, 1.0)) + 4;
+            int airReduction = MathUtil.fractionRandomInc((double) entity.getMaxAirSupply() * Mth.clamp(speed, 0.0, 1.0)) + 4;
             entity.setAirSupply(Math.max(entity.getAirSupply() - airReduction, -18));
         }
         else {
@@ -466,9 +466,9 @@ public class DamageUtil {
         }
         ItemStack heldItem = entity.getMainHandItem();
         if (!heldItem.isEmpty()) {
-            Multimap<Attribute, AttributeModifier> itemModifiers = heldItem.getAttributeModifiers(EquipmentSlotType.MAINHAND);
+            Multimap<Attribute, AttributeModifier> itemModifiers = heldItem.getAttributeModifiers(EquipmentSlot.MAINHAND);
             if (itemModifiers.containsKey(Attributes.ATTACK_DAMAGE)) {
-                ModifiableAttributeInstance attackDamageAttribute = entity.getAttribute(Attributes.ATTACK_DAMAGE);
+                AttributeInstance attackDamageAttribute = entity.getAttribute(Attributes.ATTACK_DAMAGE);
                 Collection<AttributeModifier> attackDamageModifiers = itemModifiers.get(Attributes.ATTACK_DAMAGE);
                 
                 double damage = MCUtil.calcValueWithoutModifiers(attackDamageAttribute, 

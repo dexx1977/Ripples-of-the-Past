@@ -1,14 +1,14 @@
 package com.github.standobyte.jojo.enchantment;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.EquipmentSlot;
 
 public class GlovesDamageEnchantment extends Enchantment {
 
     public GlovesDamageEnchantment(Enchantment.Rarity pRarity, 
-            EnchantmentType type, EquipmentSlotType... pApplicableSlots) {
+            EnchantmentCategory type, EquipmentSlot... pApplicableSlots) {
         super(pRarity, type, pApplicableSlots);
     }
 
@@ -39,7 +39,7 @@ public class GlovesDamageEnchantment extends Enchantment {
      * @param pLevel The level of the enchantment being used.
      */
     @Override
-    public float getDamageBonus(int pLevel, CreatureAttribute pCreatureType) {
+    public float getDamageBonus(int pLevel, MobType pCreatureType) {
         return 1.0F + (float)Math.max(0, pLevel - 1) * 0.5F;
     }
 //

@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill;
 
+import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -14,10 +16,16 @@ import com.mojang.datafixers.util.Either;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
-public class CharacterHamonTechnique extends ForgeRegistryEntry<CharacterHamonTechnique> {
+public class CharacterHamonTechnique implements RegistryEntry<CharacterHamonTechnique> {
+    @Override
+    public IForgeRegistry<CharacterHamonTechnique> getRegistry() {
+        return JojoCustomRegistries.HAMON_CHARACTER_TECHNIQUES.getRegistry();
+    }
+
     private final String name;
     private final List<Supplier<CharacterTechniqueHamonSkill>> skills;
     private final List<Supplier<CharacterTechniqueHamonSkill>> perksOnPick;

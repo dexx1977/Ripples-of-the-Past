@@ -10,37 +10,37 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonCharge;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
 // TODO hitbox depending on the block hitbox
 public class HamonBlockChargeEntity extends Entity {
-    private static final DataParameter<Boolean> CACTUS_EXPLOSION = EntityDataManager.defineId(HamonBlockChargeEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> CACTUS_EXPLOSION = SynchedEntityData.defineId(HamonBlockChargeEntity.class, EntityDataSerializers.BOOLEAN);
     private HamonCharge hamonCharge;
     
-    public HamonBlockChargeEntity(World world, BlockPos blockPos) {
+    public HamonBlockChargeEntity(Level world, BlockPos blockPos) {
         this(ModEntityTypes.HAMON_BLOCK_CHARGE.get(), world);
-        this.moveTo(Vector3d.atBottomCenterOf(blockPos));
+        this.moveTo(Vec3.atBottomCenterOf(blockPos));
     }
 
-    public HamonBlockChargeEntity(EntityType<?> type, World world) {
+    public HamonBlockChargeEntity(EntityType<?> type, Level world) {
         super(type, world);
         noPhysics = true;
         setNoGravity(true);
@@ -55,7 +55,7 @@ public class HamonBlockChargeEntity extends Entity {
     public void tick() {
         super.tick();
         BlockPos blockPos = blockPosition();
-        Vector3d pos = Vector3d.atCenterOf(blockPos);
+        Vec3 pos = Vec3.atCenterOf(blockPos);
         if (!level.isClientSide()) {
             if (hamonCharge == null || hamonCharge.shouldBeRemoved() || blockPos == null || level.isEmptyBlock(blockPos)) {
                 if (level.getBlockState(blockPos).getBlock() == Blocks.COBWEB) {
@@ -69,7 +69,7 @@ public class HamonBlockChargeEntity extends Entity {
                 Block block = level.getBlockState(blockPos).getBlock();
                 if (block == Blocks.CACTUS || block == Blocks.POTTED_CACTUS) {
                     int range = CACTUS_EXPLOSION_RANGE;
-                    AxisAlignedBB aabb = new AxisAlignedBB(blockPos).inflate(range);
+                    AABB aabb = new AABB(blockPos).inflate(range);
                     List<Entity> targets = level.getEntities(this, aabb);
                     targets.forEach(entity -> {
                         entity.hurt(DamageSource.CACTUS, 0.2F * (3F * range * range - (float) entity.distanceToSqr(pos)));
@@ -86,7 +86,7 @@ public class HamonBlockChargeEntity extends Entity {
     }
     
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> parameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> parameter) {
         super.onSyncedDataUpdated(parameter);
         if (level.isClientSide() && CACTUS_EXPLOSION.equals(parameter) && entityData.get(CACTUS_EXPLOSION)) {
             for (int i = 0; i < 12; i++) {
@@ -96,7 +96,7 @@ public class HamonBlockChargeEntity extends Entity {
                         getZ() + random.nextDouble() - 0.5D, 0.0D, 0.0D, 0.0D);
             }
             level.addParticle(ParticleTypes.EXPLOSION, getX(), getY() + 0.5, getZ(), 1.0D, 0.0D, 0.0D);
-            level.playLocalSound(getX(), getY() + 0.5, getZ(), SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 
+            level.playLocalSound(getX(), getY() + 0.5, getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 
                     0.5F, 1.35F + random.nextFloat() * 0.15F, false);
         }
     }
@@ -107,7 +107,7 @@ public class HamonBlockChargeEntity extends Entity {
     }
     
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         this.tickCount = nbt.getInt("Age");
         if (nbt.contains("HamonCharge", 10)) {
             this.hamonCharge = HamonCharge.fromNBT(nbt.getCompound("HamonCharge"));
@@ -115,7 +115,7 @@ public class HamonBlockChargeEntity extends Entity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putInt("Age", tickCount);
         if (hamonCharge != null) {
             nbt.put("HamonCharge", hamonCharge.toNBT());
@@ -123,7 +123,7 @@ public class HamonBlockChargeEntity extends Entity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

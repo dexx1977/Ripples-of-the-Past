@@ -14,8 +14,8 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.KosmXKeyframeAnim
 import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
 import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
 
 public class KosmXWallClimbKeyframePlayer extends KosmXKeyframeAnimPlayer {
     protected final Map<ClimbDir, KeyframeAnimation> climbAnim;
@@ -157,7 +157,7 @@ public class KosmXWallClimbKeyframePlayer extends KosmXKeyframeAnimPlayer {
         
         if (isMoving) {
             setClimbDirection(direction);
-            speedModifier.speed = MathHelper.clamp(speed, 1, Math.abs(movementUp) > 1E-7 ? 2.5f : 1.25f);
+            speedModifier.speed = Mth.clamp(speed, 1, Math.abs(movementUp) > 1E-7 ? 2.5f : 1.25f);
             
             if (stoppedAnim) {
                 consecutiveMotion = true;
@@ -189,7 +189,7 @@ public class KosmXWallClimbKeyframePlayer extends KosmXKeyframeAnimPlayer {
         }
     }
     
-    @Nullable HandSide handTouchFrame() {
+    @Nullable HumanoidArm handTouchFrame() {
         if (curAnimUsed != null && !curAnimUsed.isHorizontal) {
             int tick = (getAnimTick() + 3) % 24;
             int lastTick = this.lastHandTouchTick;
@@ -197,12 +197,12 @@ public class KosmXWallClimbKeyframePlayer extends KosmXKeyframeAnimPlayer {
             if (!rightHandTouch && lastTick < 12 && tick >= 12) {
                 leftHandTouch = false;
                 rightHandTouch = true;
-                return HandSide.RIGHT;
+                return HumanoidArm.RIGHT;
             }
             if (!leftHandTouch && lastTick >= 12 && tick < 12) {
                 leftHandTouch = true;
                 rightHandTouch = false;
-                return HandSide.LEFT;
+                return HumanoidArm.LEFT;
             }
         }
         

@@ -15,21 +15,21 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanDa
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class PillarmanSelfDetonation extends PillarmanAction {
@@ -48,42 +48,42 @@ public class PillarmanSelfDetonation extends PillarmanAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide) {
             PillarmanExplosion explosion = new PillarmanExplosion(world, user, 
                     DamageSource.ON_FIRE.setExplosion(), null, 
                     user.getX(), user.getY(), user.getZ(), 3.0F, 
-                    true, Explosion.Mode.BREAK);
+                    true, Explosion.BlockInteraction.BREAK);
             CustomExplosion.explode(explosion);
-            PlayerEntity playerentity = user instanceof PlayerEntity ? (PlayerEntity)user : null;
+            Player playerentity = user instanceof Player ? (Player)user : null;
             if (playerentity == null || !playerentity.abilities.instabuild) {
                 user.hurt(EntityDamageSource.explosion(user), 40F);
-                user.addEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 200, 0));
+                user.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 200, 0));
             }
         }
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.selfDetonation.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.selfDetonation.setAnimEnabled(user, false);
     } 
     
     
     public static class PillarmanExplosion extends CustomExplosion {
 
-        public PillarmanExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
+        public PillarmanExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
             super(pLevel, pToBlowX, pToBlowY, pToBlowZ, pRadius);
         }
 
-        public PillarmanExplosion(World pLevel, @Nullable Entity pSource, 
-                @Nullable DamageSource pDamageSource, @Nullable ExplosionContext pDamageCalculator, 
+        public PillarmanExplosion(Level pLevel, @Nullable Entity pSource, 
+                @Nullable DamageSource pDamageSource, @Nullable ExplosionDamageCalculator pDamageCalculator, 
                 double pToBlowX, double pToBlowY, double pToBlowZ, 
-                float pRadius, boolean pFire, Explosion.Mode pBlockInteraction) {
+                float pRadius, boolean pFire, Explosion.BlockInteraction pBlockInteraction) {
             super(pLevel, pSource, pDamageSource, pDamageCalculator, pToBlowX, pToBlowY, pToBlowZ, pRadius, pFire, pBlockInteraction);
         }
         
@@ -108,9 +108,9 @@ public class PillarmanSelfDetonation extends PillarmanAction {
                 for (BlockPos pos : getToBlow()) {
                     if (level.isEmptyBlock(pos)) {
                         if (!level.isEmptyBlock(pos.below()) && Math.random() < 0.25f) {
-                            level.setBlockAndUpdate(pos, ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(FlowingFluidBlock.LEVEL, 7));
+                            level.setBlockAndUpdate(pos, ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(LiquidBlock.LEVEL, 7));
                         } else {
-                            level.setBlockAndUpdate(pos, AbstractFireBlock.getState(level, pos));
+                            level.setBlockAndUpdate(pos, BaseFireBlock.getState(level, pos));
                         }
                     }
                     else {

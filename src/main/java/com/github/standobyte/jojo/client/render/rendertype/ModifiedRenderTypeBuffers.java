@@ -5,16 +5,16 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-public class ModifiedRenderTypeBuffers extends IRenderTypeBuffer.Impl {
+public class ModifiedRenderTypeBuffers extends MultiBufferSource.Impl {
     private final Map<RenderType, RenderType> renderTypesRemapped;
     
-    public static IRenderTypeBuffer.Impl create(IRenderTypeBuffer.Impl originalBuffers, UnaryOperator<RenderType> renderTypeRemapper) {
+    public static MultiBufferSource.Impl create(MultiBufferSource.Impl originalBuffers, UnaryOperator<RenderType> renderTypeRemapper) {
         BufferBuilder originalBuilder = ClientReflection.getBuilder(originalBuffers);
         Map<RenderType, BufferBuilder> fixedBuffersOriginal = ClientReflection.getFixedBuffers(originalBuffers);
         
@@ -37,7 +37,7 @@ public class ModifiedRenderTypeBuffers extends IRenderTypeBuffer.Impl {
     }
 
     @Override
-    public IVertexBuilder getBuffer(RenderType renderType) {
+    public VertexConsumer getBuffer(RenderType renderType) {
         return super.getBuffer(renderTypesRemapped.getOrDefault(renderType, renderType));
     }
 

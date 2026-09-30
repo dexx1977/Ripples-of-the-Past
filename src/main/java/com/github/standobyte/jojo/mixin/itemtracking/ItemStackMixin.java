@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
 
 @Mixin(ItemStack.class)
@@ -53,7 +53,7 @@ public abstract class ItemStackMixin extends CapabilityProvider<ItemStack> {
     }
     
     @Inject(method = "setTag", at = @At("TAIL"))
-    public void onSetTag(@Nullable CompoundNBT tag, CallbackInfo ci) {
+    public void onSetTag(@Nullable CompoundTag tag, CallbackInfo ci) {
         if (TrackerItemStack.deserializesForgeCaps(tag)) {
             deserializeCaps(tag.getCompound("ForgeCaps"));
         }

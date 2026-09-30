@@ -5,16 +5,16 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate.AndPredicate;
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.resources.ResourceLocation;
 
-public class SoulAscensionTrigger extends AbstractCriterionTrigger<SoulAscensionTrigger.Instance> {
+public class SoulAscensionTrigger extends SimpleCriterionTrigger<SoulAscensionTrigger.Instance> {
     private final ResourceLocation id;
 
     public SoulAscensionTrigger(ResourceLocation id) {
@@ -26,30 +26,30 @@ public class SoulAscensionTrigger extends AbstractCriterionTrigger<SoulAscension
         return id;
     }
 
-    public void trigger(ServerPlayerEntity player, IStandPower stand, int ascensionTicks) {
+    public void trigger(ServerPlayer player, IStandPower stand, int ascensionTicks) {
         trigger(player, criterion -> criterion.matches(stand, ascensionTicks));
     }
 
     @Override
-    protected SoulAscensionTrigger.Instance createInstance(JsonObject json, AndPredicate playerPredicate,
-            ConditionArrayParser conditionArrayParser) {
+    protected SoulAscensionTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
+            DeserializationContext conditionArrayParser) {
         return new SoulAscensionTrigger.Instance(id, playerPredicate, 
-                PowerPredicate.fromJson(json.get("stand"), null), MinMaxBounds.IntBound.fromJson(json.get("ascension_ticks")));
+                PowerPredicate.fromJson(json.get("stand"), null), MinMaxBounds.Ints.fromJson(json.get("ascension_ticks")));
     }
 
-    public static class Instance extends CriterionInstance {
+    public static class Instance extends AbstractCriterionTriggerInstance {
         private PowerPredicate standPower;
-        private MinMaxBounds.IntBound ascensionTicks;
+        private MinMaxBounds.Ints ascensionTicks;
 
-        public Instance(ResourceLocation criterion, AndPredicate player, 
-                PowerPredicate standPower, MinMaxBounds.IntBound ascensionTicks) {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player, 
+                PowerPredicate standPower, MinMaxBounds.Ints ascensionTicks) {
             super(criterion, player);
             this.standPower = standPower;
             this.ascensionTicks = ascensionTicks;
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("stand", standPower.serializeToJson());
             jsonobject.add("ascension_ticks", ascensionTicks.serializeToJson());

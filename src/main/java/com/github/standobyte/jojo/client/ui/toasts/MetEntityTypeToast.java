@@ -7,20 +7,19 @@ import java.util.Optional;
 import com.github.standobyte.jojo.client.ui.screen.stand.ge.EntityTypeIcon;
 import com.github.standobyte.jojo.init.power.stand.ModStands;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("deprecation")
-public class MetEntityTypeToast implements IToast {
-    private static final ITextComponent NAME = new TranslationTextComponent("ge_new_lifeform.toast.title");
+public class MetEntityTypeToast implements Toast {
+    private static final Component NAME = Component.translatable("ge_new_lifeform.toast.title");
     private final List<EntityType<?>> entityTypes = new ArrayList<>();
     private long lastChanged;
     private boolean changed;
@@ -30,14 +29,14 @@ public class MetEntityTypeToast implements IToast {
     }
 
     @Override
-    public IToast.Visibility render(MatrixStack matrixStack, ToastGui toastGui, long delta) {
+    public Toast.Visibility render(PoseStack matrixStack, ToastComponent toastGui, long delta) {
         if (changed) {
             lastChanged = delta;
             changed = false;
         }
 
         if (entityTypes.isEmpty()) {
-            return IToast.Visibility.HIDE;
+            return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
             mc.getTextureManager().bind(TEXTURE);
@@ -46,7 +45,7 @@ public class MetEntityTypeToast implements IToast {
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -0xAFFFB0);
             
             EntityType<?> entityType = entityTypes.get((int)(delta / Math.max(1L, 5000L / (long)entityTypes.size()) % (long)entityTypes.size()));
-            ITextComponent description = entityType.getDescription();
+            Component description = entityType.getDescription();
             mc.font.draw(matrixStack, description, 30.0F, 18.0F, -0x1000000);
             EntityTypeIcon.renderIcon(entityType, matrixStack, 8, 8);
 
@@ -58,10 +57,10 @@ public class MetEntityTypeToast implements IToast {
                             : Optional.empty())
                     .orElse(ModStands.GOLD_EXPERIENCE.getStandType().getIconTexture(null));
             mc.getTextureManager().bind(standIcon);
-            ToastGui.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
+            ToastComponent.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
             matrixStack.popPose();
             
-            return delta - this.lastChanged >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+            return delta - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }
     }
 
@@ -71,7 +70,7 @@ public class MetEntityTypeToast implements IToast {
         }
     }
 
-    public static void addOrUpdate(ToastGui toastGui, EntityType<?> entityType) {
+    public static void addOrUpdate(ToastComponent toastGui, EntityType<?> entityType) {
         MetEntityTypeToast toast = toastGui.getToast(MetEntityTypeToast.class, NO_TOKEN);
         if (toast == null) {
             toastGui.addToast(new MetEntityTypeToast(entityType));

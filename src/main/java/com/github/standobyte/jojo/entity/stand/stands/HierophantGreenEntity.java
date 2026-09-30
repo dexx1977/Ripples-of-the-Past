@@ -10,26 +10,26 @@ import com.github.standobyte.jojo.entity.stand.StandEntityType;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.util.mod.HGBarriersNet;
 
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class HierophantGreenEntity extends StandEntity {
     private static final UUID SPEED_MODIFIER_RETRACTION_UUID = UUID.fromString("a421b1ab-85a8-4164-a9ba-dbda0bc560ce");
     private static final AttributeModifier SPEED_MODIFIER_RETRACTION = new AttributeModifier(SPEED_MODIFIER_RETRACTION_UUID, "Retraction speed boost", 2.0D, AttributeModifier.Operation.MULTIPLY_TOTAL);
-    private static final DataParameter<Integer> PLACED_BARRIERS = EntityDataManager.defineId(HierophantGreenEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<Integer> PLACED_BARRIERS = SynchedEntityData.defineId(HierophantGreenEntity.class, EntityDataSerializers.INT);
     
     private HGBarrierEntity stringToUser;
     private HGBarrierEntity stringFromStand;
     private HGBarriersNet placedBarriers = new HGBarriersNet();
     
-    public HierophantGreenEntity(StandEntityType<HierophantGreenEntity> type, World world) {
+    public HierophantGreenEntity(StandEntityType<HierophantGreenEntity> type, Level world) {
         super(type, world);
     }
     
@@ -49,7 +49,7 @@ public class HierophantGreenEntity extends StandEntity {
     @Override
     public void setManualControl(boolean manualControl, boolean fixRemotePosition) {
         if (!level.isClientSide()) {
-            ModifiableAttributeInstance speedAttributeInstance = getAttribute(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speedAttributeInstance = getAttribute(Attributes.MOVEMENT_SPEED);
             if (speedAttributeInstance.getModifier(SPEED_MODIFIER_RETRACTION_UUID) != null) {
                 speedAttributeInstance.removeModifier(SPEED_MODIFIER_RETRACTION);
             }
@@ -130,7 +130,7 @@ public class HierophantGreenEntity extends StandEntity {
         super.setStandFlag(flag, value);
         if (flag == StandFlag.BEING_RETRACTED && !value && isCloseToUser()) {
             if (stringToUser != null && stringToUser.isAlive() && stringToUser.is(stringFromStand)) {
-                ModifiableAttributeInstance speedAttributeInstance = getAttribute(Attributes.MOVEMENT_SPEED);
+                AttributeInstance speedAttributeInstance = getAttribute(Attributes.MOVEMENT_SPEED);
                 if (speedAttributeInstance.getModifier(SPEED_MODIFIER_RETRACTION_UUID) != null) {
                     speedAttributeInstance.removeModifier(SPEED_MODIFIER_RETRACTION);
                 }

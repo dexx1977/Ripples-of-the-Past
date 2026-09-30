@@ -13,8 +13,8 @@ import com.github.standobyte.jojo.network.packets.fromserver.TrPlayerContinuousA
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
 
 public abstract class ContinuousActionInstance<T extends IPlayerAction<?, P>, P extends IPower<P, ?>> {
     protected final LivingEntity user;

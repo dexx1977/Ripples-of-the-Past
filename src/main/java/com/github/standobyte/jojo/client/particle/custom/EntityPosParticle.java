@@ -1,21 +1,21 @@
 package com.github.standobyte.jojo.client.particle.custom;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
-public abstract class EntityPosParticle extends SpriteTexturedParticle {
+public abstract class EntityPosParticle extends TextureSheetParticle {
     protected final Entity entity;
     private final boolean firstPersonSeparateRender;
     
-    protected EntityPosParticle(ClientWorld world, Entity entity, 
+    protected EntityPosParticle(ClientLevel world, Entity entity, 
             boolean firstPersonSeparateRender /* for particles spawning at the player's arms */) {
         super(world, 0, 0, 0);
         this.entity = entity;
@@ -24,17 +24,17 @@ public abstract class EntityPosParticle extends SpriteTexturedParticle {
     }
     
     protected final void initPos() {
-        Vector3d pos = getNextTickPos(entity.getPosition(2.0F));
+        Vec3 pos = getNextTickPos(entity.getPosition(2.0F));
         this.setPos(pos.x, pos.y, pos.z);
-        Vector3d posPrev = getNextTickPos(entity.getPosition(1.0F));
+        Vec3 posPrev = getNextTickPos(entity.getPosition(1.0F));
         this.xo = posPrev.x;
         this.yo = posPrev.y;
         this.zo = posPrev.z;
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class EntityPosParticle extends SpriteTexturedParticle {
             remove();
             return;
         }
-        Vector3d nextPos = getNextTickPos(entity.position());
+        Vec3 nextPos = getNextTickPos(entity.position());
         if (nextPos == null) {
             remove();
             return;
@@ -57,10 +57,10 @@ public abstract class EntityPosParticle extends SpriteTexturedParticle {
     }
     
     @Override
-    public void render(IVertexBuilder vertexBuilder, ActiveRenderInfo camera, float partialTick) {
+    public void render(VertexConsumer vertexBuilder, Camera camera, float partialTick) {
         if (firstPersonSeparateRender && entity != null) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.cameraEntity == entity && mc.options.getCameraType() == PointOfView.FIRST_PERSON) {
+            if (mc.cameraEntity == entity && mc.options.getCameraType() == CameraType.FIRST_PERSON) {
                 renderFirstPerson(vertexBuilder, camera, partialTick);
                 return;
             }
@@ -68,13 +68,13 @@ public abstract class EntityPosParticle extends SpriteTexturedParticle {
         super.render(vertexBuilder, camera, partialTick);
     }
     
-    private void renderFirstPerson(IVertexBuilder vertexBuilder, ActiveRenderInfo camera, float partialTick) {
+    private void renderFirstPerson(VertexConsumer vertexBuilder, Camera camera, float partialTick) {
         
     }
     
-    public Vector3d getPos() {
-        return new Vector3d(x, y, z);
+    public Vec3 getPos() {
+        return new Vec3(x, y, z);
     }
     
-    protected abstract Vector3d getNextTickPos(Vector3d entityPos);
+    protected abstract Vec3 getNextTickPos(Vec3 entityPos);
 }

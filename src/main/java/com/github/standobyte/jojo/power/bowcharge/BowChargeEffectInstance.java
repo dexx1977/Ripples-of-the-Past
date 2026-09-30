@@ -3,10 +3,10 @@ package com.github.standobyte.jojo.power.bowcharge;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPowerType;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.item.BowItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ItemStack;
 
 public class BowChargeEffectInstance<P extends IPower<P, T>, T extends IPowerType<P, T>> {
     private static final int CHARGE_TICKS = 20;
@@ -60,7 +60,7 @@ public class BowChargeEffectInstance<P extends IPower<P, T>, T extends IPowerTyp
         }
     }
     
-    public void onArrowShot(AbstractArrowEntity arrow) {
+    public void onArrowShot(AbstractArrow arrow) {
         if (wasFullyCharged && arrowWait >= 0) {
             if (!power.getUser().level.isClientSide()) {
                 modifyArrow(arrow);
@@ -70,7 +70,7 @@ public class BowChargeEffectInstance<P extends IPower<P, T>, T extends IPowerTyp
         }
     }
     
-    protected void modifyArrow(AbstractArrowEntity arrow) {
+    protected void modifyArrow(AbstractArrow arrow) {
         
     }
     

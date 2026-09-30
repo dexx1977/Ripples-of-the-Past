@@ -19,15 +19,15 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.LegacyUtil;
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.FloatNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
 public class StandActionLearningProgress {
     private final EntriesMap map = new EntriesMap();
-    private CompoundNBT savedInvalidEntries;
+    private CompoundTag savedInvalidEntries;
     
     public float getLearningProgressPoints(StandAction action, @Nullable StandType<?> currentlyUsedStand) {
         StandActionLearningEntry entry = map.getEntry(currentlyUsedStand, action);
@@ -75,11 +75,11 @@ public class StandActionLearningProgress {
         map.putEntry(entry);
     }
     
-    void syncEntryWithUser(StandActionLearningEntry entry, ServerPlayerEntity user) {
+    void syncEntryWithUser(StandActionLearningEntry entry, ServerPlayer user) {
         PacketManager.sendToClient(new StandActionLearningPacket(entry, true), user);
     }
     
-    void syncFullWithUser(ServerPlayerEntity user) {
+    void syncFullWithUser(ServerPlayer user) {
         map.forEach(entry -> {
             PacketManager.sendToClient(new StandActionLearningPacket(entry, false), user);
         });
@@ -87,12 +87,12 @@ public class StandActionLearningProgress {
     
     
 
-    public void fromNBT(CompoundNBT nbt) {
-        savedInvalidEntries = new CompoundNBT();
+    public void fromNBT(CompoundTag nbt) {
+        savedInvalidEntries = new CompoundTag();
         map.fromNBT(nbt, savedInvalidEntries);
     }
     
-    public CompoundNBT toNBT() {
+    public CompoundTag toNBT() {
         return map.toNBT(savedInvalidEntries);
     }
     
@@ -143,10 +143,10 @@ public class StandActionLearningProgress {
             .forEach(action);
         }
         
-        public CompoundNBT toNBT(CompoundNBT invalidEntriedSrc) {
-            CompoundNBT nbt = new CompoundNBT();
+        public CompoundTag toNBT(CompoundTag invalidEntriedSrc) {
+            CompoundTag nbt = new CompoundTag();
             _mapOfMaps.forEach((standType, map) -> {
-                CompoundNBT standTypeNbt = new CompoundNBT();
+                CompoundTag standTypeNbt = new CompoundTag();
                 map.forEach((action, entry) -> {
                     standTypeNbt.putFloat(action.toString(), entry.getPoints());
                 });
@@ -156,12 +156,12 @@ public class StandActionLearningProgress {
             return nbt;
         }
         
-        public void fromNBT(CompoundNBT nbt, CompoundNBT invalidEntriedDest) {
+        public void fromNBT(CompoundTag nbt, CompoundTag invalidEntriedDest) {
             _mapOfMaps.clear();
             
             nbt.getAllKeys().forEach(standTypeName -> {
                 if (standTypeName.isEmpty()) return;
-                CompoundNBT standTypeNbt = nbt.getCompound(standTypeName);
+                CompoundTag standTypeNbt = nbt.getCompound(standTypeName);
                 StandType<?> standType = JojoCustomRegistries.STANDS.getRegistry().getValue(new ResourceLocation(standTypeName));
                 if (standType == null) {
                     
@@ -170,7 +170,7 @@ public class StandActionLearningProgress {
                         putEntry(entryLegacy.get());
                     }
                     else {
-                        CompoundNBT invalidStandTypeNbt = MCUtil.getOrCreateCompound(invalidEntriedDest, standTypeName);
+                        CompoundTag invalidStandTypeNbt = MCUtil.getOrCreateCompound(invalidEntriedDest, standTypeName);
                         standTypeNbt.getAllKeys().forEach(actionName -> {
                             invalidStandTypeNbt.put(actionName, standTypeNbt.get(actionName));
                         });
@@ -218,17 +218,17 @@ public class StandActionLearningProgress {
         }
         
         
-        public CompoundNBT toNBT() {
-            CompoundNBT nbt = new CompoundNBT();
+        public CompoundTag toNBT() {
+            CompoundTag nbt = new CompoundTag();
             MCUtil.nbtPutRegistryEntry(nbt, "Stand", standType);
             nbt.putFloat("Points", points);
             return nbt;
         }
         
-        public static Optional<StandActionLearningEntry> fromNBT(StandAction action, CompoundNBT nbt) {
+        public static Optional<StandActionLearningEntry> fromNBT(StandAction action, CompoundTag nbt) {
             Optional<StandType<?>> standFromNbt = MCUtil.nbtGetRegistryEntry(nbt, "Stand", JojoCustomRegistries.STANDS.getRegistry());
             return standFromNbt.flatMap(stand -> {
-                if (nbt.contains("Points", MCUtil.getNbtId(FloatNBT.class))) {
+                if (nbt.contains("Points", MCUtil.getNbtId(FloatTag.class))) {
                     return Optional.of(new StandActionLearningEntry(action, stand, nbt.getFloat("Points")));
                 }
                 return Optional.empty();
@@ -236,13 +236,13 @@ public class StandActionLearningProgress {
         }
         
         
-        public void toBuf(PacketBuffer buffer) {
+        public void toBuf(FriendlyByteBuf buffer) {
             buffer.writeRegistryId(action);
             buffer.writeFloat(points);
             buffer.writeRegistryId(standType);
         }
         
-        public static StandActionLearningEntry fromBuf(PacketBuffer buffer) {
+        public static StandActionLearningEntry fromBuf(FriendlyByteBuf buffer) {
             StandAction action = (StandAction) buffer.readRegistryIdSafe(Action.class);
             float points = buffer.readFloat();
             StandType<?> standType = buffer.readRegistryIdSafe(StandType.class);

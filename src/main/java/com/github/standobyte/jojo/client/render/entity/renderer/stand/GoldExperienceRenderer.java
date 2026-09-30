@@ -5,12 +5,12 @@ import com.github.standobyte.jojo.client.render.entity.model.stand.GoldExperienc
 import com.github.standobyte.jojo.client.render.entity.model.stand.StandModelRegistry;
 import com.github.standobyte.jojo.entity.stand.stands.GoldExperienceEntity;
 
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.resources.ResourceLocation;
 
 public class GoldExperienceRenderer extends StandEntityRenderer<GoldExperienceEntity, GoldExperienceModel> {
 
-    public GoldExperienceRenderer(EntityRendererManager renderManager) {
+    public GoldExperienceRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, 
                 StandModelRegistry.registerModel(new ResourceLocation(JojoMod.MOD_ID, "gold_experience"), GoldExperienceModel::new), 
                 new ResourceLocation(JojoMod.MOD_ID, "textures/entity/stand/gold_experience.png"), 0);

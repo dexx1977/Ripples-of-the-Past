@@ -12,10 +12,10 @@ import com.github.standobyte.jojo.client.ClientTicking.ITicking;
 import com.github.standobyte.jojo.init.ModSounds;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 public class HamonSparksLoopSound implements ITicking {
     private static final Random RANDOM = new Random();
@@ -27,7 +27,7 @@ public class HamonSparksLoopSound implements ITicking {
         ClientTicking.addTicking(this);
     }
     
-    public static boolean playSparkSound(Entity entity, Vector3d soundPos, float volume, float reducedFrequency) {
+    public static boolean playSparkSound(Entity entity, Vec3 soundPos, float volume, float reducedFrequency) {
         if (RANDOM.nextFloat() < 1F / getDelay() * reducedFrequency) {
             return playSparkSound(entity, soundPos, volume);
         }
@@ -35,11 +35,11 @@ public class HamonSparksLoopSound implements ITicking {
         return false;
     }
     
-    public static boolean playSparkSound(Entity entity, Vector3d soundPos, float volume) {
+    public static boolean playSparkSound(Entity entity, Vec3 soundPos, float volume) {
         return playSparkSound(entity, soundPos, volume, false);
     }
     
-    public static boolean playSparkSound(Entity entity, Vector3d soundPos, float volume, boolean limitForEntityType) {
+    public static boolean playSparkSound(Entity entity, Vec3 soundPos, float volume, boolean limitForEntityType) {
         double distSqr = soundPos.distanceToSqr(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         if (distSqr > 256) {
             return false;
@@ -60,7 +60,7 @@ public class HamonSparksLoopSound implements ITicking {
         }
         
         entity.level.playLocalSound(soundPos.x, soundPos.y, soundPos.z, 
-                ModSounds.HAMON_SPARK_SHORT.get(), SoundCategory.AMBIENT, volume, 1.0F, false);
+                ModSounds.HAMON_SPARK_SHORT.get(), SoundSource.AMBIENT, volume, 1.0F, false);
         
         curDelay.setValue(getDelay());
         if (limitForEntityType) {

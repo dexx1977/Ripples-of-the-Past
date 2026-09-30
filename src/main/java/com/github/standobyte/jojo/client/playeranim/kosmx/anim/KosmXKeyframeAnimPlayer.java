@@ -16,7 +16,7 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation.StateCollection.State;
 import dev.kosmx.playerAnim.core.util.Easing;
 import dev.kosmx.playerAnim.core.util.Vec3f;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class KosmXKeyframeAnimPlayer implements IAnimation {
     protected KeyframeAnimation data;
@@ -73,12 +73,12 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
     }
     
     @Override
-    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
         BodyPartTransform part = bodyParts.get(modelName);
         if (part == null) return value0;
         
         float tick = overrideTick(tickDelta);
-        int tickInt = MathHelper.floor(tick);
+        int tickInt = Mth.floor(tick);
         return part.get3DTransform(type, tickInt, tick - tickInt, value0, data, isLoopStarted);
     }
     
@@ -198,13 +198,13 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
             }
         }
         
-        public Vec3f get3DTransform(TransformType type, int currentTick, float tickDelta, Vec3f value0, KeyframeAnimation emote, boolean isLoopStarted) {
+        public Vec3f get3DTransform(ItemDisplayContext type, int currentTick, float tickDelta, Vec3f value0, KeyframeAnimation emote, boolean isLoopStarted) {
             return get3DTransform(type, currentTick, tickDelta, value0, 
                     emote.beginTick, emote.returnToTick, emote.endTick, emote.stopTick, 
                     isLoopStarted, emote.isInfinite, emote.isEasingBefore);
         }
         
-        public Vec3f get3DTransform(TransformType type, int currentTick, float tickDelta, Vec3f value0, 
+        public Vec3f get3DTransform(ItemDisplayContext type, int currentTick, float tickDelta, Vec3f value0, 
                 int beginTick, int returnToTick, int endTick, int stopTick, 
                 boolean isLoopStarted, boolean isInfinite, boolean isEasingBefore) {
             switch (type) {
@@ -357,7 +357,7 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
             }
             if (tickBefore == tickAfter) return before.value;
             float f = (currentTick + tickDelta - (float) tickBefore) / (tickAfter - tickBefore);
-            return MathHelper.lerp(Easing.easingFromEnum(isEasingBefore ? after.ease : before.ease, f), before.value, after.value);
+            return Mth.lerp(Easing.easingFromEnum(isEasingBefore ? after.ease : before.ease, f), before.value, after.value);
         }
 
     }
@@ -374,7 +374,7 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
         public float getValueAtCurrentTick(float currentValue, 
                 int currentTick, float tickDelta, int beginTick, int returnToTick, int endTick, 
                 int stopTick, boolean isLoopStarted, boolean isInfinite, boolean isEasingBefore) {
-            return dev.kosmx.playerAnim.core.util.MathHelper.clampToRadian(super.getValueAtCurrentTick(dev.kosmx.playerAnim.core.util.MathHelper.clampToRadian(currentValue), 
+            return dev.kosmx.playerAnim.core.util.Mth.clampToRadian(super.getValueAtCurrentTick(dev.kosmx.playerAnim.core.util.Mth.clampToRadian(currentValue), 
                     currentTick, tickDelta, beginTick, returnToTick, endTick, 
                     stopTick, isLoopStarted, isInfinite, isEasingBefore));
         }

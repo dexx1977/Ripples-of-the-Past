@@ -1,17 +1,17 @@
 package com.github.standobyte.jojo.client.particle;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 
-public class MeteoriteVirusParticle extends SpriteTexturedParticle {
+public class MeteoriteVirusParticle extends TextureSheetParticle {
 
-    protected MeteoriteVirusParticle(ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+    protected MeteoriteVirusParticle(ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         super(world, x, y, z, xSpeed, ySpeed, zSpeed);
         lifetime = 100;
         quadSize = 0.075F;
@@ -19,15 +19,15 @@ public class MeteoriteVirusParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_LIT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_LIT;
     }
 
     @Override
     public float getQuadSize(float partialTick) {
         float floatAge = (float) age + partialTick;
         float sizeFactor = floatAge < lifetime / 2F ? floatAge : lifetime - floatAge;
-        return quadSize * MathHelper.clamp(sizeFactor / (lifetime / 2F) * 4F, 0.0F, 1.0F);
+        return quadSize * Mth.clamp(sizeFactor / (lifetime / 2F) * 4F, 0.0F, 1.0F);
     }
 
     @Override
@@ -40,15 +40,15 @@ public class MeteoriteVirusParticle extends SpriteTexturedParticle {
         }
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.spriteSet = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             MeteoriteVirusParticle particle = new MeteoriteVirusParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(spriteSet);
             return particle;

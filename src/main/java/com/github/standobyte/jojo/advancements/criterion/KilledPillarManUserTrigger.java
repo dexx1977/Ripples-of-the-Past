@@ -4,20 +4,21 @@ import com.github.standobyte.jojo.advancements.criterion.predicate.PillarmanStag
 import com.github.standobyte.jojo.advancements.criterion.predicate.PowerPredicate;
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.DamageSourcePredicate;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.DamageSourcePredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 
-public class KilledPillarManUserTrigger extends AbstractCriterionTrigger<KilledPillarManUserTrigger.Instance> {
+public class KilledPillarManUserTrigger extends SimpleCriterionTrigger<KilledPillarManUserTrigger.Instance> {
     private final ResourceLocation id;
     private final boolean isPlayerKilled;
 
@@ -31,7 +32,7 @@ public class KilledPillarManUserTrigger extends AbstractCriterionTrigger<KilledP
         return this.id;
     }
 
-    public void trigger(ServerPlayerEntity player, Entity entity, DamageSource damageSource) {
+    public void trigger(ServerPlayer player, Entity entity, DamageSource damageSource) {
         if (entity != null) {
             LootContext lootCtx = EntityPredicate.createContext(player, entity);
             LivingEntity livingEntity = entity instanceof LivingEntity ? (LivingEntity) entity : null;
@@ -44,26 +45,26 @@ public class KilledPillarManUserTrigger extends AbstractCriterionTrigger<KilledP
     }
 
     @Override
-    public KilledPillarManUserTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate playerPredicate, ConditionArrayParser conditionArrayParser) {
+    public KilledPillarManUserTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate, DeserializationContext conditionArrayParser) {
         return new KilledPillarManUserTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                EntityPredicate.AndPredicate.fromJson(json, "entity", conditionArrayParser), 
+                ContextAwarePredicate.fromJson(json, "entity", conditionArrayParser), 
                 DamageSourcePredicate.fromJson(json.get("killing_blow")), 
                 PowerPredicate.fromJson(json.get("power"), null),
                 PowerPredicate.fromJson(json.get("killed_power"), null),
                 PillarmanStagePredicate.fromJson(json.get("pillarman_stage")));
     }
 
-    public static class Instance extends CriterionInstance {
-        private final EntityPredicate.AndPredicate entityPredicate;
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        private final ContextAwarePredicate entityPredicate;
         private final DamageSourcePredicate killingBlow;
         private final PowerPredicate powerPredicate;
         private final PowerPredicate killedPowerPredicate;
         private final PillarmanStagePredicate pillarmanStagePredicate;
 
-        public Instance(ResourceLocation id, EntityPredicate.AndPredicate player, 
-                EntityPredicate.AndPredicate entityPredicate, DamageSourcePredicate killingBlow, 
+        public Instance(ResourceLocation id, ContextAwarePredicate player, 
+                ContextAwarePredicate entityPredicate, DamageSourcePredicate killingBlow, 
                 PowerPredicate powerPredicate, PowerPredicate killedPowerPredicate,
                 PillarmanStagePredicate pillarmanStagePredicate) {
             super(id, player);
@@ -74,7 +75,7 @@ public class KilledPillarManUserTrigger extends AbstractCriterionTrigger<KilledP
             this.pillarmanStagePredicate = pillarmanStagePredicate;
         }
 
-        public boolean matches(ServerPlayerEntity player, LootContext lootCtx, DamageSource damageSource, 
+        public boolean matches(ServerPlayer player, LootContext lootCtx, DamageSource damageSource, 
                 LivingEntity entity, LivingEntity killed) {
             return this.killingBlow.matches(player, damageSource) && this.entityPredicate.matches(lootCtx)
                     && powerPredicate.matches(entity) && killedPowerPredicate.matches(killed)
@@ -82,7 +83,7 @@ public class KilledPillarManUserTrigger extends AbstractCriterionTrigger<KilledP
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("entity", this.entityPredicate.toJson(serializer));
             jsonobject.add("killing_blow", this.killingBlow.serializeToJson());

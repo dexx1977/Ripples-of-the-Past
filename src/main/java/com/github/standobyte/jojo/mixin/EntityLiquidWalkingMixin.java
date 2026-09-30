@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.github.standobyte.jojo.action.non_stand.HamonLiquidWalking;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 /**
  * This class was created by <b>florensie</b>. It's distributed as
@@ -38,7 +38,7 @@ public class EntityLiquidWalkingMixin {
      */
     @ModifyVariable(method = "move", ordinal = 1, index = 3, at = @At(
             value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/Entity;collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;"))
-    private Vector3d fluidCollision(Vector3d originalDisplacement) {
+    private Vec3 fluidCollision(Vec3 originalDisplacement) {
         // We only support living entities
         //noinspection ConstantConditions
         if (!((Object) this instanceof LivingEntity)) {
@@ -49,18 +49,18 @@ public class EntityLiquidWalkingMixin {
 
         // A bunch of checks to see if fluid walking is even possible
         if (originalDisplacement.y <= 0.0 && !isTouchingFluid(entity,entity.getBoundingBox().deflate(0.001D))) {
-            Map<Vector3d, Double> points = findFluidDistances(entity, originalDisplacement);
+            Map<Vec3, Double> points = findFluidDistances(entity, originalDisplacement);
             Double highestDistance = null;
 
-            for (Map.Entry<Vector3d, Double> point : points.entrySet()) {
+            for (Map.Entry<Vec3, Double> point : points.entrySet()) {
                 if (highestDistance == null || (point.getValue() != null && point.getValue() > highestDistance)) {
                     highestDistance = point.getValue();
                 }
             }
 
             if (highestDistance != null) {
-                Vector3d finalDisplacement = new Vector3d(originalDisplacement.x, highestDistance, originalDisplacement.z);
-                AxisAlignedBB finalBox = entity.getBoundingBox().move(finalDisplacement).deflate(0.001D);
+                Vec3 finalDisplacement = new Vec3(originalDisplacement.x, highestDistance, originalDisplacement.z);
+                AABB finalBox = entity.getBoundingBox().move(finalDisplacement).deflate(0.001D);
                 if (isTouchingFluid(entity, finalBox)) {
                     return originalDisplacement;
                 } else {
@@ -84,18 +84,18 @@ public class EntityLiquidWalkingMixin {
      * between that corner and a given fluid, with a value of null for points with no fluid in range.
      */
     @Unique
-    private static Map<Vector3d, Double> findFluidDistances(LivingEntity entity, Vector3d originalDisplacement) {
-        AxisAlignedBB box = entity.getBoundingBox().move(originalDisplacement);
+    private static Map<Vec3, Double> findFluidDistances(LivingEntity entity, Vec3 originalDisplacement) {
+        AABB box = entity.getBoundingBox().move(originalDisplacement);
 
-        HashMap<Vector3d, Double> points = new HashMap<>();
-        points.put(new Vector3d(box.minX, box.minY, box.minZ), null);
-        points.put(new Vector3d(box.minX, box.minY, box.maxZ), null);
-        points.put(new Vector3d(box.maxX, box.minY, box.minZ), null);
-        points.put(new Vector3d(box.maxX, box.minY, box.maxZ), null);
+        HashMap<Vec3, Double> points = new HashMap<>();
+        points.put(new Vec3(box.minX, box.minY, box.minZ), null);
+        points.put(new Vec3(box.minX, box.minY, box.maxZ), null);
+        points.put(new Vec3(box.maxX, box.minY, box.minZ), null);
+        points.put(new Vec3(box.maxX, box.minY, box.maxZ), null);
 
-        double fluidStepHeight = entity.isOnGround() ? Math.max(1.0, entity.maxUpStep) : 0.0;
+        double fluidStepHeight = entity.onGround() ? Math.max(1.0, entity.maxUpStep) : 0.0;
 
-        for (Map.Entry<Vector3d, Double> entry : points.entrySet()) {
+        for (Map.Entry<Vec3, Double> entry : points.entrySet()) {
             for (int i = 0; ; i--) { // Check successive blocks downward
                 // Auto step is essentially just shifting the fall adjustment up by the step height
                 BlockPos landingPos = new BlockPos(entry.getKey()).offset(0.0, i + fluidStepHeight, 0.0);
@@ -127,18 +127,18 @@ public class EntityLiquidWalkingMixin {
      * @return whether the entity's proposed bounding box will touch any fluids
      */
     @Unique
-    private static boolean isTouchingFluid(LivingEntity entity, AxisAlignedBB box) {
-        int minX = MathHelper.floor(box.minX);
-        int maxX = MathHelper.ceil(box.maxX);
-        int minY = MathHelper.floor(box.minY);
-        int maxY = MathHelper.ceil(box.maxY);
-        int minZ = MathHelper.floor(box.minZ);
-        int maxZ = MathHelper.ceil(box.maxZ);
-        World world = entity.getCommandSenderWorld();
+    private static boolean isTouchingFluid(LivingEntity entity, AABB box) {
+        int minX = Mth.floor(box.minX);
+        int maxX = Mth.ceil(box.maxX);
+        int minY = Mth.floor(box.minY);
+        int maxY = Mth.ceil(box.maxY);
+        int minZ = Mth.floor(box.minZ);
+        int maxZ = Mth.ceil(box.maxZ);
+        Level world = entity.getCommandSenderWorld();
 
         //noinspection deprecation
         if (world.hasChunksAt(minX, minY, minZ, maxX, maxY, maxZ)) {
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
             // Loop over coords in bounding box
             for (int i = minX; i < maxX; ++i) {

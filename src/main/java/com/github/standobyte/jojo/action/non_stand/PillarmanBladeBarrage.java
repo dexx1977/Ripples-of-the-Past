@@ -16,22 +16,22 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -45,7 +45,7 @@ public class PillarmanBladeBarrage extends PillarmanAction {
     
     @Override
     protected ActionConditionResult checkHeldItems(LivingEntity user, INonStandPower power) {
-        if (!MCUtil.isHandFree(user, Hand.MAIN_HAND)) {
+        if (!MCUtil.isHandFree(user, InteractionHand.MAIN_HAND)) {
             return conditionMessage("hand");
         }
         return ActionConditionResult.POSITIVE;
@@ -54,23 +54,23 @@ public class PillarmanBladeBarrage extends PillarmanAction {
     public static boolean onUserAttacked(LivingAttackEvent event) {
         DamageSource source = event.getSource();
         Entity attacker = source.getDirectEntity();
-        if (attacker instanceof ProjectileEntity || attacker instanceof ModdedProjectileEntity) {
-            LivingEntity targetLiving = event.getEntityLiving();
+        if (attacker instanceof Projectile || attacker instanceof ModdedProjectileEntity) {
+            LivingEntity targetLiving = event.getEntity();
             return INonStandPower.getNonStandPowerOptional(targetLiving).map(power -> 
             {Action<?> heldAction = power.getHeldAction(true);
                 if (heldAction == ModPillarmanActions.PILLARMAN_BLADE_BARRAGE.get()) {
-                    World world = attacker.level;
+                    Level world = attacker.level;
                     if (attacker instanceof ModdedProjectileEntity) {
                         ModdedProjectileEntity projectile = (ModdedProjectileEntity) attacker;
                         return projectile.canBeEvaded(targetLiving) && (!projectile.standDamage());
                 	}
-                    world.getEntitiesOfClass(ProjectileEntity.class, targetLiving.getBoundingBox()
+                    world.getEntitiesOfClass(Projectile.class, targetLiving.getBoundingBox()
                     		.inflate(targetLiving.getAttributeValue(ForgeMod.REACH_DISTANCE.get())), 
                             entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
                                 if (targetLiving.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
-                                        >= MathHelper.cos((float) (30.0 + MathHelper.clamp(10F, 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
+                                        >= Mth.cos((float) (30.0 + Mth.clamp(10F, 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
                                 	event.setCanceled(true);
-                                	if (!projectile.isOnGround()) {
+                                	if (!projectile.onGround()) {
                                 		PillarmanUtil.sparkEffect(projectile, 12);
                                     	world.playSound(null, projectile.getX(), projectile.getY(), projectile.getZ(), 
                                     			SoundEvents.ANVIL_LAND, projectile.getSoundSource(), 0.4F, 1.35F);
@@ -86,19 +86,19 @@ public class PillarmanBladeBarrage extends PillarmanAction {
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
         	Entity targetEntity = target.getEntity();
             switch (target.getType()) {
             case BLOCK:
                 BlockPos pos = target.getBlockPos();
-                if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerWorld) world, pos, world.getBlockState(pos), user)) {
+                if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerLevel) world, pos, world.getBlockState(pos), user)) {
                     if (!world.isEmptyBlock(pos)) {
                         BlockState blockState = world.getBlockState(pos);
                         float digDuration = blockState.getDestroySpeed(world, pos);
                         boolean dropItem = true;
-                        if (user instanceof PlayerEntity) {
-                            PlayerEntity player = (PlayerEntity) user;
+                        if (user instanceof Player) {
+                            Player player = (Player) user;
                             digDuration /= player.getDigSpeed(blockState, pos);
                             if (player.abilities.instabuild) {
                                 digDuration = 0;
@@ -114,7 +114,7 @@ public class PillarmanBladeBarrage extends PillarmanAction {
                         }
                         else {
                             SoundType soundType = blockState.getSoundType(world, pos, user);
-                            world.playSound(null, pos, soundType.getHitSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+                            world.playSound(null, pos, soundType.getHitSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
                         }
                     }
                 }
@@ -122,12 +122,12 @@ public class PillarmanBladeBarrage extends PillarmanAction {
             case ENTITY:
             	if (targetEntity instanceof LivingEntity) {
             		LivingEntity targetLiving = (LivingEntity) targetEntity;
-	                if (user instanceof PlayerEntity) {
+	                if (user instanceof Player) {
 	                    int invulTicks = targetEntity.invulnerableTime;
 	                    targetEntity.invulnerableTime = invulTicks;
 	                }
 	                if (!world.isClientSide()) {
-	                    if (DamageUtil.hurtThroughInvulTicks(targetLiving, EntityDamageSource.playerAttack((PlayerEntity) user), 
+	                    if (DamageUtil.hurtThroughInvulTicks(targetLiving, EntityDamageSource.playerAttack((Player) user), 
 	                            (DamageUtil.getDamageWithoutHeldItem(user) * 0.2F))) {
 	                    	PillarmanUtil.sparkEffect(targetLiving, 12);
 	                    }
@@ -146,30 +146,30 @@ public class PillarmanBladeBarrage extends PillarmanAction {
         if (requirementsFulfilled) {
             if (ticksHeld % 2 == 0) {
                 user.swinging = false;
-                user.swing(Hand.MAIN_HAND);
+                user.swing(InteractionHand.MAIN_HAND);
             }
         }
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
     	if (requirementsFulfilled) {
         	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(true);
     	}
     }
 
     @Override
-    public void stoppedHolding(World world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
     	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(false);
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.bladeBarrage.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.bladeBarrage.setAnimEnabled(user, false);
     }
 }

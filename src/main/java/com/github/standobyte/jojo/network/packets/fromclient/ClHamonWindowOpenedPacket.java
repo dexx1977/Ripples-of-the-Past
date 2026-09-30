@@ -12,9 +12,9 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHamonWindowOpenedPacket {
     
@@ -25,16 +25,16 @@ public class ClHamonWindowOpenedPacket {
     public static class Handler implements IModPacketHandler<ClHamonWindowOpenedPacket> {
 
         @Override
-        public void encode(ClHamonWindowOpenedPacket msg, PacketBuffer buf) {}
+        public void encode(ClHamonWindowOpenedPacket msg, FriendlyByteBuf buf) {}
 
         @Override
-        public ClHamonWindowOpenedPacket decode(PacketBuffer buf) {
+        public ClHamonWindowOpenedPacket decode(FriendlyByteBuf buf) {
             return new ClHamonWindowOpenedPacket();
         }
 
         @Override
         public void handle(ClHamonWindowOpenedPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                     PacketManager.sendToClient(HamonExercisesPacket.allData(hamon), player);

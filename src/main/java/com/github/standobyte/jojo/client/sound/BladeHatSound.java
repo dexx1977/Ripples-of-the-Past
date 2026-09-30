@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.client.sound;
 import com.github.standobyte.jojo.entity.itemprojectile.BladeHatEntity;
 import com.github.standobyte.jojo.init.ModSounds;
 
-import net.minecraft.client.audio.TickableSound;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 
-public class BladeHatSound extends TickableSound {
+public class BladeHatSound extends AbstractTickableSoundInstance {
     private final BladeHatEntity hat;
 
     public BladeHatSound(BladeHatEntity hat) {

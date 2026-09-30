@@ -30,18 +30,16 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.IPowerType;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public interface IJojoScreen {
     
@@ -49,10 +47,10 @@ public interface IJojoScreen {
     
     Tab getTab();
     
-    default void defaultRenderTabs(MatrixStack matrixStack, int mouseX, int mouseY, Screen thisAsScreen) {
+    default void defaultRenderTabs(PoseStack matrixStack, int mouseX, int mouseY, Screen thisAsScreen) {
         renderCategoryTabs(matrixStack, 
                 mouseX, mouseY, thisAsScreen, getTabCategory());
-        renderVerticalTabs(matrixStack, HandSide.RIGHT, 
+        renderVerticalTabs(matrixStack, HumanoidArm.RIGHT, 
                 true, mouseX, mouseY, thisAsScreen, 
                 getTab(), getTabCategory());
     }
@@ -77,16 +75,16 @@ public interface IJojoScreen {
         protected int texY;
         protected int texSizeX;
         protected int texSizeY;
-        protected ITextComponent name;
+        protected Component name;
         protected Supplier<Screen> openScreen;
         protected boolean isEnabled;
         
-        public Tab(ResourceLocation icon, int texX, int texY, ITextComponent name) {
+        public Tab(ResourceLocation icon, int texX, int texY, Component name) {
             this(icon, texX, texY, 256, 256, name);
         }
         
         public Tab(ResourceLocation icon, int texX, int texY, 
-                int texSizeX, int texSizeY, ITextComponent name) {
+                int texSizeX, int texSizeY, Component name) {
             this.icon = icon;
             this.texX = texX;
             this.texY = texY;
@@ -124,7 +122,7 @@ public interface IJojoScreen {
             return false;
         }
         
-        protected void renderIcon(MatrixStack matrixStack, int x, int y) {
+        protected void renderIcon(PoseStack matrixStack, int x, int y) {
             if (icon != null) {
                 Minecraft.getInstance().textureManager.bind(icon);
                 AbstractGui.blit(matrixStack, x + 2, y + 6, texX, texY, 16, 16, texSizeX, texSizeY);
@@ -139,14 +137,14 @@ public interface IJojoScreen {
     public static interface TabSupplier extends Supplier<Tab> {}
     
     
-    public static void renderCategoryTabs(MatrixStack matrixStack, 
+    public static void renderCategoryTabs(PoseStack matrixStack, 
             int mouseX, int mouseY, Screen screen, 
             TabCategory tabSelected) {
         Minecraft mc = Minecraft.getInstance();
         renderCategoryTabs(matrixStack, uniformUpperX(mc), uniformUpperY(mc), mouseX, mouseY, screen, tabSelected);
     }
     
-    public static void renderCategoryTabs(MatrixStack matrixStack, 
+    public static void renderCategoryTabs(PoseStack matrixStack, 
             int x, int y, int mouseX, int mouseY, Screen screen, 
             TabCategory tabSelected) {
         TabCategory[] activeTabs = TabCategory.getVisibleCategories();
@@ -181,7 +179,7 @@ public interface IJojoScreen {
     }
     
     public static final int UPPER_TABS_RIGHT_ALIGNMENT_OFFSET = 98;
-    public static void renderCategoryTabsRight(MatrixStack matrixStack, 
+    public static void renderCategoryTabsRight(PoseStack matrixStack, 
             int x, int y, int mouseX, int mouseY, Screen screen, 
             TabCategory categorySelected) {
         TabCategory[] activeTabs = TabCategory.getVisibleCategories();
@@ -210,7 +208,7 @@ public interface IJojoScreen {
         RenderSystem.disableBlend();
         
         y = y0;
-        int tooltipTab = getTabMouseOver(mouseX, mouseY, x, y, HandSide.RIGHT, activeTabs.length);
+        int tooltipTab = getTabMouseOver(mouseX, mouseY, x, y, HumanoidArm.RIGHT, activeTabs.length);
         if (tooltipTab >= 0) {
             screen.renderTooltip(matrixStack, activeTabs[tooltipTab].getName(), mouseX, mouseY);
         }
@@ -253,16 +251,16 @@ public interface IJojoScreen {
     }
     
     
-    public static void renderRightSideTabs(MatrixStack matrixStack, 
+    public static void renderRightSideTabs(PoseStack matrixStack, 
             boolean atTheTop, int mouseX, int mouseY, Screen screen, 
             Tab tab, TabCategory category) {
         Minecraft mc = Minecraft.getInstance();
-        renderVerticalTabs(matrixStack, HandSide.RIGHT, 
+        renderVerticalTabs(matrixStack, HumanoidArm.RIGHT, 
                 uniformX(mc), uniformY(mc), atTheTop, mouseX, mouseY, screen, 
                 tab, category);
     }
     
-    public static void renderVerticalTabs(MatrixStack matrixStack, HandSide tabsSide, 
+    public static void renderVerticalTabs(PoseStack matrixStack, HumanoidArm tabsSide, 
             boolean atTheTop, int mouseX, int mouseY, Screen screen, 
             Tab tabSelected, TabCategory category) {
         Minecraft mc = Minecraft.getInstance();
@@ -271,7 +269,7 @@ public interface IJojoScreen {
                 tabSelected, category);
     }
     
-    public static void renderVerticalTabs(MatrixStack matrixStack, HandSide tabsSide, 
+    public static void renderVerticalTabs(PoseStack matrixStack, HumanoidArm tabsSide, 
             int x, int y, boolean atTheTop, int mouseX, int mouseY, Screen screen, 
             Tab tabSelected, TabCategory category) {
         Tab[] activeTabs = category.getActiveTabs();
@@ -280,7 +278,7 @@ public interface IJojoScreen {
         int x0 = x;
         int y0 = y;
         TextureManager textureManager = Minecraft.getInstance().textureManager;
-        if (tabsSide == HandSide.LEFT) {
+        if (tabsSide == HumanoidArm.LEFT) {
             x -= 24;
         }
         for (int i = 0; i < activeTabs.length; i++) {
@@ -305,7 +303,7 @@ public interface IJojoScreen {
         y = y0;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        if (tabsSide == HandSide.LEFT) {
+        if (tabsSide == HumanoidArm.LEFT) {
             x += 4;
         }
         for (int i = 0; i < activeTabs.length; i++) {
@@ -323,8 +321,8 @@ public interface IJojoScreen {
         }
     }
     
-    public static int getTabMouseOver(int mouseX, int mouseY, int tabsX, int tabsY, HandSide tabsSide, int tabsCount) {
-        if (tabsSide == HandSide.LEFT) {
+    public static int getTabMouseOver(int mouseX, int mouseY, int tabsX, int tabsY, HumanoidArm tabsSide, int tabsCount) {
+        if (tabsSide == HumanoidArm.LEFT) {
             tabsX -= 28;
         }
         if (mouseX >= tabsX && mouseX < tabsX + 30) {
@@ -341,10 +339,10 @@ public interface IJojoScreen {
     
     public static boolean mouseClickRightSideTab(double mouseX, double mouseY, TabCategory category) {
         Minecraft mc = Minecraft.getInstance();
-        return mouseClickSideTab(mouseX, mouseY, uniformX(mc), uniformY(mc), HandSide.RIGHT, category);
+        return mouseClickSideTab(mouseX, mouseY, uniformX(mc), uniformY(mc), HumanoidArm.RIGHT, category);
     }
     
-    public static boolean mouseClickSideTab(double mouseX, double mouseY, int tabsX, int tabsY, HandSide tabsSide, TabCategory category) {
+    public static boolean mouseClickSideTab(double mouseX, double mouseY, int tabsX, int tabsY, HumanoidArm tabsSide, TabCategory category) {
         Tab[] activeTabs = category.getActiveTabs();
         
         int tabIndex = getTabMouseOver((int) mouseX, (int) mouseY, tabsX, tabsY, tabsSide, activeTabs.length);
@@ -395,8 +393,8 @@ public interface IJojoScreen {
     public static class TabCategory {
         private static final List<TabCategory> VALUES = new ArrayList<>();
         
-        public static final TabCategory GENERAL = new TabCategory(GeneralTab.values(), new TranslationTextComponent("jojo.ui.player_menu")) {
-            @Override public void renderIcon(MatrixStack matrixStack, int x, int y) { 
+        public static final TabCategory GENERAL = new TabCategory(GeneralTab.values(), Component.translatable("jojo.ui.player_menu")) {
+            @Override public void renderIcon(PoseStack matrixStack, int x, int y) { 
                 ClientUtil.renderPlayerFace(matrixStack, x, y, Minecraft.getInstance().player);
             }
         };
@@ -414,17 +412,17 @@ public interface IJojoScreen {
         
         protected final TabSupplier[] tabs;
         protected final PowerClassification power;
-        protected final ITextComponent name;
+        protected final Component name;
         
         public TabCategory(TabSupplier[] tabs, PowerClassification power) {
-            this(tabs, StringTextComponent.EMPTY, power);
+            this(tabs, Component.empty(), power);
         }
         
-        public TabCategory(TabSupplier[] tabs, ITextComponent name) {
+        public TabCategory(TabSupplier[] tabs, Component name) {
             this(tabs, name, null);
         }
         
-        public TabCategory(TabSupplier[] tabs, ITextComponent name, PowerClassification power) {
+        public TabCategory(TabSupplier[] tabs, Component name, PowerClassification power) {
             this.tabs = tabs;
             this.power = power;
             this.name = name;
@@ -457,14 +455,14 @@ public interface IJojoScreen {
             return Arrays.stream(getTabs()).map(Supplier::get).anyMatch(Tab::isActive);
         }
         
-        public ITextComponent getName() {
+        public Component getName() {
             if (power != null) {
                 return InputHandler.getInstance().getPowerCache(power).getName();
             }
             return this.name;
         }
         
-        public void renderIcon(MatrixStack matrixStack, int x, int y) {
+        public void renderIcon(PoseStack matrixStack, int x, int y) {
             if (power != null) {
                 ResourceLocation icon = InputHandler.getInstance().getPowerCache(power).clGetPowerTypeIcon(); 
                 Minecraft.getInstance().getTextureManager().bind(icon);
@@ -538,7 +536,7 @@ public interface IJojoScreen {
     
     public static enum GeneralTab implements TabSupplier {
         WIP_CATEGORY(new Tab(null, 
-                0, 0, 16, 16, new StringTextComponent("TBA"))
+                0, 0, 16, 16, Component.literal("TBA"))
                 .withScreen(PlaceholderScreen::new).disable());
         
         
@@ -554,7 +552,7 @@ public interface IJojoScreen {
     }
     
     
-    public static final Tab CONTROLS_TAB = new Tab(TABS, 240, 240, new TranslationTextComponent("jojo.key.edit_hud")) {
+    public static final Tab CONTROLS_TAB = new Tab(TABS, 240, 240, Component.translatable("jojo.key.edit_hud")) {
         @Override
         protected boolean openScreen(TabCategory curCategory) {
             PowerClassification power = curCategory != null ? curCategory.getPower() : null;
@@ -576,9 +574,9 @@ public interface IJojoScreen {
     }.rememberLastOpened(HudLayoutEditingScreen.class);
     
     public static enum StandTab implements TabSupplier {
-        GENERAL_INFO(new Tab(null, 0, 0, 16, 16, new TranslationTextComponent("jojo.stand_ui.name")) {
+        GENERAL_INFO(new Tab(null, 0, 0, 16, 16, Component.translatable("jojo.stand_ui.name")) {
             @Override
-            protected void renderIcon(MatrixStack matrixStack, int x, int y) {
+            protected void renderIcon(PoseStack matrixStack, int x, int y) {
                 IPower<?, ?> playerStand = InputHandler.getInstance().getPowerCache(PowerClassification.STAND);
                 icon = playerStand.clGetPowerTypeIcon();
                 super.renderIcon(matrixStack, x, y);
@@ -589,9 +587,9 @@ public interface IJojoScreen {
         
         CONTROLS(CONTROLS_TAB),
         
-        SKINS(new Tab(null, 0, 0, 16, 16, new TranslationTextComponent("jojo.stand_skins.button")) {
+        SKINS(new Tab(null, 0, 0, 16, 16, Component.translatable("jojo.stand_skins.button")) {
             @Override
-            protected void renderIcon(MatrixStack matrixStack, int x, int y) {
+            protected void renderIcon(PoseStack matrixStack, int x, int y) {
                 icon = null;
                 IPower<?, ?> playerStand = InputHandler.getInstance().getPowerCache(PowerClassification.STAND);
                 if (playerStand.hasPower()) {
@@ -622,7 +620,7 @@ public interface IJojoScreen {
     
     public static enum HamonTab implements TabSupplier {
         MAIN_SCREEN(new Tab(ModPowers.HAMON.get().getIconTexture(null), 
-                0, 0, 16, 16, new TranslationTextComponent("jojo.key.hamon_skills_window"))
+                0, 0, 16, 16, Component.translatable("jojo.key.hamon_skills_window"))
                 .withScreen(HamonScreen::new)),
         
         CONTROLS(CONTROLS_TAB);

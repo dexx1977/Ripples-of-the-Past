@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.github.standobyte.jojo.power.IPower;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class PowerTypeControlSchemes {
     public final ResourceLocation powerTypeId;

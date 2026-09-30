@@ -19,27 +19,25 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.screen.widgets.TextButton;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.AbstractOptionList;
-import net.minecraft.client.gui.widget.list.ExtendedList;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ContainerObjectSelectionList;
+import net.minecraft.client.gui.components.ObjectSelectionList;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
-public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.LifeformsListEntry> {
+public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList.LifeformsListEntry> {
     private static final Set<String> COLLAPSED_MOD_NAMES = new HashSet<>();
     
     protected ChooseLifeformListScreen screen;
@@ -97,17 +95,17 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
                         }
                     }, () -> category.isExpanded));
             addEntry(category);
-//            maxWidth = Math.max(maxWidth, minecraft.font.width(new StringTextComponent(modName)));
+//            maxWidth = Math.max(maxWidth, minecraft.font.width(Component.literal(modName)));
             
             List<LifeformEntry> entriesWithHidden = new ArrayList<>();
             allVisibleEntries.put(modName, entriesWithHidden);
             
             List<V> values = modEntry.getValue();
             values.stream().sorted(Comparator.comparing(
-                    ((Function<V, ITextComponent>) (this::getValueName))
-                    .andThen(ITextComponent::getString), String::compareTo)).forEach(entryVal -> {
+                    ((Function<V, Component>) (this::getValueName))
+                    .andThen(Component::getString), String::compareTo)).forEach(entryVal -> {
                         
-                ITextComponent name = getValueName(entryVal);
+                Component name = getValueName(entryVal);
                 
                 LifeformEntry entry = makeLifeformEntry(entryVal, name);
                 if (isNew(entryVal)) {
@@ -125,10 +123,10 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
                         minecraft.font) {
                     
                     @Override
-                    public ITextComponent makeText() {
-                        ITextComponent text = super.makeText();
+                    public Component makeText() {
+                        Component text = super.makeText();
                         if (entry.unseenEntry) {
-                            text = new TranslationTextComponent("gold_experience.lifeform_unseen", text).withStyle(TextFormatting.AQUA);
+                            text = Component.translatable("gold_experience.lifeform_unseen", text).withStyle(ChatFormatting.AQUA);
                         }
                         return text;
                     }
@@ -152,7 +150,7 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
 
 //                ITextComponent widthCheck = name;
 //                if (entry.unseenEntry) {
-//                    widthCheck = new TranslationTextComponent("gold_experience.lifeform_unseen", name);
+//                    widthCheck = Component.translatable("gold_experience.lifeform_unseen", name);
 //                }
 //                maxWidth = Math.max(maxWidth, minecraft.font.width(widthCheck));
                 
@@ -169,14 +167,14 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
     }
 
     protected abstract String getModName(V lifeformType);
-    protected abstract ITextComponent getValueName(V lifeformType);
-    protected abstract LifeformEntry makeLifeformEntry(V lifeformType, ITextComponent name);
+    protected abstract Component getValueName(V lifeformType);
+    protected abstract LifeformEntry makeLifeformEntry(V lifeformType, Component name);
     protected abstract void select(V lifeformType);
     protected abstract void addFavorite(V lifeformType);
     protected abstract void removeFavorite(V lifeformType);
     protected abstract boolean isInFavorites(V lifeformType);
     protected abstract boolean isNew(V lifeformType);
-    protected abstract void renderHoveredTooltip(MatrixStack matrixStack, V lifeformType, int mouseX, int mouseY);
+    protected abstract void renderHoveredTooltip(PoseStack matrixStack, V lifeformType, int mouseX, int mouseY);
     
     private Predicate<V> searchBarFilter = null;
     public void setSearchBarFilter(@Nullable Predicate<V> filter) {
@@ -217,12 +215,12 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
     }
     
     @Override
-    public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void render(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         // Ctrl + C, Ctrl + V
         this.renderBackground(pMatrixStack);
         int i = this.getScrollbarPosition();
         int j = i + 6;
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 //        if (this.renderBackground) {
 //            this.minecraft.getTextureManager().bind(AbstractGui.BACKGROUND_LOCATION);
@@ -283,7 +281,7 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
             int scrollBarAlpha = 127;
             RenderSystem.disableTexture();
             int l1 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            l1 = MathHelper.clamp(l1, 32, this.y1 - this.y0 - 8);
+            l1 = Mth.clamp(l1, 32, this.y1 - this.y0 - 8);
             int i2 = (int)this.getScrollAmount() * (this.y1 - this.y0 - l1) / k1 + this.y0;
             if (i2 < this.y0) {
                 i2 = this.y0;
@@ -292,7 +290,7 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             
-            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
             bufferbuilder.vertex((double)i, (double)this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
             bufferbuilder.vertex((double)j, (double)this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
             bufferbuilder.vertex((double)j, (double)this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
@@ -326,33 +324,33 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
         return true;
     }
     
-    protected abstract static class LifeformsListEntry extends AbstractOptionList.Entry<LifeformsListEntry> {}
+    protected abstract static class LifeformsListEntry extends ContainerObjectSelectionList.Entry<LifeformsListEntry> {}
     
     public static class ModCategoryEntry extends LifeformsListEntry {
         private final String modName;
-        private Widget expandButton;
+        private AbstractWidget expandButton;
         private boolean isExpanded = true;
-        private List<Widget> buttons = Collections.emptyList();
+        private List<AbstractWidget> buttons = Collections.emptyList();
         
         public ModCategoryEntry(String modName) {
             this.modName = modName;
         }
         
-        private void addExpandButton(Widget expandButton) {
+        private void addExpandButton(AbstractWidget expandButton) {
             this.expandButton = expandButton;
             this.buttons = ImmutableList.of(expandButton);
         }
         
         @Override
-        public List<? extends IGuiEventListener> children() {
+        public List<? extends GuiEventListener> children() {
             return buttons;
         }
 
         @Override
-        public void render(MatrixStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
-            FontRenderer font = Minecraft.getInstance().font;
-            ITextComponent name = new StringTextComponent(modName).withStyle(TextFormatting.BLUE, TextFormatting.ITALIC);
+            Font font = Minecraft.getInstance().font;
+            Component name = Component.literal(modName).withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
             font.drawShadow(pMatrixStack, name, pLeft + 43, pTop + 1, 0xFFFFFF);
             
             if (expandButton != null) {
@@ -368,16 +366,16 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
             
             public ExpandCollapseButton(int pX, int pY, int pWidth, int pHeight, Screen screen, 
                     IPressable pOnPress, Supplier<Boolean> isExpanded) {
-                super(pX, pY, pWidth, pHeight, StringTextComponent.EMPTY, pOnPress, 
+                super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
-                            ITextComponent text = isExpanded.get() ? new TranslationTextComponent("jojo.ui.list_collapse") : new TranslationTextComponent("jojo.ui.list_expand");
+                            Component text = isExpanded.get() ? Component.translatable("jojo.ui.list_collapse") : Component.translatable("jojo.ui.list_expand");
                             screen.renderTooltip(matrixStack, text, mouseX, mouseY);
                         });
                 this.isExpanded = isExpanded;
             }
             
             @Override
-            public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
                 minecraft.textureManager.bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -398,29 +396,29 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
     }
     
     public static class LifeformEntry extends LifeformsListEntry {
-        protected final ITextComponent valueName;
-        private Widget lifeformButton;
-        private Widget favoriteButton;
-        private List<Widget> buttons = Collections.emptyList();
+        protected final Component valueName;
+        private AbstractWidget lifeformButton;
+        private AbstractWidget favoriteButton;
+        private List<AbstractWidget> buttons = Collections.emptyList();
         private boolean unseenEntry = false;
         
-        public LifeformEntry(ITextComponent valueName) {
+        public LifeformEntry(Component valueName) {
             this.valueName = valueName;
         }
         
-        void addButtons(Widget lifeformButton, Widget favoriteButton) {
+        void addButtons(AbstractWidget lifeformButton, AbstractWidget favoriteButton) {
             this.lifeformButton = lifeformButton;
             this.favoriteButton = favoriteButton;
             this.buttons = ImmutableList.of(lifeformButton, favoriteButton);
         }
 
         @Override
-        public List<? extends IGuiEventListener> children() {
+        public List<? extends GuiEventListener> children() {
             return buttons;
         }
 
         @Override
-        public void render(MatrixStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
             if (lifeformButton != null) {
                 lifeformButton.x = pLeft + 25;
@@ -440,15 +438,15 @@ public abstract class LifeformsList<V> extends ExtendedList<LifeformsList.Lifefo
 
             public FavoriteButton(int pX, int pY, int pWidth, int pHeight, 
                     IPressable pOnPress, Screen screen) {
-                super(pX, pY, pWidth, pHeight, StringTextComponent.EMPTY, pOnPress, 
+                super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
-                            ITextComponent text = ((FavoriteButton) button).isFavorited ? new TranslationTextComponent("jojo.ui.favorite_remove") : new TranslationTextComponent("jojo.ui.favorite");
+                            Component text = ((FavoriteButton) button).isFavorited ? Component.translatable("jojo.ui.favorite_remove") : Component.translatable("jojo.ui.favorite");
                             screen.renderTooltip(matrixStack, text, mouseX, mouseY);
                         });
             }
 
             @Override
-            public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+            public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
                 if (!(isFavorited || isHovered())) return;
                 
                 Minecraft mc = Minecraft.getInstance();

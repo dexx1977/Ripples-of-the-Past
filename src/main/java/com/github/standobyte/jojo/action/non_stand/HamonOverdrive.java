@@ -13,9 +13,9 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class HamonOverdrive extends HamonAction {
 
@@ -45,7 +45,7 @@ public class HamonOverdrive extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide() && target.getType() == TargetType.ENTITY) {
             Entity entity = target.getEntity();
             if (entity instanceof LivingEntity) {

@@ -2,24 +2,24 @@ package com.github.standobyte.jojo.client.sound;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.audio.LocatableSound;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.resources.sounds.AbstractSoundInstance;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.network.chat.Component;
 
-public class ResolvedLocationSimpleSound extends LocatableSound {
-    protected final ITextComponent subtitle;
+public class ResolvedLocationSimpleSound extends AbstractSoundInstance {
+    protected final Component subtitle;
 
-    public ResolvedLocationSimpleSound(Sound sound, SoundCategory source) {
+    public ResolvedLocationSimpleSound(Sound sound, SoundSource source) {
         this(sound, source, null);
     }
 
-    public ResolvedLocationSimpleSound(Sound sound, SoundCategory source, @Nullable ITextComponent subtitle) {
-        super((sound != null ? sound : SoundHandler.EMPTY_SOUND).getLocation(), source);
-        this.sound = sound != null ? sound : SoundHandler.EMPTY_SOUND;
+    public ResolvedLocationSimpleSound(Sound sound, SoundSource source, @Nullable Component subtitle) {
+        super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source);
+        this.sound = sound != null ? sound : SoundManager.EMPTY_SOUND;
         this.subtitle = subtitle;
     }
     
@@ -29,7 +29,7 @@ public class ResolvedLocationSimpleSound extends LocatableSound {
     }
     
     @Override
-    public SoundEventAccessor resolve(SoundHandler soundManager) {
+    public WeighedSoundEvents resolve(SoundManager soundManager) {
         return new EventlessSoundAccessor(sound.getLocation(), subtitle, sound);
     }
 

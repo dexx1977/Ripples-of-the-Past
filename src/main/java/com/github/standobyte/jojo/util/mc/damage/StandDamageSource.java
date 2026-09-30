@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.util.mc.damage;
 
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 
 public class StandDamageSource extends DamageSource implements IStandDamageSource {
     protected final IStandPower stand;

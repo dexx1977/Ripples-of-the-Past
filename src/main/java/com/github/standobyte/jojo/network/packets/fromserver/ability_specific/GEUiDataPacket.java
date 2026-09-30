@@ -11,10 +11,10 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class GEUiDataPacket {
     private final Collection<ResourceLocation> favorites;
@@ -33,14 +33,14 @@ public class GEUiDataPacket {
     public static class Handler implements IModPacketHandler<GEUiDataPacket> {
 
         @Override
-        public void encode(GEUiDataPacket msg, PacketBuffer buf) {
+        public void encode(GEUiDataPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.favorites, id -> buf.writeResourceLocation(id), false);
             NetworkUtil.writeCollection(buf, msg.newMobs, id -> buf.writeResourceLocation(id), false);
             NetworkUtil.writeOptional(buf, msg.selected, EntitySubtype::toBuf);
         }
 
         @Override
-        public GEUiDataPacket decode(PacketBuffer buf) {
+        public GEUiDataPacket decode(FriendlyByteBuf buf) {
             return new GEUiDataPacket(
                     NetworkUtil.readCollection(buf, () -> buf.readResourceLocation()),
                     NetworkUtil.readCollection(buf, () -> buf.readResourceLocation()),
@@ -49,7 +49,7 @@ public class GEUiDataPacket {
 
         @Override
         public void handle(GEUiDataPacket msg, Supplier<Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 LifeformsUIState ui = cap.getGELifeformsUIState();
                 ui.setGELifeformFavs(msg.favorites);

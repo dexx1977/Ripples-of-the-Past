@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonSkillAddPacket {
     private final AbstractHamonSkill skill;
@@ -25,12 +25,12 @@ public class HamonSkillAddPacket {
     public static class Handler implements IModPacketHandler<HamonSkillAddPacket> {
 
         @Override
-        public void encode(HamonSkillAddPacket msg, PacketBuffer buf) {
+        public void encode(HamonSkillAddPacket msg, FriendlyByteBuf buf) {
             buf.writeRegistryId(msg.skill);
         }
 
         @Override
-        public HamonSkillAddPacket decode(PacketBuffer buf) {
+        public HamonSkillAddPacket decode(FriendlyByteBuf buf) {
             return new HamonSkillAddPacket(buf.readRegistryIdSafe(AbstractHamonSkill.class));
         }
 

@@ -3,17 +3,17 @@ package com.github.standobyte.jojo.client.sound;
 import com.github.standobyte.jojo.item.TommyGunItem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 
-public class TommyGunLoopSound extends TickableSound {
+public class TommyGunLoopSound extends AbstractTickableSoundInstance {
     protected final LivingEntity entity;
     protected final ItemStack tommyGunItem;
     
-    public TommyGunLoopSound(SoundEvent sound, SoundCategory category, float volume, LivingEntity entity, ItemStack tommyGunItem) {
+    public TommyGunLoopSound(SoundEvent sound, SoundSource category, float volume, LivingEntity entity, ItemStack tommyGunItem) {
         super(sound, category);
         this.entity = entity;
         this.volume = volume;

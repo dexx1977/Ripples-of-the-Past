@@ -1,24 +1,24 @@
 package com.github.standobyte.jojo.client.render.item.polaroid;
 
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class PolaroidModel extends Model {
-    private ModelRenderer polaroid;
-    private ModelRenderer flash;
-    private ModelRenderer photo;
+    private ModelPart polaroid;
+    private ModelPart flash;
+    private ModelPart photo;
 
     public PolaroidModel() {
         super(RenderType::entityCutoutNoCull);
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (polaroid != null) {
             polaroid.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
         }

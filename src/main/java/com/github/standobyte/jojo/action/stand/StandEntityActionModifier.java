@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
 
 public abstract class StandEntityActionModifier extends StandAction implements IStandPhasedAction {
 
@@ -18,7 +18,7 @@ public abstract class StandEntityActionModifier extends StandAction implements I
     }
     
     @Override
-    public void perform(World world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         if (!world.isClientSide() && power.isActive()) {
             StandEntity stand = (StandEntity) power.getStandManifestation();
             stand.getCurrentTask().ifPresent(task -> task.addModifierAction(this, stand));

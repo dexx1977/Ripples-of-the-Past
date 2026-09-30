@@ -18,21 +18,21 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.INPC;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.Npc;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class VampirismBloodDrain extends VampirismAction {
 
@@ -73,11 +73,11 @@ public class VampirismBloodDrain extends VampirismAction {
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         drainPerform(world, user, power, ticksHeld, target, requirementsFulfilled, 0, true);
     }
     
-    public static void drainPerform(World world, LivingEntity user, INonStandPower power, int ticksHeld, 
+    public static void drainPerform(Level world, LivingEntity user, INonStandPower power, int ticksHeld, 
             ActionTarget target, boolean requirementsFulfilled, float healMult, boolean tameZombie) {
         if (requirementsFulfilled) {
             if (!world.isClientSide() && target.getEntity() instanceof LivingEntity) {
@@ -87,11 +87,11 @@ public class VampirismBloodDrain extends VampirismAction {
                             JojoModConfig.getCommonConfigInstance(false).bloodDrainMultiplier.get(), 
                             world.getDifficulty().getId()).floatValue();
                     boolean isHuman = false;
-                    if (targetEntity instanceof PlayerEntity) {
+                    if (targetEntity instanceof Player) {
                         bloodAndHealModifier *= 5F;
                         isHuman = true;
                     }
-                    else if (targetEntity instanceof INPC || targetEntity instanceof AbstractIllagerEntity) {
+                    else if (targetEntity instanceof Npc || targetEntity instanceof AbstractIllager) {
                         bloodAndHealModifier *= 4F;
                         isHuman = true;
                     }
@@ -99,7 +99,7 @@ public class VampirismBloodDrain extends VampirismAction {
                             p -> p.getType() == ModPowers.HAMON.get()).orElse(false)) {
                         bloodAndHealModifier *= 1.5F;
                     }
-                    EffectInstance freeze = targetEntity.getEffect(ModStatusEffects.FREEZE.get());
+                    MobEffectInstance freeze = targetEntity.getEffect(ModStatusEffects.FREEZE.get());
                     if (freeze != null) {
                         bloodAndHealModifier *= 1 - Math.min((freeze.getAmplifier() + 1) * 0.2F, 1);
                     }
@@ -118,9 +118,9 @@ public class VampirismBloodDrain extends VampirismAction {
                             }
                         }
                         if (targetEntity.isDeadOrDying()) {
-                            boolean zombieCreated = HungryZombieEntity.createZombie((ServerWorld) world, tameZombie ? user : null, targetEntity, false);
-                            if (user instanceof ServerPlayerEntity) {
-                                ServerPlayerEntity player = (ServerPlayerEntity) user;
+                            boolean zombieCreated = HungryZombieEntity.createZombie((ServerLevel) world, tameZombie ? user : null, targetEntity, false);
+                            if (user instanceof ServerPlayer) {
+                                ServerPlayer player = (ServerPlayer) user;
                                 player.awardStat(isHuman ? ModCustomStats.VAMPIRE_PEOPLE_DRAINED : ModCustomStats.VAMPIRE_ANIMALS_DRAINED);
                                 if (zombieCreated) {
                                     player.awardStat(ModCustomStats.VAMPIRE_ZOMBIES_CREATED);
@@ -137,23 +137,23 @@ public class VampirismBloodDrain extends VampirismAction {
     }
     
 
-    private static final Effect[] BLOOD_DRAIN_EFFECTS = {
-            Effects.MOVEMENT_SLOWDOWN,
-            Effects.DIG_SLOWDOWN,
-            Effects.WEAKNESS,
-            Effects.CONFUSION
+    private static final MobEffect[] BLOOD_DRAIN_EFFECTS = {
+            MobEffects.MOVEMENT_SLOWDOWN,
+            MobEffects.DIG_SLOWDOWN,
+            MobEffects.WEAKNESS,
+            MobEffects.CONFUSION
     };
     public static boolean drainBlood(LivingEntity attacker, LivingEntity target, float bloodDrainDamage) {
         boolean hurt = target.hurt(DamageUtil.bloodDrainDamage(attacker), bloodDrainDamage);
         if (hurt) {
             int effectsLvl = attacker.level.getDifficulty().getId() - 1;
             if (effectsLvl >= 0) {
-                for (Effect effect : BLOOD_DRAIN_EFFECTS) {
-                    int duration = MathHelper.floor(20F * bloodDrainDamage);
-                    EffectInstance effectInstance = target.getEffect(effect);
-                    EffectInstance newInstance = effectInstance == null ? 
-                            new EffectInstance(effect, duration, effectsLvl)
-                            : new EffectInstance(effect, effectInstance.getDuration() + duration, effectsLvl);
+                for (MobEffect effect : BLOOD_DRAIN_EFFECTS) {
+                    int duration = Mth.floor(20F * bloodDrainDamage);
+                    MobEffectInstance effectInstance = target.getEffect(effect);
+                    MobEffectInstance newInstance = effectInstance == null ? 
+                            new MobEffectInstance(effect, duration, effectsLvl)
+                            : new MobEffectInstance(effect, effectInstance.getDuration() + duration, effectsLvl);
                     target.addEffect(newInstance);
                 }
             }

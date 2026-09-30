@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.enchantment;
 import com.github.standobyte.jojo.init.ModEnchantments;
 import com.github.standobyte.jojo.potion.StandVirusEffect;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.entity.EquipmentSlot;
 
 public class VirusInhibitionEnchantment extends Enchantment {
 
-    public VirusInhibitionEnchantment(Rarity rarity, EquipmentSlotType... slots) {
+    public VirusInhibitionEnchantment(Rarity rarity, EquipmentSlot... slots) {
         super(rarity, ModEnchantments.STAND_ARROW, slots);
     }
 

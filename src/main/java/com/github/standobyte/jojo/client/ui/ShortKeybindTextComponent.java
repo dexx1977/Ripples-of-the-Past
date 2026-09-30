@@ -11,27 +11,23 @@ import org.lwjgl.glfw.GLFW;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Style;
 
-public class ShortKeybindTextComponent extends TextComponent {
-    protected static final Map<String, ITextComponent> SHORT_NAMES = new HashMap<>();
-    protected final KeyBinding key;
-    protected Supplier<ITextComponent> nameResolver;
+public class ShortKeybindTextComponent extends Component {
+    protected static final Map<String, Component> SHORT_NAMES = new HashMap<>();
+    protected final KeyMapping key;
+    protected Supplier<Component> nameResolver;
 
-    public ShortKeybindTextComponent(@Nonnull KeyBinding key) {
+    public ShortKeybindTextComponent(@Nonnull KeyMapping key) {
         this.key = key;
     }
     
-    protected ITextComponent getNestedComponent() {
+    protected Component getNestedComponent() {
         if (this.nameResolver == null) {
             this.nameResolver = resolveKey(key);
         }
@@ -39,42 +35,42 @@ public class ShortKeybindTextComponent extends TextComponent {
         return this.nameResolver.get();
     }
     
-    protected Supplier<ITextComponent> resolveKey(KeyBinding key) {
+    protected Supplier<Component> resolveKey(KeyMapping key) {
         return () -> key.getKeyModifier().getCombinedName(key.getKey(), () -> getDisplayName(key.getKey()));
     }
     
-    protected ITextComponent getDisplayName(InputMappings.Input input) {
+    protected Component getDisplayName(InputConstants.Input input) {
         if (SHORT_NAMES.containsKey(input.getName())) {
 //            return SHORT_NAMES.get(input.getName());
         }
-        ITextComponent translatedName;
+        Component translatedName;
         int value = input.getValue();
         String name = input.getName();
         switch (input.getType()) {
         case KEYSYM:
             String s = GLFW.glfwGetKeyName(value, -1);
             if (s != null) {
-                translatedName = new StringTextComponent(s);
+                translatedName = Component.literal(s);
             }
             else {
-                translatedName = new TranslationTextComponent(ClientUtil.getShortenedTranslationKey(name));
+                translatedName = Component.translatable(ClientUtil.getShortenedTranslationKey(name));
             }
             break;
         case SCANCODE:
             String s2 = GLFW.glfwGetKeyName(-1, value);
             if (s2 != null) {
-                translatedName = new StringTextComponent(s2);
+                translatedName = Component.literal(s2);
             }
             else {
-                translatedName = new TranslationTextComponent(ClientUtil.getShortenedTranslationKey(name));
+                translatedName = Component.translatable(ClientUtil.getShortenedTranslationKey(name));
             }
             break;
         case MOUSE:
-            if (LanguageMap.getInstance().has(name)) {
-                translatedName = new TranslationTextComponent(ClientUtil.getShortenedTranslationKey(name));
+            if (Language.getInstance().has(name)) {
+                translatedName = Component.translatable(ClientUtil.getShortenedTranslationKey(name));
             }
             else {
-                translatedName = new TranslationTextComponent(ClientUtil.getShortenedTranslationKey("key.mouse"), value + 1);
+                translatedName = Component.translatable(ClientUtil.getShortenedTranslationKey("key.mouse"), value + 1);
             }
             break;
         default:
@@ -85,12 +81,12 @@ public class ShortKeybindTextComponent extends TextComponent {
     }
 
     @Override
-    public <T> Optional<T> visitSelf(ITextProperties.ITextAcceptor<T> pConsumer) {
+    public <T> Optional<T> visitSelf(FormattedText.ITextAcceptor<T> pConsumer) {
         return getNestedComponent().visit(pConsumer);
     }
 
     @Override
-    public <T> Optional<T> visitSelf(ITextProperties.IStyledTextAcceptor<T> pConsumer, Style pStyle) {
+    public <T> Optional<T> visitSelf(FormattedText.IStyledTextAcceptor<T> pConsumer, Style pStyle) {
         return getNestedComponent().visit(pConsumer, pStyle);
     }
 
@@ -103,7 +99,7 @@ public class ShortKeybindTextComponent extends TextComponent {
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        } else if (!(obj instanceof KeybindTextComponent)) {
+        } else if (!(obj instanceof Component)) {
             return false;
         } else {
             return this.key.equals(((ShortKeybindTextComponent) obj).key) && super.equals(obj);

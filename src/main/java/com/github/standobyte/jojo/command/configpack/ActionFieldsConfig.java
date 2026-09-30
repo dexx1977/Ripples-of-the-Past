@@ -27,15 +27,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -60,7 +60,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
     }
     
     @Override
-    public LiteralArgumentBuilder<CommandSource> commandRegister(LiteralArgumentBuilder<CommandSource> builder, String literal) {
+    public LiteralArgumentBuilder<CommandSourceStack> commandRegister(LiteralArgumentBuilder<CommandSourceStack> builder, String literal) {
         return builder.then(Commands.literal(literal)
                 .then(Commands.literal("stand").then(Commands.argument("stand_type", new StandArgument())
                         .executes(ctx -> genStandActionsConfig(ctx.getSource(), StandArgument.getStandType(ctx, "stand_type")))))
@@ -71,7 +71,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
     
     
     
-    private int genStandActionsConfig(CommandSource source, StandType<?> standType) throws CommandSyntaxException {
+    private int genStandActionsConfig(CommandSourceStack source, StandType<?> standType) throws CommandSyntaxException {
         try {
             // generate base datapack
             genDataPackBase(source);
@@ -88,12 +88,12 @@ public class ActionFieldsConfig extends JsonDataConfig {
             
             return count;
         } catch (Throwable e) {
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
     
-    private int genActionConfig(CommandSource source, Action<?> action) throws CommandSyntaxException {
+    private int genActionConfig(CommandSourceStack source, Action<?> action) throws CommandSyntaxException {
         try {
             genDataPackBase(source);
             
@@ -104,12 +104,12 @@ public class ActionFieldsConfig extends JsonDataConfig {
                     "commands.jojoconfigpack.abilities.single.link_name", 
                     LOCAL_FILE_TOOLTIP, 
                     dataPackPath(source.getServer()).resolve(String.format("data/%s/%s", action.getRegistryName().getNamespace(), RESOURCE_NAME)),
-                    new StringTextComponent(action.getRegistryName().toString())), 
+                    Component.literal(action.getRegistryName().toString())), 
                     true);
             
             return count;
         } catch (Throwable e) {
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
@@ -163,7 +163,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
     
     
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> resourceList, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> resourceList, ResourceManager resourceManager, ProfilerFiller profiler) {
         this.srvActionsToSync = new ArrayList<>();
         IForgeRegistry<Action<?>> registry = JojoCustomRegistries.ACTIONS.getRegistry();
         resourceList.forEach((location, object) -> {
@@ -171,7 +171,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
                 Action<?> action = registry.getValue(location);
                 if (action != null) {
                     try {
-                        JsonObject parsedJson = JSONUtils.convertToJsonObject(object, RESOURCE_NAME);
+                        JsonObject parsedJson = GsonHelper.convertToJsonObject(object, RESOURCE_NAME);
                         action.getOrCreateConfigs().applyFromJson(parsedJson);
                         srvActionsToSync.add(action);
                     }
@@ -185,7 +185,7 @@ public class ActionFieldsConfig extends JsonDataConfig {
     
     
     @Override
-    public void syncToClient(ServerPlayerEntity player) {
+    public void syncToClient(ServerPlayer player) {
         if (srvActionsToSync != null) {
             PacketManager.sendToClient(new ActionConfigDataPacket(srvActionsToSync), player);
         }

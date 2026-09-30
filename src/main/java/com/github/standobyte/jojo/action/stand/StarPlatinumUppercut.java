@@ -5,7 +5,7 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public class StarPlatinumUppercut extends StandEntityHeavyAttack {
     public static final StandPose UPPERCUT_POSE = new StandPose("uppercut");

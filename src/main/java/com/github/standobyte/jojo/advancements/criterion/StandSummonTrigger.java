@@ -6,15 +6,15 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate.AndPredicate;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.resources.ResourceLocation;
 
-public class StandSummonTrigger extends AbstractCriterionTrigger<StandSummonTrigger.Instance> {
+public class StandSummonTrigger extends SimpleCriterionTrigger<StandSummonTrigger.Instance> {
     private final ResourceLocation id;
 
     public StandSummonTrigger(ResourceLocation id) {
@@ -26,26 +26,26 @@ public class StandSummonTrigger extends AbstractCriterionTrigger<StandSummonTrig
         return id;
     }
 
-    public void trigger(ServerPlayerEntity player, IStandPower standPower) {
+    public void trigger(ServerPlayer player, IStandPower standPower) {
         trigger(player, criterion -> criterion.matches(standPower.getPowerClassification(), standPower));
     }
 
     @Override
-    protected StandSummonTrigger.Instance createInstance(JsonObject json, AndPredicate playerPredicate,
-            ConditionArrayParser conditionArrayParser) {
+    protected StandSummonTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
+            DeserializationContext conditionArrayParser) {
         return new StandSummonTrigger.Instance(id, playerPredicate, PowerPredicate.fromJson(json.get("stand"), PowerClassification.STAND));
     }
 
-    public static class Instance extends CriterionInstance {
+    public static class Instance extends AbstractCriterionTriggerInstance {
         private final PowerPredicate powerPredicate;
 
-        public Instance(ResourceLocation criterion, AndPredicate player, PowerPredicate powerPredicate) {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player, PowerPredicate powerPredicate) {
             super(criterion, player);
             this.powerPredicate = powerPredicate;
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("stand", this.powerPredicate.serializeToJson());
             return jsonobject;

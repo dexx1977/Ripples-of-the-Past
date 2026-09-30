@@ -10,8 +10,8 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.item.CustomModelArmorItem;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.item.Item;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ArmorModelRegistry {
@@ -19,7 +19,7 @@ public class ArmorModelRegistry {
     private static final ArmorModelRegistry INSTANCE = new ArmorModelRegistry();
 
     private Map<IModelFactory, CustomModelArmorItem[]> armorModelFactories = new ConcurrentHashMap<>();
-    private Map<CustomModelArmorItem, BipedModel<?>> armorModels;
+    private Map<CustomModelArmorItem, HumanoidModel<?>> armorModels;
 
     public static void registerArmorModel(IModelFactory modelFactory, CustomModelArmorItem... armorItems) {
         INSTANCE.armorModelFactories.put(modelFactory, armorItems);
@@ -27,9 +27,9 @@ public class ArmorModelRegistry {
 
     public static void loadArmorModels() {
         if (INSTANCE.armorModels == null) {
-            ImmutableMap.Builder<CustomModelArmorItem, BipedModel<?>> builder = ImmutableMap.builder();
+            ImmutableMap.Builder<CustomModelArmorItem, HumanoidModel<?>> builder = ImmutableMap.builder();
             INSTANCE.armorModelFactories.forEach((modelFactory, items) -> {
-                BipedModel<?> model = modelFactory.create(0.0F);
+                HumanoidModel<?> model = modelFactory.create(0.0F);
                 for (CustomModelArmorItem item : items) {
                     builder.put(item, model);
                 }
@@ -43,11 +43,11 @@ public class ArmorModelRegistry {
         }
     }
 
-    public static BipedModel<?> getModel(CustomModelArmorItem item) {
+    public static HumanoidModel<?> getModel(CustomModelArmorItem item) {
         return INSTANCE.armorModels.get(item);
     }
 
     public interface IModelFactory {
-        public BipedModel<?> create(float modelSize);
+        public HumanoidModel<?> create(float modelSize);
     }
 }

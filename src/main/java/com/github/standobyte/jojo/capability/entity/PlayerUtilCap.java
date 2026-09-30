@@ -37,29 +37,28 @@ import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mc.entitysubtype.SubtypeResourceLocation;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
 
 public class PlayerUtilCap {
-    private final PlayerEntity player;
+    private final Player player;
     private final PlayerMixinExtension playerMixin;
     
     private PlayerClientBroadcastedSettings broadcastedSettings = new PlayerClientBroadcastedSettings();
     
     public int knivesThrewTicks = 0;
     
-    private final Map<Entity, Map<DataParameter<?>, EntityDataManager.DataEntry<?>>> tsDelayedData = new HashMap<>();
+    private final Map<Entity, Map<EntityDataAccessor<?>, SynchedEntityData.DataEntry<?>>> tsDelayedData = new HashMap<>();
     
     private Optional<ContinuousActionInstance<?, ?>> continuousAction = Optional.empty();
     
@@ -92,7 +91,7 @@ public class PlayerUtilCap {
     
     
     
-    public PlayerUtilCap(PlayerEntity player) {
+    public PlayerUtilCap(Player player) {
         this.player = player;
         this.playerMixin = player instanceof PlayerMixinExtension ? (PlayerMixinExtension) player : null;
         geUIState = new LifeformsUIState(player);
@@ -128,12 +127,12 @@ public class PlayerUtilCap {
         this.broadcastedSettings = old.broadcastedSettings;
     }
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.put("NotificationsSent", notificationsToNBT());
         
         if (!metEntityTypes.isEmpty()) {
-            ListNBT metEntities = metEntityTypes.toNBT();
+            ListTag metEntities = metEntityTypes.toNBT();
             nbt.put("MetEntityTypes", metEntities);
         }
         nbt.put("GE_UI", geUIState.toNBT());
@@ -147,14 +146,14 @@ public class PlayerUtilCap {
 
 
 
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         if (nbt.contains("NotificationsSent", 10)) {
-            CompoundNBT notificationsMap = nbt.getCompound("NotificationsSent");
+            CompoundTag notificationsMap = nbt.getCompound("NotificationsSent");
             notificationsFromNBT(notificationsMap);
         }
         
-        if (nbt.contains("MetEntityTypes", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT metEntitiesId = nbt.getList("MetEntityTypes", MCUtil.getNbtId(StringNBT.class));
+        if (nbt.contains("MetEntityTypes", MCUtil.getNbtId(ListTag.class))) {
+            ListTag metEntitiesId = nbt.getList("MetEntityTypes", MCUtil.getNbtId(StringTag.class));
             metEntityTypes.fromNBT(metEntitiesId);
         }
         MCUtil.nbtGetCompoundOptional(nbt, "GE_UI").ifPresent(geUIState::fromNBT);
@@ -165,7 +164,7 @@ public class PlayerUtilCap {
         playerMixin.fromNBT(nbt);
     }
     
-    public void onTracking(ServerPlayerEntity tracking) {
+    public void onTracking(ServerPlayer tracking) {
         broadcastedSettings.syncToTracking(player, tracking);
         PacketManager.sendToClient(new TrWalkmanEarbudsPacket(player.getId(), walkmanEarbuds), tracking);
         PacketManager.sendToClient(new TrPlayerVisualDetailPacket(player.getId(), ateInkPastaTicks), tracking);
@@ -173,7 +172,7 @@ public class PlayerUtilCap {
     }
     
     public void syncWithClient() {
-        ServerPlayerEntity player = (ServerPlayerEntity) this.player;
+        ServerPlayer player = (ServerPlayer) this.player;
         PacketManager.sendToClient(new NotificationSyncPacket(notificationsSent), player);
         metEntityTypes.syncToClient(player);
         PacketManager.sendToClient(geUIState.makePacket(), player);
@@ -238,9 +237,9 @@ public class PlayerUtilCap {
     }
     
     
-    public void addDataForTSUnfreeze(Entity entity, Iterable<EntityDataManager.DataEntry<?>> newData) {
-        Map<DataParameter<?>, EntityDataManager.DataEntry<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
-        for (EntityDataManager.DataEntry<?> dataEntry : newData) {
+    public void addDataForTSUnfreeze(Entity entity, Iterable<SynchedEntityData.DataEntry<?>> newData) {
+        Map<EntityDataAccessor<?>, SynchedEntityData.DataEntry<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
+        for (SynchedEntityData.DataEntry<?> dataEntry : newData) {
             data.put(dataEntry.getAccessor(), dataEntry);
         }
     }
@@ -250,7 +249,7 @@ public class PlayerUtilCap {
             return;
         }
         
-        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+        ServerPlayer serverPlayer = (ServerPlayer) player;
         if (!tsDelayedData.isEmpty()) {
             tsDelayedData.forEach((entity, data) -> {
                 if (!data.isEmpty()) {
@@ -332,7 +331,7 @@ public class PlayerUtilCap {
     
     
     
-    public void sendNotification(OneTimeNotification notification, ITextComponent message) {
+    public void sendNotification(OneTimeNotification notification, Component message) {
         if (!sentNotification(notification)) {
             player.sendMessage(message, Util.NIL_UUID);
             setSentNotification(notification, true);
@@ -351,11 +350,11 @@ public class PlayerUtilCap {
             notificationsSent.remove(notification);
         }
         if (!player.level.isClientSide()) {
-            PacketManager.sendToClient(new NotificationSyncPacket(notificationsSent), (ServerPlayerEntity) player);
+            PacketManager.sendToClient(new NotificationSyncPacket(notificationsSent), (ServerPlayer) player);
         }
     }
     
-    public void notificationsFromNBT(CompoundNBT nbt) {
+    public void notificationsFromNBT(CompoundTag nbt) {
         notificationsSent.clear();
         for (OneTimeNotification flag : OneTimeNotification.values()) {
             if (nbt.getBoolean(flag.name())) {
@@ -364,8 +363,8 @@ public class PlayerUtilCap {
         }
     }
     
-    public CompoundNBT notificationsToNBT() {
-        CompoundNBT notificationsMap = new CompoundNBT();
+    public CompoundTag notificationsToNBT() {
+        CompoundTag notificationsMap = new CompoundTag();
         for (OneTimeNotification flag : OneTimeNotification.values()) {
             notificationsMap.putBoolean(flag.name(), sentNotification(flag));
         }
@@ -430,14 +429,14 @@ public class PlayerUtilCap {
     public void onSleepingInCoffin(boolean isVampireRespawning) {
         this.coffinPreventDayTimeSkip = isVampireRespawning;
         if (!player.level.isClientSide()) {
-            PacketManager.sendToClient(new VampireSleepInCoffinPacket(isVampireRespawning), (ServerPlayerEntity) player);
+            PacketManager.sendToClient(new VampireSleepInCoffinPacket(isVampireRespawning), (ServerPlayer) player);
         }
     }
     
     public void onWakeUp() {
         this.coffinPreventDayTimeSkip = false;
         if (!player.level.isClientSide()) {
-            PacketManager.sendToClient(new VampireSleepInCoffinPacket(false), (ServerPlayerEntity) player);
+            PacketManager.sendToClient(new VampireSleepInCoffinPacket(false), (ServerPlayer) player);
         }
     }
     
@@ -474,10 +473,10 @@ public class PlayerUtilCap {
     
     
     
-    public void onChatMsgBypassingSpamCheck(MinecraftServer server, ServerPlayerEntity serverPlayer) {
+    public void onChatMsgBypassingSpamCheck(MinecraftServer server, ServerPlayer serverPlayer) {
         chatSpamTickCount += 20;
         if (chatSpamTickCount > 200 && !server.getPlayerList().isOp(player.getGameProfile())) {
-            serverPlayer.connection.disconnect(new TranslationTextComponent("disconnect.spam"));
+            serverPlayer.connection.disconnect(Component.translatable("disconnect.spam"));
         }
     }
     
@@ -583,7 +582,7 @@ public class PlayerUtilCap {
     private int sendLifeshotKBTicks = 0;
     private void tickLifeshotKnockback() {
         if (sendLifeshotKBTicks > 0 && --sendLifeshotKBTicks == 0 && player.hasEffect(ModStatusEffects.SENSORY_OVERLOAD.get())) {
-            PacketManager.sendToClient(new GESplitConsciousnessPacket(player.getDeltaMovement()), (ServerPlayerEntity) player);
+            PacketManager.sendToClient(new GESplitConsciousnessPacket(player.getDeltaMovement()), (ServerPlayer) player);
         }
     }
 

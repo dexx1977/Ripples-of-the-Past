@@ -29,26 +29,25 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.world.level.Level;
 
 public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType<P, T>> implements IPower<P, T> {
     @Nonnull
     protected final LivingEntity user;
-    protected final Optional<ServerPlayerEntity> serverPlayerUser;
+    protected final Optional<ServerPlayer> serverPlayerUser;
     
     private ActionCooldownTracker cooldowns = new ActionCooldownTracker();
     private int leapCooldown;
@@ -58,7 +57,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
 
     public PowerBaseImpl(LivingEntity user) {
         this.user = user;
-        this.serverPlayerUser = user instanceof ServerPlayerEntity ? Optional.of((ServerPlayerEntity) user) : Optional.empty();
+        this.serverPlayerUser = user instanceof ServerPlayer ? Optional.of((ServerPlayer) user) : Optional.empty();
     }
     
     @Override
@@ -71,12 +70,12 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
         serverPlayerUser.ifPresent(player -> {
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.sendNotification(OneTimeNotification.POWER_CONTROLS, 
-                        new TranslationTextComponent("jojo.chat.controls.message", 
-                                new StringTextComponent("/" + JojoControlsCommand.LITERAL)
+                        Component.translatable("jojo.chat.controls.message", 
+                                Component.literal("/" + JojoControlsCommand.LITERAL)
                                 .withStyle((style) -> style
-                                        .withColor(TextFormatting.GREEN)
+                                        .withColor(ChatFormatting.GREEN)
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + JojoControlsCommand.LITERAL))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("jojo.chat.controls.tooltip"))))));
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("jojo.chat.controls.tooltip"))))));
             });
             ModCriteriaTriggers.GET_POWER.get().trigger(player, getPowerClassification(), this);
         });
@@ -97,7 +96,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
 
     @Override
     public boolean isUserCreative() {
-        return user instanceof PlayerEntity && ((PlayerEntity) user).abilities.instabuild;
+        return user instanceof Player && ((Player) user).abilities.instabuild;
     }
 
     @Override
@@ -193,14 +192,14 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
     
     
     @Override
-    public final boolean clickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public final boolean clickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         if (action == null) return false;
         boolean res = onClickAction(action, sneak, target, extraInput);
         action.afterClick(user.level, user, getThis(), res);
         return res;
     }
     
-    private boolean onClickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    private boolean onClickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         if (action == null || getHeldAction() == action) return false;
         boolean wasActive = isActive();
         action.onClick(user.level, user, getThis());
@@ -262,7 +261,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
 
         LivingEntity performer = action.getPerformer(user, getThis());
         if (!action.ignoresPerformerStun() && performer != null && ModStatusEffects.isStunned(performer)) {
-            return ActionConditionResult.createNegative(new TranslationTextComponent("jojo.message.action_condition.stun"));
+            return ActionConditionResult.createNegative(Component.translatable("jojo.message.action_condition.stun"));
         }
         if (performer != null && !performer.isAlive()) {
             return ActionConditionResult.NEGATIVE;
@@ -281,7 +280,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
         }
 
         if (!action.isUnlocked(getThis())) {
-            return ActionConditionResult.createNegative(new TranslationTextComponent("jojo.message.action_condition.not_unlocked"));
+            return ActionConditionResult.createNegative(Component.translatable("jojo.message.action_condition.not_unlocked"));
         }
         return ActionConditionResult.POSITIVE;
     }
@@ -322,9 +321,9 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
         return action.isUnlocked(getThis()) ? 1 : -1;
     }
     
-    public void performAction(Action<P> action, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void performAction(Action<P> action, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         if (!action.holdOnly(getThis())) {
-            World world = user.level;
+            Level world = user.level;
             target = action.targetBeforePerform(world, user, getThis(), target);
             action.onPerform(world, user, getThis(), target, extraInput);
             serverPlayerUser.ifPresent(player -> {
@@ -357,7 +356,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
     private void tickHeldAction() {
         if (heldActionData != null) {
             Action<P> heldAction = heldActionData.action;
-            World world = user.level;
+            Level world = user.level;
             heldActionData.incTicks();
             if (user.level.isClientSide()) {
                 heldAction.onHoldTickClientEffect(user, getThis(), heldActionData.getTicks(), heldActionData.lastTickWentOff(), false);
@@ -432,7 +431,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
                 
                 heldAction.stoppedHolding(user.level, user, getThis(), ticksHeld, shouldFire);
                 if (shouldFire && heldAction.swingHand()) {
-                    user.swing(Hand.MAIN_HAND);
+                    user.swing(InteractionHand.MAIN_HAND);
                 }
                 
                 if (shouldFire) {
@@ -554,8 +553,8 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
     }
     
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT cnbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag cnbt = new CompoundTag();
 //        cnbt.putLong("LastDay", lastTickedDay);
         cnbt.put("Cooldowns", cooldowns.writeNBT());
         cnbt.putInt("LeapCd", leapCooldown);
@@ -564,7 +563,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
     }
 
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
 //        lastTickedDay = nbt.getLong("LastDay");
         cooldowns = new ActionCooldownTracker(nbt.getCompound("Cooldowns"));
         leapCooldown = nbt.getInt("LeapCd");
@@ -595,7 +594,7 @@ public abstract class PowerBaseImpl<P extends IPower<P, T>, T extends IPowerType
     }
     
     @Override
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         if (hasPower() && user != null) {
             if (getHeldAction() != null) {
                 PacketManager.sendToClient(new TrHeldActionPacket(user.getId(), getPowerClassification(), getHeldAction(), false, getMouseTarget()), player);

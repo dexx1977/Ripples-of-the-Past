@@ -1,23 +1,23 @@
 package com.github.standobyte.jojo.util.mc;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
 
-public class LiquidOnlyRayTraceContext extends RayTraceContext {
+public class LiquidOnlyRayTraceContext extends ClipContext {
 
-    public LiquidOnlyRayTraceContext(Vector3d from, Vector3d to, FluidMode liquid,
+    public LiquidOnlyRayTraceContext(Vec3 from, Vec3 to, FluidMode liquid,
             Entity collidingEntity) {
         super(from, to, null, liquid, collidingEntity);
     }
     
     @Override
-    public VoxelShape getBlockShape(BlockState blockState, IBlockReader world, BlockPos blockPos) {
-        return VoxelShapes.empty();
+    public VoxelShape getBlockShape(BlockState blockState, BlockGetter world, BlockPos blockPos) {
+        return Shapes.empty();
     }
 }

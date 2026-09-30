@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.entity.mob.rps.RockPaperScissorsGame.RPSCheat;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClRPSGameInputPacket {
     private final PacketType packetType;
@@ -40,7 +40,7 @@ public class ClRPSGameInputPacket {
     public static class Handler implements IModPacketHandler<ClRPSGameInputPacket> {
 
         @Override
-        public void encode(ClRPSGameInputPacket msg, PacketBuffer buf) {
+        public void encode(ClRPSGameInputPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.packetType);
             switch (msg.packetType) {
             case PICK:
@@ -55,7 +55,7 @@ public class ClRPSGameInputPacket {
         }
 
         @Override
-        public ClRPSGameInputPacket decode(PacketBuffer buf) {
+        public ClRPSGameInputPacket decode(FriendlyByteBuf buf) {
             PacketType packetType = buf.readEnum(PacketType.class);
             switch (packetType) {
             case PICK:
@@ -70,7 +70,7 @@ public class ClRPSGameInputPacket {
 
         @Override
         public void handle(ClRPSGameInputPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             switch (msg.packetType) {
             case PICK:
                 player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {

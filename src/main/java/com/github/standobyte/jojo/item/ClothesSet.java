@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.item;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ClothesSet {
 

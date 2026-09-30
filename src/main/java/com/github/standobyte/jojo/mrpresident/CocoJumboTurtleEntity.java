@@ -22,53 +22,51 @@ import com.github.standobyte.jojo.power.impl.stand.StandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.passive.TurtleEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.animal.Turtle;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 
-public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser, IPassengerMixinReposition {
-    private static final DataParameter<Boolean> HAS_KEY = EntityDataManager.defineId(CocoJumboTurtleEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> ASSIGNED_KEY = EntityDataManager.defineId(CocoJumboTurtleEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> IS_CARRIED = EntityDataManager.defineId(CocoJumboTurtleEntity.class, DataSerializers.BOOLEAN);
+public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPassengerMixinReposition {
+    private static final EntityDataAccessor<Boolean> HAS_KEY = SynchedEntityData.defineId(CocoJumboTurtleEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> ASSIGNED_KEY = SynchedEntityData.defineId(CocoJumboTurtleEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_CARRIED = SynchedEntityData.defineId(CocoJumboTurtleEntity.class, EntityDataSerializers.BOOLEAN);
     private final IStandPower standPower = new StandPower(this);
     
     static {
         StandVirusEffect.addMobStandGiver(new MobStandGiver(ModEntityTypes.COCO_JUMBO_TURTLE, ModStandsInit.MR_PRESIDENT));
     }
     
-    public CocoJumboTurtleEntity(EntityType<? extends TurtleEntity> type, World world) {
+    public CocoJumboTurtleEntity(EntityType<? extends Turtle> type, Level world) {
         super(type, world);
     }
     
@@ -79,7 +77,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.put("StandPower", standPower.writeNBT());
         nbt.putBoolean("Key", hasKey());
@@ -88,9 +86,9 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        if (nbt.contains("StandPower", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("StandPower", MCUtil.getNbtId(CompoundTag.class))) {
             standPower.readNBT(nbt.getCompound("StandPower"));
         }
         setHasKey(nbt.getBoolean("Key"));
@@ -106,7 +104,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
         super.tick();
         
         if (!level.isClientSide()) {
-            for (ServerPlayerEntity player : ((ServerWorld) level).players()) {
+            for (ServerPlayer player : ((ServerLevel) level).players()) {
                 if (player.distanceToSqr(this) < 36) {
                     ModCriteriaTriggers.MEET_ENTITY.get().trigger(player, this);
                 }
@@ -126,7 +124,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
         }
         LivingEntity carrier = getCarrier(); // FIXME sometimes doesn't trigger on client (IS_CARRIED has already been synced to client)
         if (carrier != null) {
-            if (!MCUtil.itemHandFree(carrier.getItemInHand(Hand.OFF_HAND)) || carrier.isSpectator()) {
+            if (!MCUtil.itemHandFree(carrier.getItemInHand(InteractionHand.OFF_HAND)) || carrier.isSpectator()) {
                 stopRiding();
             }
             else {
@@ -170,7 +168,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public ActionResultType mobInteract(PlayerEntity player, Hand pHand) {
+    public InteractionResult mobInteract(Player player, InteractionHand pHand) {
         ItemStack heldItem = player.getItemInHand(pHand);
         if (!this.hasKey() && heldItem.getItem() instanceof MrPresidentKeyItem) {
             ActionConditionResult canPutKey = canPutKey(heldItem);
@@ -180,42 +178,42 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
                 if (!level.isClientSide()) {
                     setHasKey(true);
                     entityData.set(ASSIGNED_KEY, true);
-                    ModCriteriaTriggers.COCO_JUMBO_KEY.get().trigger((ServerPlayerEntity) player);
+                    ModCriteriaTriggers.COCO_JUMBO_KEY.get().trigger((ServerPlayer) player);
                 }
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
             
             if (level.isClientSide()) {
                 player.displayClientMessage(canPutKey.getWarning(), true);
             }
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
-        else if (pHand == Hand.MAIN_HAND && player.isShiftKeyDown() && this.hasKey() && heldItem.isEmpty()) {
+        else if (pHand == InteractionHand.MAIN_HAND && player.isShiftKeyDown() && this.hasKey() && heldItem.isEmpty()) {
 //            pPlayer.playSound(SoundEvents., 1.0F, 1.0F);
             if (!level.isClientSide()) {
                 setHasKey(false);
                 ItemStack keyItem = makeKeyItem();
                 player.setItemInHand(pHand, keyItem);
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        else if (pHand == Hand.MAIN_HAND && !player.isShiftKeyDown() && !this.isPassenger() && !(heldItem.getItem() instanceof ShootableItem)) {
-            if (MCUtil.isHandFree(player, Hand.OFF_HAND)) {
+        else if (pHand == InteractionHand.MAIN_HAND && !player.isShiftKeyDown() && !this.isPassenger() && !(heldItem.getItem() instanceof ProjectileWeaponItem)) {
+            if (MCUtil.isHandFree(player, InteractionHand.OFF_HAND)) {
                 if (this.startRiding(player, true)) {
                     if (!level.isClientSide()) {
                         entityData.set(IS_CARRIED, true);
-                        player.displayClientMessage(new TranslationTextComponent("coco_jumbo.hint.release", 
-                                new KeybindTextComponent("key.swapOffhand"), getDisplayName()), true);
+                        player.displayClientMessage(Component.translatable("coco_jumbo.hint.release", 
+                                Component.keybind("key.swapOffhand"), getDisplayName()), true);
                     }
                 }
-                return ActionResultType.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
             else {
                 if (level.isClientSide()) {
-                    player.displayClientMessage(new TranslationTextComponent("coco_jumbo.carry.offhand", 
+                    player.displayClientMessage(Component.translatable("coco_jumbo.carry.offhand", 
                             getDisplayName()), true);
                 }
-                return ActionResultType.PASS;
+                return InteractionResult.PASS;
             }
         }
         else {
@@ -226,9 +224,9 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     
     private ItemStack makeKeyItem() {
         ItemStack keyItem = new ItemStack(ModItems.MR_PRESIDENT_KEY.get());
-        CompoundNBT nbt = keyItem.getOrCreateTag();
+        CompoundTag nbt = keyItem.getOrCreateTag();
         nbt.putUUID("TurtleEntity", getUUID());
-        ITextComponent name = new TranslationTextComponent(keyItem.getDescriptionId() + ".named", this.getDisplayName());
+        Component name = Component.translatable(keyItem.getDescriptionId() + ".named", this.getDisplayName());
         keyItem.setHoverName(name);
         return keyItem;
     }
@@ -238,22 +236,22 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
             return ActionConditionResult.POSITIVE;
         }
         if (!getStandPower().hasPower()) {
-            return ActionConditionResult.createNegative(new TranslationTextComponent("coco_jumbo.key.no_stand", 
+            return ActionConditionResult.createNegative(Component.translatable("coco_jumbo.key.no_stand", 
                     getDisplayName()));
         }
         if (hasAssignedKey()) {
-            CompoundNBT nbt = item.getTag();
+            CompoundTag nbt = item.getTag();
             if (nbt == null) {
-                return ActionConditionResult.createNegative(new TranslationTextComponent("coco_jumbo.key.empty"));
+                return ActionConditionResult.createNegative(Component.translatable("coco_jumbo.key.empty"));
             }
             if (!(nbt.hasUUID("TurtleEntity") && this.getUUID().equals(nbt.getUUID("TurtleEntity")))) {
-                return ActionConditionResult.createNegative(new TranslationTextComponent("coco_jumbo.key.wrong"));
+                return ActionConditionResult.createNegative(Component.translatable("coco_jumbo.key.wrong"));
             }
             return ActionConditionResult.POSITIVE;
         }
         else {
             if (item.hasTag()) {
-                return ActionConditionResult.createNegative(new TranslationTextComponent("coco_jumbo.key.not_empty"));
+                return ActionConditionResult.createNegative(Component.translatable("coco_jumbo.key.not_empty"));
             }
             return ActionConditionResult.POSITIVE;
         }
@@ -302,7 +300,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> key) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         if (IS_CARRIED.equals(key) && !entityData.get(IS_CARRIED)) {
             stopRiding();
@@ -321,20 +319,20 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public Vector3d repositionPassenger(Entity vehicle) {
+    public Vec3 repositionPassenger(Entity vehicle) {
         if (isCarried() && vehicle instanceof LivingEntity) {
             LivingEntity carrier = (LivingEntity) vehicle;
-            Vector3d carryVec = carryOffset(carrier.yBodyRot, carrier);
+            Vec3 carryVec = carryOffset(carrier.yBodyRot, carrier);
             return vehicle.position().add(carryVec);
         }
         return null;
     }
     
-    public static Vector3d carryOffset(float yRot, LivingEntity carrier) {
-        HandSide offHand = MCUtil.getOppositeSide(carrier.getMainArm());
+    public static Vec3 carryOffset(float yRot, LivingEntity carrier) {
+        HumanoidArm offHand = MCUtil.getOppositeSide(carrier.getMainArm());
         float width = carrier.getBbWidth();
-        Vector3d carryVec = new Vector3d(
-                width * (offHand == HandSide.LEFT ? 0.55 : -0.55), 
+        Vec3 carryVec = new Vec3(
+                width * (offHand == HumanoidArm.LEFT ? 0.55 : -0.55), 
                 carrier.getBbHeight() * 0.35, 
                 width * 0.75);
         
@@ -358,19 +356,19 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     public static final ResourceLocation MET_TURTLE_ADVANCEMENT = new ResourceLocation(JojoMod.MOD_ID, "jojo/coco_jumbo");
     private static long lastSpawnTime;
     public static void onRegularTutelSpawn(LivingSpawnEvent.CheckSpawn event) {
-        SpawnReason spawnReason = event.getSpawnReason();
+        MobSpawnType spawnReason = event.getSpawnReason();
         switch (spawnReason) {
         case NATURAL:
         case CHUNK_GENERATION:
         case SPAWNER:
-            if (event.getWorld() instanceof IServerWorld && lastSpawnTime != event.getWorld().dayTime()) {
-                IServerWorld spawnRegion = (IServerWorld) event.getWorld();
+            if (event.getWorld() instanceof ServerLevelAccessor && lastSpawnTime != event.getWorld().dayTime()) {
+                ServerLevelAccessor spawnRegion = (ServerLevelAccessor) event.getWorld();
                 double x = event.getX();
                 double y = event.getY();
                 double z = event.getZ();
-                PlayerEntity nearestPlayer = spawnRegion.getLevel().getNearestPlayer(x, y, z, -1, EntityPredicates.NO_SPECTATORS);
-                if (nearestPlayer instanceof ServerPlayerEntity) {
-                    ServerPlayerEntity player = (ServerPlayerEntity) nearestPlayer;
+                Player nearestPlayer = spawnRegion.getLevel().getNearestPlayer(x, y, z, -1, EntitySelector.NO_SPECTATORS);
+                if (nearestPlayer instanceof ServerPlayer) {
+                    ServerPlayer player = (ServerPlayer) nearestPlayer;
                     boolean hasArrow = !MCUtil.findInInventory(player.inventory, item -> item.getItem() instanceof StandArrowItem).isEmpty();
                     boolean hasArrowAdvancement = MCUtil.hasAdvancement(player, GOT_ARROW_ADVANCEMENT);
                     boolean hasTurtleAdvancement = MCUtil.hasAdvancement(player, MET_TURTLE_ADVANCEMENT);
@@ -392,13 +390,13 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
                     }
                     
                     if (player.getRandom().nextFloat() < spawnChancePerTurtle) {
-                        LivingEntity turtle = event.getEntityLiving();
-                        MobEntity extraTurtle = ModEntityTypes.COCO_JUMBO_TURTLE.get().create(spawnRegion.getLevel());
+                        LivingEntity turtle = event.getEntity();
+                        Mob extraTurtle = ModEntityTypes.COCO_JUMBO_TURTLE.get().create(spawnRegion.getLevel());
 
                         extraTurtle.moveTo(x, y, z, turtle.getRandom().nextFloat() * 360.0F, 0.0F);
                         if (ForgeHooks.canEntitySpawn(extraTurtle, spawnRegion, x, y, z, null, spawnReason) != -1
                                 && extraTurtle.checkSpawnRules(spawnRegion, spawnReason) && extraTurtle.checkSpawnObstruction(spawnRegion)) {
-                            ILivingEntityData entityData = null;
+                            SpawnGroupData entityData = null;
                             entityData = extraTurtle.finalizeSpawn(spawnRegion, 
                                     spawnRegion.getCurrentDifficultyAt(extraTurtle.blockPosition()), 
                                     spawnReason, entityData, null);
@@ -425,7 +423,7 @@ public class CocoJumboTurtleEntity extends TurtleEntity implements IMobStandUser
     }
     
     @Override
-    public boolean isEyeInFluid(ITag<Fluid> tag) {
+    public boolean isEyeInFluid(TagKey<Fluid> tag) {
         if (stopRidingIsDueToWater == 0 && tag == FluidTags.WATER) {
             stopRidingIsDueToWater = 1;
         }

@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.network.packets.fromserver.SyncMotionAnimStatePacket;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClSyncMotionAnimPacket {
     public final boolean isMoving;
@@ -28,7 +28,7 @@ public class ClSyncMotionAnimPacket {
     public static class Handler implements IModPacketHandler<ClSyncMotionAnimPacket> {
 
         @Override
-        public void encode(ClSyncMotionAnimPacket msg, PacketBuffer buf) {
+        public void encode(ClSyncMotionAnimPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.isMoving);
             buf.writeDouble(msg.movementUp);
             buf.writeDouble(msg.movementLeft);
@@ -36,14 +36,14 @@ public class ClSyncMotionAnimPacket {
         }
 
         @Override
-        public ClSyncMotionAnimPacket decode(PacketBuffer buf) {
+        public ClSyncMotionAnimPacket decode(FriendlyByteBuf buf) {
             return new ClSyncMotionAnimPacket(buf.readBoolean(), buf.readDouble(), buf.readDouble(), buf.readFloat());
         }
     
         @Override
         public void handle(ClSyncMotionAnimPacket msg, Supplier<NetworkEvent.Context> ctx) {
             if (Double.isFinite(msg.movementUp) && Double.isFinite(msg.movementLeft) && Float.isFinite(msg.speed)) {
-                PlayerEntity player = ctx.get().getSender();
+                Player player = ctx.get().getSender();
                 PacketManager.sendToClientsTracking(new SyncMotionAnimStatePacket(player.getId(), msg), player);
             }
         }

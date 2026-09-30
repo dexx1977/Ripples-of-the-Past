@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.ClientEventHandler;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ServerIdPacket {
     public final UUID serverId;
@@ -21,12 +21,12 @@ public class ServerIdPacket {
     public static class Handler implements IModPacketHandler<ServerIdPacket> {
 
         @Override
-        public void encode(ServerIdPacket msg, PacketBuffer buf) {
+        public void encode(ServerIdPacket msg, FriendlyByteBuf buf) {
             buf.writeUUID(msg.serverId);
         }
 
         @Override
-        public ServerIdPacket decode(PacketBuffer buf) {
+        public ServerIdPacket decode(FriendlyByteBuf buf) {
             UUID serverId = buf.readUUID();
             return new ServerIdPacket(serverId);
         }

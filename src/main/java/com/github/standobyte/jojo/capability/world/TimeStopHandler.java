@@ -35,18 +35,18 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.google.common.collect.HashBiMap;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SPlayEntityEffectPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -63,12 +63,12 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
 public class TimeStopHandler {
-    private final World world;
+    private final Level world;
     private final Set<Entity> stoppedInTime = new HashSet<>();
-    private final Set<ServerPlayerEntity> playersVisionFrozen = new HashSet<>();
+    private final Set<ServerPlayer> playersVisionFrozen = new HashSet<>();
     private final Map<Integer, TimeStopInstance> timeStopInstances = HashBiMap.create();
     
-    public TimeStopHandler(World world) {
+    public TimeStopHandler(Level world) {
         this.world = world;
     }
     
@@ -106,15 +106,15 @@ public class TimeStopHandler {
     private void manualEntitiesDataSync() {
         if (!world.isClientSide()) {
             for (Entity entity : MCUtil.getAllEntities(world)) {
-                EntityDataManager entityData = entity.getEntityData();
+                SynchedEntityData entityData = entity.getEntityData();
                 if (entityData.isDirty()) {
-                    Set<ServerPlayerEntity> trackingPlayers = MCUtil.getTrackingPlayers(entity);
-                    List<ServerPlayerEntity> frozenPlayers = new ArrayList<>();
+                    Set<ServerPlayer> trackingPlayers = MCUtil.getTrackingPlayers(entity);
+                    List<ServerPlayer> frozenPlayers = new ArrayList<>();
                     
-                    List<EntityDataManager.DataEntry<?>> packedData = null;
-                    Iterator<ServerPlayerEntity> trackingIterator = trackingPlayers.iterator();
+                    List<SynchedEntityData.DataEntry<?>> packedData = null;
+                    Iterator<ServerPlayer> trackingIterator = trackingPlayers.iterator();
                     while (trackingIterator.hasNext()) {
-                        ServerPlayerEntity player = trackingIterator.next();
+                        ServerPlayer player = trackingIterator.next();
                         if (playersVisionFrozen.contains(player)) {
                             frozenPlayers.add(player);
                             packedData = entityData.packDirty();
@@ -123,8 +123,8 @@ public class TimeStopHandler {
                     
                     boolean manualSelectiveSync = packedData != null;
                     if (manualSelectiveSync) {
-                        List<EntityDataManager.DataEntry<?>> dataToKeep = packedData;
-                        for (ServerPlayerEntity tracking : trackingPlayers) {
+                        List<SynchedEntityData.DataEntry<?>> dataToKeep = packedData;
+                        for (ServerPlayer tracking : trackingPlayers) {
                             if (frozenPlayers.contains(tracking)) {
                                 tracking.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                                     cap.addDataForTSUnfreeze(entity, dataToKeep);
@@ -200,7 +200,7 @@ public class TimeStopHandler {
         });
         
         if (!world.isClientSide()) {
-            ServerWorld serverWorld = (ServerWorld) world;
+            ServerLevel serverWorld = (ServerLevel) world;
             
             serverWorld.players().forEach(player -> {
                 if (player.level == world) {
@@ -238,7 +238,7 @@ public class TimeStopHandler {
         }
         
         canMove = canMove || checkEffect && entityToCheck instanceof LivingEntity && ((LivingEntity) entityToCheck).hasEffect(ModStatusEffects.TIME_STOP.get()) || 
-                entityToCheck instanceof PlayerEntity && canPlayerMoveInStoppedTime((PlayerEntity) entityToCheck, false)
+                entityToCheck instanceof Player && canPlayerMoveInStoppedTime((Player) entityToCheck, false)
                 || JojoModConfig.getCommonConfigInstance(entity.level.isClientSide()).endermenBeyondTimeSpace.get() && ModInteractionUtil.isEntityEnderman(entityToCheck); // for even more lulz
         
         boolean stopInTime = !canMove;
@@ -277,7 +277,7 @@ public class TimeStopHandler {
         });
         
         if (!world.isClientSide()) {
-            ServerWorld serverWorld = (ServerWorld) world;
+            ServerLevel serverWorld = (ServerLevel) world;
             serverWorld.players().forEach(player -> {
                 if (player.level == world) {
                     PacketManager.sendToClient(TimeStopInstancePacket.timeResumed(instance.getId()), player);
@@ -296,7 +296,7 @@ public class TimeStopHandler {
         return timeStopInstances.get(id);
     }
     
-    public void sendPlayerState(ServerPlayerEntity player) {
+    public void sendPlayerState(ServerPlayer player) {
         boolean canMove = true;
         boolean canSee = true;
         if (isTimeStopped(player.level, player.blockPosition())) {
@@ -320,27 +320,27 @@ public class TimeStopHandler {
     
     
     
-    public static void stopTime(World world, TimeStopInstance instance) {
+    public static void stopTime(Level world, TimeStopInstance instance) {
         WorldUtilCap cap = world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get();
         cap.getTimeStopHandler().addTimeStop(instance);
     }
     
-    public static void resumeTime(World world, int instanceId) {
+    public static void resumeTime(Level world, int instanceId) {
         TimeStopHandler timeStopHandler = world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler();
         timeStopHandler.removeTimeStop(timeStopHandler.getById(instanceId));
     }
     
-    public static void resumeTime(World world, TimeStopInstance instance) {
+    public static void resumeTime(Level world, TimeStopInstance instance) {
         WorldUtilCap cap = world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get();
         cap.getTimeStopHandler().removeTimeStop(instance);
     }
     
-    public static TimeStopInstance getTimeStopInstance(World world, int instanceId) {
+    public static TimeStopInstance getTimeStopInstance(Level world, int instanceId) {
         TimeStopHandler timeStopHandler = world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler();
         return timeStopHandler.getById(instanceId);
     }
     
-    public static boolean canPlayerSeeInStoppedTime(PlayerEntity player) {
+    public static boolean canPlayerSeeInStoppedTime(Player player) {
         return canPlayerSeeInStoppedTime(canPlayerMoveInStoppedTime(player, true), hasTimeStopAbility(player));
     }
     
@@ -348,12 +348,12 @@ public class TimeStopHandler {
         return canMove || hasTimeStopAbility;
     }
     
-    public static boolean canPlayerMoveInStoppedTime(PlayerEntity player, boolean checkEffect) {
+    public static boolean canPlayerMoveInStoppedTime(Player player, boolean checkEffect) {
         return checkEffect && player.hasEffect(ModStatusEffects.TIME_STOP.get()) || gamemodeIgnoresTimeStop(player) || 
-                player instanceof ServerPlayerEntity && ((ServerPlayerEntity) player).server.isSingleplayerOwner(player.getGameProfile());
+                player instanceof ServerPlayer && ((ServerPlayer) player).server.isSingleplayerOwner(player.getGameProfile());
     }
     
-    public static boolean gamemodeIgnoresTimeStop(PlayerEntity player) {
+    public static boolean gamemodeIgnoresTimeStop(Player player) {
         return JojoModUtil.getActualGameModeWhilePossessing(player)
                 .map(gameMode -> gameMode == GameType.CREATIVE || gameMode == GameType.SPECTATOR)
                 .orElseGet(() -> player.isCreative() || player.isSpectator());
@@ -374,12 +374,12 @@ public class TimeStopHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (!(entity instanceof PlayerEntity)) {
+        if (!(entity instanceof Player)) {
             stopNewEntityInTime(entity, event.getWorld());
         }
     }
     
-    public static void stopNewEntityInTime(Entity entity, World world) {
+    public static void stopNewEntityInTime(Entity entity, Level world) {
         if (isTimeStopped(world, entity.blockPosition())) {
             world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> 
             cap.getTimeStopHandler().updateEntityTimeStop(entity, false, true));
@@ -390,20 +390,20 @@ public class TimeStopHandler {
     
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        sendWorldTimeStopData((ServerPlayerEntity) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
     }
     
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
-        sendWorldTimeStopData((ServerPlayerEntity) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
-        sendWorldTimeStopData((ServerPlayerEntity) event.getPlayer());
+        sendWorldTimeStopData((ServerPlayer) event.getPlayer());
     }
     
-    private static void sendWorldTimeStopData(ServerPlayerEntity player) {
+    private static void sendWorldTimeStopData(ServerPlayer player) {
         player.level.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> {
             PacketManager.sendToClient(new TimeStopPlayerJoinPacket(Phase.PRE), player);
             cap.getTimeStopHandler().getInstancesInPos(new ChunkPos(player.blockPosition())).forEach(instance -> {
@@ -421,9 +421,9 @@ public class TimeStopHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (player instanceof ServerPlayerEntity) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+        Player player = event.getPlayer();
+        if (player instanceof ServerPlayer) {
+            ServerPlayer serverPlayer = (ServerPlayer) player;
             if (serverPlayer.getServer().getPlayerList().getPlayerCount() <= 1) {
                 serverPlayer.getServer().getAllLevels().forEach(world -> {
                     world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> {
@@ -451,7 +451,7 @@ public class TimeStopHandler {
         event.world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> {
             cap.tick();
         });
-        if (event.world.dimension() == World.OVERWORLD) {
+        if (event.world.dimension() == Level.OVERWORLD) {
             event.world.getCapability(SaveFileUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.tick();
             });
@@ -462,12 +462,12 @@ public class TimeStopHandler {
 
     @SubscribeEvent
     public static void onTSEffectAdded(PotionAddedEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
         if (event.getOldPotionEffect() == null && event.getPotionEffect().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler().updateEntityTimeStop(entity, true, false);
             if (!entity.level.isClientSide()) {
-                ((ServerWorld) entity.level).getChunkSource().broadcast(entity, (new SPlayEntityEffectPacket(entity.getId(), event.getPotionEffect())));
+                ((ServerLevel) entity.level).getChunkSource().broadcast(entity, (new ClientboundUpdateMobEffectPacket(entity.getId(), event.getPotionEffect())));
                 PacketManager.sendToClientsTrackingAndSelf(new RefreshMovementInTimeStopPacket(entity.getId(), chunkPos, true), entity);
             }
         }
@@ -475,7 +475,7 @@ public class TimeStopHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTSEffectExpired(PotionExpiryEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
         if (event.getPotionEffect().getEffect() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             WorldUtilCap worldCap = entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get();
@@ -493,7 +493,7 @@ public class TimeStopHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTSEffectRemoved(PotionRemoveEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         ChunkPos chunkPos = new ChunkPos(entity.blockPosition());
         if (event.getPotion() == ModStatusEffects.TIME_STOP.get() && isTimeStopped(entity.level, chunkPos)) {
             entity.level.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().get().getTimeStopHandler().updateEntityTimeStop(entity, false, false);
@@ -549,15 +549,15 @@ public class TimeStopHandler {
     
     
     
-    public static boolean isTimeStopped(World world, BlockPos blockPos) {
+    public static boolean isTimeStopped(Level world, BlockPos blockPos) {
         return isTimeStopped(world, new ChunkPos(blockPos));
     }
     
-    public static boolean isTimeStopped(World world, ChunkPos chunkPos) {
+    public static boolean isTimeStopped(Level world, ChunkPos chunkPos) {
         return world.getCapability(WorldUtilCapProvider.CAPABILITY).map(cap -> cap.getTimeStopHandler().isTimeStopped(chunkPos)).orElse(false);
     }
     
-    public static int getTimeStopTicksLeft(World world, ChunkPos chunkPos) {
+    public static int getTimeStopTicksLeft(Level world, ChunkPos chunkPos) {
         return world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve()
                 .flatMap(cap -> cap.getTimeStopHandler().getInstancesInPos(chunkPos).stream()
                         .max((i1, i2) -> i1.getTicksLeft() - i2.getTicksLeft())

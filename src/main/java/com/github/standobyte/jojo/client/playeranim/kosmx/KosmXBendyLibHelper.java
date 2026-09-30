@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.playeranim.kosmx;
 
 import dev.kosmx.playerAnim.impl.IBendHelper;
 import dev.kosmx.playerAnim.impl.animation.BendHelper;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.Direction;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
 
 public class KosmXBendyLibHelper {
 
@@ -16,7 +16,7 @@ public class KosmXBendyLibHelper {
         private static final BendDummy DUMMY = new BendDummy();
 
         private BendDummy() {
-            super(new ModelRenderer(0, 0, 0, 0), false, null);
+            super(new ModelPart(0, 0, 0, 0), false, null);
             addBendedCuboid(0, 0, 0, 0, 0, 0, 0, Direction.UP);
         }
         

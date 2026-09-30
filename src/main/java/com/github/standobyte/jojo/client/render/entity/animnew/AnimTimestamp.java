@@ -12,7 +12,7 @@ import com.github.standobyte.jojo.client.render.entity.animnew.molang.AnimMolang
 import com.github.standobyte.jojo.client.render.entity.animnew.molang.KeyframeWithQuery;
 import com.github.standobyte.jojo.client.render.entity.animnew.stand.GeckoStandAnimator;
 
-import net.minecraft.util.math.vector.Vector3f;
+import org.joml.Vector3f;
 
 // kinda like RigidModelPose from the previous pose animating system
 public class AnimTimestamp {

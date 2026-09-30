@@ -14,14 +14,14 @@ import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.ForgeEventFactory;
 
@@ -40,7 +40,7 @@ public class StandEntityPunch implements IPunch {
     protected float knockbackXRot = 0;
     protected float armorPiercing = 0;
     protected float disableBlockingChance = 0;
-    protected Vector3d sweepingAabb;
+    protected Vec3 sweepingAabb;
     protected float sweepingDamage;
     protected int standInvulTime = 0;
     protected Supplier<SoundEvent> punchSound = () -> null;
@@ -82,7 +82,7 @@ public class StandEntityPunch implements IPunch {
     }
     
     public StandEntityPunch reduceKnockback(float knockback) {
-        this.knockback = MathHelper.clamp(knockback, 0, 1);
+        this.knockback = Mth.clamp(knockback, 0, 1);
         return this;
     }
     
@@ -106,28 +106,28 @@ public class StandEntityPunch implements IPunch {
     }
     
     public StandEntityPunch knockbackXRot(float knockbackXRot) {
-        this.knockbackXRot = MathHelper.clamp(knockbackXRot, -90F, 90F);
+        this.knockbackXRot = Mth.clamp(knockbackXRot, -90F, 90F);
         return this;
     }
     
     public StandEntityPunch armorPiercing(float armorPiercing) {
-        this.armorPiercing = MathHelper.clamp(armorPiercing, 0, 1);
+        this.armorPiercing = Mth.clamp(armorPiercing, 0, 1);
         return this;
     }
     
     public StandEntityPunch disableBlocking(float chance) {
-        this.disableBlockingChance = MathHelper.clamp(chance, 0, 1);
+        this.disableBlockingChance = Mth.clamp(chance, 0, 1);
         return this;
     }
     
     public StandEntityPunch sweepingAttack(double x, double y, double z, float damage) {
         if ((x > 0 || y > 0 || z > 0) && damage > 0) {
-            return sweepingAttack(new Vector3d(Math.max(x, 0), Math.max(y, 0), Math.max(z, 0)), damage);
+            return sweepingAttack(new Vec3(Math.max(x, 0), Math.max(y, 0), Math.max(z, 0)), damage);
         }
         return this;
     }
     
-    public StandEntityPunch sweepingAttack(Vector3d aabbRange, float damage) {
+    public StandEntityPunch sweepingAttack(Vec3 aabbRange, float damage) {
         this.sweepingAabb = aabbRange;
         this.sweepingDamage = damage;
         return this;
@@ -171,7 +171,7 @@ public class StandEntityPunch implements IPunch {
         return sweepingAabb != null && sweepingDamage > 0;
     }
     
-    private AxisAlignedBB sweepingAttackAabb(AxisAlignedBB targetAabb) {
+    private AABB sweepingAttackAabb(AABB targetAabb) {
         return targetAabb.inflate(sweepingAabb.x, sweepingAabb.y, sweepingAabb.z);
     }
     
@@ -192,7 +192,7 @@ public class StandEntityPunch implements IPunch {
     }
     
     @Override
-    public Vector3d getImpactSoundPos() {
+    public Vec3 getImpactSoundPos() {
         return target.getBoundingBox().getCenter();
     }
     
@@ -227,11 +227,11 @@ public class StandEntityPunch implements IPunch {
             boolean isTargetBlocking = targetAsLiving.isBlocking();
             if (isTargetBlocking) {
                 ItemStack targetShield = targetAsLiving.getUseItem();
-                if (targetShield.isShield(targetAsLiving) && damage < 3.0F && targetAsLiving instanceof PlayerEntity) {
+                if (targetShield.isShield(targetAsLiving) && damage < 3.0F && targetAsLiving instanceof Player) {
                     int shieldItemDamage = MathUtil.fractionRandomInc(damage * 0.5F);
                     targetShield.hurtAndBreak(shieldItemDamage, targetAsLiving, e -> {
                         e.broadcastBreakEvent(targetAsLiving.getUsedItemHand());
-                        ForgeEventFactory.onPlayerDestroyItem((PlayerEntity) targetAsLiving, 
+                        ForgeEventFactory.onPlayerDestroyItem((Player) targetAsLiving, 
                                 targetShield, targetAsLiving.getUsedItemHand());
                     });
                 }
@@ -277,20 +277,20 @@ public class StandEntityPunch implements IPunch {
         if (targetLiving != null) {
             if (hurt) {
                 if (getAdditionalKnockback() > 0) {
-                    Vector3d vecToTarget = target.position().subtract(stand.position());
-                    float knockbackYRot = (float) -MathHelper.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG + this.knockbackYRot;
+                    Vec3 vecToTarget = target.position().subtract(stand.position());
+                    float knockbackYRot = (float) -Mth.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG + this.knockbackYRot;
                     float knockbackStrength = getAdditionalKnockback() * 0.5F;
                     if (Math.abs(knockbackXRot) < 90) {
-                        DamageUtil.knockback(targetLiving, knockbackStrength * MathHelper.cos(knockbackXRot * MathUtil.DEG_TO_RAD), knockbackYRot);
+                        DamageUtil.knockback(targetLiving, knockbackStrength * Mth.cos(knockbackXRot * MathUtil.DEG_TO_RAD), knockbackYRot);
                     }
                     if (knockbackXRot != 0) {
-                        DamageUtil.upwardsKnockback(targetLiving, -knockbackStrength * MathHelper.sin(knockbackXRot * MathUtil.DEG_TO_RAD));
+                        DamageUtil.upwardsKnockback(targetLiving, -knockbackStrength * Mth.sin(knockbackXRot * MathUtil.DEG_TO_RAD));
                     }
                 }
 
                 if (disablesBlocking() && 
-                        targetLiving.getUseItem().isShield(targetLiving) && targetLiving instanceof PlayerEntity) {
-                    DamageUtil.disableShield((PlayerEntity) targetLiving, disableBlockingChance);
+                        targetLiving.getUseItem().isShield(targetLiving) && targetLiving instanceof Player) {
+                    DamageUtil.disableShield((Player) targetLiving, disableBlockingChance);
                 }
                 
                 damageDealtToLiving = hp - targetLiving.getHealth();
@@ -314,20 +314,20 @@ public class StandEntityPunch implements IPunch {
     
     private void knockbackTarget(@Nullable LivingEntity targetAsLiving) {
         if (getAdditionalKnockback() > 0) {
-            Vector3d vecToTarget = target.position().subtract(stand.position());
-            float knockbackYRot = (float) -MathHelper.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG + this.knockbackYRot;
+            Vec3 vecToTarget = target.position().subtract(stand.position());
+            float knockbackYRot = (float) -Mth.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG + this.knockbackYRot;
             float knockbackStrength = getAdditionalKnockback() * 0.5F;
             
             if (targetAsLiving != null) {
                 if (Math.abs(knockbackXRot) < 90) {
-                    DamageUtil.knockback(targetAsLiving, knockbackStrength * MathHelper.cos(knockbackXRot * MathUtil.DEG_TO_RAD), knockbackYRot);
+                    DamageUtil.knockback(targetAsLiving, knockbackStrength * Mth.cos(knockbackXRot * MathUtil.DEG_TO_RAD), knockbackYRot);
                 }
                 if (knockbackXRot != 0) {
-                    DamageUtil.upwardsKnockback(targetAsLiving, -knockbackStrength * MathHelper.sin(knockbackXRot * MathUtil.DEG_TO_RAD));
+                    DamageUtil.upwardsKnockback(targetAsLiving, -knockbackStrength * Mth.sin(knockbackXRot * MathUtil.DEG_TO_RAD));
                 }
             }
             else {
-                Vector3d knockbackVec = new Vector3d(0, 0, knockbackStrength);
+                Vec3 knockbackVec = new Vec3(0, 0, knockbackStrength);
                 if (knockbackXRot != 0) {
                     knockbackVec = knockbackVec.xRot(-knockbackXRot * MathUtil.DEG_TO_RAD);
                 }

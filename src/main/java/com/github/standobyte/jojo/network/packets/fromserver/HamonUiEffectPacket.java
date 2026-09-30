@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer;
 import com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer.BarType;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonUiEffectPacket {
     private final Type effectType;
@@ -22,12 +22,12 @@ public class HamonUiEffectPacket {
     public static class Handler implements IModPacketHandler<HamonUiEffectPacket> {
 
         @Override
-        public void encode(HamonUiEffectPacket msg, PacketBuffer buf) {
+        public void encode(HamonUiEffectPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.effectType);
         }
 
         @Override
-        public HamonUiEffectPacket decode(PacketBuffer buf) {
+        public HamonUiEffectPacket decode(FriendlyByteBuf buf) {
             return new HamonUiEffectPacket(buf.readEnum(Type.class));
         }
 

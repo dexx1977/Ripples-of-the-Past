@@ -26,38 +26,38 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.entity.item.minecart.TNTMinecartEntity;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.AbstractCookingRecipe;
-import net.minecraft.item.crafting.BlastingRecipe;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.vehicle.MinecartTNT;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.item.crafting.SmithingRecipe;
-import net.minecraft.item.crafting.StonecuttingRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class CrazyDiamondPreviousState extends StandEntityAction {
@@ -89,16 +89,16 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
             int resolveLevel = standPower.getResolveLevel();
             if (resolveLevel >= 3) {
                 if (
-                        targetEntity instanceof TNTEntity || 
-                        targetEntity instanceof TNTMinecartEntity ||
+                        targetEntity instanceof PrimedTnt || 
+                        targetEntity instanceof MinecartTNT ||
                         targetEntity.getType() == EntityType.SNOW_GOLEM ||
-                        targetEntity instanceof CreeperEntity && ((CreeperEntity) targetEntity).isPowered()) {
+                        targetEntity instanceof Creeper && ((Creeper) targetEntity).isPowered()) {
                     return ActionConditionResult.POSITIVE;
                 }
                 if (resolveLevel >= 4) {
                     if (
                             targetEntity.getType() == EntityType.IRON_GOLEM ||
-                            targetEntity.getType() == EntityType.WITHER && ((WitherEntity) targetEntity).getInvulnerableTicks() > 0) {
+                            targetEntity.getType() == EntityType.WITHER && ((WitherBoss) targetEntity).getInvulnerableTicks() > 0) {
                         return ActionConditionResult.POSITIVE;
                     }
                 }
@@ -112,7 +112,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
     @Override
     public ActionConditionResult checkStandTarget(ActionTarget target, StandEntity standEntity, IStandPower standPower) {
         Entity targetEntity = target.getEntity();
-        if (targetEntity instanceof TNTEntity || targetEntity instanceof TNTMinecartEntity) {
+        if (targetEntity instanceof PrimedTnt || targetEntity instanceof MinecartTNT) {
             return ActionConditionResult.POSITIVE;
         }
         return super.checkStandTarget(target, standEntity, standPower);
@@ -129,7 +129,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
     }
 
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         ActionTarget target = task.getTarget();
         switch (target.getType()) {
         case ENTITY:
@@ -140,8 +140,8 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     return;
                 }
 
-                if (targetEntity instanceof TNTEntity) {
-                    TNTEntity tnt = (TNTEntity) targetEntity;
+                if (targetEntity instanceof PrimedTnt) {
+                    PrimedTnt tnt = (PrimedTnt) targetEntity;
                     if (task.getTick() == 0 || tnt.getFuse() < 80) {
                         if (!world.isClientSide()) {
                             tnt.setFuse(tnt.getLife() + 2);
@@ -164,8 +164,8 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     healTick = true;
                 }
 
-                else if (targetEntity instanceof TNTMinecartEntity) {
-                    TNTMinecartEntity tntMinecart = (TNTMinecartEntity) targetEntity;
+                else if (targetEntity instanceof MinecartTNT) {
+                    MinecartTNT tntMinecart = (MinecartTNT) targetEntity;
                     int fuse = CommonReflection.getFuse(tntMinecart);
                     if (fuse >= 80) {
                         CommonReflection.setFuse(tntMinecart, -1);
@@ -196,8 +196,8 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     healTick = true;
                 }
                 
-                else if (targetEntity instanceof CreeperEntity) {
-                    CreeperEntity creeper = (CreeperEntity) targetEntity;
+                else if (targetEntity instanceof Creeper) {
+                    Creeper creeper = (Creeper) targetEntity;
                     if (creeper.isPowered() && !ModStandsInit.CRAZY_DIAMOND_HEAL.get().healLivingEntity(world, (LivingEntity) targetEntity, standEntity, task)) {
                         if (!world.isClientSide() && standEntity.getRandom().nextFloat() < 0.05F) {
                             creeper.getEntityData().set(CommonReflection.getCreeperPoweredParameter(), false);
@@ -227,7 +227,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     }
 
                     else if (targetEntity.getType() == EntityType.WITHER) {
-                        WitherEntity wither = (WitherEntity) targetEntity;
+                        WitherBoss wither = (WitherBoss) targetEntity;
                         int spawnTicks = wither.getInvulnerableTicks();
                         if (spawnTicks > 0) {
                             wither.setInvulnerableTicks(Math.min(spawnTicks + 5, 220));
@@ -279,8 +279,8 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
             if (!world.isClientSide()) {
                 ItemStack heldItem = userPower.getUser().getOffhandItem();
                 if (ModStandsInit.CRAZY_DIAMOND_REPAIR.get().repairTick(userPower.getUser(), standEntity, heldItem, task.getTick()) == 0
-                        && userPower.getUser() instanceof PlayerEntity && CrazyDiamondRepairItem.itemTransformationTick(task.getTick(), standEntity)) {
-                    PlayerEntity player = (PlayerEntity) userPower.getUser();
+                        && userPower.getUser() instanceof Player && CrazyDiamondRepairItem.itemTransformationTick(task.getTick(), standEntity)) {
+                    Player player = (Player) userPower.getUser();
                     CrazyDiamondRepairItem.dropExperience(player, heldItem);
                     convertTo(heldItem, world, null, standEntity.getRandom(), true).ifPresent(itemsAndCount -> {
                         boolean gaveIngredients = false;
@@ -297,15 +297,15 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                 }
             }
             else if (ClientUtil.canSeeStands()) {
-                CustomParticlesHelper.createCDRestorationParticle(userPower.getUser(), Hand.OFF_HAND);
+                CustomParticlesHelper.createCDRestorationParticle(userPower.getUser(), InteractionHand.OFF_HAND);
             }
             break;
         }
     }
 
     private static final Optional<Pair<ItemStack[], Integer>> EXISTS = Optional.of(Pair.of(new ItemStack[0], 0));
-    private Optional<Pair<ItemStack[], Integer>> convertTo(ItemStack item, World world, 
-            @Nullable Predicate<IRecipe<?>> additionalCondition, Random random, boolean createItems) {
+    private Optional<Pair<ItemStack[], Integer>> convertTo(ItemStack item, Level world, 
+            @Nullable Predicate<Recipe<?>> additionalCondition, Random random, boolean createItems) {
         if (item.isEmpty()) return Optional.empty();
         
         if (item.getItem() == Items.ENCHANTED_BOOK)     return createItems ? Optional.of(Pair.of(new ItemStack[]{new ItemStack(Items.BOOK)}, 1)) : EXISTS;
@@ -328,29 +328,29 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     // TODO revert nbt recipes (including netherite armor)
                     list.add(recipe -> recipe instanceof SmithingRecipe);
                     list.add(recipe -> recipe instanceof AbstractCookingRecipe);
-                    list.add(recipe -> recipe instanceof StonecuttingRecipe);
-                    list.add(recipe -> recipe instanceof ICraftingRecipe);
+                    list.add(recipe -> recipe instanceof StonecutterRecipe);
+                    list.add(recipe -> recipe instanceof CraftingRecipe);
                     list.add(recipe -> true);
                 }), recipe -> outputMatches(recipe, item) && !bannedItem(item, world) && (additionalCondition == null || additionalCondition.test(recipe)), false)
                 .values().stream().filter(list -> !list.isEmpty()).findFirst()
                 .flatMap(recipesOfPreferredType -> {
-                    IRecipe<?> randomRecipe = recipesOfPreferredType.get(random.nextInt(recipesOfPreferredType.size()));
+                    Recipe<?> randomRecipe = recipesOfPreferredType.get(random.nextInt(recipesOfPreferredType.size()));
                     ItemStack[] ingredients = getIngredients(randomRecipe);
                     if (ingredients.length == 0) return Optional.empty();
                     return Optional.of(Pair.of(ingredients, randomRecipe.getResultItem().getCount()));
                 });
     }
     
-    private boolean outputMatches(IRecipe<?> recipe, ItemStack stack) {
+    private boolean outputMatches(Recipe<?> recipe, ItemStack stack) {
         return recipe.getResultItem().getItem() == stack.getItem() && recipe.getResultItem().getCount() <= stack.getCount();
     }
     
-    private boolean bannedItem(ItemStack stack, World world) {
+    private boolean bannedItem(ItemStack stack, Level world) {
         return world.getRecipeManager().getRecipes().stream().anyMatch(recipe -> 
         recipe.getResultItem().getItem() == stack.getItem() && recipe instanceof BlastingRecipe);
     }
 
-    private ItemStack[] getIngredients(IRecipe<?> recipe) {
+    private ItemStack[] getIngredients(Recipe<?> recipe) {
         List<Ingredient> ingredients = recipe.getIngredients();
         ItemStack[] stacks = new ItemStack[ingredients.size()];
 
@@ -363,16 +363,16 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
         return stacks;
     }
     
-    private CompoundNBT revertBookPagesNBT(CompoundNBT signedBookNBT) {
-        CompoundNBT nbt = new CompoundNBT();
-        if (signedBookNBT.contains("pages", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT textPagesClean = new ListNBT();
+    private CompoundTag revertBookPagesNBT(CompoundTag signedBookNBT) {
+        CompoundTag nbt = new CompoundTag();
+        if (signedBookNBT.contains("pages", MCUtil.getNbtId(ListTag.class))) {
+            ListTag textPagesClean = new ListTag();
             
-            signedBookNBT.getList("pages", MCUtil.getNbtId(StringNBT.class)).forEach(pageNBT -> {
-                if (pageNBT.getId() == MCUtil.getNbtId(StringNBT.class)) {
-                    ITextComponent text = ITextComponent.Serializer.fromJson(((StringNBT) pageNBT).getAsString());
+            signedBookNBT.getList("pages", MCUtil.getNbtId(StringTag.class)).forEach(pageNBT -> {
+                if (pageNBT.getId() == MCUtil.getNbtId(StringTag.class)) {
+                    Component text = Component.Serializer.fromJson(((StringTag) pageNBT).getAsString());
                     if (text != null) {
-                        textPagesClean.add(StringNBT.valueOf(text.getString()));
+                        textPagesClean.add(StringTag.valueOf(text.getString()));
                     }
                 }
             });
@@ -382,13 +382,13 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
         return nbt;
     }
     
-    public static boolean canReplaceBlock(World world, BlockPos blockPos, BlockState newBlockState) {
+    public static boolean canReplaceBlock(Level world, BlockPos blockPos, BlockState newBlockState) {
         BlockState currentBlockState = world.getBlockState(blockPos);
         float hardness = currentBlockState.getDestroySpeed(world, blockPos);
         return currentBlockState.getMaterial().isReplaceable() || hardness >= 0 && hardness < newBlockState.getDestroySpeed(world, blockPos);
     }
     
-    private void replaceOrDropBlock(World world, BlockPos blockPos, BlockState newBlockState) {
+    private void replaceOrDropBlock(Level world, BlockPos blockPos, BlockState newBlockState) {
         if (!world.isClientSide()) {
             if (canReplaceBlock(world, blockPos, newBlockState)) {
                 world.destroyBlock(blockPos, true);
@@ -398,7 +398,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                 Item blockItem = newBlockState.getBlock().asItem();
                 if (blockItem != null && blockItem != Items.AIR) {
                     ItemStack dropAsItem = new ItemStack(blockItem);
-                    Vector3d pos = Vector3d.atCenterOf(blockPos);
+                    Vec3 pos = Vec3.atCenterOf(blockPos);
                     ItemEntity itemEntity = new ItemEntity(world, pos.x, pos.y, pos.z, dropAsItem);
                     world.addFreshEntity(itemEntity);
                 }
@@ -407,7 +407,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             @Nullable Phase from, @Nullable Phase to, StandEntityTask task, int nextPhaseTicks) {
         if (world.isClientSide()) {
             if (to == Phase.PERFORM) {
@@ -429,7 +429,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
     @Override
     public StandRelativeOffset getOffsetFromUser(IStandPower standPower, StandEntity standEntity, StandEntityTask task) {
         return offsetToTarget(standPower, standEntity, task.getTarget(), 0, standEntity.getMaxEffectiveRange(), null)
-                .orElse(!standEntity.isArmsOnlyMode() && standEntity.getUser().getMainArm() == HandSide.LEFT ? 
+                .orElse(!standEntity.isArmsOnlyMode() && standEntity.getUser().getMainArm() == HumanoidArm.LEFT ? 
                         userOffsetLeftArm
                         : super.getOffsetFromUser(standPower, standEntity, task));
     }
@@ -452,7 +452,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
         else if (!standEntity.isRemotePositionFixed()) {
             LivingEntity user = standEntity.getUser();
             if (user != null) {
-                float rotationOffset = user.getMainArm() == HandSide.RIGHT ? 15 : -15;
+                float rotationOffset = user.getMainArm() == HumanoidArm.RIGHT ? 15 : -15;
                 standEntity.setRot(user.yBodyRot + rotationOffset, user.xRot);
                 standEntity.setYHeadRot(user.yBodyRot + rotationOffset);
             }

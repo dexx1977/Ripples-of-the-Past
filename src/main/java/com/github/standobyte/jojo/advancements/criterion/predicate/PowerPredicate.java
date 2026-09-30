@@ -16,9 +16,9 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.registries.ForgeRegistry;
 
@@ -74,10 +74,10 @@ public class PowerPredicate {
             return ANY;
         }
         else {
-            JsonObject jsonObject = JSONUtils.convertToJsonObject(json, "JoJo power");
+            JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "JoJo power");
             
             PowerClassification classification = jsonObject.has("classification") ? 
-                    Enum.valueOf(PowerClassification.class, JSONUtils.getAsString(jsonObject, "classification").toUpperCase())
+                    Enum.valueOf(PowerClassification.class, GsonHelper.getAsString(jsonObject, "classification").toUpperCase())
                     : defaultClassification;
             if (classification == null) {
                 throw new JsonSyntaxException("No power classification specified");
@@ -88,7 +88,7 @@ public class PowerPredicate {
             SpecialTypeCheck typeCheck = SpecialTypeCheck.ANY;
             if (jsonObject.has("type")) {
                 typeCheck = null;
-                String typeString = JSONUtils.getAsString(jsonObject, "type");
+                String typeString = GsonHelper.getAsString(jsonObject, "type");
                 for (SpecialTypeCheck check : SpecialTypeCheck.values()) {
                     if (check.name().equals(typeString.toUpperCase())) {
                         typeCheck = check;

@@ -19,22 +19,21 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.TieredItem;
-import net.minecraft.util.DrinkHelper;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class CrazyDiamondRepairItem extends StandEntityAction {
@@ -60,7 +59,7 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
     }
 
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         LivingEntity user = userPower.getUser();
         if (user != null) {
             if (!world.isClientSide()) {
@@ -73,16 +72,16 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
                 }
             }
             else if (ClientUtil.canSeeStands()) {
-                CustomParticlesHelper.createCDRestorationParticle(user, Hand.OFF_HAND);
+                CustomParticlesHelper.createCDRestorationParticle(user, InteractionHand.OFF_HAND);
             }
         }
     }
 
     @Override
-    public void appendWarnings(List<ITextComponent> list, IStandPower power, PlayerEntity clientPlayerUser) {
+    public void appendWarnings(List<Component> list, IStandPower power, Player clientPlayerUser) {
         ItemStack itemToRepair = itemToRepair(clientPlayerUser);
         if (!itemToRepair.isEmpty() && itemToRepair.isEnchanted()) {
-            list.add(new TranslationTextComponent("jojo.crazy_diamond_fix.warning", itemToRepair.getDisplayName()));
+            list.add(Component.translatable("jojo.crazy_diamond_fix.warning", itemToRepair.getDisplayName()));
         }
     }
     
@@ -116,10 +115,10 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
             }
         }
         
-        if (newStack != null && user instanceof PlayerEntity) {
+        if (newStack != null && user instanceof Player) {
             if (itemTransformationTick(taskTicks, standEntity)) {
-                PlayerEntity player = (PlayerEntity) user;
-                user.setItemInHand(Hand.OFF_HAND, DrinkHelper.createFilledResult(itemStack, player, newStack, false));
+                Player player = (Player) user;
+                user.setItemInHand(InteractionHand.OFF_HAND, ItemUtils.createFilledResult(itemStack, player, newStack, false));
                 if (player.abilities.instabuild) {
                     itemStack.shrink(1);
                 }
@@ -190,21 +189,21 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
             int xp = getExperienceAmount(entity.level, enchantedItem);
     
             if (xp > 0) {
-                Vector3d pos = entity.position().add(new Vector3d(
-                        entity.getBbWidth() * 0.6 * (entity.getMainArm() == HandSide.LEFT ? -1 : 1), 
+                Vec3 pos = entity.position().add(new Vec3(
+                        entity.getBbWidth() * 0.6 * (entity.getMainArm() == HumanoidArm.LEFT ? -1 : 1), 
                         entity.getBbHeight() * (entity.isShiftKeyDown() ? 0.25 : 0.45), 
                         entity.getBbWidth() * 0.7)
                         .yRot(-entity.yBodyRot * MathUtil.DEG_TO_RAD));
                 while (xp > 0) {
-                    int xpThisOrb = ExperienceOrbEntity.getExperienceValue(xp);
+                    int xpThisOrb = ExperienceOrb.getExperienceValue(xp);
                     xp -= xpThisOrb;
-                    entity.level.addFreshEntity(new ExperienceOrbEntity(entity.level, pos.x, pos.y, pos.z, xpThisOrb));
+                    entity.level.addFreshEntity(new ExperienceOrb(entity.level, pos.x, pos.y, pos.z, xpThisOrb));
                 }
             }
         }
     }
 
-    private static int getExperienceAmount(World world, ItemStack item) {
+    private static int getExperienceAmount(Level world, ItemStack item) {
         int xp = 0;
         Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(item);
 
@@ -229,7 +228,7 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             @Nullable Phase from, @Nullable Phase to, StandEntityTask task, int nextPhaseTicks) {
         if (world.isClientSide()) {
             if (to == Phase.PERFORM) {
@@ -246,7 +245,7 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
     public StandRelativeOffset getOffsetFromUser(IStandPower standPower, StandEntity standEntity, StandEntityTask task) {
         if (!standEntity.isArmsOnlyMode()) {
             LivingEntity user = standEntity.getUser();
-            if (user.getMainArm() == HandSide.LEFT) {
+            if (user.getMainArm() == HumanoidArm.LEFT) {
                 return userOffsetLeftArm;
             }
         }
@@ -266,7 +265,7 @@ public class CrazyDiamondRepairItem extends StandEntityAction {
         else if (!standEntity.isRemotePositionFixed()) {
             LivingEntity user = standEntity.getUser();
             if (user != null) {
-                float rotationOffset = user.getMainArm() == HandSide.RIGHT ? 15 : -15;
+                float rotationOffset = user.getMainArm() == HumanoidArm.RIGHT ? 15 : -15;
                 standEntity.setRot(user.yBodyRot + rotationOffset, user.xRot);
                 standEntity.setYHeadRot(user.yBodyRot + rotationOffset);
             }

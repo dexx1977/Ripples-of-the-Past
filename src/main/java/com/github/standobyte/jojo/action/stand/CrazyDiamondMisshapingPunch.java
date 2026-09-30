@@ -9,11 +9,11 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondMisshapingPunch extends StandEntityHeavyAttack {
 
@@ -22,7 +22,7 @@ public class CrazyDiamondMisshapingPunch extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
+    public void onTaskSet(Level world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
         super.onTaskSet(world, standEntity, standPower, phase, task, ticks);
         if (!world.isClientSide() && task.getTarget().getType() == TargetType.ENTITY) {
             Entity target = task.getTarget().getEntity();
@@ -37,12 +37,12 @@ public class CrazyDiamondMisshapingPunch extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void taskWriteAdditional(StandEntityTask task, PacketBuffer buffer) {
+    public void taskWriteAdditional(StandEntityTask task, FriendlyByteBuf buffer) {
         NetworkUtil.writeOptionally(buffer, task.getAdditionalData().peekOrNull(TargetHitPart.class), buffer::writeEnum);
     }
 
     @Override
-    public void taskReadAdditional(StandEntityTask task, PacketBuffer buffer) {
+    public void taskReadAdditional(StandEntityTask task, FriendlyByteBuf buffer) {
         NetworkUtil.readOptional(buffer, () -> buffer.readEnum(TargetHitPart.class)).ifPresent(part -> {
             task.getAdditionalData().push(TargetHitPart.class, part);
         });;
@@ -63,7 +63,7 @@ public class CrazyDiamondMisshapingPunch extends StandEntityHeavyAttack {
             if (entity instanceof LivingEntity) {
                 TargetHitPart hitPart = task.getAdditionalData().peek(TargetHitPart.class);
                 if (hitPart != null) {
-                    Vector3d pos = hitPart.getPartCenter((LivingEntity) entity);
+                    Vec3 pos = hitPart.getPartCenter((LivingEntity) entity);
                     if (pos != null) {
                         MCUtil.rotateTowards(standEntity, pos, 360F);
                         return;

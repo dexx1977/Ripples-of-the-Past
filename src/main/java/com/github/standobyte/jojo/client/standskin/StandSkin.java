@@ -11,8 +11,8 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsManager.SkinResourc
 import com.github.standobyte.jojo.client.standskin.resource.StandModelReskin;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 /*
  * TODO Stand skins
@@ -52,7 +52,7 @@ public class StandSkin {
     public final boolean defaultSkin;
 //    public final boolean inModSkin;
     
-    private final ITextComponent partName;
+    private final Component partName;
     
     /*  Is used to save the resource pack data before it can be processed
      *  and turned into some elements of the skin, e.g. custom Stand model. 
@@ -64,7 +64,7 @@ public class StandSkin {
     private final Map<ResourceLocation, ResourcePathChecker> resourceCheckCache = new HashMap<>();
     
     public StandSkin(ResourceLocation resLoc, ResourceLocation standTypeId, 
-            int color, @Nullable ITextComponent partName) {
+            int color, @Nullable Component partName) {
         this.resLoc = resLoc;
         this.standTypeId = standTypeId;
         this.color = color;
@@ -97,7 +97,7 @@ public class StandSkin {
     }
     
     
-    public ITextComponent getPartName(StandType<?> standTypeObj) {
+    public Component getPartName(StandType<?> standTypeObj) {
         return partName != null ? partName : standTypeObj.getPartName();
     }
 }

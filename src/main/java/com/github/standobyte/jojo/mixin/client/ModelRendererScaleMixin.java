@@ -6,11 +6,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.render.entity.animnew.IModelRendererScale;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
-@Mixin(ModelRenderer.class)
+@Mixin(ModelPart.class)
 public class ModelRendererScaleMixin implements IModelRendererScale {
     private float jojoAnimXScale = 1;
     private float jojoAnimYScale = 1;
@@ -31,7 +31,7 @@ public class ModelRendererScaleMixin implements IModelRendererScale {
     }
     
     @Inject(method = "translateAndRotate", at = @At("TAIL"))
-    public void jojoScaleModelPart(MatrixStack matrixStack, CallbackInfo ci) {
+    public void jojoScaleModelPart(PoseStack matrixStack, CallbackInfo ci) {
         if (jojoAnimXScale != 1.0F || jojoAnimYScale != 1.0F || jojoAnimZScale != 1.0F) {
             matrixStack.scale(jojoAnimXScale, jojoAnimYScale, jojoAnimZScale);
         }

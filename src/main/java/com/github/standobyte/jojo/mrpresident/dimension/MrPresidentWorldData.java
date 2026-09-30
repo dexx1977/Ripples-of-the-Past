@@ -12,31 +12,31 @@ import com.github.standobyte.jojo.world.dimension.ModDimensions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
+public class MrPresidentWorldData implements INBTSerializable<CompoundTag> {
     private final BiMap<UUID, ChunkSectionPos> allocatedRooms = HashBiMap.create();
     private final Map<UUID, MrPresidentTurtlePos> trackedTurtlePos = new HashMap<>();
 
-    public MrPresidentWorldData(ServerWorld world) {}
+    public MrPresidentWorldData(ServerLevel world) {}
     
     public static LazyOptional<MrPresidentWorldData> get(MinecraftServer server) {
-        ServerWorld world = server.getLevel(ModDimensions.MR_PRESIDENT);
+        ServerLevel world = server.getLevel(ModDimensions.MR_PRESIDENT);
         if (world != null) {
             return world.getCapability(MrPresidentWorldDataProvider.CAPABILITY);
         }
@@ -44,12 +44,12 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         
-        ListNBT roomsMapNbt = new ListNBT();
+        ListTag roomsMapNbt = new ListTag();
         for (Map.Entry<UUID, ChunkSectionPos> entry : allocatedRooms.entrySet()) {
-            CompoundNBT roomNbt = new CompoundNBT();
+            CompoundTag roomNbt = new CompoundTag();
             roomNbt.putUUID("Turtle", entry.getKey());
             roomNbt.put("Pos", entry.getValue().toNBT());
             
@@ -66,13 +66,13 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT inbt) {
-        CompoundNBT nbt = (CompoundNBT) inbt;
+    public void deserializeNBT(CompoundTag inbt) {
+        CompoundTag nbt = (CompoundTag) inbt;
         
-        ListNBT roomsNbt = nbt.getList("Rooms", Constants.NBT.TAG_COMPOUND);
-        for (INBT elem : roomsNbt) {
-            CompoundNBT roomNbt = (CompoundNBT) elem;
-            ChunkSectionPos pos = ChunkSectionPos.fromNBT(roomNbt.getList("Pos", Constants.NBT.TAG_INT));
+        ListTag roomsNbt = nbt.getList("Rooms", Tag.TAG_COMPOUND);
+        for (Tag elem : roomsNbt) {
+            CompoundTag roomNbt = (CompoundTag) elem;
+            ChunkSectionPos pos = ChunkSectionPos.fromNBT(roomNbt.getList("Pos", Tag.TAG_INT));
             if (pos != null && roomNbt.hasUUID("Turtle")) {
                 UUID id = roomNbt.getUUID("Turtle");
                 allocatedRooms.put(id, pos);
@@ -147,17 +147,17 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
     
     
     public static class MrPresidentTurtlePos {
-        RegistryKey<World> turtleDimension;
-        Vector3d turtlePos;
+        ResourceKey<Level> turtleDimension;
+        Vec3 turtlePos;
         
         private MrPresidentTurtlePos() {}
         
-        MrPresidentTurtlePos(RegistryKey<World> userDimension, Vector3d userPos) {
+        MrPresidentTurtlePos(ResourceKey<Level> userDimension, Vec3 userPos) {
             this.turtleDimension = userDimension;
             this.turtlePos = userPos;
         }
         
-        void addToNbtEntry(CompoundNBT nbt) {
+        void addToNbtEntry(CompoundTag nbt) {
             if (turtleDimension != null && turtlePos != null) {
                 nbt.putString("TurtleDim", turtleDimension.location().toString());
                 MCUtil.nbtPutVec3d(nbt, "TurtlePos", turtlePos);
@@ -165,15 +165,15 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
         }
         
         @Nullable
-        static MrPresidentTurtlePos fromNbtEntry(CompoundNBT nbt) {
-            if (nbt.contains("TurtleDim", Constants.NBT.TAG_STRING)) {
+        static MrPresidentTurtlePos fromNbtEntry(CompoundTag nbt) {
+            if (nbt.contains("TurtleDim", Tag.TAG_STRING)) {
                 ResourceLocation dimensionId = new ResourceLocation(nbt.getString("TurtleDim"));
-                RegistryKey<World> dimension = MCUtil.getRegistryKeyIfPresent(Registry.DIMENSION_REGISTRY, dimensionId);
+                ResourceKey<Level> dimension = MCUtil.getRegistryKeyIfPresent(Registry.DIMENSION_REGISTRY, dimensionId);
                 if (dimension == null) {
                     return null;
                 }
                 
-                Vector3d pos = MCUtil.nbtGetVec3d(nbt, "TurtlePos");
+                Vec3 pos = MCUtil.nbtGetVec3d(nbt, "TurtlePos");
                 if (pos == null) {
                     return null;
                 }
@@ -209,8 +209,8 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
                     this.z == blockPos.getZ() >> 4;
         }
         
-        public static ChunkSectionPos fromNBT(ListNBT nbt) {
-            if (nbt.size() == 3 && nbt.getElementType() == Constants.NBT.TAG_INT) {
+        public static ChunkSectionPos fromNBT(ListTag nbt) {
+            if (nbt.size() == 3 && nbt.getElementType() == Tag.TAG_INT) {
                 int x = nbt.getInt(0);
                 int y = nbt.getInt(1);
                 int z = nbt.getInt(2);
@@ -228,11 +228,11 @@ public class MrPresidentWorldData implements INBTSerializable<CompoundNBT> {
             return llOffset.offset(this.x << 4, this.y << 4, this.z << 4);
         }
         
-        public ListNBT toNBT() {
-            ListNBT nbt = new ListNBT();
-            nbt.add(IntNBT.valueOf(x));
-            nbt.add(IntNBT.valueOf(y));
-            nbt.add(IntNBT.valueOf(z));
+        public ListTag toNBT() {
+            ListTag nbt = new ListTag();
+            nbt.add(IntTag.valueOf(x));
+            nbt.add(IntTag.valueOf(y));
+            nbt.add(IntTag.valueOf(z));
             return nbt;
         }
         

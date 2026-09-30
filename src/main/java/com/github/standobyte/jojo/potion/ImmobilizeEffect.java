@@ -1,16 +1,16 @@
 package com.github.standobyte.jojo.potion;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.common.ForgeMod;
 
 public class ImmobilizeEffect extends StatusEffect implements IApplicableEffect {
     
     public ImmobilizeEffect(int liquidColor) {
-        super(EffectType.HARMFUL, liquidColor);
+        super(MobEffectCategory.HARMFUL, liquidColor);
         addAttributeModifier(Attributes.MOVEMENT_SPEED, "7abfcba6-295c-4310-9952-1c58d0eb58fb", -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
         addAttributeModifier(Attributes.FLYING_SPEED, "be6a9866-e25d-4466-9364-521b570c9b81", -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
         addAttributeModifier(Attributes.ATTACK_SPEED, "018041e0-654d-48cf-a392-8dcb47ca48a3", -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
@@ -19,8 +19,8 @@ public class ImmobilizeEffect extends StatusEffect implements IApplicableEffect 
     
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
             player.abilities.flying = false;
         }
         if (resetsDeltaMovement()) {
@@ -39,7 +39,7 @@ public class ImmobilizeEffect extends StatusEffect implements IApplicableEffect 
     
     @Override
     public boolean isApplicable(LivingEntity entity) {
-        return !(entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild);
+        return !(entity instanceof Player && ((Player) entity).abilities.instabuild);
     }
     
 }

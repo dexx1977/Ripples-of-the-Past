@@ -14,12 +14,12 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondMisshapeBodyPart extends StandEntityActionModifier {
     private final TargetHitPart partToHit;
@@ -34,7 +34,7 @@ public class CrazyDiamondMisshapeBodyPart extends StandEntityActionModifier {
         if (power.isActive()) {
             Entity targetEntity = target.getEntity();
             // TODO misshaping body parts mob effects
-            if (targetEntity instanceof LivingEntity && StandUtil.getStandUser((LivingEntity) targetEntity) instanceof PlayerEntity) {
+            if (targetEntity instanceof LivingEntity && StandUtil.getStandUser((LivingEntity) targetEntity) instanceof Player) {
                 StandEntity standEntity = (StandEntity) power.getStandManifestation();
                 TargetHitPart hitPart = standEntity.getCurrentTask().map(task -> {
                     if (task.hasModifierAction(null)) {
@@ -49,7 +49,7 @@ public class CrazyDiamondMisshapeBodyPart extends StandEntityActionModifier {
     }
     
     @Override
-    public void standTickRecovery(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickRecovery(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         TargetHitPart hitPart = task.getAdditionalData().peekOrNull(TargetHitPart.class);
         if (hitPart == null) return;
         
@@ -71,17 +71,17 @@ public class CrazyDiamondMisshapeBodyPart extends StandEntityActionModifier {
                     
                     switch (hitPart) {
                     case HEAD:
-                        targetEntity.addEffect(new EffectInstance(Effects.CONFUSION, 60, 0, false, false, true));
-                        targetEntity.addEffect(new EffectInstance(ModStatusEffects.MISSHAPEN_FACE.get(), 200, 0, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 60, 0, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(ModStatusEffects.MISSHAPEN_FACE.get(), 200, 0, false, false, true));
                         break;
                     case TORSO_ARMS:
-                        targetEntity.addEffect(new EffectInstance(Effects.WEAKNESS, 60, 0, false, false, true));
-                        targetEntity.addEffect(new EffectInstance(Effects.DIG_SLOWDOWN, 60, 1, false, false, true));
-                        targetEntity.addEffect(new EffectInstance(ModStatusEffects.MISSHAPEN_ARMS.get(), 200, 0, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 60, 1, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(ModStatusEffects.MISSHAPEN_ARMS.get(), 200, 0, false, false, true));
                         break;
                     case LEGS:
-                        targetEntity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 60, 1, false, false, true));
-                        targetEntity.addEffect(new EffectInstance(ModStatusEffects.MISSHAPEN_LEGS.get(), 200, 0, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, false, true));
+                        targetEntity.addEffect(new MobEffectInstance(ModStatusEffects.MISSHAPEN_LEGS.get(), 200, 0, false, false, true));
                         break;
                     }
                     

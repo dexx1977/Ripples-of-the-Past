@@ -5,14 +5,14 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HGStringEntity extends OwnerBoundProjectileEntity {
     private float yRotOffset;
@@ -21,14 +21,14 @@ public class HGStringEntity extends OwnerBoundProjectileEntity {
     private boolean dealtDamage;
     private float knockback = 0;
 
-    public HGStringEntity(World world, LivingEntity entity, float angleXZ, float angleYZ, boolean isBinding) {
+    public HGStringEntity(Level world, LivingEntity entity, float angleXZ, float angleYZ, boolean isBinding) {
         super(ModEntityTypes.HG_STRING.get(), entity, world);
         this.yRotOffset = angleXZ;
         this.xRotOffset = angleYZ;
         this.isBinding = isBinding;
     }
     
-    public HGStringEntity(EntityType<? extends HGStringEntity> entityType, World world) {
+    public HGStringEntity(EntityType<? extends HGStringEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -61,7 +61,7 @@ public class HGStringEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             dealtDamage = true;
             Entity target = entityRayTraceResult.getEntity();
@@ -70,7 +70,7 @@ public class HGStringEntity extends OwnerBoundProjectileEntity {
                     LivingEntity livingTarget = (LivingEntity) target;
                     if (!JojoModUtil.isTargetBlocking(livingTarget)) {
                         attachToEntity(livingTarget);
-                        livingTarget.addEffect(new EffectInstance(ModStatusEffects.IMMOBILIZE.get(), ticksLifespan() - tickCount));
+                        livingTarget.addEffect(new MobEffectInstance(ModStatusEffects.IMMOBILIZE.get(), ticksLifespan() - tickCount));
                     }
                 }
             }
@@ -112,19 +112,19 @@ public class HGStringEntity extends OwnerBoundProjectileEntity {
         return true;
     }
     
-    private static final Vector3d FRONT_OFFSET = new Vector3d(0.0D, 0.0D, 0.25D);
+    private static final Vec3 FRONT_OFFSET = new Vec3(0.0D, 0.0D, 0.25D);
     @Override
-    protected Vector3d getXRotOffset() {
+    protected Vec3 getXRotOffset() {
         return FRONT_OFFSET;
     }
 
     @Override
-    protected Vector3d originOffset(float yRot, float xRot, double distance) {
+    protected Vec3 originOffset(float yRot, float xRot, double distance) {
         return super.originOffset(yRot + yRotOffset, xRot + xRotOffset, distance);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeFloat(yRotOffset);
         buffer.writeFloat(xRotOffset);
@@ -132,7 +132,7 @@ public class HGStringEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.yRotOffset = additionalData.readFloat();
         this.xRotOffset = additionalData.readFloat();

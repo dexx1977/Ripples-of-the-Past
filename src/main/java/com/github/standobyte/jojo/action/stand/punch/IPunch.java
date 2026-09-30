@@ -4,8 +4,8 @@ import com.github.standobyte.jojo.action.ActionTarget.TargetType;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 
 public interface IPunch {
     boolean doHit(StandEntityTask task);
@@ -14,7 +14,7 @@ public interface IPunch {
     StandEntity getStand();
     
     SoundEvent getImpactSound();
-    Vector3d getImpactSoundPos();
+    Vec3 getImpactSoundPos();
     default boolean playImpactSound() {
         return targetWasHit();
     }

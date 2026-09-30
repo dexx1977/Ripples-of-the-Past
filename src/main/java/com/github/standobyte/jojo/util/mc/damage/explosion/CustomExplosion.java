@@ -20,51 +20,51 @@ import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.ProtectionEnchantment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.EntityExplosionContext;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.ProtectionEnchantment;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.Util;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.EntityBasedExplosionDamageCalculator;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public abstract class CustomExplosion extends Explosion {
-    protected final World level;
+    protected final Level level;
     protected float radius;
-    protected Explosion.Mode blockInteraction;
+    protected Explosion.BlockInteraction blockInteraction;
     protected boolean fire;
     protected Random random = new Random();
-    protected ExplosionContext damageCalculator;
+    protected ExplosionDamageCalculator damageCalculator;
     
-    protected CustomExplosion(World pLevel, @Nullable Entity pSource, 
-            @Nullable DamageSource pDamageSource, @Nullable ExplosionContext pDamageCalculator, 
+    protected CustomExplosion(Level pLevel, @Nullable Entity pSource, 
+            @Nullable DamageSource pDamageSource, @Nullable ExplosionDamageCalculator pDamageCalculator, 
             double pToBlowX, double pToBlowY, double pToBlowZ, 
-            float pRadius, boolean pFire, Explosion.Mode pBlockInteraction) {
+            float pRadius, boolean pFire, Explosion.BlockInteraction pBlockInteraction) {
         super(pLevel, pSource, pDamageSource, pDamageCalculator, pToBlowX, pToBlowY, pToBlowZ, pRadius, pFire, pBlockInteraction);
         this.level = pLevel;
         this.radius = pRadius;
@@ -73,16 +73,16 @@ public abstract class CustomExplosion extends Explosion {
         this.damageCalculator = pDamageCalculator == null ? makeDamageCalculator(pSource) : pDamageCalculator;
     }
     
-    protected CustomExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
-        this(pLevel, null, null, null, pToBlowX, pToBlowY, pToBlowZ, pRadius, false, Explosion.Mode.NONE);
+    protected CustomExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
+        this(pLevel, null, null, null, pToBlowX, pToBlowY, pToBlowZ, pRadius, false, Explosion.BlockInteraction.NONE);
     }
     
-    public void toBuf(PacketBuffer buf) {}
+    public void toBuf(FriendlyByteBuf buf) {}
     
-    public void fromBuf(PacketBuffer buf) {}
+    public void fromBuf(FriendlyByteBuf buf) {}
     
-    protected ExplosionContext makeDamageCalculator(@Nullable Entity pEntity) {
-        return (ExplosionContext)(pEntity == null ? new ExplosionContext() : new EntityExplosionContext(pEntity));
+    protected ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity pEntity) {
+        return (ExplosionDamageCalculator)(pEntity == null ? new ExplosionDamageCalculator() : new EntityBasedExplosionDamageCalculator(pEntity));
     }
     
     /**
@@ -93,26 +93,26 @@ public abstract class CustomExplosion extends Explosion {
     public void explode() {
         getToBlow().addAll(calculateBlocksToBlow());
         
-        AxisAlignedBB area = entityDamageArea();
+        AABB area = entityDamageArea();
         List<Entity> entities = getAffectedEntities(area);
         filterEntities(entities);
         ForgeEventFactory.onExplosionDetonate(level, this, entities, radius * 2);
         hurtEntities(entities);
     }
     
-    protected AxisAlignedBB entityDamageArea() {
+    protected AABB entityDamageArea() {
         double diameter = radius * 2;
-        Vector3d pos = getPosition();
-        return new AxisAlignedBB(
-                MathHelper.floor(pos.x - diameter - 1), 
-                MathHelper.floor(pos.y - diameter - 1), 
-                MathHelper.floor(pos.z - diameter - 1), 
-                MathHelper.floor(pos.x + diameter + 1), 
-                MathHelper.floor(pos.y + diameter + 1), 
-                MathHelper.floor(pos.z + diameter + 1));
+        Vec3 pos = getPosition();
+        return new AABB(
+                Mth.floor(pos.x - diameter - 1), 
+                Mth.floor(pos.y - diameter - 1), 
+                Mth.floor(pos.z - diameter - 1), 
+                Mth.floor(pos.x + diameter + 1), 
+                Mth.floor(pos.y + diameter + 1), 
+                Mth.floor(pos.z + diameter + 1));
     }
     
-    protected List<Entity> getAffectedEntities(AxisAlignedBB area) {
+    protected List<Entity> getAffectedEntities(AABB area) {
         return level.getEntities(getExploder(), area);
     }
     
@@ -131,7 +131,7 @@ public abstract class CustomExplosion extends Explosion {
                         yd = yd / len;
                         zd = zd / len;
                         float power = radius * (0.7F + level.random.nextFloat() * 0.6F);
-                        Vector3d pos = getPosition();
+                        Vec3 pos = getPosition();
                         double x = pos.x;
                         double y = pos.y;
                         double z = pos.z;
@@ -175,7 +175,7 @@ public abstract class CustomExplosion extends Explosion {
             spawnParticles();
         }
         
-        if (blockInteraction != Explosion.Mode.NONE) {
+        if (blockInteraction != Explosion.BlockInteraction.NONE) {
             explodeBlocks();
         }
 
@@ -189,14 +189,14 @@ public abstract class CustomExplosion extends Explosion {
     
     protected void hurtEntities(Collection<Entity> entities) {
         double diameter = radius * 2.0F;
-        Vector3d pos = getPosition();
+        Vec3 pos = getPosition();
         
         for (Entity entity : entities) {
             if (!entity.ignoreExplosion()) {
                 double distRatio = entity.position().distanceTo(pos) / diameter;
                 if (distRatio <= 1.0D) {
-                    Vector3d entityPos = entity instanceof TNTEntity ? entity.position() : entity.getEyePosition(1.0F);
-                    Vector3d diff = entityPos.subtract(pos);
+                    Vec3 entityPos = entity instanceof PrimedTnt ? entity.position() : entity.getEyePosition(1.0F);
+                    Vec3 diff = entityPos.subtract(pos);
                     
                     double length = diff.length();
                     if (length > 1.0E-4D) {
@@ -220,12 +220,12 @@ public abstract class CustomExplosion extends Explosion {
         return (float) ((impact * impact + impact) / 2.0D * 7.0D * diameter + 1.0D);
     }
     
-    protected void hurtEntity(Entity entity, float damage, double knockback, Vector3d vecToEntityNorm) {
+    protected void hurtEntity(Entity entity, float damage, double knockback, Vec3 vecToEntityNorm) {
         entity.hurt(getDamageSource(), damage);
         
         entity.setDeltaMovement(entity.getDeltaMovement().add(vecToEntityNorm.scale(knockback)));
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
             if (!player.isSpectator() && (!player.isCreative() || !player.abilities.flying)) {
                 getHitPlayers().put(player, vecToEntityNorm.scale(knockback));
             }
@@ -241,17 +241,17 @@ public abstract class CustomExplosion extends Explosion {
             BlockState blockState = level.getBlockState(blockPos);
             if (!blockState.isAir(level, blockPos)) {
                 level.getProfiler().push("explosion_blocks");
-                if (blockState.canDropFromExplosion(level, blockPos, this) && level instanceof ServerWorld) {
-                    TileEntity tileEntity = blockState.hasTileEntity() ? level.getBlockEntity(blockPos) : null;
+                if (blockState.canDropFromExplosion(level, blockPos, this) && level instanceof ServerLevel) {
+                    BlockEntity tileEntity = blockState.hasTileEntity() ? level.getBlockEntity(blockPos) : null;
                     LootContext.Builder lootCtxBuilder = (
-                            new LootContext.Builder((ServerWorld)level))
+                            new LootContext.Builder((ServerLevel)level))
                             .withRandom(level.random)
-                            .withParameter(LootParameters.ORIGIN, Vector3d.atCenterOf(blockPos))
-                            .withParameter(LootParameters.TOOL, ItemStack.EMPTY)
-                            .withOptionalParameter(LootParameters.BLOCK_ENTITY, tileEntity)
-                            .withOptionalParameter(LootParameters.THIS_ENTITY, getExploder());
-                    if (blockInteraction == Explosion.Mode.DESTROY) {
-                        lootCtxBuilder.withParameter(LootParameters.EXPLOSION_RADIUS, radius);
+                            .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(blockPos))
+                            .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                            .withOptionalParameter(LootContextParams.BLOCK_ENTITY, tileEntity)
+                            .withOptionalParameter(LootContextParams.THIS_ENTITY, getExploder());
+                    if (blockInteraction == Explosion.BlockInteraction.DESTROY) {
+                        lootCtxBuilder.withParameter(LootContextParams.EXPLOSION_RADIUS, radius);
                     }
 
                     blockState.getDrops(lootCtxBuilder).forEach(itemStack -> {
@@ -270,14 +270,14 @@ public abstract class CustomExplosion extends Explosion {
     }
     
     protected void playSound() {
-        Vector3d pos = getPosition();
-        level.playLocalSound(pos.x, pos.y, pos.z, SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 
+        Vec3 pos = getPosition();
+        level.playLocalSound(pos.x, pos.y, pos.z, SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 
                 4.0F, (1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F) * 0.7F, false);
     }
     
     protected void spawnParticles() {
-        Vector3d pos = getPosition();
-        if (radius >= 2.0F && blockInteraction != Explosion.Mode.NONE) {
+        Vec3 pos = getPosition();
+        if (radius >= 2.0F && blockInteraction != Explosion.BlockInteraction.NONE) {
             level.addParticle(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y, pos.z, 1.0D, 0.0D, 0.0D);
         } else {
             level.addParticle(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 1.0D, 0.0D, 0.0D);
@@ -289,7 +289,7 @@ public abstract class CustomExplosion extends Explosion {
         for (BlockPos blockPos : getToBlow()) {
             if (random.nextInt(3) == 0 && level.getBlockState(blockPos).isAir(level, blockPos)
                     && level.getBlockState(blockPos.below()).isSolidRender(level, blockPos.below())) {
-                level.setBlockAndUpdate(blockPos, AbstractFireBlock.getState(level, blockPos));
+                level.setBlockAndUpdate(blockPos, BaseFireBlock.getState(level, blockPos));
             }
         }
     }
@@ -314,7 +314,7 @@ public abstract class CustomExplosion extends Explosion {
     
     
     public static boolean explode(CustomExplosion explosion) {
-        World world = explosion.level;
+        Level world = explosion.level;
         if (ForgeEventFactory.onExplosionStart(world, explosion)) {
             return false;
         }
@@ -322,14 +322,14 @@ public abstract class CustomExplosion extends Explosion {
         explosion.finalizeExplosion(true);
         
         if (!world.isClientSide()) {
-            if (explosion.blockInteraction == Explosion.Mode.NONE) {
+            if (explosion.blockInteraction == Explosion.BlockInteraction.NONE) {
                 explosion.clearToBlow();
             }
             
             ResourceLocation explosionType = explosion.getExplosionType();
             if (explosionType != null) {
-                Vector3d pos = explosion.getPosition();
-                for (ServerPlayerEntity player : ((ServerWorld) world).players()) {
+                Vec3 pos = explosion.getPosition();
+                for (ServerPlayer player : ((ServerLevel) world).players()) {
                     if (player.distanceToSqr(pos.x, pos.y, pos.z) < 4096) {
                         PacketManager.sendToClient(new CustomExplosionPacket(explosion, pos.x, pos.y, pos.z, 
                                 explosion.radius, explosion.getToBlow(), explosion.getHitPlayers().get(player), explosionType), player);
@@ -359,6 +359,6 @@ public abstract class CustomExplosion extends Explosion {
     
     @FunctionalInterface
     public static interface CustomExplosionSupplier {
-        CustomExplosion createExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius);
+        CustomExplosion createExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius);
     }
 }

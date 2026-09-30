@@ -6,24 +6,24 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.client.GameSettings;
+import net.minecraft.client.Options;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.ITickableSound;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 
-public class StandOstSound extends TickableSound implements ITickableSound {
+public class StandOstSound extends AbstractTickableSoundInstance implements TickableSoundInstance {
     private int fadeAwayTicks = -1;
     private int fadeAwayInitialTicks = -1;
     
     @Nullable
-    private final GameSettings options;
+    private final Options options;
     private final float musicVolume;
 
     public StandOstSound(SoundEvent sound, Minecraft mc) {
-        super(sound, SoundCategory.RECORDS);
+        super(sound, SoundSource.RECORDS);
         this.volume = 1.0F;
         this.pitch = 1.0F;
         this.x = 0;
@@ -31,13 +31,13 @@ public class StandOstSound extends TickableSound implements ITickableSound {
         this.z = 0;
         this.looping = false;
         this.delay = 0;
-        this.attenuation = ISound.AttenuationType.NONE;
+        this.attenuation = SoundInstance.AttenuationType.NONE;
         this.relative = true;
         
-        GameSettings options = mc.options;
-        this.musicVolume = options.getSoundSourceVolume(SoundCategory.MUSIC);
+        Options options = mc.options;
+        this.musicVolume = options.getSoundSourceVolume(SoundSource.MUSIC);
         try {
-            options.setSoundCategoryVolume(SoundCategory.MUSIC, 0);
+            options.setSoundCategoryVolume(SoundSource.MUSIC, 0);
         }
         catch (ConcurrentModificationException e) {
             JojoMod.getLogger().warn("Failed setting Minecraft music volume to 0 when playing OST.");
@@ -61,7 +61,7 @@ public class StandOstSound extends TickableSound implements ITickableSound {
     private void stopOst() {
         stop();
         if (options != null) {
-            options.setSoundCategoryVolume(SoundCategory.MUSIC, musicVolume);
+            options.setSoundCategoryVolume(SoundSource.MUSIC, musicVolume);
         }
     }
     

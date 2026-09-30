@@ -11,12 +11,12 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class VampirismPowerType extends NonStandPowerType<VampirismData> {
     public static final int COLOR = 0xFF0000;
@@ -55,7 +55,7 @@ public class VampirismPowerType extends NonStandPowerType<VampirismData> {
     
     @Override
     public float getMaxEnergy(INonStandPower power) {
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         return super.getMaxEnergy(power) * GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).maxBloodMultiplier.get(), world.getDifficulty().getId())
                 .floatValue();
@@ -71,7 +71,7 @@ public class VampirismPowerType extends NonStandPowerType<VampirismData> {
             return power.getEnergy() - power.getMaxEnergy() * Math.max(vampirism.getCuringProgress(), 0.25F) / 200;
         }
         
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         float inc = -GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).bloodTickDown.get(), world.getDifficulty().getId())
                 .floatValue();
@@ -111,22 +111,22 @@ public class VampirismPowerType extends NonStandPowerType<VampirismData> {
     @Override
     protected void initPassiveEffects() {
         initAllPossibleEffects(
-                () -> Effects.HEALTH_BOOST,
-                () -> Effects.REGENERATION,
-                () -> Effects.DAMAGE_BOOST,
-                () -> Effects.MOVEMENT_SPEED,
-                () -> Effects.DIG_SPEED,
-                () -> Effects.JUMP,
-                () -> Effects.NIGHT_VISION,
+                () -> MobEffects.HEALTH_BOOST,
+                () -> MobEffects.REGENERATION,
+                () -> MobEffects.DAMAGE_BOOST,
+                () -> MobEffects.MOVEMENT_SPEED,
+                () -> MobEffects.DIG_SPEED,
+                () -> MobEffects.JUMP,
+                () -> MobEffects.NIGHT_VISION,
 
-                () -> Effects.MOVEMENT_SLOWDOWN,
-                () -> Effects.DIG_SLOWDOWN,
-                () -> Effects.WEAKNESS,
-                () -> Effects.BLINDNESS);
+                () -> MobEffects.MOVEMENT_SLOWDOWN,
+                () -> MobEffects.DIG_SLOWDOWN,
+                () -> MobEffects.WEAKNESS,
+                () -> MobEffects.BLINDNESS);
     }
     
     @Override
-    public int getPassiveEffectLevel(Effect effect, INonStandPower power) {
+    public int getPassiveEffectLevel(MobEffect effect, INonStandPower power) {
         LivingEntity entity = power.getUser();
         VampirismData vampirism = power.getTypeSpecificData(this).get();
         int difficulty = entity.level.getDifficulty().getId();
@@ -140,14 +140,14 @@ public class VampirismPowerType extends NonStandPowerType<VampirismData> {
                 bloodLevel -= curingStage;
             }
         }
-        if (effect.getCategory() == EffectType.HARMFUL)                     return curingStage >= 4 ? effect == Effects.BLINDNESS ? 0 : 3 - difficulty : -1;
-        if (effect == Effects.HEALTH_BOOST)                                 return difficulty * (curingStage > 0 ? 5 - curingStage * 2 : 5) - 1;
-        if (effect == Effects.REGENERATION)                                 return Math.min(bloodLevel - 2, 4);
-        if (effect == Effects.DAMAGE_BOOST)                                 return bloodLevel - 5;
-        if (effect == Effects.MOVEMENT_SPEED)                               return bloodLevel - 4;
-        if (effect == Effects.DIG_SPEED)                                    return bloodLevel - 4;
-        if (effect == Effects.JUMP)                                         return bloodLevel - 4;
-        if (effect == Effects.NIGHT_VISION)                                 return 0;
+        if (effect.getCategory() == MobEffectCategory.HARMFUL)                     return curingStage >= 4 ? effect == MobEffects.BLINDNESS ? 0 : 3 - difficulty : -1;
+        if (effect == MobEffects.HEALTH_BOOST)                                 return difficulty * (curingStage > 0 ? 5 - curingStage * 2 : 5) - 1;
+        if (effect == MobEffects.REGENERATION)                                 return Math.min(bloodLevel - 2, 4);
+        if (effect == MobEffects.DAMAGE_BOOST)                                 return bloodLevel - 5;
+        if (effect == MobEffects.MOVEMENT_SPEED)                               return bloodLevel - 4;
+        if (effect == MobEffects.DIG_SPEED)                                    return bloodLevel - 4;
+        if (effect == MobEffects.JUMP)                                         return bloodLevel - 4;
+        if (effect == MobEffects.NIGHT_VISION)                                 return 0;
         return -1;
     }
     
@@ -156,8 +156,8 @@ public class VampirismPowerType extends NonStandPowerType<VampirismData> {
         super.tickUser(entity, power);
         VampirismData vampirism = power.getTypeSpecificData(this).get();
         if (!entity.level.isClientSide()) {
-            if (entity instanceof PlayerEntity) {
-                ((PlayerEntity) entity).getFoodData().setFoodLevel(17);
+            if (entity instanceof Player) {
+                ((Player) entity).getFoodData().setFoodLevel(17);
             }
             entity.setAirSupply(entity.getMaxAirSupply());
 

@@ -4,7 +4,7 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCap;
 import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.power.IPower;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IPlayerAction<I extends ContinuousActionInstance<?, P>, P extends IPower<P, ?>> {
     

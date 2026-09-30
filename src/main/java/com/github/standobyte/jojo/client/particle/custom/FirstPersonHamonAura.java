@@ -27,41 +27,42 @@ import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Streams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleRenderType;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.Tessellator;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ReportedException;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.item.TridentItem;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.TridentItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import com.mojang.math.Axis;
 
 public class FirstPersonHamonAura {
     private final Queue<FirstPersonPseudoParticle> particlesToAdd = Queues.newArrayDeque();
-    private final Map<IParticleRenderType, Map<HandSide, Queue<FirstPersonPseudoParticle>>> particles = Maps.newIdentityHashMap();
+    private final Map<ParticleRenderType, Map<HumanoidArm, Queue<FirstPersonPseudoParticle>>> particles = Maps.newIdentityHashMap();
     
     private FirstPersonHamonAura() {}
     
@@ -81,18 +82,18 @@ public class FirstPersonHamonAura {
     }
 
     public void tick() {
-        for (Map<HandSide, Queue<FirstPersonPseudoParticle>> particles : this.particles.values()) {
-            tickParticles(particles.get(HandSide.LEFT));
-            tickParticles(particles.get(HandSide.RIGHT));
+        for (Map<HumanoidArm, Queue<FirstPersonPseudoParticle>> particles : this.particles.values()) {
+            tickParticles(particles.get(HumanoidArm.LEFT));
+            tickParticles(particles.get(HumanoidArm.RIGHT));
         }
         
         FirstPersonPseudoParticle particle;
         if (!particlesToAdd.isEmpty()) {
             while((particle = particlesToAdd.poll()) != null) {
-                Map<HandSide, Queue<FirstPersonPseudoParticle>> particlesByRenderType = this.particles.computeIfAbsent(particle.getRenderType(), 
-                        t -> Util.make(new EnumMap<>(HandSide.class), map -> {
-                            map.put(HandSide.LEFT, EvictingQueue.create(16384));
-                            map.put(HandSide.RIGHT, EvictingQueue.create(16384));
+                Map<HumanoidArm, Queue<FirstPersonPseudoParticle>> particlesByRenderType = this.particles.computeIfAbsent(particle.getRenderType(), 
+                        t -> Util.make(new EnumMap<>(HumanoidArm.class), map -> {
+                            map.put(HumanoidArm.LEFT, EvictingQueue.create(16384));
+                            map.put(HumanoidArm.RIGHT, EvictingQueue.create(16384));
                         }));
                 particlesByRenderType.get(particle.handSide).add(particle);
             }
@@ -122,7 +123,7 @@ public class FirstPersonHamonAura {
         }
     }
     
-    public static boolean auraRendersAtItem(ItemStack itemStack, HandSide handSide) {
+    public static boolean auraRendersAtItem(ItemStack itemStack, HumanoidArm handSide) {
         if (MCUtil.itemHandFree(itemStack)) {
             return true;
         }
@@ -137,7 +138,7 @@ public class FirstPersonHamonAura {
                 return entity.getMainArm() == handSide && (hamon.isSkillLearned(ModHamonSkills.METAL_SILVER_OVERDRIVE.get()) || OilItem.remainingOiledUses(itemStack).isPresent()) && MCUtil.isItemWeapon(itemStack)
                         || hamon.isSkillLearned(ModHamonSkills.PLANT_ITEM_INFUSION.get()) && HamonUtil.isItemLivingMatter(itemStack)
                         || hamon.isSkillLearned(ModHamonSkills.THROWABLES_INFUSION.get()) && (item == Items.EGG || item == Items.SNOWBALL || item == ModItems.MOLOTOV.get() || ((item == Items.SPLASH_POTION || item == Items.LINGERING_POTION) && PotionUtils.getPotion(itemStack) == Potions.WATER))
-                        || hamon.isSkillLearned(ModHamonSkills.ARROW_INFUSION.get()) && (item instanceof ShootableItem || item instanceof TridentItem || item == ModItems.KNIFE.get() || item == ModItems.BLADE_HAT.get())
+                        || hamon.isSkillLearned(ModHamonSkills.ARROW_INFUSION.get()) && (item instanceof ProjectileWeaponItem || item instanceof TridentItem || item == ModItems.KNIFE.get() || item == ModItems.BLADE_HAT.get())
                         || hamon.isSkillLearned(ModHamonSkills.CLACKER_VOLLEY.get()) && item == ModItems.CLACKERS.get()
                         || hamon.isSkillLearned(ModHamonSkills.AJA_STONE_KEEPER.get()) && item instanceof AjaStoneItem
                         || hamon.isSkillLearned(ModHamonSkills.SATIPOROJA_SCARF.get()) && item == ModItems.SATIPOROJA_SCARF.get()
@@ -150,21 +151,21 @@ public class FirstPersonHamonAura {
         return false;
     }
     
-    public static void itemMatrixTransform(MatrixStack matrixStack, HandSide handSide, ItemStack itemStack) {
-        boolean flag = handSide != HandSide.LEFT;
+    public static void itemMatrixTransform(PoseStack matrixStack, HumanoidArm handSide, ItemStack itemStack) {
+        boolean flag = handSide != HumanoidArm.LEFT;
         float f = flag ? 1.0F : -1.0F;
         matrixStack.translate(f * 0.64000005, -0.6, -0.71999997);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * 45.0F));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(f * 45.0F));
         matrixStack.translate(-f, 3.6, 3.5);
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0F));
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(200.0F));
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(f * -135.0F));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(f * 120.0F));
+        matrixStack.mulPose(Axis.XP.rotationDegrees(200.0F));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(f * -135.0F));
         matrixStack.translate(f * 5.3, 0, 0);
     }
 
 
     @SuppressWarnings("deprecation")
-    public void renderParticles(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, HandSide handSide) {
+    public void renderParticles(PoseStack pMatrixStack, MultiBufferSource pBuffer, HumanoidArm handSide) {
         Minecraft mc = Minecraft.getInstance();
         LightTexture lightTexture = mc.gameRenderer.lightTexture();
         float partialTick = ClientUtil.getPartialTick();
@@ -184,12 +185,12 @@ public class FirstPersonHamonAura {
 
         enable.run();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
         
-        for (Map.Entry<IParticleRenderType, Map<HandSide, Queue<FirstPersonPseudoParticle>>> particlesByRenderType : particles.entrySet()) {
-            IParticleRenderType renderType = particlesByRenderType.getKey();
-            if (renderType == IParticleRenderType.NO_RENDER || 
+        for (Map.Entry<ParticleRenderType, Map<HumanoidArm, Queue<FirstPersonPseudoParticle>>> particlesByRenderType : particles.entrySet()) {
+            ParticleRenderType renderType = particlesByRenderType.getKey();
+            if (renderType == ParticleRenderType.NO_RENDER || 
                     renderType == HamonAuraParticleRenderType.HAMON_AURA && !ClientModSettings.getSettingsReadOnly().firstPersonHamonAura) {
                 continue;
             }
@@ -202,9 +203,9 @@ public class FirstPersonHamonAura {
             
             for (FirstPersonPseudoParticle particle : particles) {
                 try {
-                    float x = MathHelper.lerp(partialTick, (float) particle.xo, (float) particle.x);
-                    float y = MathHelper.lerp(partialTick, (float) particle.yo, (float) particle.y);
-                    float z = MathHelper.lerp(partialTick, (float) particle.zo, (float) particle.z);
+                    float x = Mth.lerp(partialTick, (float) particle.xo, (float) particle.x);
+                    float y = Mth.lerp(partialTick, (float) particle.yo, (float) particle.y);
+                    float z = Mth.lerp(partialTick, (float) particle.zo, (float) particle.z);
                     float scale = particle.getQuadSize(partialTick);
                     int light = particle.getLightColor(partialTick);
                     renderParticle(particle, bufferbuilder, x, y, z, 
@@ -223,16 +224,16 @@ public class FirstPersonHamonAura {
         
         Collection<HamonEnergyRippleHandler.SparkPseudoParticle> hamonSparks = EnergyRippleLayer.getSparksToRenderFirstPerson(mc.player, handSide);
         if (hamonSparks != null && !hamonSparks.isEmpty()) {
-            IParticleRenderType renderType = HamonEnergyRippleHandler.SparkPseudoParticle.RENDER_TYPE;
+            ParticleRenderType renderType = HamonEnergyRippleHandler.SparkPseudoParticle.RENDER_TYPE;
             renderType.begin(bufferbuilder, Minecraft.getInstance().textureManager);
 
-            float xOffset = handSide == HandSide.LEFT ? 0.35f : -0.35f;
+            float xOffset = handSide == HumanoidArm.LEFT ? 0.35f : -0.35f;
             for (HamonEnergyRippleHandler.SparkPseudoParticle particle : hamonSparks) {
                 try {
                     float x = (float) particle.x + xOffset;
                     float y = (float) -particle.y + 0.125f;
                     float z = (float) particle.z;
-                    Quaternion renderRot = handSide == HandSide.LEFT ? FirstPersonPseudoParticle.LEFT_ROT : FirstPersonPseudoParticle.RIGHT_ROT;
+                    Quaternionf renderRot = handSide == HumanoidArm.LEFT ? FirstPersonPseudoParticle.LEFT_ROT : FirstPersonPseudoParticle.RIGHT_ROT;
                     renderParticle(particle, bufferbuilder, x, y, z, 
                             particle.scale, HamonEnergyRippleHandler.SparkPseudoParticle.PARTICLE_LIGHT, partialTick, renderRot);
                 } catch (Throwable throwable) {
@@ -256,8 +257,8 @@ public class FirstPersonHamonAura {
         RenderSystem.disableFog();
     }
     
-    private static void renderParticle(IFirstPersonParticle particle, IVertexBuilder buffer, 
-            float x, float y, float z, float scale, int light, float partialTick, Quaternion renderRot) {
+    private static void renderParticle(IFirstPersonParticle particle, VertexConsumer buffer, 
+            float x, float y, float z, float scale, int light, float partialTick, Quaternionf renderRot) {
 //        Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
 //        vector3f1.transform(renderRot);
         
@@ -300,10 +301,10 @@ public class FirstPersonHamonAura {
         protected float alpha = 1;
         protected float quadSize = 0.1F * (RANDOM.nextFloat() * 0.5F + 0.5F) * 2.0F;
         protected TextureAtlasSprite sprite;
-        protected final IAnimatedSprite sprites;
+        protected final SpriteSet sprites;
 
-        protected Quaternion renderRot = new Quaternion(Quaternion.ONE);
-        protected final HandSide handSide;
+        protected Quaternionf renderRot = new Quaternionf(Quaternionf.ONE);
+        protected final HumanoidArm handSide;
         protected float yRot;
         protected float xRot;
         
@@ -311,19 +312,19 @@ public class FirstPersonHamonAura {
         protected static final float RIGHT_X_ROT = -62.5f * MathUtil.DEG_TO_RAD;
         protected static final float LEFT_Y_ROT = -RIGHT_Y_ROT;
         protected static final float LEFT_X_ROT = RIGHT_X_ROT;
-        protected static final Quaternion RIGHT_ROT;
-        protected static final Quaternion LEFT_ROT;
+        protected static final Quaternionf RIGHT_ROT;
+        protected static final Quaternionf LEFT_ROT;
         static {
-            RIGHT_ROT = new Quaternion(Quaternion.ONE);
-            RIGHT_ROT.mul(Vector3f.YP.rotation(RIGHT_Y_ROT));
-            RIGHT_ROT.mul(Vector3f.XP.rotation(RIGHT_X_ROT));
-            LEFT_ROT = new Quaternion(Quaternion.ONE);
-            LEFT_ROT.mul(Vector3f.YP.rotation(LEFT_Y_ROT));
-            LEFT_ROT.mul(Vector3f.XP.rotation(LEFT_X_ROT));
+            RIGHT_ROT = new Quaternionf(Quaternionf.ONE);
+            RIGHT_ROT.mul(Axis.YP.rotation(RIGHT_Y_ROT));
+            RIGHT_ROT.mul(Axis.XP.rotation(RIGHT_X_ROT));
+            LEFT_ROT = new Quaternionf(Quaternionf.ONE);
+            LEFT_ROT.mul(Axis.YP.rotation(LEFT_Y_ROT));
+            LEFT_ROT.mul(Axis.XP.rotation(LEFT_X_ROT));
         }
         
         public FirstPersonPseudoParticle(double x, double y, double z, 
-                IAnimatedSprite sprites, HandSide handSide) {
+                SpriteSet sprites, HumanoidArm handSide) {
             this.setPos(x, y, z);
             this.xo = x;
             this.yo = y;
@@ -345,7 +346,7 @@ public class FirstPersonHamonAura {
             }
         }
         
-        public abstract IParticleRenderType getRenderType();
+        public abstract ParticleRenderType getRenderType();
         
         protected void remove() {
             this.removed = true;
@@ -363,7 +364,7 @@ public class FirstPersonHamonAura {
 
         protected void move(double pX, double pY, double pZ) {
             if (pX != 0.0 || pY != 0.0 || pZ != 0.0) {
-                Vector3d moveVec = new Vector3d(pX, pY, pZ);
+                Vec3 moveVec = new Vec3(pX, pY, pZ);
                 moveVec = moveVec.xRot(-xRot);
                 moveVec = moveVec.yRot(yRot);
                 this.x += moveVec.x;
@@ -399,7 +400,7 @@ public class FirstPersonHamonAura {
 //        }
         
         @Override
-        public void renderSprite(Matrix4f matrixEntry, IVertexBuilder buffer, int light, float partialTick, Vector3f[] avector3f) {
+        public void renderSprite(Matrix4f matrixEntry, VertexConsumer buffer, int light, float partialTick, Vector3f[] avector3f) {
             float u0 = sprite.getU0();
             float u1 = sprite.getU1();
             float v0 = sprite.getV0();
@@ -446,7 +447,7 @@ public class FirstPersonHamonAura {
         protected final int startingSpriteRandom;
         
         public HamonAuraPseudoParticle(double x, double y, double z, 
-                IAnimatedSprite sprites, HandSide handSide) {
+                SpriteSet sprites, HumanoidArm handSide) {
             super(x, y, z, sprites, handSide);
             
             this.lifetime = (int)(4.0F / (RANDOM.nextFloat() * 0.9F + 0.1F));
@@ -455,7 +456,7 @@ public class FirstPersonHamonAura {
             this.yd = (Math.random() * 2.0 - 1.0) * 0.4;
             this.zd = (Math.random() * 2.0 - 1.0) * 0.4;
             double f = (Math.random() + Math.random() + 1.0) * 0.15;
-            double f1 = MathHelper.sqrt(xd * xd + yd * yd + zd * zd);
+            double f1 = Mth.sqrt(xd * xd + yd * yd + zd * zd);
             this.xd = xd / f1 * f * 0.4;
             this.yd = yd / f1 * f * 0.4 + 0.1;
             this.zd = zd / f1 * f * 0.4;
@@ -477,7 +478,7 @@ public class FirstPersonHamonAura {
         }
         
         @Override
-        public IParticleRenderType getRenderType() {
+        public ParticleRenderType getRenderType() {
             return HamonAuraParticleRenderType.HAMON_AURA;
         }
         
@@ -507,14 +508,14 @@ public class FirstPersonHamonAura {
         protected static final float ALPHA_MIN = 0.05F;
         protected static final float ALPHA_DIFF = 0.3F;
         @Override
-        public void renderSprite(Matrix4f matrixEntry, IVertexBuilder buffer, int light, float partialTick, Vector3f[] avector3f) {
+        public void renderSprite(Matrix4f matrixEntry, VertexConsumer buffer, int light, float partialTick, Vector3f[] avector3f) {
             float ageF = ((float) age + partialTick) / (float) lifetime;
             float alphaFunc = ageF <= 0.5F ? ageF * 2 : (1 - ageF) * 2;
             this.alpha = ALPHA_MIN + alphaFunc * ALPHA_DIFF;
             super.renderSprite(matrixEntry, buffer, light, partialTick, avector3f);
         }
 
-        protected void setSpriteFromAge(IAnimatedSprite pSprite) {
+        protected void setSpriteFromAge(SpriteSet pSprite) {
             setSprite(pSprite.get((age + startingSpriteRandom) % lifetime, lifetime));
         }
 
@@ -524,7 +525,7 @@ public class FirstPersonHamonAura {
         
         @Override
         protected float getQuadSize(float pScaleFactor) {
-            return quadSize * MathHelper.clamp(((float)age + pScaleFactor) / (float)lifetime * 32.0F, 0.0F, 1.0F);
+            return quadSize * Mth.clamp(((float)age + pScaleFactor) / (float)lifetime * 32.0F, 0.0F, 1.0F);
         }
         
     }

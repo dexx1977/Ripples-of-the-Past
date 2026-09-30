@@ -8,34 +8,35 @@ import java.util.Map;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.block.BlockSprites;
 import com.github.standobyte.jojo.entity.MRDetectorEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
+import com.mojang.math.Axis;
 
 // Made with Blockbench 3.9.2
 
 
 public class MRDetectorModel extends EntityModel<MRDetectorEntity> {
-    private final ModelRenderer detector;
+    private final ModelPart detector;
     private final Map<Direction, Float> flamesStrength;
 
     public MRDetectorModel() {
         texWidth = 32;
         texHeight = 32;
 
-        detector = new ModelRenderer(this);
+        detector = new ModelPart(this);
         detector.setPos(0.0F, 0.0F, 0.0F);
         detector.texOffs(0, 9).addBox(-4.0F, -0.5F, -0.5F, 8.0F, 1.0F, 1.0F, -0.2F, false);
         detector.texOffs(0, 11).addBox(-0.5F, -4.0F, -0.5F, 1.0F, 8.0F, 1.0F, -0.2F, false);
@@ -84,22 +85,22 @@ public class MRDetectorModel extends EntityModel<MRDetectorEntity> {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         matrixStack.scale(1.0F, -1.0F, -1.0F);
         detector.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
     
-    public void renderFlames(MatrixStack matrixStack, IRenderTypeBuffer buffer, ActiveRenderInfo camera) {
+    public void renderFlames(PoseStack matrixStack, MultiBufferSource buffer, Camera camera) {
         for (Map.Entry<Direction, Float> entry : flamesStrength.entrySet()) {
             float strength = entry.getValue();
             if (strength > 0) {
-                Vector3i normal = entry.getKey().getNormal();
-                renderFlame(matrixStack, buffer, Vector3d.atLowerCornerOf(normal).scale(0.25D), strength, camera);
+                Vec3i normal = entry.getKey().getNormal();
+                renderFlame(matrixStack, buffer, Vec3.atLowerCornerOf(normal).scale(0.25D), strength, camera);
             }
         }
     }
     
-    private void renderFlame(MatrixStack matrixStack, IRenderTypeBuffer buffer, Vector3d offset, float strength, ActiveRenderInfo camera) {
+    private void renderFlame(PoseStack matrixStack, MultiBufferSource buffer, Vec3 offset, float strength, Camera camera) {
         TextureAtlasSprite spriteFire0 = BlockSprites.MR_FIRE_BLOCK_0.sprite();
         TextureAtlasSprite spriteFire1 = BlockSprites.MR_FIRE_BLOCK_1.sprite();
         matrixStack.pushPose();
@@ -109,13 +110,13 @@ public class MRDetectorModel extends EntityModel<MRDetectorEntity> {
         float f1 = 0.5F;
         float f3 = 0.5F;
         float f4 = 0.0F;
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(-camera.getYRot()));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(-camera.getYRot()));
         matrixStack.translate(0.0D, 0.0D, (double)(-0.3F + (float)((int)f3) * 0.02F));
         float f5 = 0.0F;
         int i = 0;
-        IVertexBuilder vertexBuilder = buffer.getBuffer(Atlases.translucentCullBlockSheet());
+        VertexConsumer vertexBuilder = buffer.getBuffer(Sheets.translucentCullBlockSheet());
 
-        for (MatrixStack.Entry matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
+        for (PoseStack.Entry matrixstack$entry = matrixStack.last(); f3 > 0.0F; ++i) {
             TextureAtlasSprite sprite = i % 2 == 0 ? spriteFire0 : spriteFire1;
             float texU0 = sprite.getU0();
             float texV0 = sprite.getV0();

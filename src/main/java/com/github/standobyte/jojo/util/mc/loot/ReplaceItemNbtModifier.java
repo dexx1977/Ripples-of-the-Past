@@ -7,24 +7,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ReplaceItemNbtModifier extends LootModifier {
     private final Item item;
-    private final CompoundNBT tagToReplace;
-    private final CompoundNBT replacingTag;
+    private final CompoundTag tagToReplace;
+    private final CompoundTag replacingTag;
 
-    public ReplaceItemNbtModifier(ILootCondition[] conditions, Item item, CompoundNBT tagToReplace, CompoundNBT replacingTag) {
+    public ReplaceItemNbtModifier(LootItemCondition[] conditions, Item item, CompoundTag tagToReplace, CompoundTag replacingTag) {
         super(conditions);
         this.item = item;
         this.tagToReplace = tagToReplace;
@@ -44,12 +44,12 @@ public class ReplaceItemNbtModifier extends LootModifier {
     public static class Serializer extends GlobalLootModifierSerializer<ReplaceItemNbtModifier> {
 
         @Override
-        public ReplaceItemNbtModifier read(ResourceLocation location, JsonObject object, ILootCondition[] conditions) {
-            JsonObject entryReplacement = JSONUtils.getAsJsonObject(object, "replace_nbt");
-            Item item = JSONUtils.getAsItem(entryReplacement, "item");
+        public ReplaceItemNbtModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] conditions) {
+            JsonObject entryReplacement = GsonHelper.getAsJsonObject(object, "replace_nbt");
+            Item item = GsonHelper.getAsItem(entryReplacement, "item");
             try {
-                CompoundNBT tagToReplace = JsonToNBT.parseTag(JSONUtils.getAsString(entryReplacement, "to_replace"));
-                CompoundNBT replacingTag = JsonToNBT.parseTag(JSONUtils.getAsString(entryReplacement, "replace_with"));
+                CompoundTag tagToReplace = TagParser.parseTag(GsonHelper.getAsString(entryReplacement, "to_replace"));
+                CompoundTag replacingTag = TagParser.parseTag(GsonHelper.getAsString(entryReplacement, "replace_with"));
                 return new ReplaceItemNbtModifier(conditions, item, tagToReplace, replacingTag);
             } 
             catch (CommandSyntaxException commandSyntaxException) {

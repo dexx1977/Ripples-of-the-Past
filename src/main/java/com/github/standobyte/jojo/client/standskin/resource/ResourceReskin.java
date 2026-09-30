@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.standskin.resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class ResourceReskin<T> {
     private final Map<ResourceLocation, T> cache = new HashMap<>();

@@ -9,20 +9,20 @@ import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.init.ModSounds;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.LavaFluid;
-import net.minecraft.item.Item;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.state.StateContainer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.LavaFluid;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidAttributes;
 
 public abstract class BoilingBloodFluid extends LavaFluid {
@@ -54,7 +54,7 @@ public abstract class BoilingBloodFluid extends LavaFluid {
     }
 
     @Override
-    public void animateTick(World pLevel, BlockPos pPos, FluidState pState, Random pRandom) {
+    public void animateTick(Level pLevel, BlockPos pPos, FluidState pState, Random pRandom) {
         BlockPos blockpos = pPos.above();
         if (pLevel.getBlockState(blockpos).isAir() && !pLevel.getBlockState(blockpos).isSolidRender(pLevel, blockpos)) {
             if (pRandom.nextInt(100) == 0) {
@@ -62,11 +62,11 @@ public abstract class BoilingBloodFluid extends LavaFluid {
                 double d1 = (double)pPos.getY() + 1.0D;
                 double d2 = (double)pPos.getZ() + pRandom.nextDouble();
                 pLevel.addParticle(ModParticles.BOILING_BLOOD_POP.get(), d0, d1, d2, 0.0D, 0.0D, 0.0D);
-                pLevel.playLocalSound(d0, d1, d2, ModSounds.BOILING_BLOOD_POP.get(), SoundCategory.BLOCKS, 0.2F + pRandom.nextFloat() * 0.2F, 0.9F + pRandom.nextFloat() * 0.15F, false);
+                pLevel.playLocalSound(d0, d1, d2, ModSounds.BOILING_BLOOD_POP.get(), SoundSource.BLOCKS, 0.2F + pRandom.nextFloat() * 0.2F, 0.9F + pRandom.nextFloat() * 0.15F, false);
             }
 
             if (pRandom.nextInt(200) == 0) {
-                pLevel.playLocalSound((double)pPos.getX(), (double)pPos.getY(), (double)pPos.getZ(), ModSounds.BOILING_BLOOD_AMBIENT.get(), SoundCategory.BLOCKS, 0.2F + pRandom.nextFloat() * 0.2F, 0.9F + pRandom.nextFloat() * 0.15F, false);
+                pLevel.playLocalSound((double)pPos.getX(), (double)pPos.getY(), (double)pPos.getZ(), ModSounds.BOILING_BLOOD_AMBIENT.get(), SoundSource.BLOCKS, 0.2F + pRandom.nextFloat() * 0.2F, 0.9F + pRandom.nextFloat() * 0.15F, false);
             }
         }
 
@@ -126,7 +126,7 @@ public abstract class BoilingBloodFluid extends LavaFluid {
 //    }
 
     @Override
-    public IParticleData getDripParticle() {
+    public ParticleOptions getDripParticle() {
         return ParticleTypes.DRIPPING_LAVA; // FIXME particle
     }
 //
@@ -142,7 +142,7 @@ public abstract class BoilingBloodFluid extends LavaFluid {
 
     @Override
     public BlockState createLegacyBlock(FluidState pState) {
-        return ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(FlowingFluidBlock.LEVEL, Integer.valueOf(getLegacyLevel(pState)));
+        return ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(LiquidBlock.LEVEL, Integer.valueOf(getLegacyLevel(pState)));
     }
 
     @Override
@@ -175,7 +175,7 @@ public abstract class BoilingBloodFluid extends LavaFluid {
 //        return i;
 //    }
 
-    private void fizz(IWorld pLevel, BlockPos pPos) {
+    private void fizz(LevelAccessor pLevel, BlockPos pPos) {
         pLevel.levelEvent(1501, pPos, 0);
     }
 //    
@@ -214,7 +214,7 @@ public abstract class BoilingBloodFluid extends LavaFluid {
     public static class Flowing extends BoilingBloodFluid {
         
         @Override
-        protected void createFluidStateDefinition(StateContainer.Builder<Fluid, FluidState> pBuilder) {
+        protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> pBuilder) {
             super.createFluidStateDefinition(pBuilder);
             pBuilder.add(LEVEL);
         }

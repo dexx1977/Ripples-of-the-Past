@@ -6,27 +6,27 @@ import com.github.standobyte.jojo.init.ModBlocks;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
 
-@OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class) // without this OnlyIn annotation dedicated server will crash
-public class MRFireballEntity extends ModdedProjectileEntity implements IRendersAsItem {
+@OnlyIn(value = Dist.CLIENT, _interface = ItemSupplier.class) // without this OnlyIn annotation dedicated server will crash
+public class MRFireballEntity extends ModdedProjectileEntity implements ItemSupplier {
     private static ItemStack MR_FIREBALL_SPRITE_ITEM = ItemStack.EMPTY;
     
-    public MRFireballEntity(LivingEntity shooter, World world) {
+    public MRFireballEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.MR_FIREBALL.get(), shooter, world);
     }
 
-    public MRFireballEntity(EntityType<? extends MRFireballEntity> type, World world) {
+    public MRFireballEntity(EntityType<? extends MRFireballEntity> type, Level world) {
         super(type, world);
     }
 
@@ -47,7 +47,7 @@ public class MRFireballEntity extends ModdedProjectileEntity implements IRenders
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
             if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
                 BlockPos blockPos = blockDestroyed ? blockRayTraceResult.getBlockPos() : 

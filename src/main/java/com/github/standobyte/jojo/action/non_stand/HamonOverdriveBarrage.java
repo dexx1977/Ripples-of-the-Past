@@ -11,28 +11,28 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.SEntityVelocityPacket;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -45,25 +45,25 @@ public class HamonOverdriveBarrage extends HamonAction {
     
     @Override
     protected ActionConditionResult checkHeldItems(LivingEntity user, INonStandPower power) {
-        if (!MCUtil.areHandsFree(user, Hand.MAIN_HAND, Hand.OFF_HAND)) {
+        if (!MCUtil.areHandsFree(user, InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND)) {
             return conditionMessage("hands");
         }
         return ActionConditionResult.POSITIVE;
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
             switch (target.getType()) {
             case BLOCK:
                 BlockPos pos = target.getBlockPos();
-                if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerWorld) world, pos, world.getBlockState(pos), user)) {
+                if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerLevel) world, pos, world.getBlockState(pos), user)) {
                     if (!world.isEmptyBlock(pos)) {
                         BlockState blockState = world.getBlockState(pos);
                         float digDuration = blockState.getDestroySpeed(world, pos);
                         boolean dropItem = true;
-                        if (user instanceof PlayerEntity) {
-                            PlayerEntity player = (PlayerEntity) user;
+                        if (user instanceof Player) {
+                            Player player = (Player) user;
                             digDuration /= player.getDigSpeed(blockState, pos);
                             if (player.abilities.instabuild) {
                                 digDuration = 0;
@@ -80,7 +80,7 @@ public class HamonOverdriveBarrage extends HamonAction {
                         }
                         else {
                             SoundType soundType = blockState.getSoundType(world, pos, user);
-                            world.playSound(null, pos, soundType.getHitSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+                            world.playSound(null, pos, soundType.getHitSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
                         }
                     }
                 }
@@ -93,16 +93,16 @@ public class HamonOverdriveBarrage extends HamonAction {
                 if (targetEntity instanceof LivingEntity) {
                     enchBonus = EnchantmentHelper.getDamageBonus(user.getMainHandItem(), ((LivingEntity) targetEntity).getMobType());
                 } else {
-                    enchBonus = EnchantmentHelper.getDamageBonus(user.getMainHandItem(), CreatureAttribute.UNDEFINED);
+                    enchBonus = EnchantmentHelper.getDamageBonus(user.getMainHandItem(), MobType.UNDEFINED);
                 }
                 atkAttribute += enchBonus;
                 double strength = atkAttribute + 8;
                 double speed = user.getAttributeValue(Attributes.ATTACK_SPEED) + 8;
                 float damage = StandStatFormulas.getBarrageHitDamage(strength, 0) * StandStatFormulas.getBarrageHitsPerSecond(speed) / 20;
                 
-                if (user instanceof PlayerEntity) {
+                if (user instanceof Player) {
                     int invulTicks = targetEntity.invulnerableTime;
-                    attack((PlayerEntity) user, targetEntity, damage, enchBonus > 0);
+                    attack((Player) user, targetEntity, damage, enchBonus > 0);
                     targetEntity.invulnerableTime = invulTicks;
                 }
                 if (!world.isClientSide()) {
@@ -120,24 +120,24 @@ public class HamonOverdriveBarrage extends HamonAction {
         if (reqFulfilled) {
             if (ticksHeld % 2 == 0) {
                 user.swinging = false;
-                user.swing(ticksHeld % 4 == 0 ? Hand.MAIN_HAND : Hand.OFF_HAND);
+                user.swing(ticksHeld % 4 == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
             }
         }
     }
 
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.playerBarrageAnim.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.playerBarrageAnim.setAnimEnabled(user, false);
     }
     
     
 
-    public static void attack(PlayerEntity attacker, Entity target, float damage, boolean sharpnessParticles) {
+    public static void attack(Player attacker, Entity target, float damage, boolean sharpnessParticles) {
         if (!ForgeHooks.onPlayerAttackTarget(attacker, target)) return;
         if (target.isAttackable()) {
             if (!target.skipAttackInteraction(attacker)) {
@@ -156,27 +156,27 @@ public class HamonOverdriveBarrage extends HamonAction {
                         }
                     }
 
-                    Vector3d speed = target.getDeltaMovement();
+                    Vec3 speed = target.getDeltaMovement();
                     boolean dealtDamage = target.hurt(DamageSource.playerAttack(attacker), damage);
                     if (dealtDamage) {
                         if (kbValue > 0) {
                             if (target instanceof LivingEntity) {
-                                ((LivingEntity)target).knockback((float)kbValue * 0.5F, (double)MathHelper.sin(attacker.yRot * ((float)Math.PI / 180F)), (double)(-MathHelper.cos(attacker.yRot * ((float)Math.PI / 180F))));
+                                ((LivingEntity)target).knockback((float)kbValue * 0.5F, (double)Mth.sin(attacker.yRot * ((float)Math.PI / 180F)), (double)(-Mth.cos(attacker.yRot * ((float)Math.PI / 180F))));
                             } else {
-                                target.push((double)(-MathHelper.sin(attacker.yRot * ((float)Math.PI / 180F)) * (float)kbValue * 0.5F), 0.1D, (double)(MathHelper.cos(attacker.yRot * ((float)Math.PI / 180F)) * (float)kbValue * 0.5F));
+                                target.push((double)(-Mth.sin(attacker.yRot * ((float)Math.PI / 180F)) * (float)kbValue * 0.5F), 0.1D, (double)(Mth.cos(attacker.yRot * ((float)Math.PI / 180F)) * (float)kbValue * 0.5F));
                             }
 
                             attacker.setDeltaMovement(attacker.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
                             attacker.setSprinting(false);
                         }
 
-                        if (target instanceof ServerPlayerEntity && target.hurtMarked) {
-                            ((ServerPlayerEntity)target).connection.send(new SEntityVelocityPacket(target));
+                        if (target instanceof ServerPlayer && target.hurtMarked) {
+                            ((ServerPlayer)target).connection.send(new ClientboundSetEntityMotionPacket(target));
                             target.hurtMarked = false;
                             target.setDeltaMovement(speed);
                         }
 
-                        attacker.level.playSound((PlayerEntity)null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.PLAYER_ATTACK_WEAK, attacker.getSoundSource(), 1.0F, 1.0F);
+                        attacker.level.playSound((Player)null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.PLAYER_ATTACK_WEAK, attacker.getSoundSource(), 1.0F, 1.0F);
 
                         if (sharpnessParticles) {
                             attacker.magicCrit(target);
@@ -198,8 +198,8 @@ public class HamonOverdriveBarrage extends HamonAction {
                             ItemStack copy = heldItem.copy();
                             heldItem.hurtEnemy((LivingEntity)actualTarget, attacker);
                             if (heldItem.isEmpty()) {
-                                ForgeEventFactory.onPlayerDestroyItem(attacker, copy, Hand.MAIN_HAND);
-                                attacker.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+                                ForgeEventFactory.onPlayerDestroyItem(attacker, copy, InteractionHand.MAIN_HAND);
+                                attacker.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                             }
                         }
 
@@ -210,15 +210,15 @@ public class HamonOverdriveBarrage extends HamonAction {
                                 target.setSecondsOnFire(fireAspect * 4);
                             }
 
-                            if (attacker.level instanceof ServerWorld && f5 > 2.0F) {
+                            if (attacker.level instanceof ServerLevel && f5 > 2.0F) {
                                 int k = (int)((double)f5 * 0.5D);
-                                ((ServerWorld)attacker.level).sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY(0.5D), target.getZ(), k, 0.1D, 0.0D, 0.1D, 0.2D);
+                                ((ServerLevel)attacker.level).sendParticles(ParticleTypes.DAMAGE_INDICATOR, target.getX(), target.getY(0.5D), target.getZ(), k, 0.1D, 0.0D, 0.1D, 0.2D);
                             }
                         }
 
                         attacker.causeFoodExhaustion(0.1F);
                     } else {
-                        attacker.level.playSound((PlayerEntity)null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, attacker.getSoundSource(), 1.0F, 1.0F);
+                        attacker.level.playSound((Player)null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.PLAYER_ATTACK_NODAMAGE, attacker.getSoundSource(), 1.0F, 1.0F);
                         if (setOnFire) {
                             target.clearFire();
                         }

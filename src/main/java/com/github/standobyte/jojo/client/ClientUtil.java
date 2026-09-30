@@ -24,74 +24,73 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.general.MathUtil.Matrix4ZYX;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.GameSettings;
-import net.minecraft.client.MainWindow;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Options;
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHelper;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.network.play.NetworkPlayerInfo;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.Tessellator;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.model.SimpleBakedModel;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.item.Item;
-import net.minecraft.util.ColorHelper;
-import net.minecraft.util.Direction;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameType;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.World;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.resources.model.SimpleBakedModel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.CameraType;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.Item;
+import net.minecraft.util.FastColor;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
+import com.mojang.math.Axis;
 
 /**
  * Any methods from this class are only to be called on the client side
@@ -105,11 +104,11 @@ public class ClientUtil {
     public static Boolean forcedCanSeeStands;
     static boolean canHearStands;
 
-    public static PlayerEntity getClientPlayer() {
+    public static Player getClientPlayer() {
         return Minecraft.getInstance().player;
     }
 
-    public static World getClientWorld() {
+    public static Level getClientWorld() {
         return Minecraft.getInstance().level;
     }
     
@@ -129,8 +128,8 @@ public class ClientUtil {
         return Minecraft.getInstance().player.isHandsBusy();
     }
     
-    public static void setPlayerHandsBusy(PlayerEntity player, boolean handsBusy) {
-        ClientReflection.setHandsBusy((ClientPlayerEntity) player, handsBusy);
+    public static void setPlayerHandsBusy(Player player, boolean handsBusy) {
+        ClientReflection.setHandsBusy((LocalPlayer) player, handsBusy);
     }
 
     public static Entity getEntityById(int entityId) {
@@ -145,7 +144,7 @@ public class ClientUtil {
         return Minecraft.getInstance().cameraEntity;
     }
     
-    public static Vector3d getCameraPos() {
+    public static Vec3 getCameraPos() {
         return Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
     }
     
@@ -157,11 +156,11 @@ public class ClientUtil {
         return ClientEventHandler.getInstance().getPartialTick();
     }
     
-    public static GameType getPlayerGameMode(PlayerEntity player) {
+    public static GameType getPlayerGameMode(Player player) {
         if (player.isLocalPlayer()) {
             return Minecraft.getInstance().gameMode.getPlayerMode();
         }
-        NetworkPlayerInfo networkPlayerInfo = Minecraft.getInstance().getConnection().getPlayerInfo(player.getGameProfile().getId());
+        PlayerInfo networkPlayerInfo = Minecraft.getInstance().getConnection().getPlayerInfo(player.getGameProfile().getId());
         if (networkPlayerInfo != null) {
             return networkPlayerInfo.getGameMode();
         }
@@ -186,7 +185,7 @@ public class ClientUtil {
         return ClientEventHandler.getInstance().getServerId();
     }
     
-    public static boolean useActionShiftVar(PlayerEntity player) {
+    public static boolean useActionShiftVar(Player player) {
         return player.isShiftKeyDown();
     }
     
@@ -248,9 +247,9 @@ public class ClientUtil {
     }
     
     public static void setThirdPerson() {
-        GameSettings options = Minecraft.getInstance().options;
-        if (options.getCameraType() == PointOfView.FIRST_PERSON) {
-            options.setCameraType(PointOfView.THIRD_PERSON_FRONT);
+        Options options = Minecraft.getInstance().options;
+        if (options.getCameraType() == CameraType.FIRST_PERSON) {
+            options.setCameraType(CameraType.THIRD_PERSON_FRONT);
         }
     }
     
@@ -275,30 +274,30 @@ public class ClientUtil {
         };
     }
     
-    public static void drawRightAlignedString(MatrixStack matrixStack, FontRenderer font, String line, float x, float y, int color) {
+    public static void drawRightAlignedString(PoseStack matrixStack, Font font, String line, float x, float y, int color) {
         font.drawShadow(matrixStack, line, x - font.width(line), y, color);
     }
 
-    public static void drawRightAlignedString(MatrixStack matrixStack, FontRenderer font, ITextComponent line, float x, float y, int color) {
+    public static void drawRightAlignedString(PoseStack matrixStack, Font font, Component line, float x, float y, int color) {
         drawRightAlignedString(matrixStack, font, line.getVisualOrderText(), x, y, color);
     }
 
-    public static void drawRightAlignedString(MatrixStack matrixStack, FontRenderer font, IReorderingProcessor line, float x, float y, int color) {
+    public static void drawRightAlignedString(PoseStack matrixStack, Font font, FormattedCharSequence line, float x, float y, int color) {
         font.drawShadow(matrixStack, line, x - font.width(line), y, color);
     }
 
-    public static void drawCenteredString(MatrixStack matrixStack, FontRenderer font, IReorderingProcessor line, float x, float y, int color) {
+    public static void drawCenteredString(PoseStack matrixStack, Font font, FormattedCharSequence line, float x, float y, int color) {
         font.drawShadow(matrixStack, line, x - font.width(line) / 2, y, color);
     }
 
-    public static void drawCenteredStringNoShadow(MatrixStack matrixStack, FontRenderer font, ITextComponent line, float x, float y, int color) {
+    public static void drawCenteredStringNoShadow(PoseStack matrixStack, Font font, Component line, float x, float y, int color) {
         font.draw(matrixStack, line, x - font.width(line) / 2, y, color);
     }
     
-    public static void drawLines(MatrixStack matrixStack, FontRenderer font, List<IReorderingProcessor> lines, 
+    public static void drawLines(PoseStack matrixStack, Font font, List<FormattedCharSequence> lines, 
             float x, float y, float lineGap, int color, boolean shadow, boolean backdrop) {
         for (int i = 0; i < lines.size(); i++) {
-            IReorderingProcessor line = lines.get(i);
+            FormattedCharSequence line = lines.get(i);
             float lineX = x;
             float lineY = y + i * (font.lineHeight + lineGap);
             
@@ -315,13 +314,13 @@ public class ClientUtil {
         }
     }
     
-    public static void drawTooltipRectangle(MatrixStack matrixStack, int x, int y, int width, int height) {
+    public static void drawTooltipRectangle(PoseStack matrixStack, int x, int y, int width, int height) {
         drawTooltipRectangle(matrixStack, x, y, width, height, 
                 GuiUtils.DEFAULT_BACKGROUND_COLOR, GuiUtils.DEFAULT_BORDER_COLOR_START, GuiUtils.DEFAULT_BORDER_COLOR_END, 400);
     }
 
     @SuppressWarnings("deprecation")
-    public static void drawTooltipRectangle(MatrixStack matrixStack, int x, int y, int width, int height, 
+    public static void drawTooltipRectangle(PoseStack matrixStack, int x, int y, int width, int height, 
             int backgroundColor, int borderColorStart, int borderColorEnd, int zLevel) {
         RenderSystem.disableRescaleNormal();
         RenderSystem.enableDepthTest();
@@ -359,9 +358,9 @@ public class ClientUtil {
         float endGreen   = (float)(endColor   >>  8 & 255) / 255.0F;
         float endBlue    = (float)(endColor         & 255) / 255.0F;
 
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
         buffer.vertex(mat, right,    top, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         buffer.vertex(mat,  left,    top, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         buffer.vertex(mat,  left, bottom, zLevel).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
@@ -372,48 +371,48 @@ public class ClientUtil {
     public static void fillSingleRect(double x, double y, double width, double height, int red, int green, int blue, int alpha) {
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         fillRect(bufferBuilder, x, y, width, height, red, green, blue, alpha);
         RenderSystem.enableTexture();
         RenderSystem.enableDepthTest();
     }
     
     public static void fillRect(BufferBuilder bufferBuilder, double x, double y, double width, double height, int red, int green, int blue, int alpha) {
-        bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
         bufferBuilder.vertex(x + 0 , y + 0, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x + 0 , y + height, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x + width , y + height, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x + width , y + 0, 0.0D).color(red, green, blue, alpha).endVertex();
-        Tessellator.getInstance().end();
+        Tesselator.getInstance().end();
     }
     
     private static final int[] RED_PIXEL =   new int[] { 255, 0, 0, 63 };
     private static final int[] GREEN_PIXEL = new int[] { 0, 255, 0, 63 };
     public static void pixelCheckOverlay(BiPredicate<Integer, Integer> pixelCheck) {
-        MainWindow window = Minecraft.getInstance().getWindow();
+        Window window = Minecraft.getInstance().getWindow();
         int width = window.getGuiScaledWidth();
         int height = window.getGuiScaledHeight();
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int[] color = pixelCheck.test(x, y) ? GREEN_PIXEL : RED_PIXEL;
-                bufferBuilder.begin(6, DefaultVertexFormats.POSITION_COLOR);
+                bufferBuilder.begin(6, DefaultVertexFormat.POSITION_COLOR);
                 bufferBuilder.vertex(x,   y,   0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
                 bufferBuilder.vertex(x,   y+1, 0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
                 bufferBuilder.vertex(x+1, y+1, 0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
                 bufferBuilder.vertex(x+1, y,   0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
-                Tessellator.getInstance().end();
+                Tesselator.getInstance().end();
             }
         }
         RenderSystem.enableTexture();
         RenderSystem.enableDepthTest();
     }
     
-    public static void renderPlayerFace(MatrixStack matrixStack, int x, int y, AbstractClientPlayerEntity player) {
+    public static void renderPlayerFace(PoseStack matrixStack, int x, int y, AbstractClientPlayer player) {
         Minecraft mc = Minecraft.getInstance();
         ResourceLocation playerFace = player.getSkinTextureLocation();
         mc.getTextureManager().bind(playerFace);
@@ -429,12 +428,12 @@ public class ClientUtil {
         }
     }
     
-    public static void drawBackdrop(MatrixStack matrixStack, int x, int y, int width, float alpha) {
+    public static void drawBackdrop(PoseStack matrixStack, int x, int y, int width, float alpha) {
         Minecraft mc = Minecraft.getInstance();
         int backdropColor = mc.options.getBackgroundColor(0.0F);
         if (backdropColor != 0) {
             AbstractGui.fill(matrixStack, x - 2, y - 2, x + width + 2, y + mc.font.lineHeight + 2, 
-                    ColorHelper.PackedColor.multiply(backdropColor, addAlpha(0xFFFFFF, alpha)));
+                    FastColor.PackedColor.multiply(backdropColor, addAlpha(0xFFFFFF, alpha)));
         }
     }
     
@@ -468,23 +467,23 @@ public class ClientUtil {
         return I18n.exists(shortenedKey) ? shortenedKey : originalKey;
     }
     
-    public static void setOverlayMessage(ITextComponent message) {
+    public static void setOverlayMessage(Component message) {
         Minecraft.getInstance().gui.handleChat(ChatType.GAME_INFO, message, Util.NIL_UUID);
     }
     
     public static Style textColor(int color) {
-        return Style.EMPTY.withColor(Color.fromRgb(color));
+        return Style.EMPTY.withColor(TextColor.fromRgb(color));
     }
     
-    public static int getFoliageColor(BlockState blockState, @Nullable IBlockDisplayReader world, BlockPos blockPos) {
+    public static int getFoliageColor(BlockState blockState, @Nullable BlockAndTintGetter world, BlockPos blockPos) {
         return Minecraft.getInstance().getBlockColors().getColor(blockState, world, blockPos, 0);
     }
     
-    public static void playSoundAtClient(SoundEvent sound, SoundCategory category, BlockPos soundPos, float volume, float pitch) {
-        ActiveRenderInfo renderInfo = Minecraft.getInstance().gameRenderer.getMainCamera();
+    public static void playSoundAtClient(SoundEvent sound, SoundSource category, BlockPos soundPos, float volume, float pitch) {
+        Camera renderInfo = Minecraft.getInstance().gameRenderer.getMainCamera();
         if (renderInfo.isInitialized()) {
-            Vector3d clientPos = renderInfo.getPosition();
-            Vector3d soundDir = Vector3d.atCenterOf(soundPos).subtract(clientPos);
+            Vec3 clientPos = renderInfo.getPosition();
+            Vec3 soundDir = Vec3.atCenterOf(soundPos).subtract(clientPos);
             double dist = soundDir.length();
             if (dist > 0) {
                 clientPos = clientPos.add(soundDir.scale(2 / dist));
@@ -495,10 +494,10 @@ public class ClientUtil {
     }
     
     public static void playMusic(SoundEvent sound, float volume, float pitch) {
-        Minecraft.getInstance().getSoundManager().play(new SimpleSound(
+        Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(
                 sound.getLocation(), 
-                SoundCategory.RECORDS, 
-                volume, pitch, false, 0, ISound.AttenuationType.NONE, 
+                SoundSource.RECORDS, 
+                volume, pitch, false, 0, SoundInstance.AttenuationType.NONE, 
                 0, 0, 0, true));
     }
     
@@ -538,7 +537,7 @@ public class ClientUtil {
         return color | ((int) (255F * alpha)) << 24 & -0x1000000;
     }
     
-    public static void vertex(MatrixStack.Entry matrixEntry, IVertexBuilder vertexBuilder, 
+    public static void vertex(PoseStack.Entry matrixEntry, VertexConsumer vertexBuilder, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha, 
             float x, float y, float z, float texU, float texV) {
         vertexBuilder
@@ -551,7 +550,7 @@ public class ClientUtil {
         .endVertex();
     }    
     
-    public static void vertex(Matrix4f matrix, Matrix3f normals, IVertexBuilder vertexBuilder, 
+    public static void vertex(Matrix4f matrix, Matrix3f normals, VertexConsumer vertexBuilder, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha, 
             float offsetX, float offsetY, float offsetZ, 
             float texU, float texV, 
@@ -575,18 +574,18 @@ public class ClientUtil {
     
     public static void setMousePos(int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        MainWindow window = mc.getWindow();
+        Window window = mc.getWindow();
         
         double xPos = mouseX * window.getScreenWidth()  / window.getGuiScaledWidth();
         double yPos = mouseY * window.getScreenHeight() / window.getGuiScaledHeight();
         
-        MouseHelper mouseHandler = mc.mouseHandler;
+        MouseHandler mouseHandler = mc.mouseHandler;
         ClientReflection.setXPos(mouseHandler, xPos);
         ClientReflection.setYPos(mouseHandler, yPos);
-        InputMappings.grabOrReleaseMouse(window.getWindow(), GLFW.GLFW_CURSOR_NORMAL, xPos, yPos);
+        InputConstants.grabOrReleaseMouse(window.getWindow(), GLFW.GLFW_CURSOR_NORMAL, xPos, yPos);
     }
     
-    public static DefaultPlayerSkinType getPlayerDefaultSkinType(AbstractClientPlayerEntity player) {
+    public static DefaultPlayerSkinType getPlayerDefaultSkinType(AbstractClientPlayer player) {
         ResourceLocation skinLocation = player.getSkinTextureLocation();
         if (DefaultPlayerSkinType.STEVE.skinTex.equals(skinLocation)) return DefaultPlayerSkinType.STEVE;
         if (DefaultPlayerSkinType.ALEX .skinTex.equals(skinLocation)) return DefaultPlayerSkinType.ALEX;
@@ -604,17 +603,17 @@ public class ClientUtil {
         }
     }
     
-    public static void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+    public static void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
         modelRenderer.xRot = x;
         modelRenderer.yRot = y;
         modelRenderer.zRot = z;
     }
     
-    public static void setRotationAngleDegrees(ModelRenderer modelRenderer, float x, float y, float z) {
+    public static void setRotationAngleDegrees(ModelPart modelRenderer, float x, float y, float z) {
         setRotationAngle(modelRenderer, x * MathUtil.DEG_TO_RAD, y * MathUtil.DEG_TO_RAD, z * MathUtil.DEG_TO_RAD);
     }
     
-    public static void rotateAngles(ModelRenderer modelRenderer, float xRotSecond) {
+    public static void rotateAngles(ModelPart modelRenderer, float xRotSecond) {
         Vector3f angles = rotateAngles(modelRenderer.xRot, modelRenderer.yRot, modelRenderer.zRot, xRotSecond);
         modelRenderer.xRot = angles.x();
         modelRenderer.yRot = angles.y();
@@ -622,8 +621,8 @@ public class ClientUtil {
     }
     
     public static Vector3f rotateAngles(float xRot, float yRot, float zRot, float xRotSecond) {
-        Quaternion quat = MathUtil.quaternionZYX(xRot, yRot, zRot, false);
-        Quaternion q2 = Vector3f.XP.rotation(xRotSecond);
+        Quaternionf quat = MathUtil.quaternionZYX(xRot, yRot, zRot, false);
+        Quaternionf q2 = Axis.XP.rotation(xRotSecond);
         q2.mul(quat);
         Matrix4ZYX rotMatrix = new Matrix4ZYX(q2);
         Vector3f rotVec = rotMatrix.rotationVec();
@@ -631,11 +630,11 @@ public class ClientUtil {
     }
     
     @Deprecated
-    public static void clearCubes(ModelRenderer modelRenderer) {
+    public static void clearCubes(ModelPart modelRenderer) {
         modelRenderer.cubes.clear();
     }
     
-    public static void clearBipedCubes(BipedModel<?> model) {
+    public static void clearBipedCubes(HumanoidModel<?> model) {
         model.head.cubes.clear();
         model.body.cubes.clear();
         model.leftArm.cubes.clear();
@@ -645,7 +644,7 @@ public class ClientUtil {
     }
     
     public static void clearBipedCubes(PlayerModel<?> model) {
-        clearBipedCubes((BipedModel<?>) model);
+        clearBipedCubes((HumanoidModel<?>) model);
         model.hat.cubes.clear();
         model.jacket.cubes.clear();
         model.leftSleeve.cubes.clear();
@@ -654,26 +653,26 @@ public class ClientUtil {
         model.rightPants.cubes.clear();
     }
     
-    public static void editLatestCube(ModelRenderer modelRenderer, Consumer<ModelRenderer.ModelBox> edit) {
-        List<ModelRenderer.ModelBox> cubes = modelRenderer.cubes;
+    public static void editLatestCube(ModelPart modelRenderer, Consumer<ModelPart.ModelBox> edit) {
+        List<ModelPart.ModelBox> cubes = modelRenderer.cubes;
         if (cubes.isEmpty()) return;
-        ModelRenderer.ModelBox box = cubes.get(cubes.size() - 1);
+        ModelPart.ModelBox box = cubes.get(cubes.size() - 1);
         edit.accept(box);
     }
     
-    public static void setFaceUv(ModelRenderer.ModelBox cube, Direction faceDir, float u0, float v0, float u1, float v1, Model model) {
+    public static void setFaceUv(ModelPart.ModelBox cube, Direction faceDir, float u0, float v0, float u1, float v1, Model model) {
         if (faceDir.getAxis() == Direction.Axis.Y) {
             faceDir = faceDir.getOpposite();
         }
         Vector3f faceNormal = faceDir.step();
-        Optional<ModelRenderer.TexturedQuad> faceOptional = Arrays.stream(cube.polygons)
+        Optional<ModelPart.TexturedQuad> faceOptional = Arrays.stream(cube.polygons)
                 .filter(quad -> quad.normal.equals(faceNormal)).findFirst();
         if (faceOptional.isPresent()) {
             u0 /= model.texWidth;
             v0 /= model.texHeight;
             u1 /= model.texWidth;
             v1 /= model.texHeight;
-            ModelRenderer.TexturedQuad face = faceOptional.get();
+            ModelPart.TexturedQuad face = faceOptional.get();
             if (face.vertices[0].u < face.vertices[1].u) {
                 float swap = u0;
                 u0 = u1;
@@ -691,17 +690,17 @@ public class ClientUtil {
         }
     }
     
-    public static ModelRenderer getArm(BipedModel<?> model, HandSide side) {
-        return side == HandSide.LEFT ? model.leftArm : model.rightArm;
+    public static ModelPart getArm(HumanoidModel<?> model, HumanoidArm side) {
+        return side == HumanoidArm.LEFT ? model.leftArm : model.rightArm;
     }
     
-    public static ModelRenderer getArmOuter(PlayerModel<?> model, HandSide side) {
-        return side == HandSide.LEFT ? model.leftSleeve : model.rightSleeve;
+    public static ModelPart getArmOuter(PlayerModel<?> model, HumanoidArm side) {
+        return side == HumanoidArm.LEFT ? model.leftSleeve : model.rightSleeve;
     }
     
-    public static <T extends LivingEntity> void setupForFirstPersonRender(BipedModel<T> model, T player) {
-        model.rightArmPose = BipedModel.ArmPose.EMPTY;
-        model.leftArmPose = BipedModel.ArmPose.EMPTY;
+    public static <T extends LivingEntity> void setupForFirstPersonRender(HumanoidModel<T> model, T player) {
+        model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+        model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
         model.attackTime = 0.0F;
         model.crouching = false;
         model.swimAmount = 0.0F;
@@ -709,38 +708,38 @@ public class ClientUtil {
         model.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
     }
     
-    public static void addItemReferenceQuote(List<ITextComponent> tooltip, Item item) {
+    public static void addItemReferenceQuote(List<Component> tooltip, Item item) {
         ResourceLocation itemId = item.getRegistryName();
         addItemReferenceQuote(tooltip, item, itemId.getNamespace() + "." + itemId.getPath());
     }
     
-    public static void addItemReferenceQuote(List<ITextComponent> tooltip, Item item, String itemName) {
-        tooltip.add(new StringTextComponent(" "));
-        tooltip.add(new TranslationTextComponent("item." + itemName + ".reference_quote").withStyle(TextFormatting.ITALIC, TextFormatting.DARK_GRAY));
+    public static void addItemReferenceQuote(List<Component> tooltip, Item item, String itemName) {
+        tooltip.add(Component.literal(" "));
+        tooltip.add(Component.translatable("item." + itemName + ".reference_quote").withStyle(ChatFormatting.ITALIC, ChatFormatting.DARK_GRAY));
     }
     
-    public static ITextComponent donoItemTooltip(String donoUsername) {
-        return new TranslationTextComponent("item.jojo.dono_tooltip", donoUsername).withStyle(TextFormatting.DARK_GRAY);
+    public static Component donoItemTooltip(String donoUsername) {
+        return Component.translatable("item.jojo.dono_tooltip", donoUsername).withStyle(ChatFormatting.DARK_GRAY);
     }
     
     
-    public static boolean isMissingModel(IBakedModel model, ItemModelMesher itemModelShaper) {
+    public static boolean isMissingModel(BakedModel model, ItemModelShaper itemModelShaper) {
 //        return model == itemModelShaper.getModelManager().getMissingModel(); // you'd think that should work
-        return model instanceof SimpleBakedModel && (((SimpleBakedModel) model).getParticleIcon() instanceof MissingTextureSprite);
+        return model instanceof SimpleBakedModel && (((SimpleBakedModel) model).getParticleIcon() instanceof MissingTextureAtlasSprite);
     }
     
     
-    public static PosOnScreen posOnScreen(Vector3d posInWorld, ActiveRenderInfo camera, MatrixStack matrixStack, Matrix4f projection) {
-        Vector3d cameraPos = camera.getPosition();
-        Vector3d vecToEntity = posInWorld.subtract(cameraPos);
+    public static PosOnScreen posOnScreen(Vec3 posInWorld, Camera camera, PoseStack matrixStack, Matrix4f projection) {
+        Vec3 cameraPos = camera.getPosition();
+        Vec3 vecToEntity = posInWorld.subtract(cameraPos);
         
         Matrix4f projectionMatrix = projection.copy();
         Matrix4f viewMatrix = matrixStack.last().pose();
         projectionMatrix.multiply(viewMatrix);
         Vector3f clip = MathUtil.multiplyPoint(projectionMatrix, vecToEntity);
         
-        Vector2f posOnScreen = new Vector2f(clip.x() * 0.5F + 0.5F, clip.y() * 0.5F + 0.5F);
-        boolean isOnScreen = MathHelper.abs(clip.x()) < 1 && MathHelper.abs(clip.y()) < 1 && clip.z() < 1;
+        Vec2 posOnScreen = new Vec2(clip.x() * 0.5F + 0.5F, clip.y() * 0.5F + 0.5F);
+        boolean isOnScreen = Mth.abs(clip.x()) < 1 && Mth.abs(clip.y()) < 1 && clip.z() < 1;
         return new PosOnScreen(posOnScreen, isOnScreen);
     }
     
@@ -748,12 +747,12 @@ public class ClientUtil {
      *  Both fields of the pos vector range from -1 to 1 if the entity is on screen
      */
     public static class PosOnScreen {
-        public static final PosOnScreen SCREEN_CENTER = new PosOnScreen(new Vector2f(0.5F, 0.5F), true);
+        public static final PosOnScreen SCREEN_CENTER = new PosOnScreen(new Vec2(0.5F, 0.5F), true);
         
-        public final Vector2f pos;
+        public final Vec2 pos;
         public final boolean isOnScreen;
         
-        private PosOnScreen(Vector2f pos, boolean isOnScreen) {
+        private PosOnScreen(Vec2 pos, boolean isOnScreen) {
             this.pos = pos;
             this.isOnScreen = isOnScreen;
         }
@@ -761,7 +760,7 @@ public class ClientUtil {
     
     
     public static Button.ITooltip buttonMessageTooltip(Screen screen) {
-        return (Button button, MatrixStack matrixStack, int x, int y) -> {
+        return (Button button, PoseStack matrixStack, int x, int y) -> {
             screen.renderTooltip(matrixStack, button.getMessage(), x, y);
         };
     }

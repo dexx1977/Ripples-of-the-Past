@@ -7,7 +7,7 @@ import dev.kosmx.playerAnim.core.util.Vec3f;
 public class KosmXHeadRotationModifier extends AbstractModifier {
 
     @Override
-    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
         Vec3f transform = super.get3DTransform(modelName, type, tickDelta, value0);
         if (isActive() && "head".equals(modelName)) {
             return transform.add(value0);

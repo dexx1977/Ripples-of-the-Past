@@ -8,16 +8,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.ProjectileItemEntity;
-import net.minecraft.entity.projectile.ThrowableEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-@Mixin(ProjectileItemEntity.class)
-public abstract class ProjectileItemEntityMixin extends ThrowableEntity {
+@Mixin(ThrowableItemProjectile.class)
+public abstract class ProjectileItemEntityMixin extends ThrowableProjectile {
 
-    protected ProjectileItemEntityMixin(EntityType<? extends ThrowableEntity> p_i48540_1_, World p_i48540_2_) {
+    protected ProjectileItemEntityMixin(EntityType<? extends ThrowableProjectile> p_i48540_1_, Level p_i48540_2_) {
         super(p_i48540_1_, p_i48540_2_);
     }
 

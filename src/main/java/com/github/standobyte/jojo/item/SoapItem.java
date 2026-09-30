@@ -3,22 +3,22 @@ package com.github.standobyte.jojo.item;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.UseAction;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DrinkHelper;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.Level;
 
 public class SoapItem extends Item {
 
@@ -27,9 +27,9 @@ public class SoapItem extends Item {
     }
     
     @Override
-    public void inventoryTick(ItemStack pStack, World pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected) {
-        if (pEntity instanceof PlayerEntity) {
-            PlayerInventory inventory = ((PlayerEntity) pEntity).inventory;
+    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected) {
+        if (pEntity instanceof Player) {
+            Inventory inventory = ((Player) pEntity).inventory;
             ItemStack emptyGloves = MCUtil.findInInventory(inventory, 
                     item -> !item.isEmpty() 
                     && item.getItem() == ModItems.BUBBLE_GLOVES.get()
@@ -41,15 +41,15 @@ public class SoapItem extends Item {
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack pStack, World pLevel, LivingEntity pEntityLiving) {
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving) {
         super.finishUsingItem(pStack, pLevel, pEntityLiving);
-        PlayerEntity playerentity = pEntityLiving instanceof PlayerEntity ? (PlayerEntity)pEntityLiving : null;
+        Player playerentity = pEntityLiving instanceof Player ? (Player)pEntityLiving : null;
         
         if (!pLevel.isClientSide) {
-            pEntityLiving.addEffect(new EffectInstance(
-                     Effects.POISON, 100, 0, false, true, true));
-            pEntityLiving.addEffect(new EffectInstance(
-                    Effects.CONFUSION, 300, 1, false, true, true));
+            pEntityLiving.addEffect(new MobEffectInstance(
+                     MobEffects.POISON, 100, 0, false, true, true));
+            pEntityLiving.addEffect(new MobEffectInstance(
+                    MobEffects.CONFUSION, 300, 1, false, true, true));
          }
         
         if (playerentity == null || !playerentity.abilities.instabuild) {
@@ -70,8 +70,8 @@ public class SoapItem extends Item {
      }
 
     @Override
-     public UseAction getUseAnimation(ItemStack pStack) {
-        return UseAction.DRINK;
+     public UseAnim getUseAnimation(ItemStack pStack) {
+        return UseAnim.DRINK;
      }
      
      @Override
@@ -80,7 +80,7 @@ public class SoapItem extends Item {
      }
 
      @Override
-     public ActionResult<ItemStack> use(World pLevel, PlayerEntity pPlayer, Hand pHand) {
-        return DrinkHelper.useDrink(pLevel, pPlayer, pHand);
+     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+        return ItemUtils.useDrink(pLevel, pPlayer, pHand);
      }
 }

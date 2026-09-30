@@ -5,10 +5,10 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrResetDeathTimePacket {
     private final int entityId;
@@ -22,12 +22,12 @@ public class TrResetDeathTimePacket {
     public static class Handler implements IModPacketHandler<TrResetDeathTimePacket> {
 
         @Override
-        public void encode(TrResetDeathTimePacket msg, PacketBuffer buf) {
+        public void encode(TrResetDeathTimePacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
         }
 
         @Override
-        public TrResetDeathTimePacket decode(PacketBuffer buf) {
+        public TrResetDeathTimePacket decode(FriendlyByteBuf buf) {
             return new TrResetDeathTimePacket(buf.readInt());
         }
 

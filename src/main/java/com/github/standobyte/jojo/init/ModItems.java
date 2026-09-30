@@ -42,40 +42,40 @@ import com.github.standobyte.jojo.item.TommyGunItem;
 import com.github.standobyte.jojo.item.WalkmanItem;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.block.Block;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemTier;
-import net.minecraft.item.Items;
-import net.minecraft.item.Rarity;
-import net.minecraft.item.SpawnEggItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JojoMod.MOD_ID);
     
-    public static final ItemGroup MAIN_TAB = new ModCreativeTab("jojo_tab");
+    public static final CreativeModeTab MAIN_TAB = new ModCreativeTab("jojo_tab");
     
     
     
     public static final RegistryObject<SledgehammerItem> IRON_SLEDGEHAMMER = ITEMS.register("sledgehammer", 
-            () -> new SledgehammerItem(ItemTier.IRON, 9, -3.3F, new Item.Properties().tab(MAIN_TAB)));
+            () -> new SledgehammerItem(Tiers.IRON, 9, -3.3F, new Item.Properties().tab(MAIN_TAB)));
     
     public static final RegistryObject<BladeHatItem> BLADE_HAT = ITEMS.register("blade_hat", 
-            () -> new BladeHatItem(ModArmorMaterials.BLACK_CLOTH, EquipmentSlotType.HEAD, new Item.Properties().tab(MAIN_TAB)));
+            () -> new BladeHatItem(ModArmorMaterials.BLACK_CLOTH, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB)));
     
     public static final RegistryObject<StoneMaskItem> STONE_MASK = ITEMS.register("stone_mask", 
-            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlotType.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE), ModBlocks.STONE_MASK.get()));
+            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE), ModBlocks.STONE_MASK.get()));
     
     public static final RegistryObject<StoneMaskItem> AJA_STONE_MASK = ITEMS.register("aja_stone_mask", 
-            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlotType.HEAD, new Item.Properties().rarity(Rarity.RARE), ModBlocks.AJA_STONE_MASK.get()));
+            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlot.HEAD, new Item.Properties().rarity(Rarity.RARE), ModBlocks.AJA_STONE_MASK.get()));
     
     public static final Map<DyeColor, RegistryObject<BlockItem>> WOODEN_COFFIN_OAK = register16colorsItem("wooden_coffin_oak", 
             dye -> {
@@ -120,7 +120,7 @@ public class ModItems {
             () -> new SuperAjaStoneItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE).durability(640)));
 
     public static final RegistryObject<SatiporojaScarfItem> SATIPOROJA_SCARF = ITEMS.register("satiporoja_scarf", 
-            () -> new SatiporojaScarfItem(ModArmorMaterials.SATIPOROJA_SCARF, EquipmentSlotType.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
+            () -> new SatiporojaScarfItem(ModArmorMaterials.SATIPOROJA_SCARF, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<ClackersItem> CLACKERS = ITEMS.register("clackers",
             () -> new ClackersItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
@@ -277,7 +277,7 @@ public class ModItems {
     
     
     // waidw
-//    public static <I extends IForgeRegistryEntry<I>> Map<DyeColor, RegistryObject<I>> register16colors(
+//    public static <I extends RegistryEntry<I>> Map<DyeColor, RegistryObject<I>> register16colors(
 //            DeferredRegister<? super I> registry, String idMain, Function<DyeColor, I> supplier) {
 //        ImmutableMap.Builder<DyeColor, RegistryObject<I>> colorMap = ImmutableMap.builder();
 //        for (DyeColor dye : DyeColor.values()) {

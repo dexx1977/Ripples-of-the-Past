@@ -19,18 +19,18 @@ import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.EntityTickableSound;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.EntityBoundSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.sound.SoundEvent.SoundSourceEvent;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
@@ -43,7 +43,7 @@ public abstract class ClientTickingSoundsHelper {
         }
     }
     
-    public static boolean playVoiceLine(Entity entity, SoundEvent soundEvent, SoundCategory category, float volume, float pitch, boolean interrupt) {
+    public static boolean playVoiceLine(Entity entity, SoundEvent soundEvent, SoundSource category, float volume, float pitch, boolean interrupt) {
         if (soundEvent == null || !ClientModSettings.getSettingsReadOnly().characterVoiceLines) {
             voiceLineNotTriggered(entity);
             return false;
@@ -51,7 +51,7 @@ public abstract class ClientTickingSoundsHelper {
         
         Minecraft mc = Minecraft.getInstance();
         
-        PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, soundEvent, category, volume, pitch);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, soundEvent, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) {
             voiceLineNotTriggered(entity);
             return false;
@@ -61,8 +61,8 @@ public abstract class ClientTickingSoundsHelper {
         volume = event.getVolume();
         pitch = event.getPitch();
 
-        ISound sound = new EntityTickableSound(soundEvent, category, volume, pitch, entity);
-        if (entity instanceof AbstractClientPlayerEntity && GeneralUtil.orElseFalse(entity.getCapability(ClientPlayerUtilCapProvider.CAPABILITY), cap -> {
+        SoundInstance sound = new EntityBoundSoundInstance(soundEvent, category, volume, pitch, entity);
+        if (entity instanceof AbstractClientPlayer && GeneralUtil.orElseFalse(entity.getCapability(ClientPlayerUtilCapProvider.CAPABILITY), cap -> {
             boolean alreadyPlaying = !interrupt && cap.isVoiceLinePlaying();
             if (alreadyPlaying) {
                 cap.lastVoiceLineTriggered = false;
@@ -82,7 +82,7 @@ public abstract class ClientTickingSoundsHelper {
     }
     
     public static void voiceLineNotTriggered(Entity entity) {
-        if (entity instanceof AbstractClientPlayerEntity) {
+        if (entity instanceof AbstractClientPlayer) {
             entity.getCapability(ClientPlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.lastVoiceLineTriggered = false;
             });
@@ -96,15 +96,15 @@ public abstract class ClientTickingSoundsHelper {
             return;
         }
         
-        SoundCategory category = stand.getSoundSource();
-        PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+        SoundSource category = stand.getSoundSource();
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
         volume = event.getVolume();
         pitch = event.getPitch();
         
-        ISound soundPlayed = new StoppableEntityTickableSound<StandEntity>(sound, category, volume, pitch, looping, stand, 
+        SoundInstance soundPlayed = new StoppableEntityTickableSound<StandEntity>(sound, category, volume, pitch, looping, stand, 
                 e -> e.getCurrentTaskAction() == action && (phase == null || e.getCurrentTaskPhase().map(stPhase -> stPhase == phase).orElse(false)));
         mc.getSoundManager().play(soundPlayed);
     }
@@ -115,8 +115,8 @@ public abstract class ClientTickingSoundsHelper {
             return;
         }
         
-        SoundCategory category = stand.getSoundSource();
-        PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+        SoundSource category = stand.getSoundSource();
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
@@ -137,8 +137,8 @@ public abstract class ClientTickingSoundsHelper {
                     return;
                 }
 
-                SoundCategory category = stand.getSoundSource();
-                PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+                SoundSource category = stand.getSoundSource();
+                PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
                 if (event.isCanceled() || event.getSound() == null) return;
                 sound = event.getSound();
                 category = event.getCategory();
@@ -156,13 +156,13 @@ public abstract class ClientTickingSoundsHelper {
         }
         
         Minecraft mc = Minecraft.getInstance();
-        SoundCategory category = entity.getSoundSource();
-        PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, sound, category, volume, pitch);
+        SoundSource category = entity.getSoundSource();
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, sound, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
         volume = event.getVolume();
-        mc.getSoundManager().play(new EntityTickableSound(sound, category, volume, pitch, entity));
+        mc.getSoundManager().play(new EntityBoundSoundInstance(sound, category, volume, pitch, entity));
     }
     
     public static void playHeldActionSound(SoundEvent sound, float volume, float pitch, boolean looping, 
@@ -182,7 +182,7 @@ public abstract class ClientTickingSoundsHelper {
         Minecraft.getInstance().getSoundManager().play(new LoopingEntityTickableSound(sound, entity.getSoundSource(), volume, pitch, looping, entity));
     }
     
-    public static void playEntitySound(Entity entity, SoundEvent sound, SoundCategory soundSource, float volume, float pitch, boolean looping) {
+    public static void playEntitySound(Entity entity, SoundEvent sound, SoundSource soundSource, float volume, float pitch, boolean looping) {
         Minecraft.getInstance().getSoundManager().play(new LoopingEntityTickableSound(sound, soundSource, volume, pitch, looping, entity));
     }
     

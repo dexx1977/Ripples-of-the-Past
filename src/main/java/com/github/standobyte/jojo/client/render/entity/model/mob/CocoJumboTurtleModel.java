@@ -5,38 +5,38 @@ import com.github.standobyte.jojo.client.render.entity.bb.ParseGenericModel;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.model.TurtleModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.passive.TurtleEntity;
+import net.minecraft.client.model.TurtleModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.animal.Turtle;
 
-public class CocoJumboTurtleModel<T extends TurtleEntity> extends TurtleModel<T> {
+public class CocoJumboTurtleModel<T extends Turtle> extends TurtleModel<T> {
     public boolean hasKey;
-    private final ModelRenderer mrPresidentKey;
+    private final ModelPart mrPresidentKey;
     
     public CocoJumboTurtleModel(float inflate) {
         super(inflate);
 
         ParseGenericModel.ModelParsed.ElementMesh meshParsed = ParseGenericModel.GSON.fromJson(COCO_JUMBO_MESH, ParseGenericModel.ModelParsed.ElementMesh.class);
-        ModelRenderer.ModelBox shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);
+        ModelPart.ModelBox shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);
         ClientReflection.getCubes(body).set(0, shellMesh);
         
-        mrPresidentKey = new ModelRenderer(this);
+        mrPresidentKey = new ModelPart(this);
         mrPresidentKey.setPos(0.0F, 11.0F, -10.0F);
         mrPresidentKey.texOffs(89, 1).addBox(-0.5F, 4.9F, 12.0F, 1.0F, 1.0F, 7.0F, -0.1F, false);
         mrPresidentKey.texOffs(105, 7).addBox(-0.5F, 4.9F, 13.0F, 1.0F, 1.0F, 1.0F, 0.0F, false);
         mrPresidentKey.texOffs(98, 5).addBox(-1.25F, 4.9F, 16.0F, 1.0F, 1.0F, 2.0F, -0.15F, false);
 
-        ModelRenderer mrPresidentKey_r1 = new ModelRenderer(this);
+        ModelPart mrPresidentKey_r1 = new ModelPart(this);
         mrPresidentKey_r1.setPos(0.0F, 4.95F, 9.85F);
         mrPresidentKey.addChild(mrPresidentKey_r1);
         ClientUtil.setRotationAngle(mrPresidentKey_r1, 0.0F, 0.7854F, 0.0F);
         mrPresidentKey_r1.texOffs(64, 5).addBox(-1.5F, -0.5F, -1.5F, 3.0F, 1.0F, 3.0F, -0.15F, false);
         mrPresidentKey_r1.texOffs(76, 5).addBox(-1.5F, -0.8F, -1.5F, 3.0F, 1.0F, 3.0F, -0.25F, false);
 
-        ModelRenderer mrPresidentKey_r2 = new ModelRenderer(this);
+        ModelPart mrPresidentKey_r2 = new ModelPart(this);
         mrPresidentKey_r2.setPos(0.0F, 5.4F, 9.85F);
         mrPresidentKey.addChild(mrPresidentKey_r2);
         ClientUtil.setRotationAngle(mrPresidentKey_r2, 0.0F, -0.7854F, 0.0F);
@@ -53,12 +53,12 @@ public class CocoJumboTurtleModel<T extends TurtleEntity> extends TurtleModel<T>
     }
     
     @Override
-    protected Iterable<ModelRenderer> bodyParts() {
+    protected Iterable<ModelPart> bodyParts() {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(mrPresidentKey));
     }
 
     @Override
-    public void renderToBuffer(MatrixStack pMatrixStack, IVertexBuilder pBuffer, 
+    public void renderToBuffer(PoseStack pMatrixStack, VertexConsumer pBuffer, 
             int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
         super.renderToBuffer(pMatrixStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
     }

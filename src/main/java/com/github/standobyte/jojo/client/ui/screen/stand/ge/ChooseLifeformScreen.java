@@ -34,22 +34,20 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromclient.ClAllGELifeformsButtonPacket;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntityTypeToInstance;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.button.ImageButton;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     protected LifeformsUIState playerUISettings;
@@ -60,7 +58,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     private static FilterMode savedFilterMode = FilterMode.ALL;
 
     RadioButtonsList<FilterMode> filterList;
-    private TextFieldWidget searchField;
+    private EditBox searchField;
     private Button clearSearchFieldButton;
     
     public static void openWindowOnClick() {
@@ -91,20 +89,20 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     }
     
     public enum FilterMode {
-        ALL(new TranslationTextComponent("jojo.ui.lifeform_ui_mode.all")),
-        FAVORITES(new TranslationTextComponent("jojo.ui.lifeform_ui_mode.favs")),
-        NEW(new TranslationTextComponent("jojo.ui.lifeform_ui_mode.new"));
+        ALL(Component.translatable("jojo.ui.lifeform_ui_mode.all")),
+        FAVORITES(Component.translatable("jojo.ui.lifeform_ui_mode.favs")),
+        NEW(Component.translatable("jojo.ui.lifeform_ui_mode.new"));
         
-        public final ITextComponent uiName;
-        private FilterMode(ITextComponent uiName) {
+        public final Component uiName;
+        private FilterMode(Component uiName) {
             this.uiName = uiName;
         }
     }
     
     
     
-    public ChooseLifeformScreen(KeyBinding keyHeld) {
-        super(StringTextComponent.EMPTY);
+    public ChooseLifeformScreen(KeyMapping keyHeld) {
+        super(Component.empty());
         this.keyHeld = keyHeld;
     }
     
@@ -118,8 +116,8 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     }
     
     protected void addSearchField() {
-        searchField = new TextFieldWidget(minecraft.font, width - 101, height - 76, 84, 20, 
-                searchField, new TranslationTextComponent("jojo.ge_lifeform.search_field"));
+        searchField = new EditBox(minecraft.font, width - 101, height - 76, 84, 20, 
+                searchField, Component.translatable("jojo.ge_lifeform.search_field"));
         searchField.setResponder(this::filterEntriesRaw);
         addWidget(searchField);
         
@@ -145,7 +143,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
                 (matrixStack, button, mouseX, mouseY) -> {
                     // TODO tooltip
                 },
-                StringTextComponent.EMPTY);
+                Component.empty());
         
         Button listModeButton = new ImageVanillaButton(
                 width - 76, height - 48, 20, 20, 68, 68, 
@@ -157,7 +155,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
                 (matrixStack, button, mouseX, mouseY) -> {
                     // TODO tooltip
                 },
-                StringTextComponent.EMPTY);
+                Component.empty());
         
         switch (currentMode) {
         case GRID:
@@ -184,7 +182,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         }
         addWidget(filterList);
         
-        Button unlockAllButton = new Button(width - 101, height - 24, 95, 20, new TranslationTextComponent("jojo.ge_lifeform.unlock_all"), 
+        Button unlockAllButton = new Button(width - 101, height - 24, 95, 20, Component.translatable("jojo.ge_lifeform.unlock_all"), 
                 button -> {
                     GoldExperienceChooseLifeform.unlockAllEntityTypes(mc.player);
                     PacketManager.sendToServer(new ClAllGELifeformsButtonPacket());
@@ -252,12 +250,12 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     protected abstract void onFilterRadioButton();
     
     @Override
-    public void setFocused(@Nullable IGuiEventListener pListener) {
+    public void setFocused(@Nullable GuiEventListener pListener) {
         if (pListener == null || pListener == searchField) {
             doSetFocused(pListener);
         }
         else {
-            IGuiEventListener focused = getFocused();
+            GuiEventListener focused = getFocused();
             if (searchField != null && focused == searchField) {
                 searchField.setFocus(true);
             }
@@ -280,7 +278,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
 //    
 //    
     private int ticksKeyHeld = 0;
-    private final KeyBinding keyHeld;
+    private final KeyMapping keyHeld;
     private ScreenCloseMode mode = ScreenCloseMode.CLICK;
     private boolean holdsButton = true;
     
@@ -312,7 +310,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 //        chosenLifeformCache = getEntriesUiData(minecraft.player).map(
 //                entityData -> entityData.getGEChosenLifeformType()).orElse(null);
         if (searchField != null) {
@@ -332,7 +330,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
     }
     
     private static final DecimalFormat SIZE_FORMAT = new DecimalFormat("0.0");
-    protected void renderHoveredTooltip(MatrixStack matrixStack, EntitySubtype<?> entityType, int mouseX, int mouseY) {
+    protected void renderHoveredTooltip(PoseStack matrixStack, EntitySubtype<?> entityType, int mouseX, int mouseY) {
         List<ITooltipLine> entityTypeInfo = makeHoveredTooltip(entityType);
         entityTypeInfo.stream().map(line -> line.getWidth(font)).max(Comparator.naturalOrder()).ifPresent(tooltipWidth -> {
             CustomTooltipRender.renderWrappedToolTip(matrixStack, entityTypeInfo, mouseX, mouseY, font);
@@ -344,8 +342,8 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         
         entityTypeInfo.add(new TextTooltipLine(entityType.getDescription()));
         
-        entityTypeInfo.add(new TextTooltipLine(new StringTextComponent(ModInteractionUtil.getModName(entityType.getId()))
-                .withStyle(TextFormatting.BLUE, TextFormatting.ITALIC)));
+        entityTypeInfo.add(new TextTooltipLine(Component.literal(ModInteractionUtil.getModName(entityType.getId()))
+                .withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC)));
         
         Entity entity = EntityTypeToInstance.getEntityInstance(entityType, minecraft.level);
         String width = SIZE_FORMAT.format(entity.getBbWidth());
@@ -357,18 +355,18 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         
         entityTypeInfo.add(new MultiTooltipLine(
                 new IconTooltipLine(IconTooltipLine.Icon.VOLUME),
-                new TextTooltipLine(new TranslationTextComponent("gold_experience.lifeform_size", width, height, width))));
+                new TextTooltipLine(Component.translatable("gold_experience.lifeform_size", width, height, width))));
         if (strength > 0) {
             entityTypeInfo.add(new MultiTooltipLine(
                     new IconTooltipLine(IconTooltipLine.Icon.STRENGTH),
-                    new TextTooltipLine(new StringTextComponent(String.format("%.1f", strength)))));
+                    new TextTooltipLine(Component.literal(String.format("%.1f", strength)))));
         }
         entityTypeInfo.add(new MultiTooltipLine(
                 new IconTooltipLine(IconTooltipLine.Icon.TIME),
-                new TextTooltipLine(new TranslationTextComponent("gold_experience.lifeform_time", creationSecs)
-                        .withStyle(isMobNativeToArea ? TextFormatting.GREEN : TextFormatting.WHITE))));
+                new TextTooltipLine(Component.translatable("gold_experience.lifeform_time", creationSecs)
+                        .withStyle(isMobNativeToArea ? ChatFormatting.GREEN : ChatFormatting.WHITE))));
 
-//        entityTypeInfo.add(new TextTooltipLine(new StringTextComponent(String.valueOf(GoldExperienceCreateLifeform.getVolume(entity)))));
+//        entityTypeInfo.add(new TextTooltipLine(Component.literal(String.valueOf(GoldExperienceCreateLifeform.getVolume(entity)))));
         
         return entityTypeInfo;
     }

@@ -5,10 +5,10 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHamonInteractAskTeacherPacket {
     private final int entityId;
@@ -22,18 +22,18 @@ public class ClHamonInteractAskTeacherPacket {
     public static class Handler implements IModPacketHandler<ClHamonInteractAskTeacherPacket> {
     
         @Override
-        public void encode(ClHamonInteractAskTeacherPacket msg, PacketBuffer buf) {
+        public void encode(ClHamonInteractAskTeacherPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
         }
 
         @Override
-        public ClHamonInteractAskTeacherPacket decode(PacketBuffer buf) {
+        public ClHamonInteractAskTeacherPacket decode(FriendlyByteBuf buf) {
             return new ClHamonInteractAskTeacherPacket(buf.readInt());
         }
 
         @Override
         public void handle(ClHamonInteractAskTeacherPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             Entity targetEntity = player.level.getEntity(msg.entityId);
             HamonUtil.interactWithHamonTeacher(player.level, player, targetEntity);
         }

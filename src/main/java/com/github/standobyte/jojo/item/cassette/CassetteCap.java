@@ -12,10 +12,10 @@ import com.github.standobyte.jojo.client.WalkmanSoundHandler.CassetteSide;
 import com.github.standobyte.jojo.item.cassette.TrackSource.TrackSourceType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
 // TODO crazy diamond clearing the cassettes for lulz
 public class CassetteCap {
@@ -97,8 +97,8 @@ public class CassetteCap {
     
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         
         nbt.put("Tracks", tracks.toNBT());
         nbt.putByte("Generation", (byte)generation);
@@ -112,8 +112,8 @@ public class CassetteCap {
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
-        if (nbt.contains("Tracks", MCUtil.getNbtId(ListNBT.class))) tracks = TrackSourceList.fromNBT(nbt.getList("Tracks", MCUtil.getNbtId(CompoundNBT.class)));
+    public void fromNBT(CompoundTag nbt) {
+        if (nbt.contains("Tracks", MCUtil.getNbtId(ListTag.class))) tracks = TrackSourceList.fromNBT(nbt.getList("Tracks", MCUtil.getNbtId(CompoundTag.class)));
         generation = nbt.getInt("Generation");
         color = MCUtil.nbtGetEnum(nbt, "Dye", DyeColor.class);
         dyeCraftHint = nbt.getBoolean("DyeCraftHint");
@@ -139,15 +139,15 @@ public class CassetteCap {
             return this == BROKEN_CASSETTE;
         }
         
-        private ListNBT toNBT() {
-            ListNBT tracksNBT = new ListNBT();
+        private ListTag toNBT() {
+            ListTag tracksNBT = new ListTag();
             for (TrackSource track : tracks) {
                 tracksNBT.add(track.toNBT());
             }
             return tracksNBT;
         }
         
-        private static TrackSourceList fromNBT(ListNBT nbt) {
+        private static TrackSourceList fromNBT(ListTag nbt) {
             if (nbt == null || nbt.isEmpty()) return BROKEN_CASSETTE;
             
             List<TrackSource> tracks = new ArrayList<>();

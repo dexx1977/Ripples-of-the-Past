@@ -7,21 +7,21 @@ import org.apache.commons.lang3.Validate;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PlaySoundAtClientPacket {
     private final SoundEvent sound;
-    private final SoundCategory source;
+    private final SoundSource source;
     private final BlockPos soundPos;
     private final float volume;
     private final float pitch;
 
-    public PlaySoundAtClientPacket(SoundEvent sound, SoundCategory source, BlockPos soundPos, float volume, float pitch) {
+    public PlaySoundAtClientPacket(SoundEvent sound, SoundSource source, BlockPos soundPos, float volume, float pitch) {
         Validate.notNull(sound, "sound");
         this.sound = sound;
         this.source = source;
@@ -35,7 +35,7 @@ public class PlaySoundAtClientPacket {
     public static class Handler implements IModPacketHandler<PlaySoundAtClientPacket> {
 
         @Override
-        public void encode(PlaySoundAtClientPacket msg, PacketBuffer buf) {
+        public void encode(PlaySoundAtClientPacket msg, FriendlyByteBuf buf) {
             buf.writeRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS, msg.sound);
             buf.writeEnum(msg.source);
             buf.writeBlockPos(msg.soundPos);
@@ -44,9 +44,9 @@ public class PlaySoundAtClientPacket {
         }
 
         @Override
-        public PlaySoundAtClientPacket decode(PacketBuffer buf) {
+        public PlaySoundAtClientPacket decode(FriendlyByteBuf buf) {
             return new PlaySoundAtClientPacket(buf.readRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS), 
-                    buf.readEnum(SoundCategory.class), buf.readBlockPos(), buf.readFloat(), buf.readFloat());
+                    buf.readEnum(SoundSource.class), buf.readBlockPos(), buf.readFloat(), buf.readFloat());
         }
 
         @Override

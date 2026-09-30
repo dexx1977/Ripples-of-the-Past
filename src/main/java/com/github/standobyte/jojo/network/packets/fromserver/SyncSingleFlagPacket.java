@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class SyncSingleFlagPacket {
     private final Type packetType;
@@ -26,14 +26,14 @@ public class SyncSingleFlagPacket {
     public static class Handler implements IModPacketHandler<SyncSingleFlagPacket> {
 
         @Override
-        public void encode(SyncSingleFlagPacket msg, PacketBuffer buf) {
+        public void encode(SyncSingleFlagPacket msg, FriendlyByteBuf buf) {
             byte val = (byte) msg.packetType.ordinal();
             if (msg.value) val |= 0x80;
             buf.writeByte(val);
         }
 
         @Override
-        public SyncSingleFlagPacket decode(PacketBuffer buf) {
+        public SyncSingleFlagPacket decode(FriendlyByteBuf buf) {
             byte val = buf.readByte();
             boolean flagValue = (val & 0x80) > 0;
             int ordinal = (int) (val & 0x7F);
@@ -42,7 +42,7 @@ public class SyncSingleFlagPacket {
 
         @Override
         public void handle(SyncSingleFlagPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             switch (msg.packetType) {
             }
         }

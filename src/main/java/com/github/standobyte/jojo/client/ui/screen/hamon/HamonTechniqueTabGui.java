@@ -30,24 +30,22 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.Character
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.HamonTechniqueManager;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.general.LazyUnmodifiableArrayList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     private CharacterHamonTechnique technique;
     private Map<CharacterHamonTechnique, HamonCharacterTechniqueBox> availableHamonTechniques = Collections.emptyMap();
     private CharacterHamonTechnique selectedTechnique = null;
     private List<PickTechniqueButton> pickTechniqueButtons = Collections.emptyList();
-    private final List<IReorderingProcessor> availableTechniqueSkillLines;
-    private final List<IReorderingProcessor> tabLockedLines;
+    private final List<FormattedCharSequence> availableTechniqueSkillLines;
+    private final List<FormattedCharSequence> tabLockedLines;
     private List<HamonTechniqueSlotElement> techniqueSkillSlots = Collections.emptyList();
     
     HamonTechniqueTabGui(Minecraft minecraft, HamonScreen screen, String title) {
@@ -55,19 +53,19 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
         if (!isLocked()) {
             fillSkillLines();
         }
-        availableTechniqueSkillLines = minecraft.font.split(new TranslationTextComponent("hamon.technique_available")
-                .withStyle(TextFormatting.ITALIC, TextFormatting.GRAY), 100);
+        availableTechniqueSkillLines = minecraft.font.split(Component.translatable("hamon.technique_available")
+                .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY), 100);
         tabLockedLines = HamonTechniqueManager.techniquesEnabled(true) ? 
-                minecraft.font.split(new TranslationTextComponent("hamon.techniques_locked", 
+                minecraft.font.split(Component.translatable("hamon.techniques_locked", 
                         HamonTechniqueManager.techniqueSkillRequirement(0, true)), 200) 
                 : Collections.emptyList();
     }
     
     @Override
-    protected ITextComponent createTabDescription(String key) {
-        return new TranslationTextComponent(key, 
+    protected Component createTabDescription(String key) {
+        return Component.translatable(key, 
                 JojoModConfig.getCommonConfigInstance(true).mixHamonTechniques.get() ? ""
-                        : new TranslationTextComponent("hamon.techniques.tab.desc.only_one"));
+                        : Component.translatable("hamon.techniques.tab.desc.only_one"));
     }
     
     private int techniqueYStarting() {
@@ -108,14 +106,14 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
         availableHamonTechniques = new LinkedHashMap<>();
         int techniqueY = techniqueYStarting();
         for (CharacterHamonTechnique technique : techniques) {
-            List<IReorderingProcessor> name = minecraft.font.split(new TranslationTextComponent("hamon.technique." + technique.getName()), 192);
+            List<FormattedCharSequence> name = minecraft.font.split(Component.translatable("hamon.technique." + technique.getName()), 192);
             HamonCharacterTechniqueBox techniqueBox = new HamonCharacterTechniqueBox(technique, techniqueY, name, minecraft.font);
             availableHamonTechniques.put(technique, techniqueBox);
             
             PickTechniqueButton pickButton = new PickTechniqueButton(
                     screen.windowPosX() + 16, screen.windowPosY() + techniqueY + techniqueBox.getHeight() - 1, 
                     80, 20, 
-                    new TranslationTextComponent("hamon.pick_technique"), 
+                    Component.translatable("hamon.pick_technique"), 
                     button -> {
                         PacketManager.sendToServer(new ClHamonPickTechniquePacket(technique));
                     });
@@ -164,7 +162,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     }
     
     @Override
-    void drawIcon(MatrixStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
+    void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
         if (screen.hamon.getTechniqueData().canLearnNewTechniqueSkill(screen.hamon, minecraft.player)) {
             int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
             int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
@@ -176,7 +174,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     }
 
     @Override
-    protected void drawDesc(MatrixStack matrixStack) {
+    protected void drawDesc(PoseStack matrixStack) {
         if (getSelectedSkill() != null) {
             drawSkillDesc(matrixStack);
         }
@@ -187,7 +185,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     }
     
     @Override
-    List<IReorderingProcessor> additionalTabNameTooltipInfo() {
+    List<FormattedCharSequence> additionalTabNameTooltipInfo() {
         if (screen.hamon.getTechniqueData().canLearnNewTechniqueSkill(screen.hamon, minecraft.player)) {
             return availableTechniqueSkillLines;
         }
@@ -227,7 +225,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     }
     
     @Override
-    protected void drawText(MatrixStack matrixStack) {
+    protected void drawText(PoseStack matrixStack) {
         if (!isLocked()) {
             drawDesc(matrixStack);
             availableHamonTechniques.values().forEach(technique -> technique.drawText(matrixStack, minecraft.font, screen.hamon, intScrollX, intScrollY));
@@ -241,7 +239,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     }
     
     @Override
-    protected void drawActualContents(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         if (!isLocked()) {
             availableHamonTechniques.values().forEach(technique -> 
             technique.render(matrixStack, screen.hamon, intScrollX, intScrollY, mouseX, mouseY, selectedTechnique == technique.technique));
@@ -249,7 +247,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
         }        drawTechniqueSlots(matrixStack, mouseX, mouseY);
     }
     
-    private void drawTechniqueSlots(MatrixStack matrixStack, int mouseX, int mouseY) {
+    private void drawTechniqueSlots(PoseStack matrixStack, int mouseX, int mouseY) {
         for (HamonTechniqueSlotElement slot : techniqueSkillSlots) {
             slot.renderSlot(matrixStack, intScrollX, intScrollY);
         }
@@ -302,7 +300,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
     
     private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("#.#");
     @Override
-    void drawToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
+    void drawToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
         if (!isLocked()) {
             super.drawToolTips(matrixStack, mouseX, mouseY, windowPosX, windowPosY);
             availableHamonTechniques.values().forEach(technique -> technique.drawTooltip(
@@ -314,34 +312,34 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
             
             for (PickTechniqueButton button : pickTechniqueButtons) {
                 if (button.isHovered()) {
-                    List<ITextComponent> lines = new ArrayList<>();
+                    List<Component> lines = new ArrayList<>();
                     
                     if (!button.technique.addEfficiencyInfo.isEmpty()) {
-                        lines.add(new TranslationTextComponent("hamon.technique.skill_buff1").withStyle(TextFormatting.ITALIC, TextFormatting.GRAY));
+                        lines.add(Component.translatable("hamon.technique.skill_buff1").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
                         button.technique.addEfficiencyInfo.forEach(entry -> {
                             entry.getKey()
                             .ifLeft(branch -> {
-                                lines.add(new TranslationTextComponent("hamon.technique.skill_buff.branch", 
+                                lines.add(Component.translatable("hamon.technique.skill_buff.branch", 
                                         branch.name, PERCENTAGE_FORMAT.format(entry.getValue() * 100F))
-                                        .withStyle(TextFormatting.GREEN));
-//                                JojoTextComponentWrapper sprites = new JojoTextComponentWrapper(new StringTextComponent(" "));
+                                        .withStyle(ChatFormatting.GREEN));
+//                                JojoTextComponentWrapper sprites = new JojoTextComponentWrapper(Component.literal(" "));
 //                                branch.getSkillsView().forEach(skill -> sprites.addSprite(CustomResources.getHamonSkillSprites().getSprite(skill)));
 //                                lines.add(sprites);
                             })
                             .ifRight(skill -> {
-                                lines.add(new TranslationTextComponent("hamon.technique.skill_buff.skill", 
+                                lines.add(Component.translatable("hamon.technique.skill_buff.skill", 
                                         skill.getNameTranslated(), PERCENTAGE_FORMAT.format(entry.getValue() * 100F))
-                                        .withStyle(TextFormatting.GREEN));
-//                                JojoTextComponentWrapper sprites = new JojoTextComponentWrapper(new StringTextComponent(" "));
+                                        .withStyle(ChatFormatting.GREEN));
+//                                JojoTextComponentWrapper sprites = new JojoTextComponentWrapper(Component.literal(" "));
 //                                sprites.addSprite(CustomResources.getHamonSkillSprites().getSprite(skill));
 //                                lines.add(sprites);
                             });
                         });
                     }
                     
-                    lines.add(new StringTextComponent(" "));
-                    lines.add(new TranslationTextComponent("hamon.technique.no_reset_warning").withStyle(TextFormatting.ITALIC, TextFormatting.RED));
-                    lines.add(new TranslationTextComponent("hamon.technique.no_reset_warning.2_tmp").withStyle(TextFormatting.ITALIC, TextFormatting.RED));
+                    lines.add(Component.literal(" "));
+                    lines.add(Component.translatable("hamon.technique.no_reset_warning").withStyle(ChatFormatting.ITALIC, ChatFormatting.RED));
+                    lines.add(Component.translatable("hamon.technique.no_reset_warning.2_tmp").withStyle(ChatFormatting.ITALIC, ChatFormatting.RED));
                     screen.renderComponentTooltip(matrixStack, lines, mouseX, mouseY);
                     break;
                 }

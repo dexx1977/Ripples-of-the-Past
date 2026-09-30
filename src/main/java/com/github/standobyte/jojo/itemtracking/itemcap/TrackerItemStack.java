@@ -17,29 +17,29 @@ import com.github.standobyte.jojo.network.packets.fromserver.TrackedItemPacket;
 import com.github.standobyte.jojo.util.ForgeBusEventSubscriber;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.JukeboxBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.monster.piglin.PiglinEntity;
-import net.minecraft.entity.monster.piglin.PiglinTasks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.JukeboxTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.village.GossipType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.ai.gossip.GossipType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Constants;
 
 /**
@@ -66,7 +66,7 @@ public class TrackerItemStack {
     @Nullable private UUID trackerUuid;
     private UUID trackingPlayerId;
     
-    private RegistryKey<World> positionDimension;
+    private ResourceKey<Level> positionDimension;
     private OptionalInt positionEntity = OptionalInt.empty();
     private BlockPos positionBlock = null;
     private BlockState containerBlockState;
@@ -85,12 +85,12 @@ public class TrackerItemStack {
     
     
     @Nullable
-    public static TrackerItemStack setTracked(ItemStack itemStack, ServerPlayerEntity player) {
-        return setTracked(itemStack, player, MathHelper.createInsecureUUID(RANDOM));
+    public static TrackerItemStack setTracked(ItemStack itemStack, ServerPlayer player) {
+        return setTracked(itemStack, player, Mth.createInsecureUUID(RANDOM));
     }
     
     @Nullable
-    public static TrackerItemStack setTracked(ItemStack itemStack, ServerPlayerEntity player, UUID trackerId) {
+    public static TrackerItemStack setTracked(ItemStack itemStack, ServerPlayer player, UUID trackerId) {
         if (itemStack.getCount() != 1) {
             throw new IllegalArgumentException("Cannot track stacked items, only item stacks with count == 1 are supported");
         }
@@ -148,39 +148,39 @@ public class TrackerItemStack {
         return trackerId.equals(TrackerItemStack.getItemTracker(item).map(TrackerItemStack::getTrackerId).orElse(null));
     }
     
-    public void onUpdate(ServerWorld world) {
+    public void onUpdate(ServerLevel world) {
         SaveFileUtilCapProvider.getSaveFileCap(world.getServer()).getItemsTracker().updateTracker(trackerUuid, this, world);
-        PlayerEntity player = getTrackingPlayer(world);
-        if (player instanceof ServerPlayerEntity) {
+        Player player = getTrackingPlayer(world);
+        if (player instanceof ServerPlayer) {
             PacketManager.sendToClient(new TrackedItemPacket(
                     trackerUuid, itemStack, positionEntity, Optional.ofNullable(positionBlock)), 
-                    (ServerPlayerEntity) player);
+                    (ServerPlayer) player);
         }
     }
     
-    public PlayerEntity getTrackingPlayer(ServerWorld world) {
+    public Player getTrackingPlayer(ServerLevel world) {
         return trackingPlayerId != null ? world.getPlayerByUUID(trackingPlayerId) : null;
     }
     
-    public void setAtEntity(int entityId, World world, KnownItemState itemState) {
+    public void setAtEntity(int entityId, Level world, KnownItemState itemState) {
         this.positionEntity = OptionalInt.of(entityId);
         this.positionBlock = null;
         this.containerBlockState = null;
         this.positionDimension = world.dimension();
         this.itemState = itemState;
         if (!world.isClientSide()) {
-            onUpdate((ServerWorld) world);
+            onUpdate((ServerLevel) world);
         }
     }
     
-    public void setAtBlockPos(BlockPos blockPos, World world, KnownItemState itemState) {
+    public void setAtBlockPos(BlockPos blockPos, Level world, KnownItemState itemState) {
         this.positionEntity = OptionalInt.empty();
         this.positionBlock = blockPos;
         this.containerBlockState = world.getBlockState(blockPos);
         this.positionDimension = world.dimension();
         this.itemState = itemState;
         if (!world.isClientSide()) {
-            onUpdate((ServerWorld) world);
+            onUpdate((ServerLevel) world);
         }
     }
     
@@ -188,7 +188,7 @@ public class TrackerItemStack {
         this.itemStillThere = check;
     }
     
-    public void setDisappeared(ServerWorld world) {
+    public void setDisappeared(ServerLevel world) {
         this.positionEntity = OptionalInt.empty();
         this.positionBlock = null;
         this.containerBlockState = null;
@@ -199,7 +199,7 @@ public class TrackerItemStack {
     }
     
     @Nullable
-    public Entity getAtEntity(World world) {
+    public Entity getAtEntity(Level world) {
         return positionEntity.isPresent() ? world.getEntity(positionEntity.getAsInt()) : null;
     }
     
@@ -219,14 +219,14 @@ public class TrackerItemStack {
     
     public void tick(MinecraftServer server) {
         if (this.positionDimension != null) {
-            ServerWorld world = server.getLevel(positionDimension);
+            ServerLevel world = server.getLevel(positionDimension);
             if (world != null && !checkItemIsThere(world)) {
                 setDisappeared(world);
             }
         }
     }
     
-    public boolean checkItemIsThere(ServerWorld world) {
+    public boolean checkItemIsThere(ServerLevel world) {
         if (this.positionDimension == null) return false;
         
         if (positionEntity.isPresent()) {
@@ -273,7 +273,7 @@ public class TrackerItemStack {
 //        forceItemNbtToSync();
     }
     
-    public void moveToItem(ItemStack newItem, ServerWorld world) {
+    public void moveToItem(ItemStack newItem, ServerLevel world) {
         TrackerItemStack.getItemTracker(newItem).ifPresent(newTracker -> {
             newTracker.copy(this);
             SaveFileUtilCapProvider.getSaveFileCap(world.getServer()).getItemsTracker().updateTracker(newTracker.getTrackerId(), newTracker, world);
@@ -281,11 +281,11 @@ public class TrackerItemStack {
         this.clear();
     }
     
-    public Vector3d markerPos(World world, float partialTick) {
+    public Vec3 markerPos(Level world, float partialTick) {
         if (positionEntity.isPresent()) {
             Entity entity = world.getEntity(positionEntity.getAsInt());
             if (entity != null) {
-                Vector3d position;
+                Vec3 position;
                 if (entity.level.isClientSide()) {
                     position = entity.getPosition(partialTick);
                 }
@@ -296,7 +296,7 @@ public class TrackerItemStack {
             }
         }
         if (positionBlock != null) {
-            return Vector3d.upFromBottomCenterOf(positionBlock, 1.0);
+            return Vec3.upFromBottomCenterOf(positionBlock, 1.0);
         }
         
         return null;
@@ -315,12 +315,12 @@ public class TrackerItemStack {
     }
 
     
-    public INBT toNBT() {
+    public Tag toNBT() {
         return toNBT(true);
     }
     
-    public INBT toNBT(boolean savePlayerId) {
-        CompoundNBT nbt = new CompoundNBT();
+    public Tag toNBT(boolean savePlayerId) {
+        CompoundTag nbt = new CompoundTag();
         if (trackerUuid != null) {
             nbt.putUUID("Id", trackerUuid);
             if (trackingPlayerId != null) {
@@ -330,8 +330,8 @@ public class TrackerItemStack {
         return nbt;
     }
     
-    public void fromNBT(INBT inbt) {
-        CompoundNBT nbt = (CompoundNBT) inbt;
+    public void fromNBT(Tag inbt) {
+        CompoundTag nbt = (CompoundTag) inbt;
         trackerUuid = null;
         trackingPlayerId = null;
         if (nbt.hasUUID("Id")) {
@@ -360,7 +360,7 @@ public class TrackerItemStack {
     private static final String CAP_NBT_KEY = ForgeBusEventSubscriber.ITEM_TRACK_CAP.toString();
     private void updateSyncedTag() {
         if (trackerUuid == null) {
-            CompoundNBT itemNBT = itemStack.getTag();
+            CompoundTag itemNBT = itemStack.getTag();
             if (itemNBT != null && !itemNBT.isEmpty()) {
                 MCUtil.nbtGetCompoundOptional(itemNBT, "ForgeCaps").ifPresent(capsNBT -> {
                     if (capsNBT.contains(CAP_NBT_KEY)) {
@@ -377,8 +377,8 @@ public class TrackerItemStack {
             }
         }
         else {
-            CompoundNBT itemNBT = itemStack.getOrCreateTag();
-            CompoundNBT capsNBT = MCUtil.nbtGetOrCreateCompound(itemNBT, "ForgeCaps");
+            CompoundTag itemNBT = itemStack.getOrCreateTag();
+            CompoundTag capsNBT = MCUtil.nbtGetOrCreateCompound(itemNBT, "ForgeCaps");
             capsNBT.put(CAP_NBT_KEY, this.toNBT(false));
             setDeserializeForgeCaps(itemNBT);
         }
@@ -387,23 +387,23 @@ public class TrackerItemStack {
     /**
      * Is called on the server to let the client know that we want to deserialize the ForgeCaps tag (item tracking) too
      */
-    public static void setDeserializeForgeCaps(CompoundNBT itemTag) {
+    public static void setDeserializeForgeCaps(CompoundTag itemTag) {
         itemTag.putByte("ReadCapOnSet", (byte) 0);
     }
     
     /**
      * Is intended as a check for when the ItemStack is deserialized on client side, to tell if we need to also deserialize ForgeCaps
      */
-    public static boolean deserializesForgeCaps(CompoundNBT itemTag) {
-        return itemTag != null && itemTag.contains("ReadCapOnSet") && itemTag.contains("ForgeCaps", Constants.NBT.TAG_COMPOUND);
+    public static boolean deserializesForgeCaps(CompoundTag itemTag) {
+        return itemTag != null && itemTag.contains("ReadCapOnSet") && itemTag.contains("ForgeCaps", Tag.TAG_COMPOUND);
     }
     
 
-    public void onShrink(ServerWorld world) {
+    public void onShrink(ServerLevel world) {
         if (positionBlock != null) {
-            TileEntity tileEntity = world.getBlockEntity(positionBlock);
-            if (tileEntity instanceof JukeboxTileEntity) {
-                JukeboxTileEntity jukebox = (JukeboxTileEntity) tileEntity;
+            BlockEntity tileEntity = world.getBlockEntity(positionBlock);
+            if (tileEntity instanceof JukeboxBlockEntity) {
+                JukeboxBlockEntity jukebox = (JukeboxBlockEntity) tileEntity;
                 BlockState blockState = world.getBlockState(positionBlock);
                 world.levelEvent(1010, positionBlock, 0);
                 jukebox.clearContent();
@@ -413,33 +413,33 @@ public class TrackerItemStack {
         }
         else if (positionEntity.isPresent()) {
             Entity entity = getAtEntity(world);
-            if (entity instanceof ItemFrameEntity) {
-                ItemFrameEntity itemFrame = (ItemFrameEntity) entity;
+            if (entity instanceof ItemFrame) {
+                ItemFrame itemFrame = (ItemFrame) entity;
                 itemFrame.setItem(ItemStack.EMPTY);
             }
-            else if (entity instanceof VillagerEntity) {
-                PlayerEntity thiefPlayer = getTrackingPlayer(world);
+            else if (entity instanceof Villager) {
+                Player thiefPlayer = getTrackingPlayer(world);
                 if (thiefPlayer != null) {
-                    ((VillagerEntity) entity).getGossips().add(thiefPlayer.getUUID(), GossipType.MAJOR_NEGATIVE, 25);
+                    ((Villager) entity).getGossips().add(thiefPlayer.getUUID(), GossipType.MAJOR_NEGATIVE, 25);
                     world.broadcastEntityEvent(entity, MCUtil.EntityEvents.VILLAGER_ANGRY);
                     entity.getCapability(MerchantDataProvider.CAPABILITY).ifPresent(merchantData -> {
                         merchantData.setRefuseTrading(thiefPlayer.getUUID(), true);
                     });
                 }
             }
-            else if (entity instanceof PiglinEntity && itemStack.getItem() == PiglinTasks.BARTERING_ITEM) {
-                PlayerEntity thiefPlayer = getTrackingPlayer(world);
+            else if (entity instanceof Piglin && itemStack.getItem() == PiglinAi.BARTERING_ITEM) {
+                Player thiefPlayer = getTrackingPlayer(world);
                 if (thiefPlayer != null) {
-                    PiglinTasksAccess.onPiglinScammed((PiglinEntity) entity, thiefPlayer);
+                    PiglinTasksAccess.onPiglinScammed((Piglin) entity, thiefPlayer);
                 }
             }
         }
     }
     
-    private static class PiglinTasksAccess extends PiglinTasks {
+    private static class PiglinTasksAccess extends PiglinAi {
         
-        protected static void onPiglinScammed(PiglinEntity piglin, LivingEntity player) {
-            PiglinTasks.wasHurtBy(piglin, player);
+        protected static void onPiglinScammed(Piglin piglin, LivingEntity player) {
+            PiglinAi.wasHurtBy(piglin, player);
             /*
              * TODO piglin scam counter
              *     if > 0, when receiving a gold ingot, they don't give an item back and instead decrement the counter

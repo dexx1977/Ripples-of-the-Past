@@ -1,28 +1,28 @@
 package com.github.standobyte.jojo.client.particle;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
 
-public class OnomatopoeiaParticle extends SpriteTexturedParticle {
+public class OnomatopoeiaParticle extends TextureSheetParticle {
     private double offsetX;
     private double offsetY;
     private double offsetZ;
 
-    protected OnomatopoeiaParticle(ClientWorld world, double posX, double posY, double posZ) {
+    protected OnomatopoeiaParticle(ClientLevel world, double posX, double posY, double posZ) {
         this(world, posX, posY, posZ, 0.0D, 0.0D, 0.0D);
     }
 
-    public OnomatopoeiaParticle(BasicParticleType type, ClientWorld world, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
+    public OnomatopoeiaParticle(SimpleParticleType type, ClientLevel world, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
         this(world, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
     }
 
-    protected OnomatopoeiaParticle(ClientWorld world, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
+    protected OnomatopoeiaParticle(ClientLevel world, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed) {
         super(world, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
         quadSize = 0.12F + random.nextFloat() * 0.06F;
         hasPhysics = false;
@@ -32,8 +32,8 @@ public class OnomatopoeiaParticle extends SpriteTexturedParticle {
     }
     
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
@@ -53,18 +53,18 @@ public class OnomatopoeiaParticle extends SpriteTexturedParticle {
             offsetZ = (Math.random() - 0.5) * 0.02;
             move(x + offsetX, y + offsetY, z + offsetZ);
         }
-        alpha = MathHelper.clamp((float) lifetime / (float) age * 3F - 3F, 0F, 1F);
+        alpha = Mth.clamp((float) lifetime / (float) age * 3F - 3F, 0F, 1F);
     }
 
-    public static class GoFactory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class GoFactory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public GoFactory(IAnimatedSprite sprite) {
+        public GoFactory(SpriteSet sprite) {
             this.spriteSet = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             OnomatopoeiaParticle particle = new OnomatopoeiaParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(spriteSet);
             particle.lifetime = 400;
@@ -72,15 +72,15 @@ public class OnomatopoeiaParticle extends SpriteTexturedParticle {
         }
     }
 
-    public static class DoFactory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class DoFactory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public DoFactory(IAnimatedSprite sprite) {
+        public DoFactory(SpriteSet sprite) {
             this.spriteSet = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             OnomatopoeiaParticle particle = new OnomatopoeiaParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(spriteSet);
             particle.setLifetime(40);

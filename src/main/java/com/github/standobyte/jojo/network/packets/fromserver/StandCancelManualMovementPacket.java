@@ -10,8 +10,8 @@ import com.github.standobyte.jojo.network.packets.fromclient.ClStandManualMoveme
 import com.github.standobyte.jojo.power.impl.stand.IStandManifestation;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandCancelManualMovementPacket {
     private final double x;
@@ -29,14 +29,14 @@ public class StandCancelManualMovementPacket {
     public static class Handler implements IModPacketHandler<StandCancelManualMovementPacket> {
 
         @Override
-        public void encode(StandCancelManualMovementPacket msg, PacketBuffer buf) {
+        public void encode(StandCancelManualMovementPacket msg, FriendlyByteBuf buf) {
             buf.writeDouble(msg.x);
             buf.writeDouble(msg.y);
             buf.writeDouble(msg.z);
         }
 
         @Override
-        public StandCancelManualMovementPacket decode(PacketBuffer buf) {
+        public StandCancelManualMovementPacket decode(FriendlyByteBuf buf) {
             return new StandCancelManualMovementPacket(buf.readDouble(), buf.readDouble(), buf.readDouble());
         }
 

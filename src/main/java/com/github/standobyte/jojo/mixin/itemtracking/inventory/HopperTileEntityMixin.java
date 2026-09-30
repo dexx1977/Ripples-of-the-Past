@@ -9,17 +9,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.HopperTileEntity;
-import net.minecraft.tileentity.LockableLootTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.level.Level;
 
-@Mixin(HopperTileEntity.class)
-public abstract class HopperTileEntityMixin extends LockableLootTileEntity {
+@Mixin(HopperBlockEntity.class)
+public abstract class HopperTileEntityMixin extends RandomizableContainerBlockEntity {
     
-    protected HopperTileEntityMixin(TileEntityType<?> type) {
+    protected HopperTileEntityMixin(BlockEntityType<?> type) {
         super(type);
     }
     
@@ -28,7 +28,7 @@ public abstract class HopperTileEntityMixin extends LockableLootTileEntity {
     
     @Inject(method = "setItem", at = @At("TAIL"))
     public void jojoOnItemSetToSlot(int slot, ItemStack item, CallbackInfo ci) {
-        World world = getLevel();
+        Level world = getLevel();
         if (world != null && !world.isClientSide()) {
             TrackerItemStack.getItemTrackerInInventory(item, getItems().stream(), false)
             .ifPresent(tracker -> {

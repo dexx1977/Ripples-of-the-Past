@@ -8,22 +8,22 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     private float radius;
@@ -33,7 +33,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     private float xOriginOffset;
     private boolean atmosphericRift;
 
-    public PillarmanDivineSandstormEntity(World world, LivingEntity entity, float offsetX) {
+    public PillarmanDivineSandstormEntity(Level world, LivingEntity entity, float offsetX) {
         super(ModEntityTypes.PILLARMAN_DIVINE_SANDSTORM.get(), entity, world);
         this.xOriginOffset = offsetX;
     }
@@ -41,9 +41,9 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     public PillarmanDivineSandstormEntity setRadius(float radius) {
         this.radius = radius;
         this.particlesCount = isAtmospheric() ? radius * 10 : radius * 2;
-        Vector3d pos = getBoundingBox().getCenter();
+        Vec3 pos = getBoundingBox().getCenter();
         refreshDimensions();
-        setBoundingBox(new AxisAlignedBB(pos, pos).inflate(radius));
+        setBoundingBox(new AABB(pos, pos).inflate(radius));
         return this;
     }
     
@@ -61,7 +61,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     	return atmosphericRift;
     }
     
-    public IParticleData setParticle() {
+    public ParticleOptions setParticle() {
     	if (isAtmospheric()) {
     		return ModParticles.RIFT.get();
     	} else {
@@ -74,7 +74,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
         return this;
     }
 
-    public PillarmanDivineSandstormEntity(EntityType<? extends PillarmanDivineSandstormEntity> entityType, World world) {
+    public PillarmanDivineSandstormEntity(EntityType<? extends PillarmanDivineSandstormEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -88,10 +88,10 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     public void tick() {
         super.tick();
         if (level.isClientSide()) {
-            Vector3d center = getBoundingBox().getCenter();
+            Vec3 center = getBoundingBox().getCenter();
             int particlesCount = Math.max((int) (this.particlesCount * damageWearOffMultiplier()), 1);
             for (int i = 0; i < particlesCount; i++) {
-                Vector3d sparkVec = center.add(new Vector3d(
+                Vec3 sparkVec = center.add(new Vec3(
                         (random.nextDouble() - 1.0), 
                         (random.nextDouble() - 1.0),
                         (random.nextDouble() - 1.0))
@@ -102,7 +102,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             Entity target = entityRayTraceResult.getEntity();
             if (target instanceof LivingEntity) {
@@ -112,23 +112,23 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         super.afterBlockHit(blockRayTraceResult, blockDestroyed);
         if (level.isClientSide()) {
-            Vector3d center = getBoundingBox().getCenter();
+            Vec3 center = getBoundingBox().getCenter();
             if (isAtmospheric()) {
             	level.playSound(ClientUtil.getClientPlayer(), center.x, center.y, center.z, SoundEvents.WITHER_BREAK_BLOCK, 
-                        SoundCategory.AMBIENT, 0.3F, 1.0F);
+                        SoundSource.AMBIENT, 0.3F, 1.0F);
             } else {
             	level.playSound(ClientUtil.getClientPlayer(), center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE, 
-                        SoundCategory.AMBIENT, 0.7F, 1.0F);
+                        SoundSource.AMBIENT, 0.7F, 1.0F);
             }
         }
         
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (targetType != TargetType.ENTITY) {
             if (!level.isClientSide()) {
                 remove();
@@ -139,9 +139,9 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    public EntitySize getDimensions(Pose pose) {
-        EntitySize defaultSize = super.getDimensions(pose);
-        return new EntitySize(radius * 1.2F, radius * 1.2F, defaultSize.fixed);
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions defaultSize = super.getDimensions(pose);
+        return new EntityDimensions(radius * 1.2F, radius * 1.2F, defaultSize.fixed);
     }
     
     @Override
@@ -195,12 +195,12 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
-        return new Vector3d((float) xOriginOffset, 0.8F, 0);
+    protected Vec3 getOwnerRelativeOffset() {
+        return new Vec3((float) xOriginOffset, 0.8F, 0);
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Radius", radius);
         nbt.putFloat("Damage", damage);
@@ -211,7 +211,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         setRadius(nbt.getFloat("Radius"));
         damage = nbt.getFloat("Damage");
@@ -222,7 +222,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeFloat(radius);
         buffer.writeVarInt(duration);
@@ -232,7 +232,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         setRadius(additionalData.readFloat());
         setDuration(additionalData.readVarInt());

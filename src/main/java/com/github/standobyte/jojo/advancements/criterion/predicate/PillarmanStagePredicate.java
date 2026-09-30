@@ -11,16 +11,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.GsonHelper;
 
 public class PillarmanStagePredicate {
     public static final PillarmanStagePredicate ANY = new PillarmanStagePredicate(null);
     @Nullable
-    private final MinMaxBounds.IntBound stage;
+    private final MinMaxBounds.Ints stage;
     
-    public PillarmanStagePredicate(MinMaxBounds.IntBound stage) {
+    public PillarmanStagePredicate(MinMaxBounds.Ints stage) {
         this.stage = stage;
     }
     
@@ -42,9 +42,9 @@ public class PillarmanStagePredicate {
             return ANY;
         }
         else {
-            JsonObject jsonObject = JSONUtils.convertToJsonObject(json, "Pillar Man stage");
+            JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "Pillar Man stage");
             
-            MinMaxBounds.IntBound stage = MinMaxBounds.IntBound.fromJson(jsonObject.get("stage"));
+            MinMaxBounds.Ints stage = MinMaxBounds.Ints.fromJson(jsonObject.get("stage"));
             
             return new PillarmanStagePredicate(stage);
         }

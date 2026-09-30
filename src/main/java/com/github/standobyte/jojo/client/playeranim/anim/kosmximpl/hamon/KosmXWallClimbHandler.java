@@ -26,12 +26,12 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.Camera;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -44,7 +44,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     }
 
     @Override
-    protected PerPlayerModifiersLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected PerPlayerModifiersLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         PerPlayerModifiersLayer<IAnimation> anim = new PerPlayerModifiersLayer<>();
         anim.addModifierLast(new KosmXHeadRotationModifier());
         return anim;
@@ -60,7 +60,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
             this.mirror = new KosmXFixedMirrorModifier() {
                 
                 @Override
-                public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
+                public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
                     if (isEnabled() && "head".equals(modelName)) {
                         value0 = transformVector(value0, type);
                         value0 = transformVector(value0, type);
@@ -80,7 +80,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     private static final ResourceLocation CLIMB_LEFT = new ResourceLocation("jojo", "wall_climb_left");
     private static final ResourceLocation CLIMB_RIGHT = new ResourceLocation("jojo", "wall_climb_right");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         if (enabled) {
             KeyframeAnimation up = PlayerAnimationRegistry.getAnimation(CLIMB_UP);
             KeyframeAnimation down = PlayerAnimationRegistry.getAnimation(CLIMB_DOWN);
@@ -88,7 +88,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
             KeyframeAnimation right = PlayerAnimationRegistry.getAnimation(CLIMB_RIGHT);
             if (up == null || down == null || left == null || right == null) return false;
 
-            PerPlayerModifiersLayer<?> modifierLayer = getAnimLayer((AbstractClientPlayerEntity) player);
+            PerPlayerModifiersLayer<?> modifierLayer = getAnimLayer((AbstractClientPlayer) player);
             KosmXWallClimbKeyframePlayer keyframePlayer = new KosmXWallClimbKeyframePlayer(
                     up, down, left, right, modifierLayer);
             animStuff.put(player.getUUID(), keyframePlayer);
@@ -101,7 +101,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     }
 
     @Override
-    public void tickAnimProperties(PlayerEntity player, boolean isMoving, 
+    public void tickAnimProperties(Player player, boolean isMoving, 
             double movementUp, double movementLeft, float speed) {
         KosmXWallClimbKeyframePlayer climbAnim = getWallClimbAnimPlayer(player);
         if (climbAnim != null) {
@@ -113,7 +113,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     }
     
     @Nullable
-    private KosmXWallClimbKeyframePlayer getWallClimbAnimPlayer(PlayerEntity player) {
+    private KosmXWallClimbKeyframePlayer getWallClimbAnimPlayer(Player player) {
         return animStuff.get(player.getUUID());
     }
     
@@ -125,15 +125,15 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     
     @SubscribeEvent
     public void onEntityRender(RenderPlayerEvent.Post event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         KosmXWallClimbKeyframePlayer animStuff = getWallClimbAnimPlayer(player);
         if (animStuff != null && animStuff.isActive()) {
             animStuff.onRender();
             
-            HandSide handTouch = animStuff.handTouchFrame();
+            HumanoidArm handTouch = animStuff.handTouchFrame();
             if (handTouch != null) {
-                Vector3d particlesOffset = EnergyRippleLayer.handTipPos(event.getRenderer().getModel(), handTouch, Vector3d.ZERO, player.yBodyRot);
-                Vector3d particlesPos = player.position().add(particlesOffset);
+                Vec3 particlesOffset = EnergyRippleLayer.handTipPos(event.getRenderer().getModel(), handTouch, Vec3.ZERO, player.yBodyRot);
+                Vec3 particlesPos = player.position().add(particlesOffset);
                 HamonUtil.emitHamonSparkParticles(player.level, ClientUtil.getClientPlayer(), 
                         particlesPos.x, particlesPos.y, particlesPos.z, 0.25f, 0.125f);
             }
@@ -144,17 +144,17 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     public void onRenderFirstPerson(RenderWorldLastEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.getCameraType().isFirstPerson()) {
-            PlayerEntity player = mc.player;
+            Player player = mc.player;
             KosmXWallClimbKeyframePlayer animStuff = getWallClimbAnimPlayer(player);
             if (animStuff != null && animStuff.isActive()) {
                 animStuff.onRender();
                 
-                HandSide handTouch = animStuff.handTouchFrame();
+                HumanoidArm handTouch = animStuff.handTouchFrame();
                 if (handTouch != null) {
-                    ActiveRenderInfo camera = mc.gameRenderer.getMainCamera();
-                    Vector3d particlesOffset = new Vector3d(handTouch == HandSide.LEFT ? 0.25 : -0.25, 0, 0.25)
+                    Camera camera = mc.gameRenderer.getMainCamera();
+                    Vec3 particlesOffset = new Vec3(handTouch == HumanoidArm.LEFT ? 0.25 : -0.25, 0, 0.25)
                             .yRot((180 + mc.player.yBodyRot) * MathUtil.DEG_TO_RAD);
-                    Vector3d particlesPos = camera.getPosition().add(particlesOffset);
+                    Vec3 particlesPos = camera.getPosition().add(particlesOffset);
                     HamonUtil.emitHamonSparkParticles(player.level, ClientUtil.getClientPlayer(), 
                             particlesPos.x, particlesPos.y, particlesPos.z, 0.25f, 0.125f);
                 }

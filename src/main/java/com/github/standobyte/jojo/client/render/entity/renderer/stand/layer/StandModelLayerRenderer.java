@@ -8,29 +8,29 @@ import com.github.standobyte.jojo.client.render.entity.renderer.stand.StandEntit
 import com.github.standobyte.jojo.client.resources.CustomResources;
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class StandModelLayerRenderer<T extends StandEntity, M extends StandEntityModel<T>> extends LayerRenderer<T, M> {
+public abstract class StandModelLayerRenderer<T extends StandEntity, M extends StandEntityModel<T>> extends RenderLayer<T, M> {
     protected final StandEntityRenderer<T, M> entityRenderer;
     protected final boolean useParentModel;
     protected final M model;
     protected final ResourceLocation texture;
 
-    public StandModelLayerRenderer(IEntityRenderer<T, M> entityRenderer, M model, ResourceLocation texture) {
+    public StandModelLayerRenderer(RenderLayerParent<T, M> entityRenderer, M model, ResourceLocation texture) {
         this(entityRenderer, false, model, texture);
     }
 
-    public StandModelLayerRenderer(IEntityRenderer<T, M> entityRenderer, ResourceLocation texture) {
+    public StandModelLayerRenderer(RenderLayerParent<T, M> entityRenderer, ResourceLocation texture) {
         this(entityRenderer, true, null, texture);
     }
 
-    public StandModelLayerRenderer(IEntityRenderer<T, M> entityRenderer, boolean useParentModel, M model, ResourceLocation texture) {
+    public StandModelLayerRenderer(RenderLayerParent<T, M> entityRenderer, boolean useParentModel, M model, ResourceLocation texture) {
         super(entityRenderer);
         this.entityRenderer = (StandEntityRenderer<T, M>) entityRenderer;
         this.model = model;
@@ -87,7 +87,7 @@ public abstract class StandModelLayerRenderer<T extends StandEntity, M extends S
     }
     
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight,
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight,
             T entity, float walkAnimPos, float walkAnimSpeed, float partialTick,
             float ticks, float headYRotation, float headXRotation) {
         RenderType renderType = getRenderType(entity);
@@ -98,7 +98,7 @@ public abstract class StandModelLayerRenderer<T extends StandEntity, M extends S
         }
     }
     
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, RenderType renderType, int packedLight,
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, RenderType renderType, int packedLight,
             T entity, float walkAnimPos, float walkAnimSpeed, float partialTick,
             float ticks, float headYRotation, float headXRotation) {
         if (renderType != null && shouldRender(entity, entity.getStandSkin())) {

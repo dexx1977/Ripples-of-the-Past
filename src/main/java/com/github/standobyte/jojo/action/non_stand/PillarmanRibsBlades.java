@@ -5,9 +5,9 @@ import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.Pillarma
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.level.Level;
 
 public class PillarmanRibsBlades extends PillarmanAction {
 
@@ -17,9 +17,9 @@ public class PillarmanRibsBlades extends PillarmanAction {
     }
 
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
-            Vector2f rotOffsets = MathUtil.xRotYRotOffsets(Math.PI * 2, 10);
+            Vec2 rotOffsets = MathUtil.xRotYRotOffsets(Math.PI * 2, 10);
             addRibProjectile(world, power, user, rotOffsets.x, rotOffsets.y, -0.18D, -0.50D);
             addRibProjectile(world, power, user, rotOffsets.x, rotOffsets.y, -0.22D, -0.60D);
             addRibProjectile(world, power, user, rotOffsets.x, rotOffsets.y, -0.22D, -0.70D);
@@ -31,7 +31,7 @@ public class PillarmanRibsBlades extends PillarmanAction {
         }
     }
 
-    public static void addRibProjectile(World world, INonStandPower power, LivingEntity user, float xRotDelta, float yRotDelta, double offsetX, double offsetY) {
+    public static void addRibProjectile(Level world, INonStandPower power, LivingEntity user, float xRotDelta, float yRotDelta, double offsetX, double offsetY) {
         PillarmanRibEntity string = new PillarmanRibEntity(world, user, xRotDelta, yRotDelta, offsetX, offsetY);
         string.setLifeSpan(21);
         world.addFreshEntity(string);

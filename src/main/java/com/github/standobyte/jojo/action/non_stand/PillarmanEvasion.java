@@ -4,9 +4,9 @@ import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 // TODO when the player walks a certain distance, add afterimages with the previous pose
 // TODO color afterimages based on the pillar man's mode
@@ -34,7 +34,7 @@ public class PillarmanEvasion extends PillarmanAction {
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide() && requirementsFulfilled) {
         	/*user.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
 	            cap.addAfterimages(4, 40);
@@ -48,12 +48,12 @@ public class PillarmanEvasion extends PillarmanAction {
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.pillarmanEvasion.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.pillarmanEvasion.setAnimEnabled(user, false);
     }
 }

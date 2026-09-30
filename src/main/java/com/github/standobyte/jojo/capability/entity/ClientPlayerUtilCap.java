@@ -10,19 +10,19 @@ import com.github.standobyte.jojo.client.render.entity.pose.anim.barrage.Barrage
 import com.github.standobyte.jojo.util.general.OptionalFloat;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.EntityType;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.EntityType;
 
 public class ClientPlayerUtilCap {
-    private final AbstractClientPlayerEntity player;
-    private final SoundHandler soundManager;
-    private ISound currentVoiceLine;
+    private final AbstractClientPlayer player;
+    private final SoundManager soundManager;
+    private SoundInstance currentVoiceLine;
     public boolean lastVoiceLineTriggered;
     
-    private final BarrageSwingsHolder<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> barrageSwings;
+    private final BarrageSwingsHolder<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> barrageSwings;
     private boolean isBarraging;
     private HamonEnergyRippleHandler hamonSparkWaves;
     
@@ -33,7 +33,7 @@ public class ClientPlayerUtilCap {
     
     private Action<?> heldWithAnim;
     
-    public ClientPlayerUtilCap(AbstractClientPlayerEntity player) {
+    public ClientPlayerUtilCap(AbstractClientPlayer player) {
         this.player = player;
         this.soundManager = Minecraft.getInstance().getSoundManager();
         this.barrageSwings = new BarrageSwingsHolder<>();
@@ -48,12 +48,12 @@ public class ClientPlayerUtilCap {
         return currentVoiceLine != null;
     }
     
-    public void setCurrentVoiceLine(ISound sound) {
+    public void setCurrentVoiceLine(SoundInstance sound) {
         this.currentVoiceLine = sound;
     }
     
     
-    public BarrageSwingsHolder<AbstractClientPlayerEntity, PlayerModel<AbstractClientPlayerEntity>> getBarrageSwings() {
+    public BarrageSwingsHolder<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> getBarrageSwings() {
         return barrageSwings;
     }
     

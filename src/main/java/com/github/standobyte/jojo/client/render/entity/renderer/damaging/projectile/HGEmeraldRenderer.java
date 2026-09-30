@@ -6,12 +6,12 @@ import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRend
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
 import com.github.standobyte.jojo.entity.damaging.projectile.HGEmeraldEntity;
 
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.resources.ResourceLocation;
 
 public class HGEmeraldRenderer extends SimpleEntityRenderer<HGEmeraldEntity, HGEmeraldModel> {
 
-    public HGEmeraldRenderer(EntityRendererManager renderManager) {
+    public HGEmeraldRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, new HGEmeraldModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hg_emerald.png"));
     }
     

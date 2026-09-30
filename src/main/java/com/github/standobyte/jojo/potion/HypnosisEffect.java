@@ -4,19 +4,19 @@ import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.client.particle.custom.CustomParticlesHelper;
 import com.github.standobyte.jojo.client.sound.HamonSparksLoopSound;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.effect.MobEffectCategory;
 
 public class HypnosisEffect extends StatusEffect {
     
     public HypnosisEffect(int liquidColor) {
-        super(EffectType.HARMFUL, liquidColor);
+        super(MobEffectCategory.HARMFUL, liquidColor);
         setUncurable();
     }
     
     @Override
-    public void removeAttributeModifiers(LivingEntity entity, AttributeModifierManager modifiers, int amplifier) {
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap modifiers, int amplifier) {
         super.removeAttributeModifiers(entity, modifiers, amplifier);
         entity.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.relieveHypnosis());
     }

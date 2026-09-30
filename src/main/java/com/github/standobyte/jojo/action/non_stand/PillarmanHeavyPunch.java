@@ -9,10 +9,10 @@ import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerAction<PillarmanHeavyPunch.Instance, INonStandPower> {
 
@@ -22,7 +22,7 @@ public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerActio
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -31,8 +31,8 @@ public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerActio
     @Override
     public PillarmanHeavyPunch.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.pillarManPunch.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.pillarManPunch.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -42,7 +42,7 @@ public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerActio
     public void setCooldownOnUse(INonStandPower power) {}
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {}
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {}
     
     
     public static class Instance extends ContinuousActionInstance<PillarmanHeavyPunch, INonStandPower> {
@@ -59,7 +59,7 @@ public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerActio
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.PILLAR_MAN_SWING.get(), user.getSoundSource(), 1.0f, 1.25f);
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                 }
                 break;
             case 5:
@@ -88,8 +88,8 @@ public class PillarmanHeavyPunch extends PillarmanAction implements IPlayerActio
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.pillarManPunch.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.pillarManPunch.setAnimEnabled((Player) user, false);
             }
         }
         

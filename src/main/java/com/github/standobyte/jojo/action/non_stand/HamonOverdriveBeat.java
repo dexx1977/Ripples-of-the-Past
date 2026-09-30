@@ -13,10 +13,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<HamonOverdriveBeat.Instance, INonStandPower> {
 
@@ -26,7 +26,7 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -35,8 +35,8 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
     @Override
     public HamonOverdriveBeat.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.hamonBeat.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.hamonBeat.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -46,7 +46,7 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
     public void setCooldownOnUse(INonStandPower power) {} // cooldown is set inside the continuous action instance
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {} // and so is energy consumption
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {} // and so is energy consumption
     
     
     public static class Instance extends ContinuousActionInstance<HamonOverdriveBeat, INonStandPower> {
@@ -66,7 +66,7 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 1.5f);
-                    user.swing(Hand.OFF_HAND, true);
+                    user.swing(InteractionHand.OFF_HAND, true);
                 }
                 break;
             case 5:
@@ -84,7 +84,7 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
         }
         
         private void punch(LivingEntity target) {
-            World world = user.level;
+            Level world = user.level;
             if (!world.isClientSide()) {
                 HamonOverdriveBeat hamonAction = getAction();
                 if (hamonAction.checkHeldItems(user, playerPower).isPositive()) {
@@ -103,8 +103,8 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
                 HamonSunlightYellowOverdrive.doMeleeAttack(user, target);
             }
             
-            if (user instanceof PlayerEntity) {
-                ((PlayerEntity) user).resetAttackStrengthTicker();
+            if (user instanceof Player) {
+                ((Player) user).resetAttackStrengthTicker();
             }
         }
         
@@ -121,8 +121,8 @@ public class HamonOverdriveBeat extends HamonAction implements IPlayerAction<Ham
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.hamonBeat.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.hamonBeat.setAnimEnabled((Player) user, false);
             }
         }
         

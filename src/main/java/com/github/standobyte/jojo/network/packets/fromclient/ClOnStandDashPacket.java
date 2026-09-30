@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClOnStandDashPacket {
     
@@ -19,17 +19,17 @@ public class ClOnStandDashPacket {
     public static class Handler implements IModPacketHandler<ClOnStandDashPacket> {
 
         @Override
-        public void encode(ClOnStandDashPacket msg, PacketBuffer buf) {
+        public void encode(ClOnStandDashPacket msg, FriendlyByteBuf buf) {
         }
 
         @Override
-        public ClOnStandDashPacket decode(PacketBuffer buf) {
+        public ClOnStandDashPacket decode(FriendlyByteBuf buf) {
             return new ClOnStandDashPacket();
         }
         
         @Override
         public void handle(ClOnStandDashPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                 if (power.canLeap()) {
                     power.onDash();

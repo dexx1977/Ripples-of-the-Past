@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityMo
 import com.github.standobyte.jojo.client.render.entity.renderer.stand.StandEntityRenderer;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class StandLayerGlowLayer<T extends StandEntity, M extends StandEntityModel<T>> extends StandGlowLayer<T, M> {
     private final StandModelLayerRenderer<T, M> layerRenderer;

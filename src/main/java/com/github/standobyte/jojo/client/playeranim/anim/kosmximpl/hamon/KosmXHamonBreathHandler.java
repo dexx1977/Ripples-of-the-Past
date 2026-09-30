@@ -17,10 +17,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.Character
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
 
 public class KosmXHamonBreathHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
     private static final Random RANDOM = new Random();
@@ -30,23 +30,23 @@ public class KosmXHamonBreathHandler extends AnimLayerHandler<ModifierLayer<IAni
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null);
     }
     
     
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         enabled &= PlayerAnimationHandler.canAnimate(player);
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, getAnimPath(player));
+            return setAnimFromName((AbstractClientPlayer) player, getAnimPath(player));
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
         }
     }
     
-    private ResourceLocation getAnimPath(PlayerEntity player) {
+    private ResourceLocation getAnimPath(Player player) {
         ResourceLocation[] poses = INonStandPower.getNonStandPowerOptional(player).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.HAMON.get()))
                 .map(hamon -> {

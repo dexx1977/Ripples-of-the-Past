@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.action.stand.CrazyDiamondBlockCheckpointMove;
 import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class CrazyDiamondAnchorMarker extends MarkerRenderer {
     
@@ -28,9 +28,9 @@ public class CrazyDiamondAnchorMarker extends MarkerRenderer {
         ItemStack mainHandItem = mc.player.getMainHandItem();
         ItemStack offHandItem = mc.player.getOffhandItem();
         CrazyDiamondBlockCheckpointMake.getBlockPosMoveTo(mc.level, mainHandItem).ifPresent(pos -> 
-            list.add(new MarkerInstance(Vector3d.atCenterOf(pos), mainHandItem == itemUsed)));
+            list.add(new MarkerInstance(Vec3.atCenterOf(pos), mainHandItem == itemUsed)));
         CrazyDiamondBlockCheckpointMake.getBlockPosMoveTo(mc.level, offHandItem).ifPresent(pos -> {
-            list.add(new MarkerInstance(Vector3d.atCenterOf(pos), offHandItem == itemUsed));
+            list.add(new MarkerInstance(Vec3.atCenterOf(pos), offHandItem == itemUsed));
         });
     }
 }

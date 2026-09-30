@@ -1,25 +1,25 @@
 package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
 
-public class DivineSandstormEffectLayer<T extends LivingEntity> extends LayerRenderer<T, PlayerModel<T>> { // TODO riptide effects on arms
+public class DivineSandstormEffectLayer<T extends LivingEntity> extends RenderLayer<T, PlayerModel<T>> { // TODO riptide effects on arms
     public static final ResourceLocation TEXTURE = new ResourceLocation("textures/entity/trident_riptide.png");
-    private final ModelRenderer box = new ModelRenderer(64, 64, 0, 0);
+    private final ModelPart box = new ModelPart(64, 64, 0, 0);
 
-    public DivineSandstormEffectLayer(IEntityRenderer<T, PlayerModel<T>> renderer) {
+    public DivineSandstormEffectLayer(RenderLayerParent<T, PlayerModel<T>> renderer) {
         super(renderer);
         box.addBox(-8.0F, -16.0F, -8.0F, 16.0F, 32.0F, 16.0F);
     }
 
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, 
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, 
             T entity, float walkAnimPos, float walkAnimSpeed, float partialTick, 
             float ticks, float headYRotation, float headXRotation) {
         /*if (INonStandPower.getNonStandPowerOptional(entity)

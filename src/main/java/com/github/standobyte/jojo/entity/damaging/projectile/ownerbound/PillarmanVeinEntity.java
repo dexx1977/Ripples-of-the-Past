@@ -7,21 +7,21 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
@@ -32,7 +32,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     private double xOriginOffset;
     private double zOriginOffset;
 
-    public PillarmanVeinEntity(World world, LivingEntity entity, float angleXZ, float angleYZ, double offsetX, double offsetY, double offsetZ) {
+    public PillarmanVeinEntity(Level world, LivingEntity entity, float angleXZ, float angleYZ, double offsetX, double offsetY, double offsetZ) {
         super(ModEntityTypes.PILLARMAN_VEINS.get(), entity, world);
         this.xRotOffset = angleXZ;
         this.yRotOffset = angleYZ;
@@ -41,7 +41,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
         this.zOriginOffset = offsetZ;
     }
     
-    public PillarmanVeinEntity(EntityType<? extends PillarmanVeinEntity> entityType, World world) {
+    public PillarmanVeinEntity(EntityType<? extends PillarmanVeinEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -54,9 +54,9 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     public void tick() {
         super.tick();
         if (level.isClientSide()) {
-            Vector3d center = getBoundingBox().getCenter();
+            Vec3 center = getBoundingBox().getCenter();
             for (int i = 0; i < 1; i++) {
-                Vector3d sparkVec = center.add(new Vector3d(
+                Vec3 sparkVec = center.add(new Vec3(
                         (random.nextDouble() - 0.5), 
                         (random.nextDouble() - 0.5),
                         (random.nextDouble() - 0.5))
@@ -90,7 +90,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             Entity target = entityRayTraceResult.getEntity();
                 if (knockback > 0 && target instanceof LivingEntity) {
@@ -101,19 +101,19 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
             if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
                 BlockPos blockPos = blockRayTraceResult.getBlockPos();
                 BlockState blockState = level.getBlockState(blockPos);
                 if (!MRFlameEntity.meltIceAndSnow(level, blockState, blockPos) && 
-                		blockState.getCollisionShape(level, blockPos) != VoxelShapes.empty()) {
+                		blockState.getCollisionShape(level, blockPos) != Shapes.empty()) {
                     blockPos = blockPos.relative(blockRayTraceResult.getDirection());
                     if (level.isEmptyBlock(blockPos) && !isRetracting()) {
-                        level.setBlockAndUpdate(blockPos, ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(FlowingFluidBlock.LEVEL, 4));
-                        Vector3d center = getBoundingBox().getCenter();
+                        level.setBlockAndUpdate(blockPos, ModBlocks.BOILING_BLOOD.get().defaultBlockState().setValue(LiquidBlock.LEVEL, 4));
+                        Vec3 center = getBoundingBox().getCenter();
                         level.playSound(null, center.x, center.y, center.z, SoundEvents.LAVA_EXTINGUISH, 
-                                SoundCategory.AMBIENT, 0.2F, 1.0F);
+                                SoundSource.AMBIENT, 0.2F, 1.0F);
                     }
                 }
             }
@@ -147,17 +147,17 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
-        return new Vector3d(xOriginOffset, yOriginOffset, zOriginOffset);
+    protected Vec3 getOwnerRelativeOffset() {
+        return new Vec3(xOriginOffset, yOriginOffset, zOriginOffset);
     }
 
     @Override
-    protected Vector3d originOffset(float yRot, float xRot, double distance) {
+    protected Vec3 originOffset(float yRot, float xRot, double distance) {
         return super.originOffset(yRot + yRotOffset, xRot + xRotOffset, distance);
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("YRotOffset", yRotOffset);
         nbt.putFloat("XRotOffset", xRotOffset);
@@ -168,7 +168,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         yRotOffset = nbt.getFloat("YRotOffset");
         xRotOffset = nbt.getFloat("XRotOffset");
@@ -179,7 +179,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeFloat(yRotOffset);
         buffer.writeFloat(xRotOffset);
@@ -189,7 +189,7 @@ public class PillarmanVeinEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.yRotOffset = additionalData.readFloat();
         this.xRotOffset = additionalData.readFloat();

@@ -3,37 +3,37 @@ package com.github.standobyte.jojo.client.render.item.standdisc;
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
 import com.github.standobyte.jojo.item.StandDiscItem;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer.TexturedQuad;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelPart.Polygon;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
-public class StandDiscISTER extends ItemStackTileEntityRenderer {
+public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, 
-            MatrixStack matrixStack, IRenderTypeBuffer buffer, int light, int overlay) {
+    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, 
+            PoseStack matrixStack, MultiBufferSource buffer, int light, int overlay) {
         ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
-        IBakedModel pModel = ir.getModel(itemStack, null, null);
+        BakedModel pModel = ir.getModel(itemStack, null, null);
         
-        RenderType rendertype = RenderTypeLookup.getRenderType(itemStack, true);
-        IVertexBuilder ivertexbuilder = ItemRenderer.getFoilBufferDirect(
+        RenderType rendertype = ItemBlockRenderTypes.getRenderType(itemStack, true);
+        VertexConsumer ivertexbuilder = ItemRenderer.getFoilBufferDirect(
                 buffer, rendertype, true, itemStack.hasFoil());
         ir.renderModelLists(pModel, itemStack, light, overlay, matrixStack, ivertexbuilder);
         
@@ -47,12 +47,12 @@ public class StandDiscISTER extends ItemStackTileEntityRenderer {
     
     
     
-    private void renderStandIcon(MatrixStack matrixStack, StandInstance stand, ItemStack discItem, 
-            IRenderTypeBuffer buffer, int light, int overlay) {
+    private void renderStandIcon(PoseStack matrixStack, StandInstance stand, ItemStack discItem, 
+            MultiBufferSource buffer, int light, int overlay) {
         ResourceLocation icon = StandSkinsManager.getInstance().getRemappedResPath(
                 manager -> manager.getStandSkin(stand), stand.getType().getIconTexture(null));
         
-        IVertexBuilder vertexBuilder = ItemRenderer.getFoilBufferDirect(
+        VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
                 buffer, RenderType.entityCutoutNoCull(icon), 
                 false, discItem.hasFoil());
         
@@ -67,25 +67,25 @@ public class StandDiscISTER extends ItemStackTileEntityRenderer {
         float x1 = 7;
         float y1 = 11;
         float z1 = 8.502F;
-        ModelRenderer.PositionTextureVertex vertex7 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex7 = new ModelPart.PositionTextureVertex(
                 x0, y0, z0, 0.0F, 0.0F);
-        ModelRenderer.PositionTextureVertex vertex = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex = new ModelPart.PositionTextureVertex(
                 x1, y0, z0, 0.0F, 8.0F);
-        ModelRenderer.PositionTextureVertex vertex1 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex1 = new ModelPart.PositionTextureVertex(
                 x1, y1, z0, 8.0F, 8.0F);
-        ModelRenderer.PositionTextureVertex vertex2 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex2 = new ModelPart.PositionTextureVertex(
                 x0, y1, z0, 8.0F, 0.0F);
-        ModelRenderer.PositionTextureVertex vertex3 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex3 = new ModelPart.PositionTextureVertex(
                 x0, y0, z1, 0.0F, 0.0F);
-        ModelRenderer.PositionTextureVertex vertex4 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex4 = new ModelPart.PositionTextureVertex(
                 x1, y0, z1, 0.0F, 8.0F);
-        ModelRenderer.PositionTextureVertex vertex5 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex5 = new ModelPart.PositionTextureVertex(
                 x1, y1, z1, 8.0F, 8.0F);
-        ModelRenderer.PositionTextureVertex vertex6 = new ModelRenderer.PositionTextureVertex(
+        ModelPart.PositionTextureVertex vertex6 = new ModelPart.PositionTextureVertex(
                 x0, y1, z1, 8.0F, 0.0F);
         
-        QUAD_FRONT = new ModelRenderer.TexturedQuad(
-                new ModelRenderer.PositionTextureVertex[]{
+        QUAD_FRONT = new ModelPart.Polygon(
+                new ModelPart.PositionTextureVertex[]{
                         vertex2, 
                         vertex1,
                         vertex, 
@@ -94,8 +94,8 @@ public class StandDiscISTER extends ItemStackTileEntityRenderer {
                 0, 0, 16, 16, 
                 16, 16, false, Direction.NORTH);
         
-        QUAD_BACK = new ModelRenderer.TexturedQuad(
-                new ModelRenderer.PositionTextureVertex[]{ 
+        QUAD_BACK = new ModelPart.Polygon(
+                new ModelPart.PositionTextureVertex[]{ 
                         vertex5, 
                         vertex6,
                         vertex3, 
@@ -104,11 +104,11 @@ public class StandDiscISTER extends ItemStackTileEntityRenderer {
                 16, 16, false, Direction.SOUTH);
     }
     
-    private static final TexturedQuad QUAD_FRONT;
-    private static final TexturedQuad QUAD_BACK;
+    private static final Polygon QUAD_FRONT;
+    private static final Polygon QUAD_BACK;
     
-    private void renderIconQuad(MatrixStack.Entry poseEntry, TexturedQuad quad, 
-            IVertexBuilder vertexBuilder, int light, int overlay) {
+    private void renderIconQuad(PoseStack.Entry poseEntry, Polygon quad, 
+            VertexConsumer vertexBuilder, int light, int overlay) {
         Matrix4f pose = poseEntry.pose();
         Matrix3f entry = poseEntry.normal();
         Vector3f normal = quad.normal.copy();
@@ -118,7 +118,7 @@ public class StandDiscISTER extends ItemStackTileEntityRenderer {
         float z = normal.z();
 
         for (int i = 0; i < quad.vertices.length; ++i) {
-            ModelRenderer.PositionTextureVertex vertex = quad.vertices[i];
+            ModelPart.PositionTextureVertex vertex = quad.vertices[i];
             float vertexX = vertex.pos.x() / 16.0F;
             float vertexY = vertex.pos.y() / 16.0F;
             float vertexZ = vertex.pos.z() / 16.0F;

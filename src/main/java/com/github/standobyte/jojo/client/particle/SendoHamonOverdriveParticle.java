@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.client.particle;
 
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SendoHamonOverdriveParticle extends HamonSparkParticle {
     private Direction.Axis blockAxis;
 
-    public SendoHamonOverdriveParticle(ClientWorld world, double x, double y, double z, 
+    public SendoHamonOverdriveParticle(ClientLevel world, double x, double y, double z, 
             double xd, double yd, double zd, Direction.Axis blockAxis) {
         super(world, x, y, z, xd, yd, zd);
         this.xd = xd;
@@ -24,26 +24,26 @@ public class SendoHamonOverdriveParticle extends HamonSparkParticle {
     }
     
     @Override
-    public void render(IVertexBuilder pBuffer, ActiveRenderInfo pRenderInfo, float pPartialTicks) {
+    public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
         if (blockAxis != null) {
             BlockPos blockPos;
             switch (blockAxis) {
             case X:
-                blockPos = new BlockPos(MathUtil.round(x), MathHelper.floor(y), MathHelper.floor(z));
+                blockPos = new BlockPos(MathUtil.round(x), Mth.floor(y), Mth.floor(z));
                 if (
                         !hasFaceAt(blockPos,                  Direction.WEST) && 
                         !hasFaceAt(blockPos.offset(-1, 0, 0), Direction.EAST)) 
                     return;
                 break;
             case Y:
-                blockPos = new BlockPos(MathHelper.floor(x), MathUtil.round(y), MathHelper.floor(z));
+                blockPos = new BlockPos(Mth.floor(x), MathUtil.round(y), Mth.floor(z));
                 if (
                         !hasFaceAt(blockPos,                  Direction.DOWN) && 
                         !hasFaceAt(blockPos.offset(0, -1, 0), Direction.UP)) 
                     return;
                 break;
             case Z:
-                blockPos = new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathUtil.round(z));
+                blockPos = new BlockPos(Mth.floor(x), Mth.floor(y), MathUtil.round(z));
                 if (
                         !hasFaceAt(blockPos,                  Direction.NORTH) && 
                         !hasFaceAt(blockPos.offset(0, 0, -1), Direction.SOUTH)) 

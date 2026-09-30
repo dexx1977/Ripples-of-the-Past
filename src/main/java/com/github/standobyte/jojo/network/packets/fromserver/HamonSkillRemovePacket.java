@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonSkillRemovePacket {
     private final AbstractHamonSkill skill;
@@ -25,18 +25,18 @@ public class HamonSkillRemovePacket {
     public static class Handler implements IModPacketHandler<HamonSkillRemovePacket> {
         
         @Override
-        public void encode(HamonSkillRemovePacket msg, PacketBuffer buf) {
+        public void encode(HamonSkillRemovePacket msg, FriendlyByteBuf buf) {
             buf.writeRegistryId(msg.skill);
         }
         
         @Override
-        public HamonSkillRemovePacket decode(PacketBuffer buf) {
+        public HamonSkillRemovePacket decode(FriendlyByteBuf buf) {
             return new HamonSkillRemovePacket(buf.readRegistryIdSafe(AbstractHamonSkill.class));
         }
         
         @Override
         public void handle(HamonSkillRemovePacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                     hamon.removeHamonSkill(msg.skill);

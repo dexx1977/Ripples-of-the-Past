@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.ui.screen;
 
 import java.util.Arrays;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.AbstractGui;
 
@@ -31,7 +31,7 @@ public enum TabPositionType {
         return max;
     }
 
-    public void draw(MatrixStack matrixStack, AbstractGui gui, 
+    public void draw(PoseStack matrixStack, AbstractGui gui, 
             int offsetX, int offsetY, 
             int screenWidth, int screenHeight,
             boolean isSelected, int index,

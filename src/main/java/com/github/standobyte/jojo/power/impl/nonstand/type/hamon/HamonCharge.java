@@ -14,18 +14,18 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil.HamonAttackProperties;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class HamonCharge {
     private float damage;
@@ -51,12 +51,12 @@ public class HamonCharge {
         return damage;
     }
     
-    public void tick(@Nullable Entity chargedEntity, @Nullable BlockPos chargedBlock, World world, AxisAlignedBB aabb) {
+    public void tick(@Nullable Entity chargedEntity, @Nullable BlockPos chargedBlock, Level world, AABB aabb) {
         if (!world.isClientSide() && (chargedEntity == null || chargedEntity.canUpdate())) {
-            List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class, aabb, EntityPredicates.NO_CREATIVE_OR_SPECTATOR);
+            List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class, aabb, EntitySelector.NO_CREATIVE_OR_SPECTATOR);
             for (LivingEntity target : entities) {
                 if (!target.is(chargedEntity) && target.isAlive() && !target.getUUID().equals(hamonUserId)) {
-                    Entity user = getUser((ServerWorld) world);
+                    Entity user = getUser((ServerLevel) world);
                     LivingEntity userLiving = user instanceof LivingEntity ? (LivingEntity) user : null;
                     float dmgAmount = this.damage;
                     if (!doLargeChargeDmg) {
@@ -65,8 +65,8 @@ public class HamonCharge {
                     
                     if (DamageUtil.dealHamonDamage(target, dmgAmount, chargedEntity, 
                             chargedEntity instanceof LivingEntity ? null : user, HamonAttackProperties::noSrcEntityHamonMultiplier)) {
-                        if (!target.isAlive() && user instanceof ServerPlayerEntity) {
-                            ModCriteriaTriggers.HAMON_CHARGE_KILL.get().trigger((ServerPlayerEntity) user, target, chargedEntity, chargedBlock);
+                        if (!target.isAlive() && user instanceof ServerPlayer) {
+                            ModCriteriaTriggers.HAMON_CHARGE_KILL.get().trigger((ServerPlayer) user, target, chargedEntity, chargedBlock);
                         }
                         if (!gavePoints && userLiving != null) {
                             INonStandPower.getNonStandPowerOptional(userLiving).resolve()
@@ -75,9 +75,9 @@ public class HamonCharge {
                             });
                         }
                         
-                        Vector3d chargePos = null;
+                        Vec3 chargePos = null;
                         if (chargedBlock != null) {
-                            chargePos = Vector3d.atCenterOf(chargedBlock);
+                            chargePos = Vec3.atCenterOf(chargedBlock);
                         }
                         else if (chargedEntity != null) {
                             chargePos = chargedEntity.getBoundingBox().getCenter();
@@ -90,7 +90,7 @@ public class HamonCharge {
                         if (!world.isClientSide()) {
                             if (doLargeChargeDmg) {
                                 if (chargePos != null) {
-                                    Vector3d knockbackVec = new Vector3d(chargePos.x - target.getX(), 0, chargePos.z - target.getZ()).normalize();
+                                    Vec3 knockbackVec = new Vec3(chargePos.x - target.getX(), 0, chargePos.z - target.getZ()).normalize();
                                     target.knockback(0.75F, knockbackVec.x, knockbackVec.z);
                                 }
                                 // If Hamon Shock is learned Entity Infuse will shock aswell
@@ -99,7 +99,7 @@ public class HamonCharge {
                                     INonStandPower.getNonStandPowerOptional(userLiving).resolve()
                                     .flatMap(power -> power.getTypeSpecificData(ModPowers.HAMON.get())).ifPresent(hamon -> {
                                         if (hamon.isSkillLearned(ModHamonSkills.HAMON_SHOCK.get())) {
-                                            target.addEffect(new EffectInstance(ModStatusEffects.HAMON_SHOCK.get(), 30, 0, false, false));
+                                            target.addEffect(new MobEffectInstance(ModStatusEffects.HAMON_SHOCK.get(), 30, 0, false, false));
                                         }
                                     });
                                 }
@@ -124,9 +124,9 @@ public class HamonCharge {
         }
     }
     
-    public Entity getUser(ServerWorld world) {
-        if (hamonUser == null && world instanceof ServerWorld) {
-            hamonUser = ((ServerWorld) world).getEntity(hamonUserId);
+    public Entity getUser(ServerLevel world) {
+        if (hamonUser == null && world instanceof ServerLevel) {
+            hamonUser = ((ServerLevel) world).getEntity(hamonUserId);
         }
         return hamonUser;
     }
@@ -153,7 +153,7 @@ public class HamonCharge {
     
     
     
-    public static HamonCharge fromNBT(CompoundNBT nbt) {
+    public static HamonCharge fromNBT(CompoundTag nbt) {
         HamonCharge charge = new HamonCharge(nbt.getFloat("Charge"), nbt.getInt("ChargeTicksInitial"), null, nbt.getFloat("EnergySpent"));
         charge.chargeTicks = nbt.getInt("ChargeTicks");
         if (nbt.hasUUID("HamonUser")) {
@@ -164,8 +164,8 @@ public class HamonCharge {
         return charge;
     }
     
-    public CompoundNBT toNBT() {
-        CompoundNBT chargeNbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag chargeNbt = new CompoundTag();
         chargeNbt.putFloat("Charge", damage);
         chargeNbt.putInt("ChargeTicksInitial", chargeTicksInitial);
         chargeNbt.putInt("ChargeTicks", chargeTicks);

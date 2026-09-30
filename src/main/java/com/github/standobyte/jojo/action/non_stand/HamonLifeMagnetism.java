@@ -13,19 +13,19 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class HamonLifeMagnetism extends HamonAction {
 
@@ -39,7 +39,7 @@ public class HamonLifeMagnetism extends HamonAction {
                 ||
             useItemForGlider(user.getMainHandItem()) || useItemForGlider(user.getOffhandItem()) 
                 ||
-            user instanceof PlayerEntity && !MCUtil.findInInventory(((PlayerEntity) user).inventory, 
+            user instanceof Player && !MCUtil.findInInventory(((Player) user).inventory, 
                     item -> !item.isEmpty() && item.getItem() instanceof BlockItem && 
                     ((BlockItem) item.getItem()).getBlock() instanceof LeavesBlock).isEmpty()) {
             return ActionConditionResult.POSITIVE;
@@ -56,18 +56,18 @@ public class HamonLifeMagnetism extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             if (target.getType() == TargetType.BLOCK) {
                 BlockPos blockPos = target.getBlockPos();
                 BlockState blockState = user.level.getBlockState(blockPos);
                 if (blockState.getBlock() instanceof LeavesBlock) {
                     MCUtil.destroyBlock(world, blockPos, false, null);
-                    LeavesGliderEntity glider = summonGlider(world, user, power, Vector3d.atBottomCenterOf(blockPos), false, blockState);
+                    LeavesGliderEntity glider = summonGlider(world, user, power, Vec3.atBottomCenterOf(blockPos), false, blockState);
                     
-                    IChunk chunk = world.getChunk(blockPos);
-                    if (chunk instanceof Chunk) {
-                        ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+                    ChunkAccess chunk = world.getChunk(blockPos);
+                    if (chunk instanceof LevelChunk) {
+                        ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                             PrevBlockInfo brokenBlock = cap.getBrokenBlockAt(blockPos);
                             if (brokenBlock != null) {
                                 brokenBlock.withEntities(glider);
@@ -79,9 +79,9 @@ public class HamonLifeMagnetism extends HamonAction {
                 }
             }
             
-            if (user instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) user;
-                IInventory inventory = player.inventory;
+            if (user instanceof Player) {
+                Player player = (Player) user;
+                Container inventory = player.inventory;
                 ItemStack leavesItem = user.getMainHandItem();
                 if (!useItemForGlider(leavesItem)) leavesItem = user.getOffhandItem();
                 if (!useItemForGlider(leavesItem)) leavesItem = MCUtil.findInInventory(inventory, item -> useItemForGlider(item));
@@ -100,7 +100,7 @@ public class HamonLifeMagnetism extends HamonAction {
                 ((BlockItem) item.getItem()).getBlock() instanceof LeavesBlock;
     }
     
-    private LeavesGliderEntity summonGlider(World world, LivingEntity user, INonStandPower power, Vector3d pos, boolean mount, BlockState leavesBlock) {
+    private LeavesGliderEntity summonGlider(Level world, LivingEntity user, INonStandPower power, Vec3 pos, boolean mount, BlockState leavesBlock) {
         LeavesGliderEntity glider = new LeavesGliderEntity(world);
         glider.moveTo(pos.x, pos.y, pos.z, user.xRot, user.yRot);
         glider.setLeavesBlock(leavesBlock);
@@ -116,7 +116,7 @@ public class HamonLifeMagnetism extends HamonAction {
     }
     
     @Override
-    public boolean renderHamonAuraOnItem(ItemStack item, HandSide handSide) {
+    public boolean renderHamonAuraOnItem(ItemStack item, HumanoidArm handSide) {
         return item.getItem() instanceof BlockItem && ((BlockItem) item.getItem()).getBlock() instanceof LeavesBlock;
     }
 }

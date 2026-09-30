@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.modcompat.mod.vampirism;
 import com.github.standobyte.jojo.modcompat.IVampirismModIntegration;
 
 import de.teamlapen.vampirism.util.Helper;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class VampirismModIntergration implements IVampirismModIntegration {
 

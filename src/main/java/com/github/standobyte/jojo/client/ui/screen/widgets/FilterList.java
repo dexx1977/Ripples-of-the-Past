@@ -7,16 +7,16 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 
-public class FilterList<T extends FilterList.Entry> implements IGuiEventListener {
+public class FilterList<T extends FilterList.Entry> implements GuiEventListener {
     private int topEntry = 0;
     private final List<T> allEntries;
     private List<T> renderedEntries;
@@ -74,7 +74,7 @@ public class FilterList<T extends FilterList.Entry> implements IGuiEventListener
         setTopEntryIndex(topEntry);
     }
     
-    public void render(MatrixStack matrixStack, Minecraft mc, 
+    public void render(PoseStack matrixStack, Minecraft mc, 
             int mouseX, int mouseY, float partialTick) {
         if (!visible) return;
         
@@ -144,12 +144,12 @@ public class FilterList<T extends FilterList.Entry> implements IGuiEventListener
         if (!visible) return false;
         if (getScrollUpState((int) mouseX, (int) mouseY) == ScrollButtonState.HOVERED) {
             setTopEntryIndex(topEntry - 1);
-            Minecraft.getInstance().getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
         if (getScrollDownState((int) mouseX, (int) mouseY) == ScrollButtonState.HOVERED) {
             setTopEntryIndex(topEntry + 1);
-            Minecraft.getInstance().getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
         
@@ -181,7 +181,7 @@ public class FilterList<T extends FilterList.Entry> implements IGuiEventListener
     }
     
     private void setTopEntryIndex(int index) {
-        index = MathHelper.clamp(index, 0, getMaxTopEntryIndex());
+        index = Mth.clamp(index, 0, getMaxTopEntryIndex());
         if (this.topEntry != index) {
             int diff = index - this.topEntry;
             this.topEntry = index;
@@ -194,7 +194,7 @@ public class FilterList<T extends FilterList.Entry> implements IGuiEventListener
         void setY(int y);
         void addY(int addY);
         void setVisible(boolean isVisible);
-        void render(MatrixStack matrixStack, Minecraft mc, int mouseX, int mouseY, float partialTick);
+        void render(PoseStack matrixStack, Minecraft mc, int mouseX, int mouseY, float partialTick);
         boolean mouseClicked(double mouseX, double mouseY, int buttonId);
     }
 }

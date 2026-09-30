@@ -18,15 +18,21 @@ import com.github.standobyte.jojo.power.impl.nonstand.TypeSpecificData;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
-public abstract class NonStandPowerType<T extends TypeSpecificData> extends ForgeRegistryEntry<NonStandPowerType<?>> implements IPowerType<INonStandPower, NonStandPowerType<?>> {
+public abstract class NonStandPowerType<T extends TypeSpecificData> implements IPowerType<INonStandPower, NonStandPowerType<?>> {
+    @Override
+    public IForgeRegistry<NonStandPowerType<?>> getRegistry() {
+        return JojoCustomRegistries.NON_STAND_POWERS.getRegistry();
+    }
+
     protected final Action<INonStandPower>[] attacks;
     protected final Action<INonStandPower>[] abilities;
     protected final Action<INonStandPower> defaultQuickAccess;
@@ -58,8 +64,8 @@ public abstract class NonStandPowerType<T extends TypeSpecificData> extends Forg
     
     public void afterClear(INonStandPower power) {
         LivingEntity user = power.getUser();
-        for (Effect effect : getAllPossibleEffects()) {
-            EffectInstance effectInstance = user.getEffect(effect);
+        for (MobEffect effect : getAllPossibleEffects()) {
+            MobEffectInstance effectInstance = user.getEffect(effect);
             if (effectInstance != null && !effectInstance.isVisible() && !effectInstance.showIcon()) {
                 user.removeEffect(effectInstance.getEffect());
             }
@@ -70,31 +76,31 @@ public abstract class NonStandPowerType<T extends TypeSpecificData> extends Forg
     protected void initPassiveEffects() {
     }
     
-    public int getPassiveEffectLevel(Effect effect, INonStandPower power) {
+    public int getPassiveEffectLevel(MobEffect effect, INonStandPower power) {
         return -1;
     }
     
     public void updatePassiveEffects(LivingEntity entity, INonStandPower power) {
         if (!entity.level.isClientSide()) {
-            for (Effect effect : getAllPossibleEffects()) {
+            for (MobEffect effect : getAllPossibleEffects()) {
                 int amplifier = getPassiveEffectLevel(effect, power);
                 boolean effectUpdated = false;
                 
                 float missingHp = -1;
                 boolean maxHpIncreased = false;
-                if (effect == Effects.HEALTH_BOOST) {
+                if (effect == MobEffects.HEALTH_BOOST) {
                     missingHp = entity.getMaxHealth() - entity.getHealth();
                     maxHpIncreased = amplifier >= 0 && 
-                            amplifier > Optional.ofNullable(entity.getEffect(Effects.HEALTH_BOOST)).map(EffectInstance::getAmplifier).orElse(-1);
+                            amplifier > Optional.ofNullable(entity.getEffect(MobEffects.HEALTH_BOOST)).map(MobEffectInstance::getAmplifier).orElse(-1);
                 }
                 
                 if (amplifier >= 0) {
-                    EffectInstance currentEffect = entity.getEffect(effect);
+                    MobEffectInstance currentEffect = entity.getEffect(effect);
                     if (currentEffect == null || currentEffect.getAmplifier() < amplifier
                             || currentEffect.getAmplifier() != amplifier && !currentEffect.showIcon()) {
                         effectUpdated = true;
                         entity.removeEffectNoUpdate(effect);
-                        entity.addEffect(new EffectInstance(effect, Integer.MAX_VALUE, amplifier, false, false, false));
+                        entity.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE, amplifier, false, false, false));
                     }
                 }
                 else if (entity.hasEffect(effect)) {
@@ -187,13 +193,13 @@ public abstract class NonStandPowerType<T extends TypeSpecificData> extends Forg
     
     
     @SafeVarargs
-    protected final void initAllPossibleEffects(Supplier<? extends Effect>... effects) {
+    protected final void initAllPossibleEffects(Supplier<? extends MobEffect>... effects) {
         effectsSuppliersLazy = Arrays.asList(effects);
     }
 
-    private List<Supplier<? extends Effect>> effectsSuppliersLazy;
-    private List<Effect> effects;
-    public Iterable<Effect> getAllPossibleEffects() {
+    private List<Supplier<? extends MobEffect>> effectsSuppliersLazy;
+    private List<MobEffect> effects;
+    public Iterable<MobEffect> getAllPossibleEffects() {
         if (effects == null) {
             if (effectsSuppliersLazy != null) {
                 effects = effectsSuppliersLazy.stream().map(Supplier::get).collect(Collectors.toList());

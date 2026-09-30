@@ -26,31 +26,28 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.dispenser.IPosition;
-import net.minecraft.dispenser.ProjectileDispenseBehavior;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ArrowItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 
@@ -63,37 +60,37 @@ public class StandArrowItem extends ArrowItem {
         this.enchantability = enchantability;
         this.higherDurability = higherDurability;
         
-        DispenserBlock.registerBehavior(this, new ProjectileDispenseBehavior() {
+        DispenserBlock.registerBehavior(this, new AbstractProjectileDispenseBehavior() {
             @Override
-            protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            protected Projectile getProjectile(Level world, Position position, ItemStack stack) {
                 StandArrowEntity arrow = new StandArrowEntity(world, position.x(), position.y(), position.z(), stack);
-                arrow.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+                arrow.pickup = AbstractArrow.PickupStatus.ALLOWED;
                 return arrow;
             }
         });
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         
         if (!world.isClientSide() && onPiercedByArrow(player, stack, world, Optional.empty())) {
             player.hurt(DamageSource.playerAttack(player), Math.min(1.0F, Math.max(player.getHealth() - 1.0F, 0)));
             stack.hurtAndBreak(1, player, pl -> {});
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
-        return ActionResult.fail(stack);
+        return InteractionResultHolder.fail(stack);
     }
 
     @Override
-    public AbstractArrowEntity createArrow(World world, ItemStack stack, LivingEntity shooter) {
+    public AbstractArrow createArrow(Level world, ItemStack stack, LivingEntity shooter) {
        return new StandArrowEntity(world, shooter, stack);
     }
     
     /** 
      * @return  if the entity got the Stand Virus effect or a Stand
      */
-    public static boolean onPiercedByArrow(Entity target, ItemStack stack, World world, Optional<Entity> arrowShooter) {
+    public static boolean onPiercedByArrow(Entity target, ItemStack stack, Level world, Optional<Entity> arrowShooter) {
         if (!world.isClientSide() && target instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) target;
             if (livingEntity.hasEffect(ModStatusEffects.STAND_VIRUS.get())) {
@@ -103,12 +100,12 @@ public class StandArrowItem extends ArrowItem {
             if (livingEntity instanceof StandEntity) {
                 return false;
             }
-            else if (livingEntity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) livingEntity;
+            else if (livingEntity instanceof Player) {
+                Player player = (Player) livingEntity;
                 return GeneralUtil.orElseFalse(IStandPower.getStandPowerOptional(livingEntity), standCap -> {
-                    Either<StandType<?>, ITextComponent> standOrError;
+                    Either<StandType<?>, Component> standOrError;
                     if (standCap.hasPower()) {
-                        standOrError = Either.right(new TranslationTextComponent("jojo.chat.message.already_have_stand"));
+                        standOrError = Either.right(Component.translatable("jojo.chat.message.already_have_stand"));
                     }
                     else {
                         standOrError = StandUtil.randomStandOrError(player, player.getRandom());
@@ -125,7 +122,7 @@ public class StandArrowItem extends ArrowItem {
                                     if (virusEffectDuration > 0) {
                                         int inhibitionLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.VIRUS_INHIBITION.get(), stack);
                                         int effectLevel = StandVirusEffect.getEffectLevelToApply(inhibitionLevel);
-                                        player.addEffect(new EffectInstance(ModStatusEffects.STAND_VIRUS.get(), 
+                                        player.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS.get(), 
                                                 virusEffectDuration, effectLevel, false, false, true));
                                     }
                                     else { // instantly give a stand if there was no stand virus effect given
@@ -145,7 +142,7 @@ public class StandArrowItem extends ArrowItem {
             else {
                 int inhibitionLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.VIRUS_INHIBITION.get(), stack);
                 int effectLevel = StandVirusEffect.getEffectLevelToApply(inhibitionLevel);
-                livingEntity.addEffect(new EffectInstance(ModStatusEffects.STAND_VIRUS.get(), 
+                livingEntity.addEffect(new MobEffectInstance(ModStatusEffects.STAND_VIRUS.get(), 
                         600, effectLevel, false, false, true));
                 rememberArrowShooter(livingEntity, arrowShooter, stack);
             }
@@ -174,17 +171,17 @@ public class StandArrowItem extends ArrowItem {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        PlayerEntity player = ClientUtil.getClientPlayer();
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+        Player player = ClientUtil.getClientPlayer();
         if (player != null) {
-            IFormattableTextComponent mainText = null;
+            MutableComponent mainText = null;
             
             Collection<StandType<?>> unbannedStands = StandUtil.arrowStands(true)
                     .sorted(Comparator.comparingInt(stand -> JojoCustomRegistries.STANDS.getNumericId(stand.getRegistryName())))
                     .collect(Collectors.toList());
             
             if (unbannedStands.isEmpty()) {
-                mainText = new TranslationTextComponent("jojo.arrow.no_stands").withStyle(TextFormatting.GRAY, TextFormatting.OBFUSCATED);
+                mainText = Component.translatable("jojo.arrow.no_stands").withStyle(ChatFormatting.GRAY, ChatFormatting.OBFUSCATED);
                 tooltip.add(mainText);
             }
             else {
@@ -192,28 +189,28 @@ public class StandArrowItem extends ArrowItem {
                 boolean shift = ClientUtil.isShiftPressed();
                 
                 if (shift) {
-                    tooltip.add(new TranslationTextComponent("jojo.arrow.stands_list"));
+                    tooltip.add(Component.translatable("jojo.arrow.stands_list"));
 
                     List<StandType<?>> assignedByDataConfig = PlayerStandAssignmentConfig.getInstance().getAssignedStands(player);
                     
                     IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                         unbannedStands.forEach(stand -> {
-                            IFormattableTextComponent standName = stand.getName();
+                            MutableComponent standName = stand.getName();
                             
                             if (assignedByDataConfig != null && !assignedByDataConfig.contains(stand)) {
-                                standName.withStyle(TextFormatting.STRIKETHROUGH, TextFormatting.DARK_GRAY);
+                                standName.withStyle(ChatFormatting.STRIKETHROUGH, ChatFormatting.DARK_GRAY);
                             }
                             else {
-                                standName.withStyle(TextFormatting.GRAY);
+                                standName.withStyle(ChatFormatting.GRAY);
                             }
                             tooltip.add(standName);
                         });
                         
-                        tooltip.add(StringTextComponent.EMPTY);
+                        tooltip.add(Component.empty());
                     });
                 }
                 else {
-                    tooltip.add(new TranslationTextComponent("jojo.arrow.stands_hint", new KeybindTextComponent("key.sneak")));
+                    tooltip.add(Component.translatable("jojo.arrow.stands_hint", Component.keybind("key.sneak")));
                 }
                 
                 if (!player.abilities.instabuild) {
@@ -224,8 +221,8 @@ public class StandArrowItem extends ArrowItem {
                     if (levelsNeeded > 0) {
                         boolean playerHasStand = StandUtil.isEntityStandUser(player);
                         boolean playerHasLevels = player.experienceLevel >= levelsNeeded;
-                        tooltip.add(new TranslationTextComponent("jojo.arrow.stand_arrow_xp", levelsNeeded).withStyle(
-                                playerHasStand ? TextFormatting.DARK_GRAY : playerHasLevels ? TextFormatting.GREEN : TextFormatting.RED));
+                        tooltip.add(Component.translatable("jojo.arrow.stand_arrow_xp", levelsNeeded).withStyle(
+                                playerHasStand ? ChatFormatting.DARK_GRAY : playerHasLevels ? ChatFormatting.GREEN : ChatFormatting.RED));
                     }
                 }
                 
@@ -233,10 +230,10 @@ public class StandArrowItem extends ArrowItem {
                 if (isOnServer) {
                     switch (poolFilter) {
                     case LEAST_TAKEN:
-                        tooltip.add(new TranslationTextComponent("jojo.arrow.least_taken_mode").withStyle(TextFormatting.GRAY));
+                        tooltip.add(Component.translatable("jojo.arrow.least_taken_mode").withStyle(ChatFormatting.GRAY));
                         break;
                     case NOT_TAKEN: 
-                        tooltip.add(new TranslationTextComponent("jojo.arrow.not_taken_mode").withStyle(TextFormatting.GRAY));
+                        tooltip.add(Component.translatable("jojo.arrow.not_taken_mode").withStyle(ChatFormatting.GRAY));
                         break;
                     default:
                         break;

@@ -11,34 +11,34 @@ import com.github.standobyte.jojo.init.power.stand.ModStands;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.monster.SkeletonEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class SCRapierEntity extends ModdedProjectileEntity {
     private static final int MAX_RICOCHETS = 100;
     private int ricochetCount;
     
-    public SCRapierEntity(LivingEntity shooter, World world) {
+    public SCRapierEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.SC_RAPIER.get(), shooter, world);
     }
 
-    public SCRapierEntity(EntityType<? extends SCRapierEntity> type, World world) {
+    public SCRapierEntity(EntityType<? extends SCRapierEntity> type, Level world) {
         super(type, world);
     }
 
@@ -72,7 +72,7 @@ public class SCRapierEntity extends ModdedProjectileEntity {
 
     @Override
     protected boolean canHitEntity(Entity entity) {
-        return super.canHitEntity(entity) && !(entity instanceof SkeletonEntity && random.nextFloat() < 0.05F);
+        return super.canHitEntity(entity) && !(entity instanceof Skeleton && random.nextFloat() < 0.05F);
     }
     
     @Override
@@ -86,25 +86,25 @@ public class SCRapierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
     }
     
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         boolean ricochet = false;
         if (ricochetCount < MAX_RICOCHETS) {
             BlockPos blockPos = blockRayTraceResult.getBlockPos();
             BlockState blockState = level.getBlockState(blockPos);
             SoundType soundType = blockState.getSoundType(level, blockPos, this);
-            level.playSound(null, blockPos, soundType.getHitSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+            level.playSound(null, blockPos, soundType.getHitSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
             Direction hitFace = blockRayTraceResult.getDirection();
             ricochet = ricochet(hitFace);
         }
         if (!ricochet) {
-            Vector3d pos = position();
-            Vector3d movementVec = getDeltaMovement();
+            Vec3 pos = position();
+            Vec3 movementVec = getDeltaMovement();
             Direction hitFace = blockRayTraceResult.getDirection();
-            Vector3d blockVec = Vector3d.atCenterOf(blockRayTraceResult.getBlockPos()).add(Vector3d.atLowerCornerOf(hitFace.getNormal()).scale(0.5));
+            Vec3 blockVec = Vec3.atCenterOf(blockRayTraceResult.getBlockPos()).add(Vec3.atLowerCornerOf(hitFace.getNormal()).scale(0.5));
             double k;
             switch (hitFace.getAxis()) {
             case X:
@@ -123,29 +123,29 @@ public class SCRapierEntity extends ModdedProjectileEntity {
                     getX() + movementVec.x * k, 
                     getY() + movementVec.y * k, 
                     getZ() + movementVec.z * k);
-            setDeltaMovement(Vector3d.ZERO);
+            setDeltaMovement(Vec3.ZERO);
         }
     }
     
     private boolean ricochet(Direction hitSurfaceDirection) {
         if (hitSurfaceDirection != null) {
-            Vector3d motion = getDeltaMovement();
-            Vector3d motionNew;
+            Vec3 motion = getDeltaMovement();
+            Vec3 motionNew;
             switch (hitSurfaceDirection.getAxis()) {
             case X:
-                motionNew = new Vector3d(-motion.x, motion.y, motion.z);
+                motionNew = new Vec3(-motion.x, motion.y, motion.z);
                 break;
             case Y:
-                motionNew = new Vector3d(motion.x, -motion.y, motion.z);
+                motionNew = new Vec3(motion.x, -motion.y, motion.z);
                 break;
             case Z:
-                motionNew = new Vector3d(motion.x, motion.y, -motion.z);
+                motionNew = new Vec3(motion.x, motion.y, -motion.z);
                 break;
             default:
                 return false;
             }
             if (JojoModUtil.rayTrace(position(), motionNew, 16, level, this, 
-                    EntityPredicates.NO_SPECTATORS.and(EntityPredicates.ENTITY_STILL_ALIVE), 1.0, 0).getType() == RayTraceResult.Type.MISS) {
+                    EntitySelector.NO_SPECTATORS.and(EntitySelector.ENTITY_STILL_ALIVE), 1.0, 0).getType() == HitResult.Type.MISS) {
                 return false;
             }
             setDeltaMovement(motionNew);
@@ -157,7 +157,7 @@ public class SCRapierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void playerTouch(PlayerEntity player) {
+    public void playerTouch(Player player) {
         if (!level.isClientSide()) {
             if (getOwner() instanceof SilverChariotEntity) {
                 SilverChariotEntity stand = (SilverChariotEntity) getOwner();
@@ -193,26 +193,26 @@ public class SCRapierEntity extends ModdedProjectileEntity {
     }
     
     
-    private static final Vector3d OFFSET_YROT = new Vector3d(0.0, -0.29, 0.375);
-    private static final Vector3d OFFSET_XROT = new Vector3d(0, 0.0, 1.375);
+    private static final Vec3 OFFSET_YROT = new Vec3(0.0, -0.29, 0.375);
+    private static final Vec3 OFFSET_XROT = new Vec3(0, 0.0, 1.375);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET_YROT;
     }
     
     @Override
-    protected Vector3d getXRotOffset() {
+    protected Vec3 getXRotOffset() {
         return OFFSET_XROT;
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("Ricochets", ricochetCount);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         ricochetCount = nbt.getInt("Ricochets");
     }

@@ -8,27 +8,27 @@ import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
 import com.github.standobyte.jojo.client.render.item.generic.ISTERWithEntity;
 import com.github.standobyte.jojo.item.ClackersItem;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
-public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERWithEntity {
+public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements ISTERWithEntity {
     private final ClackersItemModel clackersModel = new ClackersItemModel();
     private final ResourceLocation clackersTexture = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/clackers.png");
     @Nullable protected LivingEntity entity;
@@ -44,8 +44,8 @@ public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERW
 
     private int holdTick = 0;
     @Override
-    public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-            IRenderTypeBuffer buffer, int light, int overlay) {
+    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+            MultiBufferSource buffer, int light, int overlay) {
         switch (transformType) {
         case FIRST_PERSON_LEFT_HAND:
         case FIRST_PERSON_RIGHT_HAND:
@@ -56,23 +56,23 @@ public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERW
             renderThirdPerson(itemStack, transformType, matrixStack, buffer, light, overlay);
             break;
         default:
-            IBakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
+            BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
             CustomModelItemISTER.renderItemNormally(matrixStack, itemStack, transformType, buffer, light, overlay, model);
             break;
         }
     }
     
-    private void renderThirdPerson(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-            IRenderTypeBuffer buffer, int light, int overlay) {
+    private void renderThirdPerson(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+            MultiBufferSource buffer, int light, int overlay) {
         float partialTick = ClientUtil.getPartialTick();
-        boolean leftHand = transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND || transformType == ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
-        HandSide side = leftHand ? HandSide.LEFT : HandSide.RIGHT;
+        boolean leftHand = transformType == ItemTransforms.ItemDisplayContext.FIRST_PERSON_LEFT_HAND || transformType == ItemTransforms.ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+        HumanoidArm side = leftHand ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
         
-        ModelRenderer clackers = clackersModel.getMainPart();
+        ModelPart clackers = clackersModel.getMainPart();
         ClientUtil.setRotationAngle(clackers, 0, 0, 0);
         clackersModel.setStringAngles(0, 0, 0, 0, 0, 0);
         
-        IVertexBuilder vertexBuilder = buffer.getBuffer(clackersModel.renderType(clackersTexture));
+        VertexConsumer vertexBuilder = buffer.getBuffer(clackersModel.renderType(clackersTexture));
         
         
         
@@ -134,22 +134,22 @@ public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERW
         
         
         else {
-            ModelRenderer bipedHand = null;
+            ModelPart bipedHand = null;
             float limbSwing = 0;
             float limbSwingAmount = 0;
             if (entity != null) {
                 boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
                 EntityRenderer<?> entityRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity);
-                if (entityRenderer instanceof LivingRenderer) {
-                    EntityModel<?> entityModel = ((LivingRenderer<?, ?>) entityRenderer).getModel();
-                    if (entityModel instanceof BipedModel<?>) {
-                        BipedModel<?> biped = (BipedModel<?>) entityModel;
+                if (entityRenderer instanceof LivingEntityRenderer) {
+                    EntityModel<?> entityModel = ((LivingEntityRenderer<?, ?>) entityRenderer).getModel();
+                    if (entityModel instanceof HumanoidModel<?>) {
+                        HumanoidModel<?> biped = (HumanoidModel<?>) entityModel;
                         bipedHand = leftHand ? biped.leftArm : biped.rightArm;
                     }
                 }
                 
                 if (entity.isAlive() && !shouldSit) {
-                    limbSwingAmount = MathHelper.lerp(partialTick, entity.animationSpeedOld, entity.animationSpeed);
+                    limbSwingAmount = Mth.lerp(partialTick, entity.animationSpeedOld, entity.animationSpeed);
                     limbSwing = entity.animationPosition - entity.animationSpeed * (1.0F - partialTick);
                     if (entity.isBaby()) {
                         limbSwing *= 3.0F;
@@ -161,7 +161,7 @@ public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERW
                 }
             }
             
-            float xRotAdd = MathHelper.cos(limbSwing * 0.6664F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F;
+            float xRotAdd = Mth.cos(limbSwing * 0.6664F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F;
             if (leftHand) {
                 xRotAdd *= -1;
             }
@@ -184,8 +184,8 @@ public class ClackersISTER extends ItemStackTileEntityRenderer implements ISTERW
         clackersModel.renderToBuffer(matrixStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
     
-    private void renderFirstPerson(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-            IRenderTypeBuffer buffer, int light, int overlay) {
+    private void renderFirstPerson(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+            MultiBufferSource buffer, int light, int overlay) {
         
     }
 

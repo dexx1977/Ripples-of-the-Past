@@ -29,117 +29,117 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.INPC;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.monster.AbstractIllagerEntity;
-import net.minecraft.entity.monster.HuskEntity;
-import net.minecraft.entity.monster.ZoglinEntity;
-import net.minecraft.entity.monster.ZombieEntity;
-import net.minecraft.entity.passive.WaterMobEntity;
-import net.minecraft.entity.passive.horse.ZombieHorseEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.Npc;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.monster.AbstractIllager;
+import net.minecraft.world.entity.monster.Husk;
+import net.minecraft.world.entity.monster.Zoglin;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.animal.horse.ZombieHorse;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 
 public class JojoModUtil {
     
-    public static RayTraceResult rayTrace(Entity entity, double reachDistance, @Nullable Predicate<Entity> entityFilter) {
+    public static HitResult rayTrace(Entity entity, double reachDistance, @Nullable Predicate<Entity> entityFilter) {
         return rayTrace(entity, reachDistance, entityFilter, 0);
     }
 
-    public static RayTraceResult rayTrace(Entity entity, double reachDistance, @Nullable Predicate<Entity> entityFilter, 
+    public static HitResult rayTrace(Entity entity, double reachDistance, @Nullable Predicate<Entity> entityFilter, 
             double rayTraceInflate) {
         return rayTrace(entity, reachDistance, entityFilter, rayTraceInflate, 0);
     }
 
-    public static RayTraceResult rayTrace(Entity entity, double reachDistance, 
+    public static HitResult rayTrace(Entity entity, double reachDistance, 
             @Nullable Predicate<Entity> entityFilter, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(entity, reachDistance, entityFilter, rayTraceInflate, standPrecision)[0];
     }
     
-    public static RayTraceResult[] rayTraceMultipleEntities(Entity entity, double reachDistance, 
+    public static HitResult[] rayTraceMultipleEntities(Entity entity, double reachDistance, 
             @Nullable Predicate<Entity> entityFilter, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(entity.getEyePosition(1.0F), entity.getViewVector(1.0F), reachDistance, 
                 entity.level, entity, 
-                entityFilter, RayTraceContext.BlockMode.OUTLINE, 
+                entityFilter, ClipContext.Block.OUTLINE, 
                 rayTraceInflate, standPrecision);
     }
     
-    public static RayTraceResult[] rayTraceMultipleEntities(Entity entity, double reachDistance, 
-            @Nullable Predicate<Entity> entityFilter, RayTraceContext.BlockMode blockMode, 
+    public static HitResult[] rayTraceMultipleEntities(Entity entity, double reachDistance, 
+            @Nullable Predicate<Entity> entityFilter, ClipContext.Block blockMode, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(entity.getEyePosition(1.0F), entity.getViewVector(1.0F), reachDistance, 
                 entity.level, entity, entityFilter, blockMode, rayTraceInflate, standPrecision);
     }
     
-    public static RayTraceResult[] rayTraceMultipleEntities(Vector3d startPos, Vector3d rayVec, double distance, 
-            World world, @Nullable Entity entity, 
-            @Nullable Predicate<Entity> entityFilter, RayTraceContext.BlockMode blockMode, 
+    public static HitResult[] rayTraceMultipleEntities(Vec3 startPos, Vec3 rayVec, double distance, 
+            Level world, @Nullable Entity entity, 
+            @Nullable Predicate<Entity> entityFilter, ClipContext.Block blockMode, 
             double rayTraceInflate, double standPrecision) {
-        Vector3d rtVec = rayVec.normalize().scale(distance);
-        Vector3d endPos = startPos.add(rtVec);
-        AxisAlignedBB aabb = entity.getBoundingBox().expandTowards(rtVec).inflate(1.0D);
+        Vec3 rtVec = rayVec.normalize().scale(distance);
+        Vec3 endPos = startPos.add(rtVec);
+        AABB aabb = entity.getBoundingBox().expandTowards(rtVec).inflate(1.0D);
         return rayTraceMultipleEntities(startPos, endPos, aabb, 
                 distance, entity.level, entity, entityFilter, blockMode, 
                 rayTraceInflate, standPrecision);
     }
 
-    public static RayTraceResult rayTrace(Vector3d startPos, Vector3d rayVec, double distance, 
-            World world, @Nullable Entity entity, 
+    public static HitResult rayTrace(Vec3 startPos, Vec3 rayVec, double distance, 
+            Level world, @Nullable Entity entity, 
             @Nullable Predicate<Entity> entityFilter, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(startPos, rayVec, distance, 
                 world, entity, 
-                entityFilter, RayTraceContext.BlockMode.OUTLINE, 
+                entityFilter, ClipContext.Block.OUTLINE, 
                 rayTraceInflate, standPrecision)[0];
     }
 
-    public static RayTraceResult[] rayTraceMultipleEntities(Vector3d startPos, Vector3d endPos, AxisAlignedBB aabb, 
-            double minDistance, World world, @Nullable Entity entity, 
+    public static HitResult[] rayTraceMultipleEntities(Vec3 startPos, Vec3 endPos, AABB aabb, 
+            double minDistance, Level world, @Nullable Entity entity, 
             @Nullable Predicate<Entity> entityFilter, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(startPos, endPos, aabb, 
                 minDistance, world, entity, 
-                entityFilter, RayTraceContext.BlockMode.OUTLINE, 
+                entityFilter, ClipContext.Block.OUTLINE, 
                 rayTraceInflate, standPrecision);
     }
 
-    public static RayTraceResult[] rayTraceMultipleEntities(Vector3d startPos, Vector3d endPos, AxisAlignedBB aabb, 
-            double minDistance, World world, @Nullable Entity entity, 
-            @Nullable Predicate<Entity> entityFilter, RayTraceContext.BlockMode blockMode, 
+    public static HitResult[] rayTraceMultipleEntities(Vec3 startPos, Vec3 endPos, AABB aabb, 
+            double minDistance, Level world, @Nullable Entity entity, 
+            @Nullable Predicate<Entity> entityFilter, ClipContext.Block blockMode, 
             double rayTraceInflate, double standPrecision) {
         return rayTraceMultipleEntities(startPos, endPos, aabb, 
                 minDistance, world, entity, 
@@ -147,48 +147,48 @@ public class JojoModUtil {
                 rayTraceInflate, standPrecision);
     }
 
-    public static RayTraceResult[] rayTraceMultipleEntities(Vector3d startPos, Vector3d endPos, AxisAlignedBB aabb, 
-            double minDistance, World world, @Nullable Entity entity, 
-            @Nullable Predicate<Entity> entityFilter, boolean checkPickable, RayTraceContext.BlockMode blockMode, 
+    public static HitResult[] rayTraceMultipleEntities(Vec3 startPos, Vec3 endPos, AABB aabb, 
+            double minDistance, Level world, @Nullable Entity entity, 
+            @Nullable Predicate<Entity> entityFilter, boolean checkPickable, ClipContext.Block blockMode, 
             double rayTraceInflate, double standPrecision) {
         aabb.inflate(rayTraceInflate);
         double minDistanceSqr = minDistance * minDistance;
-        Map<EntityRayTraceResult, Double> rayTracedWithDistance = new HashMap<>();
+        Map<EntityHitResult, Double> rayTracedWithDistance = new HashMap<>();
         List<Entity> entities = world.getEntities(entity, aabb, e -> (!checkPickable || !e.isSpectator() && e.isPickable()) && (entityFilter == null || entityFilter.test(e)));
         for (Entity potentialTarget : entities) {
-            AxisAlignedBB targetCollisionAABB = potentialTarget.getBoundingBox().inflate((double) potentialTarget.getPickRadius() + rayTraceInflate);
+            AABB targetCollisionAABB = potentialTarget.getBoundingBox().inflate((double) potentialTarget.getPickRadius() + rayTraceInflate);
             targetCollisionAABB = standPrecisionTargetHitbox(targetCollisionAABB, standPrecision);
-            Optional<Vector3d> clipOptional = targetCollisionAABB.clip(startPos, endPos);
+            Optional<Vec3> clipOptional = targetCollisionAABB.clip(startPos, endPos);
             if (targetCollisionAABB.contains(startPos)) {
-                rayTracedWithDistance.put(new EntityRayTraceResult(potentialTarget, clipOptional.orElse(startPos)), 0.0);
+                rayTracedWithDistance.put(new EntityHitResult(potentialTarget, clipOptional.orElse(startPos)), 0.0);
             } else if (clipOptional.isPresent()) {
-                Vector3d clipVec = clipOptional.get();
+                Vec3 clipVec = clipOptional.get();
                 double clipDistanceSqr = startPos.distanceToSqr(clipVec);
                 if (clipDistanceSqr < minDistanceSqr || minDistanceSqr == 0.0D) {
                     if (entity != null && potentialTarget.getRootVehicle() == entity.getRootVehicle() && !potentialTarget.canRiderInteract()) {
                         if (minDistanceSqr == 0.0D) {
-                            rayTracedWithDistance.put(new EntityRayTraceResult(potentialTarget, clipVec), 0.0);
+                            rayTracedWithDistance.put(new EntityHitResult(potentialTarget, clipVec), 0.0);
                         }
                     } else {
-                        rayTracedWithDistance.put(new EntityRayTraceResult(potentialTarget, clipVec), clipDistanceSqr);
+                        rayTracedWithDistance.put(new EntityHitResult(potentialTarget, clipVec), clipDistanceSqr);
                     }
                 }
             }
         }
         if (rayTracedWithDistance.isEmpty()) {
-            return new RayTraceResult[] { 
-                    world.clip(new RayTraceContext(startPos, endPos, blockMode, RayTraceContext.FluidMode.NONE, entity))
+            return new HitResult[] { 
+                    world.clip(new ClipContext(startPos, endPos, blockMode, ClipContext.Fluid.NONE, entity))
                     };
         }
         return rayTracedWithDistance.entrySet().stream()
         .sorted(Comparator.comparingDouble(Map.Entry::getValue))
         .map(Map.Entry::getKey)
-        .toArray(EntityRayTraceResult[]::new);
+        .toArray(EntityHitResult[]::new);
         
 //        return new EntityRayTraceResult(targetEntity, targetEntityPos);
     }
     
-    private static AxisAlignedBB standPrecisionTargetHitbox(AxisAlignedBB aabb, double precision) {
+    private static AABB standPrecisionTargetHitbox(AABB aabb, double precision) {
         if (precision > 4) {
             double smallAabbAddFraction = Math.min(Math.pow(2, precision - 16), 1);
             aabb.inflate(
@@ -208,15 +208,15 @@ public class JojoModUtil {
         return aabb;
     }
 
-    public static RayTraceResult getHitResult(Entity projectile, @Nullable Predicate<Entity> targetPredicate, RayTraceContext.BlockMode blockMode) {
-        World world = projectile.level;
-        Vector3d pos = projectile.position();
-        Vector3d nextPos = pos.add(projectile.getDeltaMovement());
-        RayTraceResult rayTraceResult = world.clip(new RayTraceContext(pos, nextPos, blockMode, RayTraceContext.FluidMode.NONE, projectile));
-        if (rayTraceResult.getType() != RayTraceResult.Type.MISS) {
+    public static HitResult getHitResult(Entity projectile, @Nullable Predicate<Entity> targetPredicate, ClipContext.Block blockMode) {
+        Level world = projectile.level;
+        Vec3 pos = projectile.position();
+        Vec3 nextPos = pos.add(projectile.getDeltaMovement());
+        HitResult rayTraceResult = world.clip(new ClipContext(pos, nextPos, blockMode, ClipContext.Fluid.NONE, projectile));
+        if (rayTraceResult.getType() != HitResult.Type.MISS) {
             nextPos = rayTraceResult.getLocation();
         }
-        RayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(world, projectile, pos, nextPos, 
+        HitResult entityRayTraceResult = ProjectileUtil.getEntityHitResult(world, projectile, pos, nextPos, 
                 projectile.getBoundingBox().expandTowards(projectile.getDeltaMovement()).inflate(1.0D), targetPredicate);
         if (entityRayTraceResult != null) {
             rayTraceResult = entityRayTraceResult;
@@ -225,54 +225,54 @@ public class JojoModUtil {
     }
     
     // Item.getPlayerPOVHitResult
-    protected static BlockRayTraceResult getPlayerPOVHitResult(World world, LivingEntity entity, RayTraceContext.FluidMode fluidMode) {
+    protected static BlockHitResult getPlayerPOVHitResult(Level world, LivingEntity entity, ClipContext.Fluid fluidMode) {
         float xRot = entity.xRot;
         float yRot = entity.yRot;
-        Vector3d eyePos = entity.getEyePosition(1.0F);
-        float f2 = MathHelper.cos(-yRot * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f3 = MathHelper.sin(-yRot * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f4 = -MathHelper.cos(-xRot * ((float)Math.PI / 180F));
-        float f5 = MathHelper.sin(-xRot * ((float)Math.PI / 180F));
+        Vec3 eyePos = entity.getEyePosition(1.0F);
+        float f2 = Mth.cos(-yRot * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f3 = Mth.sin(-yRot * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f4 = -Mth.cos(-xRot * ((float)Math.PI / 180F));
+        float f5 = Mth.sin(-xRot * ((float)Math.PI / 180F));
         float f6 = f3 * f4;
         float f7 = f2 * f4;
-        double distance = Optional.ofNullable(entity.getAttribute(ForgeMod.REACH_DISTANCE.get())).map(ModifiableAttributeInstance::getValue).orElse(5D);
-        Vector3d vector3d1 = eyePos.add((double)f6 * distance, (double)f5 * distance, (double)f7 * distance);
-        return world.clip(new RayTraceContext(eyePos, vector3d1, RayTraceContext.BlockMode.OUTLINE, fluidMode, entity));
+        double distance = Optional.ofNullable(entity.getAttribute(ForgeMod.REACH_DISTANCE.get())).map(AttributeInstance::getValue).orElse(5D);
+        Vec3 vector3d1 = eyePos.add((double)f6 * distance, (double)f5 * distance, (double)f7 * distance);
+        return world.clip(new ClipContext(eyePos, vector3d1, ClipContext.Block.OUTLINE, fluidMode, entity));
     }
 
-    public static boolean isAnotherEntityTargeted(RayTraceResult rayTraceResult, Entity targettingEntity) {
-        return (rayTraceResult.getType() == RayTraceResult.Type.ENTITY
-                && !((EntityRayTraceResult) rayTraceResult).getEntity().is(targettingEntity));
+    public static boolean isAnotherEntityTargeted(HitResult rayTraceResult, Entity targettingEntity) {
+        return (rayTraceResult.getType() == HitResult.Type.ENTITY
+                && !((EntityHitResult) rayTraceResult).getEntity().is(targettingEntity));
     }
 
-    public static double getDistance(Entity entity, AxisAlignedBB targetAabb) {
-        Vector3d startPos = entity.getEyePosition(1.0F);
+    public static double getDistance(Entity entity, AABB targetAabb) {
+        Vec3 startPos = entity.getEyePosition(1.0F);
         if (targetAabb.contains(startPos)) {
             return 0;
         }
-        Vector3d endPos = new Vector3d(
-                MathHelper.lerp(0.5D, targetAabb.minX, targetAabb.maxX), 
-                MathHelper.lerp(entity.getBbHeight() == 0 ? 0 : 
+        Vec3 endPos = new Vec3(
+                Mth.lerp(0.5D, targetAabb.minX, targetAabb.maxX), 
+                Mth.lerp(entity.getBbHeight() == 0 ? 0 : 
                     entity.getEyeHeight() / entity.getBbHeight(), targetAabb.minY, targetAabb.maxY), 
-                MathHelper.lerp(0.5D, targetAabb.minZ, targetAabb.maxZ));
-        Optional<Vector3d> clipOptional = targetAabb.clip(startPos, endPos);
+                Mth.lerp(0.5D, targetAabb.minZ, targetAabb.maxZ));
+        Optional<Vec3> clipOptional = targetAabb.clip(startPos, endPos);
         return clipOptional.map(clipVec -> startPos.distanceTo(clipVec) - entity.getBbWidth() / 2).orElse(-1D);
     }
 
 
 
-    public static boolean canEntityDestroy(ServerWorld world, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
+    public static boolean canEntityDestroy(ServerLevel world, BlockPos blockPos, BlockState blockState, LivingEntity entity) {
         if (breakingBlocksEnabled(world)
                 && blockState.canEntityDestroy(world, blockPos, entity)
                 && ForgeEventFactory.onEntityDestroyBlock(entity, blockPos, blockState)) {
-            PlayerEntity player = null;
-            if (entity instanceof PlayerEntity) {
-                player = (PlayerEntity) entity;
+            Player player = null;
+            if (entity instanceof Player) {
+                player = (Player) entity;
             }
             else if (entity instanceof StandEntity) {
                 LivingEntity standUser = ((StandEntity) entity).getUser();
-                if (standUser instanceof PlayerEntity) {
-                    player = (PlayerEntity) standUser;
+                if (standUser instanceof Player) {
+                    player = (Player) standUser;
                 }
             }
             return player == null || world.mayInteract(player, blockPos);
@@ -280,7 +280,7 @@ public class JojoModUtil {
         return false;
     }
     
-    public static boolean breakingBlocksEnabled(World world) {
+    public static boolean breakingBlocksEnabled(Level world) {
         return world.getGameRules().getBoolean(ModGamerules.BREAK_BLOCKS);
     }
 
@@ -296,7 +296,7 @@ public class JojoModUtil {
     
     
     
-    public static boolean playerHasClientInput(PlayerEntity player) {
+    public static boolean playerHasClientInput(Player player) {
         return player.level.isClientSide() ? InputHandler.getInstance().hasInput
                 : player.getCapability(PlayerUtilCapProvider.CAPABILITY).map(PlayerUtilCap::hasClientInput).orElse(false);
     }
@@ -308,7 +308,7 @@ public class JojoModUtil {
      * (e.g. spectator mode when possessing an entity)
      */
     @Nullable
-    public static Optional<GameType> getActualGameModeWhilePossessing(PlayerEntity player) {
+    public static Optional<GameType> getActualGameModeWhilePossessing(Player player) {
         if (player instanceof IPlayerPossess) {
             IPlayerPossess possessing = (IPlayerPossess) player;
             if (possessing.jojoGetPossessedEntity() != null) {
@@ -318,11 +318,11 @@ public class JojoModUtil {
         return Optional.empty();
     }
     
-    public static GameType getGameModeConsiderPossessing(PlayerEntity player) {
+    public static GameType getGameModeConsiderPossessing(Player player) {
         return getActualGameModeWhilePossessing(player).orElse(MCUtil.getGameMode(player));
     }
     
-    public static boolean seesInvisibleAsSpectator(PlayerEntity player) {
+    public static boolean seesInvisibleAsSpectator(Player player) {
         return getActualGameModeWhilePossessing(player).map(gameMode -> gameMode == GameType.SPECTATOR).orElse(player.isSpectator());
     }
     
@@ -339,16 +339,16 @@ public class JojoModUtil {
     }
 
     @Deprecated
-    public static boolean isPlayerUndead(PlayerEntity player) {
+    public static boolean isPlayerUndead(Player player) {
         return isPlayerJojoVampiric(player);
     }
 
     public static boolean isUndeadOrVampiric(LivingEntity entity) {
-        if (entity.getMobType() == CreatureAttribute.UNDEAD) {
+        if (entity.getMobType() == MobType.UNDEAD) {
             return true;
         }
-        if (entity instanceof PlayerEntity) {
-            return isPlayerJojoVampiric((PlayerEntity) entity);
+        if (entity instanceof Player) {
+            return isPlayerJojoVampiric((Player) entity);
         }
         return false;
     }
@@ -366,7 +366,7 @@ public class JojoModUtil {
     /**
      * Is treated differently from the conventional vanilla "undead"
      */
-    public static boolean isPlayerJojoVampiric(PlayerEntity player) {
+    public static boolean isPlayerJojoVampiric(Player player) {
         return INonStandPower.getNonStandPowerOptional(player).map(power -> {
             NonStandPowerType<?> powerType = power.getType();
             return powerType == ModPowers.VAMPIRISM.get() || powerType == ModPowers.PILLAR_MAN.get();
@@ -388,24 +388,24 @@ public class JojoModUtil {
     }
 
     public static boolean canBleed(LivingEntity entity) {
-        if (entity.getMobType() == CreatureAttribute.UNDEAD) {
-            return entity instanceof PlayerEntity
-                    || entity instanceof ZombieEntity && !(entity instanceof HuskEntity)
-                    || entity instanceof ZoglinEntity
-                    || entity instanceof ZombieHorseEntity;
+        if (entity.getMobType() == MobType.UNDEAD) {
+            return entity instanceof Player
+                    || entity instanceof Zombie && !(entity instanceof Husk)
+                    || entity instanceof Zoglin
+                    || entity instanceof ZombieHorse;
         }
         if (isDyingBody(entity)) {
             return false;
         }
-        return entity instanceof PlayerEntity
-                || entity instanceof AgeableEntity
-                || entity instanceof INPC
-                || entity instanceof AbstractIllagerEntity
-                || entity instanceof WaterMobEntity
+        return entity instanceof Player
+                || entity instanceof AgeableMob
+                || entity instanceof Npc
+                || entity instanceof AbstractIllager
+                || entity instanceof WaterAnimal
                 || entity instanceof IMobStandUser;
     }
 
-    public static void extinguishFieryStandEntity(Entity entity, ServerWorld world) {
+    public static void extinguishFieryStandEntity(Entity entity, ServerLevel world) {
         MCUtil.playSound(world, null, entity.getX(), entity.getY(), entity.getZ(), 
                 SoundEvents.FIRE_EXTINGUISH, entity.getSoundSource(), 1.0F, 1.0F, StandUtil::playerCanHearStands);
         world.sendParticles(ParticleTypes.LARGE_SMOKE, entity.getX(), entity.getY(), entity.getZ(), 
@@ -414,11 +414,11 @@ public class JojoModUtil {
     }
     
     @Deprecated
-    public static void deflectProjectile(Entity projectile, @Nullable Vector3d deflectVec) {
+    public static void deflectProjectile(Entity projectile, @Nullable Vec3 deflectVec) {
         deflectProjectile(projectile, deflectVec, null);
     }
     
-    public static void deflectProjectile(Entity projectile, @Nullable Vector3d deflectVec, @Nullable Vector3d deflectPos) {
+    public static void deflectProjectile(Entity projectile, @Nullable Vec3 deflectVec, @Nullable Vec3 deflectPos) {
         if (deflectVec == null) {
             deflectVec = projectile.getDeltaMovement().reverse();
         }
@@ -472,19 +472,19 @@ public class JojoModUtil {
 
     public static boolean sayVoiceLine(LivingEntity entity, SoundEvent sound, 
             @Nullable ClothesSet character, float volume, float pitch, int voiceLineDelay, boolean interrupt) {
-        if (entity.level.isClientSide() || entity.hasEffect(Effects.INVISIBILITY) ||
+        if (entity.level.isClientSide() || entity.hasEffect(MobEffects.INVISIBILITY) ||
                 character != null && character != ClothesSet.getClothesSet(entity)) {
             return false;
         }
-        SoundCategory category = SoundCategory.VOICE;
+        SoundSource category = SoundSource.VOICE;
         boolean triggered = false;
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             PlayVoiceLinePacket packet;
-            if (!canPlayVoiceLine((PlayerEntity) entity, sound, voiceLineDelay)) {
+            if (!canPlayVoiceLine((Player) entity, sound, voiceLineDelay)) {
                 packet = PlayVoiceLinePacket.notTriggered(entity.getId());
             }
             else {
-                PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
+                PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
                 if (event.isCanceled() || event.getSound() == null) {
                     packet = PlayVoiceLinePacket.notTriggered(entity.getId());
                 }
@@ -506,7 +506,7 @@ public class JojoModUtil {
         }
     }
 
-    private static boolean canPlayVoiceLine(PlayerEntity entity, SoundEvent voiceLine, int voiceLineDelay) {
+    private static boolean canPlayVoiceLine(Player entity, SoundEvent voiceLine, int voiceLineDelay) {
         return entity.getCapability(PlayerUtilCapProvider.CAPABILITY)
                 .map(cap -> cap.checkNotRepeatingVoiceLine(voiceLine, voiceLineDelay)).orElse(true);
     }
@@ -518,17 +518,17 @@ public class JojoModUtil {
     }
     
     
-    public static <T extends INBTSerializable<N>, N extends INBT> IStorage<T> makeSerializableStorage() {
+    public static <T extends INBTSerializable<N>, N extends Tag> IStorage<T> makeSerializableStorage() {
         return new IStorage<T>() {
-            @Override public INBT writeNBT(Capability<T> capability, T instance, Direction side) { return instance.serializeNBT(); }
-            @Override public void readNBT(Capability<T> capability, T instance, Direction side, INBT nbt) { instance.deserializeNBT((N) nbt); }
+            @Override public Tag writeNBT(Capability<T> capability, T instance, Direction side) { return instance.serializeNBT(); }
+            @Override public void readNBT(Capability<T> capability, T instance, Direction side, Tag nbt) { instance.deserializeNBT((N) nbt); }
         };
     }
     
     public static <T> IStorage<T> noStorage() {
         return new IStorage<T>() {
-            @Override public INBT writeNBT(Capability<T> capability, T instance, Direction side) { return null; }
-            @Override public void readNBT(Capability<T> capability, T instance, Direction side, INBT nbt) {}
+            @Override public Tag writeNBT(Capability<T> capability, T instance, Direction side) { return null; }
+            @Override public void readNBT(Capability<T> capability, T instance, Direction side, Tag nbt) {}
         };
     }
     

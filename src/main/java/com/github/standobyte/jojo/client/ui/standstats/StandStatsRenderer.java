@@ -14,24 +14,23 @@ import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
 import com.github.standobyte.jojo.client.ui.BlitFloat;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.fml.client.gui.GuiUtils;
+import com.mojang.math.Axis;
 
 public class StandStatsRenderer {
     public static final ResourceLocation STAND_STATS_UI = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/stand_stats.png");
@@ -52,7 +51,7 @@ public class StandStatsRenderer {
     
     public static String getRankFromConvertedValue(double value) {
         int rankIndex;
-             if (value >= 2) rankIndex = MathHelper.floor(value);
+             if (value >= 2) rankIndex = Mth.floor(value);
         else if (value > 0)  rankIndex = 1;
         else                      rankIndex = 0;
         return STAT_LETTERS.get(Math.min(rankIndex, STAT_LETTERS.size() - 1));
@@ -60,7 +59,7 @@ public class StandStatsRenderer {
     
     private static final double LN_2 = Math.log(2);
     public static enum StandStat {
-        STRENGTH        (new TranslationTextComponent("jojo.stand_stat.strength"),       0,  -72) {
+        STRENGTH        (Component.translatable("jojo.stand_stat.strength"),       0,  -72) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = stats.getBasePower() + stats.getDevPower(levelRatio);
@@ -68,7 +67,7 @@ public class StandStatsRenderer {
                 return value;
             }
         },
-        SPEED           (new TranslationTextComponent("jojo.stand_stat.speed"),          58, -39) {
+        SPEED           (Component.translatable("jojo.stand_stat.speed"),          58, -39) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = stats.getBaseAttackSpeed() + stats.getDevAttackSpeed(levelRatio);
@@ -76,7 +75,7 @@ public class StandStatsRenderer {
                 return value;
             }
         },
-        RANGE           (new TranslationTextComponent("jojo.stand_stat.range"),          58,  32) {
+        RANGE           (Component.translatable("jojo.stand_stat.range"),          58,  32) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = stats.getEffectiveRange() + (stats.getMaxRange() - stats.getEffectiveRange()) * 0.5;
@@ -84,7 +83,7 @@ public class StandStatsRenderer {
                 return value;
             }
         },
-        DURABILITY      (new TranslationTextComponent("jojo.stand_stat.durability"),     0,   65) {
+        DURABILITY      (Component.translatable("jojo.stand_stat.durability"),     0,   65) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = stats.getBaseDurability() + stats.getDevDurability(levelRatio);
@@ -92,7 +91,7 @@ public class StandStatsRenderer {
                 return value;
             }
         },
-        PRECISION       (new TranslationTextComponent("jojo.stand_stat.precision"),     -58,  32) {
+        PRECISION       (Component.translatable("jojo.stand_stat.precision"),     -58,  32) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = stats.getBasePrecision() + stats.getDevPrecision(levelRatio);
@@ -100,7 +99,7 @@ public class StandStatsRenderer {
                 return value;
             }
         },
-        DEV_POTENTIAL   (new TranslationTextComponent("jojo.stand_stat.dev_potential"), -58, -39) {
+        DEV_POTENTIAL   (Component.translatable("jojo.stand_stat.dev_potential"), -58, -39) {
             @Override
             double getValueConverted(IStandPower standData, StandStats stats, float levelRatio) {
                 double value = 0;
@@ -114,11 +113,11 @@ public class StandStatsRenderer {
             }
         };
         
-        private final ITextComponent name;
+        private final Component name;
         private final int x;
         private final int y;
         
-        private StandStat(ITextComponent name, int x, int y) {
+        private StandStat(Component name, int x, int y) {
             this.name = name;
             this.x = x;
             this.y = y;
@@ -159,7 +158,7 @@ public class StandStatsRenderer {
             return getRankFromConvertedValue(statConvertedValue);
         }
         
-        default ITextComponent standName(IStandPower standData) {
+        default Component standName(IStandPower standData) {
             return standData.getName();
         }
         
@@ -167,8 +166,8 @@ public class StandStatsRenderer {
             return standData.getType().getIconTexture(standData);
         }
         
-        default List<ITextComponent> statTooltip(StandStat stat, IStandPower standData) {
-            List<ITextComponent> tooltip = new ArrayList<>();
+        default List<Component> statTooltip(StandStat stat, IStandPower standData) {
+            List<Component> tooltip = new ArrayList<>();
             tooltip.add(stat.name);
             return tooltip;
         }
@@ -193,7 +192,7 @@ public class StandStatsRenderer {
     private static final float LETTER_FADE_IN = 1.5f;
     
     @SuppressWarnings("deprecation")
-    public static void renderStandStats(MatrixStack matrixStack, Minecraft mc, 
+    public static void renderStandStats(PoseStack matrixStack, Minecraft mc, 
             int x, int y, int screenWidth, int screenHeight, 
             int tick, float partialTick, 
             float bgAlpha, boolean invertBnW, 
@@ -257,12 +256,12 @@ public class StandStatsRenderer {
             matrixStack.translate(xCenter, yCenter, 0);
             
             matrixStack.pushPose();
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(outerRingRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(outerRingRot));
             BlitFloat.blitFloat(matrixStack, -statsWidth / 2f, -statsHeight / 2f, 0, 0, 328, statsWidth, statsHeight, 512, 512);
             matrixStack.popPose();
 
             matrixStack.pushPose();
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(innerRingRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(innerRingRot));
             BlitFloat.blitFloat(matrixStack, -statsWidth / 2f, -statsHeight / 2f, 0, 256, 328, statsWidth, statsHeight, 512, 512);
             matrixStack.popPose();
             
@@ -270,7 +269,7 @@ public class StandStatsRenderer {
             for (int i = 1; i < 6; i++) {
                 if (STAT_LETTERS.size() <= i) break;
                 String letter = STAT_LETTERS.get(i);
-                mc.font.draw(matrixStack, new StringTextComponent(letter), 
+                mc.font.draw(matrixStack, Component.literal(letter), 
                         3.5f, -18.5f - (i - 1) * 9f, 
                         ClientUtil.addAlpha(invertBnW ? 0xFFFFFF : 0x000000, bordersAlpha));
             }
@@ -306,8 +305,8 @@ public class StandStatsRenderer {
             
             // stand name and user
             if (tick >= HEXAGON_TICK_START) {
-                List<IReorderingProcessor> standName = mc.font.split(new TranslationTextComponent("jojo.stand_stat.stand_name", override.standName(power)), maxTextWidth);
-                List<IReorderingProcessor> standUser = mc.font.split(new TranslationTextComponent("jojo.stand_stat.stand_user", mc.player.getDisplayName()), maxTextWidth);
+                List<FormattedCharSequence> standName = mc.font.split(Component.translatable("jojo.stand_stat.stand_name", override.standName(power)), maxTextWidth);
+                List<FormattedCharSequence> standUser = mc.font.split(Component.translatable("jojo.stand_stat.stand_user", mc.player.getDisplayName()), maxTextWidth);
                 int width = 0;
                 if (standName.size() > 1 || standUser.size() > 1) {
                     width = maxTextWidth;
@@ -372,7 +371,7 @@ public class StandStatsRenderer {
                         (float) (tick_ - letterStartTick) / (float) (letterFullTick - letterStartTick);
                 
                 
-                ITextComponent rank = new StringTextComponent(statRankLetter).withStyle(TextFormatting.BOLD);
+                Component rank = Component.literal(statRankLetter).withStyle(ChatFormatting.BOLD);
                 int letterWidth = mc.font.width(rank);
                 
                 switch (statRankLetter) {
@@ -406,7 +405,7 @@ public class StandStatsRenderer {
     }
     
     @SuppressWarnings("deprecation")
-    private static void renderLetterFromTex(MatrixStack matrixStack, float letterAlpha, boolean invertBnW, 
+    private static void renderLetterFromTex(PoseStack matrixStack, float letterAlpha, boolean invertBnW, 
             float statX, float statY, float letterWidth, int texX, int texY) {
         Minecraft.getInstance().textureManager.bind(STAND_STATS_UI);
         if (invertBnW) RenderSystem.color4f(1, 1, 1, letterAlpha);
@@ -436,7 +435,7 @@ public class StandStatsRenderer {
             int red, int green, int blue, int alpha) {
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 
         /*
          *          {x1, y1}
@@ -455,7 +454,7 @@ public class StandStatsRenderer {
         double x4 = xCenter;                        double y4 = yCenter + r4;
         double x5 = xCenter - r5 * COS_PI_BY_6;     double y5 = yCenter + r5 * SIN_PI_BY_6;
         double x6 = xCenter - r6 * COS_PI_BY_6;     double y6 = yCenter - r6 * SIN_PI_BY_6;
-        bufferBuilder.begin(6, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.begin(6, DefaultVertexFormat.POSITION_COLOR);
         bufferBuilder.vertex(xCenter, yCenter, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x1, y1, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x6, y6, 0.0D).color(red, green, blue, alpha).endVertex();
@@ -464,55 +463,55 @@ public class StandStatsRenderer {
         bufferBuilder.vertex(x3, y3, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x2, y2, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x1, y1, 0.0D).color(red, green, blue, alpha).endVertex();
-        Tessellator.getInstance().end();
+        Tesselator.getInstance().end();
 
         if (r1 > 0 && r6 <= 0 && r2 <= 0) {
-            bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(x1 + 2,                    yCenter + 2,                0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x1 + 2,                    y1,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2,               y1,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2,               yCenter + 2,                0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
         if (r2 > 0 && r1 <= 0 && r3 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x2 + 2 * SIN_PI_BY_6,      y2 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x2 - 2 * SIN_PI_BY_6,      y2 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
         if (r3 > 0 && r2 <= 0 && r4 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x3 - 2 * SIN_PI_BY_6,      y3 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x3 + 2 * SIN_PI_BY_6,      y3 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
         if (r4 > 0 && r3 <= 0 && r5 <= 0) {
-            bufferBuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter - 2,               yCenter - 2,                0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2,               y4,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x4 + 2,                    y4,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x4 + 2,                    yCenter - 2,                0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
         if (r5 > 0 && r4 <= 0 && r6 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x5 - 2 * SIN_PI_BY_6,      y5 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x5 + 2 * SIN_PI_BY_6,      y5 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
         if (r6 > 0 && r5 <= 0 && r1 <= 0) {
-            bufferBuilder.begin(9, DefaultVertexFormats.POSITION_COLOR);
+            bufferBuilder.begin(9, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter + 2 * SIN_PI_BY_6, yCenter - 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x6 + 2 * SIN_PI_BY_6,      y6 - 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x6 - 2 * SIN_PI_BY_6,      y6 + 2 * COS_PI_BY_6,       0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2 * SIN_PI_BY_6, yCenter + 2 * COS_PI_BY_6,  0.0D).color(red, green, blue, alpha).endVertex();
-            Tessellator.getInstance().end();
+            Tesselator.getInstance().end();
         }
 
         RenderSystem.enableTexture();

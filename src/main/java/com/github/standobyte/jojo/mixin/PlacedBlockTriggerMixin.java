@@ -14,16 +14,16 @@ import com.github.standobyte.jojo.mrpresident.dimension.MrPresidentWorldData.Chu
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 
 import net.minecraft.advancements.criterion.PlacedBlockTrigger;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
 
 @Mixin(PlacedBlockTrigger.class)
 public class PlacedBlockTriggerMixin {
     
     @Inject(method = "trigger", at = @At("TAIL"))
-    public void jojoPlacedBlockAdvancement(ServerPlayerEntity player, BlockPos blockPos, ItemStack item, CallbackInfo ci) {
+    public void jojoPlacedBlockAdvancement(ServerPlayer player, BlockPos blockPos, ItemStack item, CallbackInfo ci) {
         if (player.level.dimension() == ModDimensions.MR_PRESIDENT) {
             checkRoomAdvancement(player, blockPos);
         }
@@ -53,7 +53,7 @@ public class PlacedBlockTriggerMixin {
             }
         }
     }
-    private static void checkRoomAdvancement(ServerPlayerEntity player, BlockPos blockPos) {
+    private static void checkRoomAdvancement(ServerPlayer player, BlockPos blockPos) {
         boolean hasWalls = true;
         ChunkSectionPos roomPos = new ChunkSectionPos(blockPos);
         BlockPos checkBlockPos;

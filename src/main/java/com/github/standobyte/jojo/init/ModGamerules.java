@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.world.GameRules;
+import net.minecraft.world.level.GameRules;
 
 public class ModGamerules {
     

@@ -4,13 +4,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.JojoMod;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public class ToggleSwitch extends Button {
     protected static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png");
@@ -22,7 +22,7 @@ public class ToggleSwitch extends Button {
     
     protected ToggleSwitch(int pX, int pY, int pWidth, int pHeight, Orientation orientation,
             Button.IPressable onPress, ITooltip tooltip, Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
-        super(pX, pY, pWidth, pHeight, StringTextComponent.EMPTY, onPress, tooltip);
+        super(pX, pY, pWidth, pHeight, Component.empty(), onPress, tooltip);
         this.orientation = orientation;
         this.stateGet = stateGet;
         this.stateSet = stateSet;
@@ -82,7 +82,7 @@ public class ToggleSwitch extends Button {
     
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft mc = Minecraft.getInstance();
         mc.getTextureManager().bind(new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png"));
         alpha = active ? 1 : 0.5f;

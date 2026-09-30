@@ -9,16 +9,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.JukeboxTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.Level;
 
-@Mixin(JukeboxTileEntity.class)
-public abstract class JukeboxTileEntityMixin extends TileEntity {
+@Mixin(JukeboxBlockEntity.class)
+public abstract class JukeboxTileEntityMixin extends BlockEntity {
     
-    public JukeboxTileEntityMixin(TileEntityType<?> teType) {
+    public JukeboxTileEntityMixin(BlockEntityType<?> teType) {
         super(teType);
     }
 
@@ -26,7 +26,7 @@ public abstract class JukeboxTileEntityMixin extends TileEntity {
     
     @Inject(method = "setRecord", at = @At("HEAD"))
     public void onSetRecord(ItemStack record, CallbackInfo ci) {
-        World world = getLevel();
+        Level world = getLevel();
         if (world != null && !world.isClientSide()) {
             TrackerItemStack.getItemTracker(record, false)
             .ifPresent(tracker -> {

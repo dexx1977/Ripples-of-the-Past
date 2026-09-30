@@ -9,10 +9,10 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.SkeletonEntity;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.sounds.SoundEvent;
 
 public class SilverChariotMeleeBarrage extends StandEntityMeleeBarrage {
 
@@ -53,7 +53,7 @@ public class SilverChariotMeleeBarrage extends StandEntityMeleeBarrage {
     @Override
     public BarrageEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         BarrageEntityPunch stabBarrage = super.punchEntity(stand, target, dmgSource);
-        if (target instanceof SkeletonEntity) {
+        if (target instanceof Skeleton) {
             stabBarrage.damage(stabBarrage.getDamage() * 0.75F);
         }
         return stabBarrage;

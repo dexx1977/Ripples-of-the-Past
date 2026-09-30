@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class CDBlocksRestoredPacket {
     private final Collection<BlockPos> positions;
@@ -25,20 +25,20 @@ public class CDBlocksRestoredPacket {
     public static class Handler implements IModPacketHandler<CDBlocksRestoredPacket> {
 
         @Override
-        public void encode(CDBlocksRestoredPacket msg, PacketBuffer buf) {
+        public void encode(CDBlocksRestoredPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.positions, buf::writeBlockPos, false);
         }
 
         @Override
-        public CDBlocksRestoredPacket decode(PacketBuffer buf) {
-            return new CDBlocksRestoredPacket(NetworkUtil.readCollection(buf, PacketBuffer::readBlockPos));
+        public CDBlocksRestoredPacket decode(FriendlyByteBuf buf) {
+            return new CDBlocksRestoredPacket(NetworkUtil.readCollection(buf, FriendlyByteBuf::readBlockPos));
         }
 
         @Override
         public void handle(CDBlocksRestoredPacket msg, Supplier<Context> ctx) {
             // FIXME do not send these packets to non-stand users at all
             if (ClientUtil.canSeeStands()) {
-                World world = ClientUtil.getClientWorld();
+                Level world = ClientUtil.getClientWorld();
                 msg.positions.forEach(pos -> CrazyDiamondRestoreTerrain.addParticlesAroundBlock(world, pos, world.getRandom()));
             }
         }

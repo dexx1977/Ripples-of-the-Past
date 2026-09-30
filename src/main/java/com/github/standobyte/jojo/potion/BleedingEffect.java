@@ -30,44 +30,44 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFaceBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
-public class BleedingEffect extends Effect implements IApplicableEffect {
+public class BleedingEffect extends MobEffect implements IApplicableEffect {
     private static final float HP_REDUCTION = 4;
     public static final UUID ATTRIBUTE_MODIFIER_ID = UUID.fromString("1588be77-b81b-4eb0-a745-a8912de51e72");
     
-    public BleedingEffect(EffectType type, int liquidColor) {
+    public BleedingEffect(MobEffectCategory type, int liquidColor) {
         super(type, liquidColor);
         getAttributeModifiers().put(Attributes.MAX_HEALTH, new AttributeModifier(ATTRIBUTE_MODIFIER_ID, 
                 this::getDescriptionId, -HP_REDUCTION, AttributeModifier.Operation.ADDITION));
     }
     
     @Override
-    public void addAttributeModifiers(LivingEntity entity, AttributeModifierManager pAttributeMap, int pAmplifier) {
+    public void addAttributeModifiers(LivingEntity entity, AttributeMap pAttributeMap, int pAmplifier) {
         super.addAttributeModifiers(entity, pAttributeMap, pAmplifier);
         if (entity.getHealth() > entity.getMaxHealth()) {
             entity.setHealth(entity.getMaxHealth());
@@ -84,7 +84,7 @@ public class BleedingEffect extends Effect implements IApplicableEffect {
             
             entity.level.broadcastEntityEvent(entity, (byte) MCUtil.EntityEvents.HURT);
             
-            Vector3d particlesPos = entity.getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(data -> data.bleedingParticlesPos)
+            Vec3 particlesPos = entity.getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(data -> data.bleedingParticlesPos)
                     .orElse(entity.getBoundingBox().getCenter());
             splashBlood(entity.level, particlesPos, pAmplifier + 1, HP_REDUCTION * (pAmplifier + 1), 
                     OptionalInt.of(pAmplifier), Optional.of(entity));
@@ -107,24 +107,24 @@ public class BleedingEffect extends Effect implements IApplicableEffect {
     }
     
     
-    public static void setNextParticlesPos(LivingEntity entity, Vector3d pos) {
+    public static void setNextParticlesPos(LivingEntity entity, Vec3 pos) {
         entity.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(data -> data.bleedingParticlesPos = pos);
     }
     
-    public static boolean splashBlood(World world, Vector3d splashPos, double radius, 
+    public static boolean splashBlood(Level world, Vec3 splashPos, double radius, 
             float bleedAmount, OptionalInt bleedingEffectLvl, Optional<LivingEntity> ownerEntity) {
         if (world.isClientSide()) {
             return false;
         }
 
-        AxisAlignedBB aabb = new AxisAlignedBB(splashPos.subtract(radius, radius, radius), splashPos.add(radius, radius, radius));
-        List<Vector3d> particlePos = new ArrayList<>();
+        AABB aabb = new AABB(splashPos.subtract(radius, radius, radius), splashPos.add(radius, radius, radius));
+        List<Vec3> particlePos = new ArrayList<>();
         List<LivingEntity> entitiesAround = world.getEntitiesOfClass(LivingEntity.class, aabb, 
-                EntityPredicates.ENTITY_STILL_ALIVE.and(EntityPredicates.NO_SPECTATORS)
+                EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS)
                 .and(entity -> {
-                    return world.clip(new RayTraceContext(splashPos, entity.getBoundingBox().getCenter(), 
-                          RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, entity))
-                          .getType() == RayTraceResult.Type.MISS;
+                    return world.clip(new ClipContext(splashPos, entity.getBoundingBox().getCenter(), 
+                          ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity))
+                          .getType() == HitResult.Type.MISS;
                 }));
         for (LivingEntity entity : entitiesAround) {
             if (dropBloodOnEntity(ownerEntity, entity, bleedAmount)) {
@@ -137,19 +137,19 @@ public class BleedingEffect extends Effect implements IApplicableEffect {
         .filter(pos -> world.getBlockState(pos).getBlock() == ModBlocks.STONE_MASK.get())
         .forEach(pos -> {
             BlockState blockState = world.getBlockState(pos);
-            world.playSound(null, pos, ModSounds.STONE_MASK_ACTIVATION.get(), SoundCategory.BLOCKS, 1.0F, 1.0F);
-            switch (blockState.getValue(HorizontalFaceBlock.FACE)) {
+            world.playSound(null, pos, ModSounds.STONE_MASK_ACTIVATION.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+            switch (blockState.getValue(FaceAttachedHorizontalDirectionalBlock.FACE)) {
             case FLOOR:
-                TileEntity tileEntity = world.getBlockEntity(pos);
+                BlockEntity tileEntity = world.getBlockEntity(pos);
                 if (tileEntity instanceof StoneMaskTileEntity) {
                     ((StoneMaskTileEntity) tileEntity).activate();
                 }
-                particlePos.add(Vector3d.atBottomCenterOf(pos));
+                particlePos.add(Vec3.atBottomCenterOf(pos));
                 break;
             default:
                 Block.popResource(world, pos, StoneMaskBlock.getItemFromBlock(world, pos, blockState));
                 world.removeBlock(pos, false);
-                particlePos.add(Vector3d.atCenterOf(pos));
+                particlePos.add(Vec3.atCenterOf(pos));
                 break;
             }
         });
@@ -176,7 +176,7 @@ public class BleedingEffect extends Effect implements IApplicableEffect {
     private static boolean dropBloodOnEntity(Optional<LivingEntity> bleedingEntity, LivingEntity nearbyEntity, float bleedAmount) {
         boolean dropped = false;
         
-        ItemStack headArmor = nearbyEntity.getItemBySlot(EquipmentSlotType.HEAD);
+        ItemStack headArmor = nearbyEntity.getItemBySlot(EquipmentSlot.HEAD);
         if (headArmor.getItem() instanceof StoneMaskItem && applyStoneMask(nearbyEntity, headArmor)) {
             dropped = true;
         }
@@ -197,22 +197,22 @@ public class BleedingEffect extends Effect implements IApplicableEffect {
 
     public static boolean applyStoneMask(LivingEntity entity, ItemStack headStack) {
         if (entity.level.getDifficulty() == Difficulty.PEACEFUL) {
-            if (entity instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) entity).displayClientMessage(
-                        new TranslationTextComponent("jojo.chat.message.stone_mask_peaceful"), true);
+            if (entity instanceof ServerPlayer) {
+                ((ServerPlayer) entity).displayClientMessage(
+                        Component.translatable("jojo.chat.message.stone_mask_peaceful"), true);
             }
             return false;
         }
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
             return INonStandPower.getNonStandPowerOptional(player).map(power -> {
                 //Prevents aja-stone mask to work on non pillar men
                 Optional<PillarmanData> pillarmanOptional = power.getTypeSpecificData(ModPowers.PILLAR_MAN.get());
                 
                 if (headStack.getItem() == ModItems.AJA_STONE_MASK.get()) {
                     if (!pillarmanOptional.isPresent()) {
-                        if (entity instanceof ServerPlayerEntity) {
-                            ModCriteriaTriggers.MASK_SUICIDE.get().trigger((ServerPlayerEntity) entity);
+                        if (entity instanceof ServerPlayer) {
+                            ModCriteriaTriggers.MASK_SUICIDE.get().trigger((ServerPlayer) entity);
                         }
                         entity.hurt(DamageUtil.STONE_MASK, 1000);
                         return false;

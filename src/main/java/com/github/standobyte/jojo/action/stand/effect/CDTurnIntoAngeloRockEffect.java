@@ -34,23 +34,24 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
     public boolean keepMobsInside;
@@ -140,13 +141,13 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
     }
 
     @Override
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {
+    protected void writeAdditionalSaveData(CompoundTag nbt) {
         nbt.putBoolean("TriedSummonRock", triedSummonRockEntity);
         nbt.putBoolean("SaveMob", keepMobsInside);
         angeloRockEntity.saveNbt(nbt, "Entity");
         
         if (brokenBlocks != null && !brokenBlocks.isEmpty()) {
-            ListNBT blocksBrokenNbt = new ListNBT();
+            ListTag blocksBrokenNbt = new ListTag();
             for (PrevBlockInfo block : brokenBlocks.values()) {
                 blocksBrokenNbt.add(block.toNBT());
             }
@@ -154,29 +155,29 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
         }
         
         if (lastTargetPos != null) {
-            nbt.put("LastTargetPos", NBTUtil.writeBlockPos(lastTargetPos));
+            nbt.put("LastTargetPos", NbtUtils.writeBlockPos(lastTargetPos));
         }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         triedSummonRockEntity = nbt.getBoolean("TriedSummonRock");
         keepMobsInside = nbt.getBoolean("SaveMob");
         angeloRockEntity.loadNbt(nbt, "Entity");
         
         brokenBlocks = null;
-        ListNBT blocksBrokenNbt = nbt.getList("FixBlocks", Constants.NBT.TAG_COMPOUND);
+        ListTag blocksBrokenNbt = nbt.getList("FixBlocks", Tag.TAG_COMPOUND);
         if (!blocksBrokenNbt.isEmpty()) {
             brokenBlocks = new HashMap<>();
             blocksBrokenNbt.forEach(blockNBT -> {
-                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundNBT) blockNBT);
+                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundTag) blockNBT);
                 if (block != null) {
                     brokenBlocks.put(block.pos, block);
                 }
             });
         }
         
-        lastTargetPos = MCUtil.nbtGetCompoundOptional(nbt, "LastTargetPos").map(blockPosNbt -> NBTUtil.readBlockPos(blockPosNbt)).orElse(null);
+        lastTargetPos = MCUtil.nbtGetCompoundOptional(nbt, "LastTargetPos").map(blockPosNbt -> NbtUtils.readBlockPos(blockPosNbt)).orElse(null);
     }
     
     public boolean preventTargetDeath() {
@@ -204,7 +205,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
                 .map(blockPos -> {
                     ChunkPos chunkPos = new ChunkPos(blockPos);
                     Optional<ChunkCap> chunkData = chunkCache.computeIfAbsent(chunkPos, pos -> {
-                        Chunk chunk = target.level.getChunk(pos.x, pos.z);
+                        LevelChunk chunk = target.level.getChunk(pos.x, pos.z);
                         return Optional.ofNullable(chunk).flatMap(c -> c.getCapability(ChunkCapProvider.CAPABILITY).resolve());
                     });
                     PrevBlockInfo prevBlock = chunkData.map(chunk -> chunk.getBrokenBlockAt(blockPos)).orElse(null);
@@ -226,7 +227,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
             return Action.conditionMessage("angelo_no_stone_broken");
         }
         
-        Vector3d targetPos = target.position();
+        Vec3 targetPos = target.position();
         Optional<FindBlockEntry> closestAngeloRockBlocks = brokenStoneBlocks.values().stream()
                 .map(entry -> {
                     PrevBlockInfo block = entry.block;
@@ -299,7 +300,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
         JojoModUtil.sayVoiceLine(user, ModSounds.JOSUKE_PRAY_FOR_ETERNITY.get(), null, 1, 1, 0, false);
         Direction angeloRockFace = Direction.fromYRot(target.yRot);
         AngeloRockEntity angeloRock = AngeloRockEntity.turnIntoRock(world, target, 
-                Vector3d.atBottomCenterOf(blockLower.pos), angeloRockFace.toYRot(), 
+                Vec3.atBottomCenterOf(blockLower.pos), angeloRockFace.toYRot(), 
                 blockLower, blockUpper);
         angeloRock.keepMobInside = keepMobsInside;
         this.angeloRockEntity.setOwner(angeloRock);
@@ -322,14 +323,14 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
             this.block = block;
         }
         
-        public double getDistLower(Vector3d targetPos) {
+        public double getDistLower(Vec3 targetPos) {
             if (distLower == -1) {
                 distLower = targetPos.distanceToSqr(block.pos.getX() + 0.5, block.pos.getY(), block.pos.getZ() + 0.5);
             }
             return distLower;
         }
         
-        public double getDistUpper(Vector3d targetPos) {
+        public double getDistUpper(Vec3 targetPos) {
             if (distUpper == -1) {
                 distUpper = targetPos.distanceToSqr(block.pos.getX() + 0.5, block.pos.getY() + 1, block.pos.getZ() + 0.5);
             }
@@ -360,7 +361,7 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
             return this;
         }
         
-        public double getDist(Vector3d targetPos) {
+        public double getDist(Vec3 targetPos) {
             if (lower != null) {
                 return lower.getDistLower(targetPos);
             }
@@ -380,8 +381,8 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
             throw new IllegalStateException();
         }
         
-        public void resolveAngeloBlocks(World world, Map<BlockPos, BlockWithDist> brokenStoneBlocks, 
-                ChunkCap blocksData, Vector3d targetPos, boolean dropBlock) {
+        public void resolveAngeloBlocks(Level world, Map<BlockPos, BlockWithDist> brokenStoneBlocks, 
+                ChunkCap blocksData, Vec3 targetPos, boolean dropBlock) {
             if (lower == null && upper == null) {
                 throw new IllegalStateException();
             }
@@ -462,13 +463,13 @@ public class CDTurnIntoAngeloRockEffect extends StandEffectInstance {
     }
     
     protected List<ItemStack> itemsSource(BlockPos center) {
-        AxisAlignedBB area = new AxisAlignedBB(center, center).inflate(8);
+        AABB area = new AABB(center, center).inflate(8);
         Entity target = getTarget();
-        List<ItemStack> itemsSource = CrazyDiamondRestoreTerrain.sourceItemStacks(area, Vector3d.atBottomCenterOf(center), user, world, 
-                target instanceof PlayerEntity ? SourceType.PLAYER_INVENTORY.from(target) : null, 
+        List<ItemStack> itemsSource = CrazyDiamondRestoreTerrain.sourceItemStacks(area, Vec3.atBottomCenterOf(center), user, world, 
+                target instanceof Player ? SourceType.PLAYER_INVENTORY.from(target) : null, 
                 SourceType.MOB_HELD.fromAllNearby(), 
                 SourceType.ITEM_ENTITY.fromAllNearby(), 
-                user instanceof PlayerEntity ? SourceType.PLAYER_INVENTORY.from(user) : null, 
+                user instanceof Player ? SourceType.PLAYER_INVENTORY.from(user) : null, 
                 ModStandsInit.CRAZY_DIAMOND_RESTORE_TERRAIN.get().useOtherPlayersInventories ? SourceType.PLAYER_INVENTORY.fromAllNearby().sort() : null);
         return itemsSource;
     }

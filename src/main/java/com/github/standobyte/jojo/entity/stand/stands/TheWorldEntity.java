@@ -10,19 +10,19 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.item.KnifeItem;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 public class TheWorldEntity extends StandEntity {
     
-    public TheWorldEntity(StandEntityType<TheWorldEntity> type, World world) {
+    public TheWorldEntity(StandEntityType<TheWorldEntity> type, Level world) {
         super(type, world);
     }
     
     @Override
-    public void onKnivesThrow(World world, PlayerEntity playerUser, ItemStack knivesStack, int knivesThrown) {
+    public void onKnivesThrow(Level world, Player playerUser, ItemStack knivesStack, int knivesThrown) {
         if (world.isClientSide()) {
             return;
         }
@@ -60,7 +60,7 @@ public class TheWorldEntity extends StandEntity {
 
             world.playSound(null, this.getX(), this.getY(), this.getZ(), 
                     standKnives == 1 ? ModSounds.KNIFE_THROW.get() : ModSounds.KNIVES_THROW.get(), 
-                            SoundCategory.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                            SoundSource.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
 
             if (!playerUser.abilities.instabuild) {
                 knivesStack.shrink(standKnives);

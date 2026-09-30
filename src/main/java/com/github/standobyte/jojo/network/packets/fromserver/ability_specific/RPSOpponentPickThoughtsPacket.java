@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.mob.rps.RockPaperScissorsGame.Pick;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class RPSOpponentPickThoughtsPacket {
     @Nullable private final Pick pickThoughts;
@@ -25,7 +25,7 @@ public class RPSOpponentPickThoughtsPacket {
     public static class Handler implements IModPacketHandler<RPSOpponentPickThoughtsPacket> {
         
         @Override
-        public void encode(RPSOpponentPickThoughtsPacket msg, PacketBuffer buf) {
+        public void encode(RPSOpponentPickThoughtsPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.pickThoughts != null);
             if (msg.pickThoughts != null) {
                 buf.writeEnum(msg.pickThoughts);
@@ -33,13 +33,13 @@ public class RPSOpponentPickThoughtsPacket {
         }
 
         @Override
-        public RPSOpponentPickThoughtsPacket decode(PacketBuffer buf) {
+        public RPSOpponentPickThoughtsPacket decode(FriendlyByteBuf buf) {
             return new RPSOpponentPickThoughtsPacket(buf.readBoolean() ? buf.readEnum(Pick.class) : null);
         }
 
         @Override
         public void handle(RPSOpponentPickThoughtsPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.getCurrentRockPaperScissorsGame().ifPresent(game -> game.setOpponentThoughts(player, msg.pickThoughts));
             });

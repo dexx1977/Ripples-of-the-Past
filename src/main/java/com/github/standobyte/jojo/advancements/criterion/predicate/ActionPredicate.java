@@ -11,8 +11,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistry;
 
 public class ActionPredicate {
@@ -36,9 +36,9 @@ public class ActionPredicate {
             return ANY;
         }
         else {
-            JsonObject jsonObject = JSONUtils.convertToJsonObject(json, "JoJo action");
+            JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "JoJo action");
             
-            ResourceLocation resLoc = new ResourceLocation(JSONUtils.getAsString(jsonObject, "name"));
+            ResourceLocation resLoc = new ResourceLocation(GsonHelper.getAsString(jsonObject, "name"));
             Action<?> action = Optional.ofNullable(((ForgeRegistry<Action<?>>) JojoCustomRegistries.ACTIONS.getRegistry())
                     .getRaw(resLoc)).orElseThrow(() -> {
                         return new JsonSyntaxException("Unknown action '" + resLoc + "'");

@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrKnivesCountPacket {
     private final int entityId;
@@ -24,13 +24,13 @@ public class TrKnivesCountPacket {
     public static class Handler implements IModPacketHandler<TrKnivesCountPacket> {
 
         @Override
-        public void encode(TrKnivesCountPacket msg, PacketBuffer buf) {
+        public void encode(TrKnivesCountPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeVarInt(msg.knives);
         }
 
         @Override
-        public TrKnivesCountPacket decode(PacketBuffer buf) {
+        public TrKnivesCountPacket decode(FriendlyByteBuf buf) {
             return new TrKnivesCountPacket(buf.readInt(), buf.readVarInt());
         }
 

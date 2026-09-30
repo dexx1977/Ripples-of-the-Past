@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class HamonProjectileShield extends HamonAction {
 
@@ -16,7 +16,7 @@ public class HamonProjectileShield extends HamonAction {
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide() && requirementsFulfilled) {
             HamonData hamon = power.getTypeSpecificData(ModPowers.HAMON.get()).get();
             if (hamon.shieldEntity == null || !hamon.shieldEntity.isAlive()) {

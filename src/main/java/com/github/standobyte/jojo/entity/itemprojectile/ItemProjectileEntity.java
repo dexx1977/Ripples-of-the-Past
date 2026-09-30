@@ -6,45 +6,45 @@ import com.github.standobyte.jojo.itemtracking.ITrackedArrowEntity;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStackProvider;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
-public abstract class ItemProjectileEntity extends AbstractArrowEntity implements IEntityAdditionalSpawnData, ITrackedArrowEntity {
+public abstract class ItemProjectileEntity extends AbstractArrow implements IEntityAdditionalSpawnData, ITrackedArrowEntity {
     protected boolean leftOwner;
 
-    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, LivingEntity thrower, World world) {
+    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, LivingEntity thrower, Level world) {
         super(type, thrower, world);
-        if (thrower instanceof PlayerEntity && ((PlayerEntity) thrower).abilities.instabuild) {
-            pickup = AbstractArrowEntity.PickupStatus.CREATIVE_ONLY;
+        if (thrower instanceof Player && ((Player) thrower).abilities.instabuild) {
+            pickup = AbstractArrow.PickupStatus.CREATIVE_ONLY;
         }
     }
 
-    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, double x, double y, double z, World world) {
+    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, double x, double y, double z, Level world) {
         super(type, x, y, z, world);
     }
 
-    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, World world) {
+    protected ItemProjectileEntity(EntityType<? extends ItemProjectileEntity> type, Level world) {
         super(type, world);
     }
 
@@ -53,9 +53,9 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     }
 
     @Override
-    protected void onHit(RayTraceResult rayTraceResult) {
+    protected void onHit(HitResult rayTraceResult) {
         if (rayTraceResult.getType() == Type.BLOCK) {
-            BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+            BlockPos blockPos = ((BlockHitResult) rayTraceResult).getBlockPos();
             BlockState blockState = level.getBlockState(blockPos);
             setSoundEvent(getActualHitGroundSound(blockState, blockPos));
             super.onHit(rayTraceResult);
@@ -75,9 +75,9 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     @Override
     protected boolean canHitEntity(Entity entity) {
         if (super.canHitEntity(entity)) {
-            if (!canHitOwnerProjectile() && entity instanceof ProjectileEntity) {
+            if (!canHitOwnerProjectile() && entity instanceof Projectile) {
                 Entity ownerThis = getOwner();
-                Entity ownerThat = ((ProjectileEntity) entity).getOwner();
+                Entity ownerThat = ((Projectile) entity).getOwner();
                 return ownerThis == null || ownerThat == null || ownerThis.getUUID() != ownerThat.getUUID();
             }
             return true;
@@ -90,7 +90,7 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     }
 
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+    protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         Entity target = entityRayTraceResult.getEntity();
         Entity thrower = getOwner();
         if (thrower instanceof LivingEntity) {
@@ -127,7 +127,7 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
             yRotO += 180.0F;
             if (!level.isClientSide() && getDeltaMovement().lengthSqr() < 1.0E-7D) {
                 if (isRemovedOnEntityHit()) {
-                    if (pickup == AbstractArrowEntity.PickupStatus.ALLOWED) {
+                    if (pickup == AbstractArrow.PickupStatus.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
                     remove();
@@ -146,14 +146,14 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     }
 
     @Override
-    public void playerTouch(PlayerEntity player) {
+    public void playerTouch(Player player) {
         if (!level.isClientSide()) {
             Entity shooter = getOwner();
             if (inGround || shooter == null || shooter.getUUID() == player.getUUID()) {
-                boolean canPickUp = (pickup == AbstractArrowEntity.PickupStatus.ALLOWED 
-                        || pickup == AbstractArrowEntity.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild)
+                boolean canPickUp = (pickup == AbstractArrow.PickupStatus.ALLOWED 
+                        || pickup == AbstractArrow.PickupStatus.CREATIVE_ONLY && player.abilities.instabuild)
                         && (inGround || isNoPhysics() || throwerCanCatch());
-                if (canPickUp && pickup == AbstractArrowEntity.PickupStatus.ALLOWED && !player.inventory.add(getPickupItem())) {
+                if (canPickUp && pickup == AbstractArrow.PickupStatus.ALLOWED && !player.inventory.add(getPickupItem())) {
                     canPickUp = false;
                 }
                 if (canPickUp) {
@@ -165,7 +165,7 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
         }
     }
     
-    protected void pickUp(PlayerEntity player) {
+    protected void pickUp(Player player) {
         player.take(this, 1);
         remove();
     }
@@ -203,10 +203,10 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     }
     
     
-    @Nullable private INBT itemTrackerNBT;
+    @Nullable private Tag itemTrackerNBT;
     
     @Override
-    public void saveItemTrackerNBT(INBT nbt) {
+    public void saveItemTrackerNBT(Tag nbt) {
         this.itemTrackerNBT = nbt;
     }
     
@@ -222,29 +222,29 @@ public abstract class ItemProjectileEntity extends AbstractArrowEntity implement
     
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         tickCount = compound.getInt("Age");
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("Age", tickCount);
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeInt(getOwner() != null ? getOwner().getId() : -1);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         int ownerId = additionalData.readInt();
         if (ownerId > -1) {
             setOwner(level.getEntity(ownerId));

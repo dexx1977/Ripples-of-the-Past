@@ -13,9 +13,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandStatsDataPacket {
     private final List<StandStatsDataEntry> stats;
@@ -36,13 +36,13 @@ public class StandStatsDataPacket {
     public static class Handler implements IModPacketHandler<StandStatsDataPacket> {
 
         @Override
-        public void encode(StandStatsDataPacket msg, PacketBuffer buf) {
+        public void encode(StandStatsDataPacket msg, FriendlyByteBuf buf) {
             buf.writeVarInt(msg.stats.size());
             msg.stats.forEach(entry -> entry.write(buf));
         }
 
         @Override
-        public StandStatsDataPacket decode(PacketBuffer buf) {
+        public StandStatsDataPacket decode(FriendlyByteBuf buf) {
             int size = buf.readVarInt();
             List<StandStatsDataEntry> stats = new ArrayList<>();
             for (int i = 0; i < size; i++) {
@@ -74,7 +74,7 @@ public class StandStatsDataPacket {
             this.stats = stats;
         }
         
-        private static StandStatsDataEntry read(PacketBuffer buf) {
+        private static StandStatsDataEntry read(FriendlyByteBuf buf) {
             ResourceLocation location = buf.readResourceLocation();
             StandType<?> stand = JojoCustomRegistries.STANDS.getRegistry().getValue(location);
             if (stand == null) {
@@ -83,7 +83,7 @@ public class StandStatsDataPacket {
             return new StandStatsDataEntry(location, StandStats.fromBuffer(stand.getStatsClass(), buf));
         }
         
-        private void write(PacketBuffer buf) {
+        private void write(FriendlyByteBuf buf) {
             buf.writeResourceLocation(location);
             stats.write(buf);
         }

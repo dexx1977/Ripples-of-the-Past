@@ -4,7 +4,7 @@ import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.TrPillarmanParticlesPacket;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public class PillarmanUtil {
 	

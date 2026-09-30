@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.client.ui.screen.stand.ge.EntityTypeIcon;
 import com.github.standobyte.jojo.entity.GETransformationEntity;
 import com.github.standobyte.jojo.init.power.stand.ModStandEffects;
 import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public class GoldExperienceLifeformMarker extends MarkerRenderer {
     
@@ -24,10 +24,10 @@ public class GoldExperienceLifeformMarker extends MarkerRenderer {
     }
     
     @Override
-    protected void renderIcon(MatrixStack matrixStack, MarkerInstance marker, float partialTick) {}
+    protected void renderIcon(PoseStack matrixStack, MarkerInstance marker, float partialTick) {}
     
     @Override
-    protected void renderIconOnBorder(MatrixStack matrixStack, MarkerInstance marker, float partialTick) {
+    protected void renderIconOnBorder(PoseStack matrixStack, MarkerInstance marker, float partialTick) {
         marker.standEffect.ifPresent(effect -> {
             Entity target = effect.getTarget();
             if (target != null) {

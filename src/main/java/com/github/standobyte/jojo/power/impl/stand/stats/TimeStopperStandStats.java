@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.power.impl.stand.stats;
 
 import com.github.standobyte.jojo.action.stand.TimeStop;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * @deprecated Config parameters of the time stop are now inside TimeStop action objects instead.
@@ -24,7 +24,7 @@ public class TimeStopperStandStats extends StandStats {
         this.timeStopCooldownPerTick = builder.timeStopCooldownPerTick;
     }
     
-    protected TimeStopperStandStats(PacketBuffer buf) {
+    protected TimeStopperStandStats(FriendlyByteBuf buf) {
         super(buf);
         this.timeStopMaxTicks = buf.readInt();
         this.timeStopMaxTicksVampire = buf.readInt();
@@ -38,7 +38,7 @@ public class TimeStopperStandStats extends StandStats {
     }
     
     @Override
-    public void write(PacketBuffer buf) {
+    public void write(FriendlyByteBuf buf) {
         super.write(buf);
         buf.writeInt(timeStopMaxTicks);
         buf.writeInt(timeStopMaxTicksVampire);

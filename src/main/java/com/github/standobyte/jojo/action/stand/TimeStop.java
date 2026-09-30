@@ -25,17 +25,17 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.PlaySoundAtClientPacket;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 @ActionConfig({ "holdDurationToFire", "heldWalkSpeed" })
 public class TimeStop extends StandAction {
@@ -105,14 +105,14 @@ public class TimeStop extends StandAction {
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, IStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, IStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide() && requirementsFulfilled && power.getStandManifestation() instanceof StandEntity) {
             ((StandEntity) power.getStandManifestation()).stopTask();
         }
     }
 
     @Override
-    protected void perform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             int timeStopTicks = getTimeStopTicks(power, this);
             BlockPos blockPos = user.blockPosition();
@@ -140,14 +140,14 @@ public class TimeStop extends StandAction {
             // TODO event
             timeStopTicks = instance.getTicksLeft();
             
-            EffectInstance immunityEffect = new EffectInstance(ModStatusEffects.TIME_STOP.get(), timeStopTicks, 0, false, false, true);
+            MobEffectInstance immunityEffect = new MobEffectInstance(ModStatusEffects.TIME_STOP.get(), timeStopTicks, 0, false, false, true);
             user.addEffect(immunityEffect);
             instance.setStatusEffectInstance(immunityEffect);
             
             TimeStopHandler.stopTime(world, instance);
             if (timeStopTicks >= 40 && timeStopSound != null && timeStopSound.get() != null
                     && !invadingStoppedTime) {
-                PacketManager.sendGloballyWithCondition(new PlaySoundAtClientPacket(timeStopSound.get(), SoundCategory.AMBIENT, blockPos, 5.0F, 1.0F), 
+                PacketManager.sendGloballyWithCondition(new PlaySoundAtClientPacket(timeStopSound.get(), SoundSource.AMBIENT, blockPos, 5.0F, 1.0F), 
                         world.dimension(), player -> instance.inRange(TimeStopHandler.getChunkPos(player)) && TimeStopHandler.canPlayerSeeInStoppedTime(player));
             }
             
@@ -182,9 +182,9 @@ public class TimeStop extends StandAction {
     }
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         int timeStopTicks = getTimeStopTicks(power, this);
-        return new TranslationTextComponent(key, String.format("%.2f", (float) timeStopTicks / 20F));
+        return Component.translatable(key, String.format("%.2f", (float) timeStopTicks / 20F));
     }
     
     @Override
@@ -232,7 +232,7 @@ public class TimeStop extends StandAction {
     
     public static final int MIN_TIME_STOP_TICKS = 5;
     public static int getTimeStopTicks(IStandPower standPower, StandAction timeStopAction) {
-        return MathHelper.floor(standPower.getLearningProgressPoints(timeStopAction)) + MIN_TIME_STOP_TICKS;
+        return Mth.floor(standPower.getLearningProgressPoints(timeStopAction)) + MIN_TIME_STOP_TICKS;
     }
     
     public int getMaxTimeStopTicks(IStandPower standPower) {

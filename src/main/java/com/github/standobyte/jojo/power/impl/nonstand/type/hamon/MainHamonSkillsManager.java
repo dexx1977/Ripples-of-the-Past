@@ -20,10 +20,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.HamonTech
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.IHamonSkillsManager;
 import com.google.common.collect.Iterables;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamonSkill> {
     private final BaseHamonSkillSet baseSkills = new BaseHamonSkillSet();
@@ -68,8 +68,8 @@ public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamon
     
     
     
-    CompoundNBT toNBT() {
-        CompoundNBT skillsNbt = new CompoundNBT();
+    CompoundTag toNBT() {
+        CompoundTag skillsNbt = new CompoundTag();
         for (BaseHamonSkill skill : baseSkills.getLearnedSkills()) {
             skillsNbt.putBoolean(skill.getName(), baseSkills.containsSkill(skill));
         }
@@ -77,13 +77,13 @@ public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamon
         return skillsNbt;
     }
 
-    void fromNbt(CompoundNBT nbt) {
+    void fromNbt(CompoundTag nbt) {
         fillBaseSkills(nbt);
         technique.fromNBT(this, nbt.getCompound("Technique"));
     }
     
     // bruh
-    private void fillBaseSkills(CompoundNBT nbt) {
+    private void fillBaseSkills(CompoundTag nbt) {
         for (AbstractHamonSkill skill : JojoCustomRegistries.HAMON_SKILLS.getRegistry().getValues()) {
             if (skill instanceof BaseHamonSkill && nbt.contains(skill.getName()) && nbt.getBoolean(skill.getName())) {
                 addSkill(skill);
@@ -93,7 +93,7 @@ public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamon
     
     
     
-    void syncWithUser(ServerPlayerEntity user, HamonData hamon) {
+    void syncWithUser(ServerPlayer user, HamonData hamon) {
         for (AbstractHamonSkill skill : getLearnedSkills()) {
             if (containsSkill(skill)) {
                 PacketManager.sendToClient(new HamonSkillAddPacket(skill), user);
@@ -102,11 +102,11 @@ public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamon
         technique.syncWithUser(user, hamon);
     }
     
-    void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity tracking, HamonData hamon) {
+    void syncWithTrackingOrUser(LivingEntity user, ServerPlayer tracking, HamonData hamon) {
         technique.syncWithTrackingOrUser(user, tracking, hamon);
     }
 
-    private static final ActionConditionResult PARENTS_NOT_LEARNED = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.parents"));
+    private static final ActionConditionResult PARENTS_NOT_LEARNED = ActionConditionResult.createNegative(Component.translatable("hamon.closed.parents"));
     @Override
     public ActionConditionResult canLearnSkill(LivingEntity user, HamonData hamon, AbstractHamonSkill skill) {
         ActionConditionResult check = handlerForSkill(skill).canLearnSkill(user, hamon);
@@ -118,8 +118,8 @@ public class MainHamonSkillsManager implements IHamonSkillsManager<AbstractHamon
         return check;
     }
 
-    private static final ActionConditionResult NO_TEACHER = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.teacher.required"));
-    private static final ActionConditionResult NO_TEACHER_SKILL = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.teacher.no_skill"));
+    private static final ActionConditionResult NO_TEACHER = ActionConditionResult.createNegative(Component.translatable("hamon.closed.teacher.required"));
+    private static final ActionConditionResult NO_TEACHER_SKILL = ActionConditionResult.createNegative(Component.translatable("hamon.closed.teacher.no_skill"));
     ActionConditionResult canLearnSkill(LivingEntity user, HamonData hamon, AbstractHamonSkill skill, @Nullable Collection<? extends AbstractHamonSkill> teachersSkills) {
         ActionConditionResult checksWithoutTeacher = canLearnSkill(user, hamon, skill);
         if (checksWithoutTeacher.isPositive() && skill.requiresTeacher()) {

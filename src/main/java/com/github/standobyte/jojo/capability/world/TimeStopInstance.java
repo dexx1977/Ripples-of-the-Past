@@ -16,19 +16,19 @@ import com.github.standobyte.jojo.power.impl.stand.stats.TimeStopperStandStats;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class TimeStopInstance {
     private static int i = 0;
-    private final World world;
+    private final Level world;
     private final int id;
     public final TimeStop action;
     private final int startingTicks;
@@ -40,7 +40,7 @@ public class TimeStopInstance {
     @Nullable final LivingEntity user;
     private final LazyOptional<IStandPower> userPower;
     @Deprecated private final Optional<TimeStopperStandStats> statsOptional;
-    private EffectInstance statusEffectInstance;
+    private MobEffectInstance statusEffectInstance;
     
     @Nullable
     private SoundEvent timeResumeSound;
@@ -51,11 +51,11 @@ public class TimeStopInstance {
     private boolean ticksManuallySet = false;
     private boolean alwaysSayVoiceLine = false;
     
-    public TimeStopInstance(World world, int ticks, ChunkPos pos, int chunkRange, LivingEntity user, TimeStop action) {
+    public TimeStopInstance(Level world, int ticks, ChunkPos pos, int chunkRange, LivingEntity user, TimeStop action) {
         this(world, ticks, pos, chunkRange, user, action, i++);
     }
     
-    public TimeStopInstance(World world, int ticks, ChunkPos pos, int chunkRange, LivingEntity user, TimeStop action, int id) {
+    public TimeStopInstance(Level world, int ticks, ChunkPos pos, int chunkRange, LivingEntity user, TimeStop action, int id) {
         this.world = world;
         this.startingTicks = ticks;
         this.ticksLeft = ticks;
@@ -74,7 +74,7 @@ public class TimeStopInstance {
         this.timeManualResumeVoiceLine = timeManualResumeVoiceLine;
     }
     
-    public void setStatusEffectInstance(EffectInstance effectInstance) {
+    public void setStatusEffectInstance(MobEffectInstance effectInstance) {
         this.statusEffectInstance = effectInstance;
     }
     
@@ -124,7 +124,7 @@ public class TimeStopInstance {
         this.ticksLeft = ticks;
         ticksManuallySet = true;
         if (!world.isClientSide()) {
-            ServerWorld serverWorld = (ServerWorld) world;
+            ServerLevel serverWorld = (ServerLevel) world;
             
             serverWorld.players().forEach(player -> {
                 if (player.level == world) {
@@ -163,7 +163,7 @@ public class TimeStopInstance {
         if (!world.isClientSide()) {
             if (ticksLeft == TIME_RESUME_SOUND_TICKS) {
                 if (timeResumeSound != null) {
-                    PacketManager.sendGloballyWithCondition(new PlaySoundAtClientPacket(timeResumeSound, SoundCategory.AMBIENT, user.blockPosition(), 5.0F, 1.0F), 
+                    PacketManager.sendGloballyWithCondition(new PlaySoundAtClientPacket(timeResumeSound, SoundSource.AMBIENT, user.blockPosition(), 5.0F, 1.0F), 
                             world.dimension(), player -> inRange(TimeStopHandler.getChunkPos(player)) && TimeStopHandler.canPlayerSeeInStoppedTime(player));
                 }
             }
@@ -187,7 +187,7 @@ public class TimeStopInstance {
         }
     }
     
-    public void onRemoved(World world) {
+    public void onRemoved(Level world) {
         if (!world.isClientSide()) {
             if (action != null) {
                 userPower.ifPresent(power -> {
@@ -232,7 +232,7 @@ public class TimeStopInstance {
         return id;
     }
     
-    public void syncToClient(ServerPlayerEntity player) {
+    public void syncToClient(ServerPlayer player) {
         TimeStopInstancePacket packet;
         if (ticksLeft > 0) {
             packet = new TimeStopInstancePacket(ticksLeft, id, centerPos, user == null ? -1 : user.getId(), action);

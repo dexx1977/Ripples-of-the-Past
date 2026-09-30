@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.server.level.ServerLevel;
 
 public class SpecificTargetGoal extends TargetGoal {
     private final UUID targetUuid;
     private LivingEntity targetEntity;
 
-    public SpecificTargetGoal(MobEntity mob, UUID target, boolean mustSee, boolean mustReach) {
+    public SpecificTargetGoal(Mob mob, UUID target, boolean mustSee, boolean mustReach) {
         super(mob, mustSee, mustReach);
         this.targetUuid = target;
     }
@@ -33,7 +33,7 @@ public class SpecificTargetGoal extends TargetGoal {
         }
         
         if (!mob.level.isClientSide()) {
-            Entity entity = ((ServerWorld) mob.level).getEntity(targetUuid);
+            Entity entity = ((ServerLevel) mob.level).getEntity(targetUuid);
             if (entity instanceof LivingEntity) {
                 targetEntity = (LivingEntity) entity;
             }

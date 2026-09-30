@@ -9,25 +9,25 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, MRRedBindModel> {
     private boolean second = false;
 
-    public MRRedBindRenderer(EntityRendererManager renderManager) {
+    public MRRedBindRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, new MRRedBindModel(), null);
     }
 
     @Override
-    public void render(MRRedBindEntity entity, float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(MRRedBindEntity entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         super.render(entity, yRotation, partialTick, matrixStack, buffer, packedLight);
         if (entity.isInKickAttack()) {
             second = !second;
@@ -96,31 +96,31 @@ public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, 
         RIGHT_FOREARM
     }
     
-    private Vector3d rotateVec(Vector3d vec, Vector3f rotations, HandSide side) {
-        return vec.zRot(side == HandSide.LEFT ? rotations.z() : -rotations.z())
+    private Vec3 rotateVec(Vec3 vec, Vector3f rotations, HumanoidArm side) {
+        return vec.zRot(side == HumanoidArm.LEFT ? rotations.z() : -rotations.z())
                 .yRot(-rotations.y()).xRot(rotations.x());
     }
     
     @Override
-    protected Vector3d getOriginPos(MRRedBindEntity entity, float partialTick) {
-        Vector3d originPos = super.getOriginPos(entity, partialTick);
+    protected Vec3 getOriginPos(MRRedBindEntity entity, float partialTick) {
+        Vec3 originPos = super.getOriginPos(entity, partialTick);
         if (entity.isInKickAttack() && entity.getOwner() instanceof StandEntity) {
             StandEntity magiciansRed = (StandEntity) entity.getOwner();
             if (magiciansRed.getCurrentTask().isPresent()) {
                 StandEntityAction.Phase phase = magiciansRed.getCurrentTaskPhase().get();
                 float anim = magiciansRed.getCurrentTaskPhaseCompletion(partialTick);
                 originPos = MCUtil.getEntityPosition(entity.getOwner(), partialTick).add(0, entity.getOwner().getBbHeight() * 0.75F, 0);
-                Vector3d shoulder = new Vector3d(0, -0.234375, 0);
-                Vector3d foreArm = new Vector3d(0, -0.234375, 0);
-                float yRot = 180F - MathHelper.lerp(partialTick, entity.getOwner().yRotO, entity.getOwner().yRot);
+                Vec3 shoulder = new Vec3(0, -0.234375, 0);
+                Vec3 foreArm = new Vec3(0, -0.234375, 0);
+                float yRot = 180F - Mth.lerp(partialTick, entity.getOwner().yRotO, entity.getOwner().yRot);
                 if (second) {
-                    Vector3d posArmLeft = new Vector3d(-0.3515625, -0.1171875, 0);
-                    posArmLeft = rotateVec(posArmLeft, getPartRotation(ModelPart.BODY, phase, anim), HandSide.LEFT);
-                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.BODY, phase, anim), HandSide.LEFT);
-                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.LEFT_ARM, phase, anim), HandSide.LEFT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.BODY, phase, anim), HandSide.LEFT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.LEFT_ARM, phase, anim), HandSide.LEFT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.LEFT_FOREARM, phase, anim), HandSide.LEFT);
+                    Vec3 posArmLeft = new Vec3(-0.3515625, -0.1171875, 0);
+                    posArmLeft = rotateVec(posArmLeft, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.LEFT);
+                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.LEFT);
+                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.LEFT_ARM, phase, anim), HumanoidArm.LEFT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.LEFT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.LEFT_ARM, phase, anim), HumanoidArm.LEFT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.LEFT_FOREARM, phase, anim), HumanoidArm.LEFT);
                     originPos = originPos.add(
                             posArmLeft
                             .add(shoulder)
@@ -129,13 +129,13 @@ public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, 
                             ;
                 }
                 else {
-                    Vector3d posArmRight = new Vector3d(0.3515625, -0.1171875, 0);
-                    posArmRight = rotateVec(posArmRight, getPartRotation(ModelPart.BODY, phase, anim), HandSide.RIGHT);
-                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.BODY, phase, anim), HandSide.RIGHT);
-                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.RIGHT_ARM, phase, anim), HandSide.RIGHT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.BODY, phase, anim), HandSide.RIGHT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.RIGHT_ARM, phase, anim), HandSide.RIGHT);
-                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.RIGHT_FOREARM, phase, anim), HandSide.RIGHT);
+                    Vec3 posArmRight = new Vec3(0.3515625, -0.1171875, 0);
+                    posArmRight = rotateVec(posArmRight, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.RIGHT);
+                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.RIGHT);
+                    shoulder = rotateVec(shoulder, getPartRotation(ModelPart.RIGHT_ARM, phase, anim), HumanoidArm.RIGHT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.BODY, phase, anim), HumanoidArm.RIGHT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.RIGHT_ARM, phase, anim), HumanoidArm.RIGHT);
+                    foreArm = rotateVec(foreArm, getPartRotation(ModelPart.RIGHT_FOREARM, phase, anim), HumanoidArm.RIGHT);
                     originPos = originPos.add(
                             posArmRight
                             .add(shoulder)
@@ -150,8 +150,8 @@ public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, 
     
     @Override
     protected void doRender(MRRedBindEntity entity, MRRedBindModel model, 
-            float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
-        renderModel(entity, model, partialTick, matrixStack, buffer.getBuffer(Atlases.translucentCullBlockSheet()), packedLight);
+            float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
+        renderModel(entity, model, partialTick, matrixStack, buffer.getBuffer(Sheets.translucentCullBlockSheet()), packedLight);
     }
 
 }

@@ -8,19 +8,18 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PolaroidHelper;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class PolaroidItem extends Item {
 
@@ -29,7 +28,7 @@ public class PolaroidItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity cameraPlayer, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player cameraPlayer, InteractionHand hand) {
         ItemStack stack = cameraPlayer.getItemInHand(hand);
         
         if (!cameraPlayer.abilities.instabuild) {
@@ -44,9 +43,9 @@ public class PolaroidItem extends Item {
             
             if (paperItem.isEmpty()) {
                 if (!world.isClientSide()) {
-                    ((ServerPlayerEntity) cameraPlayer).displayClientMessage(new TranslationTextComponent("jojo.polaroid.paper"), true);
+                    ((ServerPlayer) cameraPlayer).displayClientMessage(Component.translatable("jojo.polaroid.paper"), true);
                 }
-                return ActionResult.fail(stack);
+                return InteractionResultHolder.fail(stack);
             }
             
             if (!world.isClientSide()) {
@@ -65,9 +64,9 @@ public class PolaroidItem extends Item {
                 float xRotAmount = Math.abs(xRot / 90);
                 cameraPlayer.setYBodyRot(yRot + 45 * (1 - xRotAmount));
                 cameraPlayer.yBodyRotO = cameraPlayer.yBodyRot;
-                Vector3d lookVec = cameraPlayer.getLookAngle();
-                Vector3d headUpVec = lookVec.xRot(90);
-                Vector3d cameraPos = new Vector3d(cameraPlayer.getX(), cameraPlayer.getEyeY() - 0.1, cameraPlayer.getZ());
+                Vec3 lookVec = cameraPlayer.getLookAngle();
+                Vec3 headUpVec = lookVec.xRot(90);
+                Vec3 cameraPos = new Vec3(cameraPlayer.getX(), cameraPlayer.getEyeY() - 0.1, cameraPlayer.getZ());
                 cameraPos = cameraPos.add(headUpVec.scale(xRotAmount * 0.2));
                 cameraPos = cameraPos.add(lookVec.scale((1 - xRotAmount * 0.2)));
                 PolaroidHelper.takePicture(cameraPos, 
@@ -79,13 +78,13 @@ public class PolaroidItem extends Item {
             cameraPlayer.getCooldowns().addCooldown(this, 60);
         }
         
-        return ActionResult.consume(stack);
+        return InteractionResultHolder.consume(stack);
     }
     
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         ClientUtil.addItemReferenceQuote(tooltip, this);
         tooltip.add(ClientUtil.donoItemTooltip("August_dr"));
     }

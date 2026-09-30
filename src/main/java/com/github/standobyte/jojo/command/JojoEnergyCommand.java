@@ -9,29 +9,29 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.chat.Component;
 
 public class JojoEnergyCommand {
-    private static final SimpleCommandExceptionType ERROR_SET_RATIO_INVALID = new SimpleCommandExceptionType(new TranslationTextComponent("commands.jojoenergy.set.ratio.invalid"));
+    private static final SimpleCommandExceptionType ERROR_SET_RATIO_INVALID = new SimpleCommandExceptionType(Component.translatable("commands.jojoenergy.set.ratio.invalid"));
     private static final DynamicCommandExceptionType SET_SINGLE_EXCEPTION_NOT_LIVING = new DynamicCommandExceptionType(
-            entity -> new TranslationTextComponent("commands.jojoenergy.set.failed.single.not_living", entity));
+            entity -> Component.translatable("commands.jojoenergy.set.failed.single.not_living", entity));
     private static final DynamicCommandExceptionType SET_MULTIPLE_EXCEPTION_NOT_LIVING = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.jojoenergy.set.failed.multiple.not_living", count));
+            count -> Component.translatable("commands.jojoenergy.set.failed.multiple.not_living", count));
     private static final DynamicCommandExceptionType SET_SINGLE_EXCEPTION_NO_POWER = new DynamicCommandExceptionType(
-            entity -> new TranslationTextComponent("commands.jojoenergy.set.failed.single.no_power", entity));
+            entity -> Component.translatable("commands.jojoenergy.set.failed.single.no_power", entity));
     private static final DynamicCommandExceptionType SET_MULTIPLE_EXCEPTION_NO_POWER = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.jojoenergy.set.failed.multiple.no_power", count));
+            count -> Component.translatable("commands.jojoenergy.set.failed.multiple.no_power", count));
     private static final DynamicCommandExceptionType GET_SINGLE_EXCEPTION_NOT_LIVING = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.jojoenergy.get.failed.not_living", player));
+            player -> Component.translatable("commands.jojoenergy.get.failed.not_living", player));
     private static final DynamicCommandExceptionType GET_SINGLE_EXCEPTION_NO_POWER = new DynamicCommandExceptionType(
-            entity -> new TranslationTextComponent("commands.jojoenergy.get.failed.no_power", entity));
+            entity -> Component.translatable("commands.jojoenergy.get.failed.no_power", entity));
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("jojoenergy").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("set").then(Commands.argument("targets", EntityArgument.entities()).then(Commands.argument("amount", FloatArgumentType.floatArg(0))
                         .executes(ctx -> setEnergy(ctx.getSource(), EntityArgument.getEntities(ctx, "targets"), FloatArgumentType.getFloat(ctx, "amount"), NumType.VALUE))
@@ -50,7 +50,7 @@ public class JojoEnergyCommand {
         VALUE
     }
     
-    private static int setEnergy(CommandSource source, Collection<? extends Entity> targets, float value, NumType numType) throws CommandSyntaxException {
+    private static int setEnergy(CommandSourceStack source, Collection<? extends Entity> targets, float value, NumType numType) throws CommandSyntaxException {
         if (numType == NumType.RATIO && value > 1.0F) {
             throw ERROR_SET_RATIO_INVALID.create();
         }
@@ -104,24 +104,24 @@ public class JojoEnergyCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent(
+                source.sendSuccess(Component.translatable(
                         "commands.jojoenergy.set.success.single." + numType.toString().toLowerCase(), value, targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(new TranslationTextComponent(
+                source.sendSuccess(Component.translatable(
                         "commands.jojoenergy.set.success.multiple." + numType.toString().toLowerCase(), value, i), true);
             }
             return i;
         }
     }
     
-    private static int getEnergy(CommandSource source, Entity target) throws CommandSyntaxException {
+    private static int getEnergy(CommandSourceStack source, Entity target) throws CommandSyntaxException {
         if (target instanceof LivingEntity) {
             int energyInt = INonStandPower.getNonStandPowerOptional((LivingEntity) target).map(power -> {
                 if (power.hasPower()) {
                     float energy = power.getEnergy();
                     float maxEnergy = power.getMaxEnergy();
-                    source.sendSuccess(new TranslationTextComponent("commands.jojoenergy.get.success", 
+                    source.sendSuccess(Component.translatable("commands.jojoenergy.get.success", 
                             target.getDisplayName(), energy, maxEnergy, String.format("%.4f", energy / maxEnergy)), false);
                     return (int) energy;
                 }

@@ -8,41 +8,41 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.block.StoneMaskBlock;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class StoneMaskItem extends CustomModelArmorItem {
     public static final String NBT_ACTIVATION_KEY = "Activated";
     private final StoneMaskBlock block;
     private String textureActivatedStr;
 
-    public StoneMaskItem(IArmorMaterial material, EquipmentSlotType slot, Properties builder, StoneMaskBlock block) {
+    public StoneMaskItem(ArmorMaterial material, EquipmentSlot slot, Properties builder, StoneMaskBlock block) {
         super(material, slot, builder);
         this.block = block;
         registerBlocks(Item.BY_BLOCK, this);
@@ -53,8 +53,8 @@ public class StoneMaskItem extends CustomModelArmorItem {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-        CompoundNBT tag = stack.getTag();
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
+        CompoundTag tag = stack.getTag();
         byte textureTicks = tag.getByte(NBT_ACTIVATION_KEY);
         if (textureTicks > 0) {
             tag.putByte(NBT_ACTIVATION_KEY, --textureTicks);
@@ -62,7 +62,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
                 Iterable<ItemStack> armor = entity.getArmorSlots();
                 if (armor instanceof List) {
                     List<ItemStack> armorList = ((List<ItemStack>) armor);
-                    int index = EquipmentSlotType.HEAD.getIndex();
+                    int index = EquipmentSlot.HEAD.getIndex();
                     if (armorList.get(index) == stack) {
                         armorList.set(index, ItemStack.EMPTY);
                         entity.spawnAtLocation(stack);
@@ -73,7 +73,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
     }
 
     @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
+    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         boolean activated = stack.getTag().getByte(NBT_ACTIVATION_KEY) > 0;
         if (activated) {
             if (textureActivatedStr == null) {
@@ -88,28 +88,28 @@ public class StoneMaskItem extends CustomModelArmorItem {
     ////////////////////////////////////////////////////
     // "no multiple inheritance" moment
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
-        ActionResultType actionresulttype = this.place(new BlockItemUseContext(context));
+    public InteractionResult useOn(UseOnContext context) {
+        InteractionResult actionresulttype = this.place(new BlockPlaceContext(context));
         return !actionresulttype.consumesAction() && this.isEdible() ? this.use(context.getLevel(), context.getPlayer(), context.getHand()).getResult() : actionresulttype;
     }
 
-    public ActionResultType place(BlockItemUseContext context) {
+    public InteractionResult place(BlockPlaceContext context) {
         if (!context.canPlace()) {
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         } else {
-            BlockItemUseContext blockitemusecontext = this.updatePlacementContext(context);
+            BlockPlaceContext blockitemusecontext = this.updatePlacementContext(context);
             if (blockitemusecontext == null) {
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
             } else {
                 BlockState blockstate = this.getPlacementState(blockitemusecontext);
                 if (blockstate == null) {
-                    return ActionResultType.FAIL;
+                    return InteractionResult.FAIL;
                 } else if (!this.placeBlock(blockitemusecontext, blockstate)) {
-                    return ActionResultType.FAIL;
+                    return InteractionResult.FAIL;
                 } else {
                     BlockPos blockpos = blockitemusecontext.getClickedPos();
-                    World world = blockitemusecontext.getLevel();
-                    PlayerEntity playerentity = blockitemusecontext.getPlayer();
+                    Level world = blockitemusecontext.getLevel();
+                    Player playerentity = blockitemusecontext.getPlayer();
                     ItemStack itemstack = blockitemusecontext.getItemInHand();
                     BlockState blockstate1 = world.getBlockState(blockpos);
                     Block block = blockstate1.getBlock();
@@ -117,48 +117,48 @@ public class StoneMaskItem extends CustomModelArmorItem {
                         blockstate1 = this.updateBlockStateFromTag(blockpos, world, itemstack, blockstate1);
                         this.updateCustomBlockEntityTag(blockpos, world, playerentity, itemstack, blockstate1);
                         block.setPlacedBy(world, blockpos, blockstate1, playerentity, itemstack);
-                        if (playerentity instanceof ServerPlayerEntity) {
-                            CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayerEntity)playerentity, blockpos, itemstack);
+                        if (playerentity instanceof ServerPlayer) {
+                            CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)playerentity, blockpos, itemstack);
                         }
                     }
 
                     SoundType soundtype = blockstate1.getSoundType(world, blockpos, context.getPlayer());
-                    world.playSound(playerentity, blockpos, this.getPlaceSound(blockstate1, world, blockpos, context.getPlayer()), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                    world.playSound(playerentity, blockpos, this.getPlaceSound(blockstate1, world, blockpos, context.getPlayer()), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                     if (playerentity == null || !playerentity.abilities.instabuild) {
                         itemstack.shrink(1);
                     }
 
-                    return ActionResultType.sidedSuccess(world.isClientSide());
+                    return InteractionResult.sidedSuccess(world.isClientSide());
                 }
             }
         }
     }
 
-    protected SoundEvent getPlaceSound(BlockState state, World world, BlockPos pos, PlayerEntity entity) {
+    protected SoundEvent getPlaceSound(BlockState state, Level world, BlockPos pos, Player entity) {
         return state.getSoundType(world, pos, entity).getPlaceSound();
     }   
 
     @Nullable
-    public BlockItemUseContext updatePlacementContext(BlockItemUseContext context) {
+    public BlockPlaceContext updatePlacementContext(BlockPlaceContext context) {
         return context;
     }
 
-    protected boolean updateCustomBlockEntityTag(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
+    protected boolean updateCustomBlockEntityTag(BlockPos pos, Level world, @Nullable Player player, ItemStack stack, BlockState state) {
         return updateCustomBlockEntityTag(world, player, pos, stack);
     }
 
     @Nullable
-    protected BlockState getPlacementState(BlockItemUseContext context) {
+    protected BlockState getPlacementState(BlockPlaceContext context) {
         BlockState blockstate = this.getBlock().getStateForPlacement(context);
         return blockstate != null && this.canPlace(context, blockstate) ? blockstate : null;
     }
 
-    private BlockState updateBlockStateFromTag(BlockPos pos, World world, ItemStack stack, BlockState state) {
+    private BlockState updateBlockStateFromTag(BlockPos pos, Level world, ItemStack stack, BlockState state) {
         BlockState blockstate = state;
-        CompoundNBT compoundnbt = stack.getTag();
+        CompoundTag compoundnbt = stack.getTag();
         if (compoundnbt != null) {
-            CompoundNBT compoundnbt1 = compoundnbt.getCompound("BlockStateTag");
-            StateContainer<Block, BlockState> statecontainer = state.getBlock().getStateDefinition();
+            CompoundTag compoundnbt1 = compoundnbt.getCompound("BlockStateTag");
+            StateDefinition<Block, BlockState> statecontainer = state.getBlock().getStateDefinition();
 
             for(String s : compoundnbt1.getAllKeys()) {
                 Property<?> property = statecontainer.getProperty(s);
@@ -182,9 +182,9 @@ public class StoneMaskItem extends CustomModelArmorItem {
         }).orElse(state);
     }
 
-    protected boolean canPlace(BlockItemUseContext context, BlockState state) {
-        PlayerEntity playerentity = context.getPlayer();
-        ISelectionContext iselectioncontext = playerentity == null ? ISelectionContext.empty() : ISelectionContext.of(playerentity);
+    protected boolean canPlace(BlockPlaceContext context, BlockState state) {
+        Player playerentity = context.getPlayer();
+        CollisionContext iselectioncontext = playerentity == null ? CollisionContext.empty() : CollisionContext.of(playerentity);
         return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.getLevel().isUnobstructed(state, context.getClickedPos(), iselectioncontext);
     }
 
@@ -192,25 +192,25 @@ public class StoneMaskItem extends CustomModelArmorItem {
         return true;
     }
 
-    protected boolean placeBlock(BlockItemUseContext context, BlockState state) {
+    protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
         return context.getLevel().setBlock(context.getClickedPos(), state, 11);
     }
 
-    public static boolean updateCustomBlockEntityTag(World world, @Nullable PlayerEntity player, BlockPos pos, ItemStack stack) {
+    public static boolean updateCustomBlockEntityTag(Level world, @Nullable Player player, BlockPos pos, ItemStack stack) {
         MinecraftServer minecraftserver = world.getServer();
         if (minecraftserver == null) {
             return false;
         } else {
-            CompoundNBT compoundnbt = stack.getTagElement("BlockEntityTag");
+            CompoundTag compoundnbt = stack.getTagElement("BlockEntityTag");
             if (compoundnbt != null) {
-                TileEntity tileentity = world.getBlockEntity(pos);
+                BlockEntity tileentity = world.getBlockEntity(pos);
                 if (tileentity != null) {
                     if (!world.isClientSide() && tileentity.onlyOpCanSetNbt() && (player == null || !player.canUseGameMasterBlocks())) {
                         return false;
                     }
 
-                    CompoundNBT compoundnbt1 = tileentity.save(new CompoundNBT());
-                    CompoundNBT compoundnbt2 = compoundnbt1.copy();
+                    CompoundTag compoundnbt1 = tileentity.save(new CompoundTag());
+                    CompoundTag compoundnbt2 = compoundnbt1.copy();
                     compoundnbt1.merge(compoundnbt);
                     compoundnbt1.putInt("x", pos.getX());
                     compoundnbt1.putInt("y", pos.getY());
@@ -233,7 +233,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup tab, NonNullList<ItemStack> stacks) {
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
         if (this.allowdedIn(tab)) {
             this.getBlock().fillItemCategory(tab, stacks);
         }
@@ -241,7 +241,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> text, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> text, TooltipFlag flag) {
         super.appendHoverText(stack, world, text, flag);
         this.getBlock().appendHoverText(stack, world, text, flag);
     }

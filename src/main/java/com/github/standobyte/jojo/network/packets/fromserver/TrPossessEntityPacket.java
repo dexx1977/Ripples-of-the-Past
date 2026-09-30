@@ -11,22 +11,22 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.mod.IPlayerPossess;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.GameType;
-import net.minecraftforge.client.gui.ForgeIngameGui;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.GameType;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.network.NetworkEvent;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public class TrPossessEntityPacket {
     private final int entityId;
     private final int hostEntityId;
     private final boolean asAlive;
     private final Optional<GameType> prevGameMode;
-    private final @Nullable IForgeRegistryEntry<?> context;
+    private final @Nullable RegistryEntry<?> context;
 
     public TrPossessEntityPacket(int entityId, int hostEntityId, boolean asAlive, 
-            @Nonnull Optional<GameType> prevGameMode, @Nullable IForgeRegistryEntry<?> context) {
+            @Nonnull Optional<GameType> prevGameMode, @Nullable RegistryEntry<?> context) {
         this.entityId = entityId;
         this.hostEntityId = hostEntityId;
         this.asAlive = asAlive;
@@ -39,7 +39,7 @@ public class TrPossessEntityPacket {
     public static class Handler implements IModPacketHandler<TrPossessEntityPacket> {
 
         @Override
-        public void encode(TrPossessEntityPacket msg, PacketBuffer buf) {
+        public void encode(TrPossessEntityPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeInt(msg.hostEntityId);
             buf.writeBoolean(msg.asAlive);
@@ -47,21 +47,21 @@ public class TrPossessEntityPacket {
             NetworkUtil.writeOptionally(buf, msg.context, this::fuckingGenerics);
         }
         
-        private <T extends IForgeRegistryEntry<T>> void fuckingGenerics(IForgeRegistryEntry<?> entry, PacketBuffer buf) {
+        private <T extends RegistryEntry<T>> void fuckingGenerics(RegistryEntry<?> entry, FriendlyByteBuf buf) {
             buf.writeRegistryId((T) entry);
         }
         
         @Override
-        public TrPossessEntityPacket decode(PacketBuffer buf) {
+        public TrPossessEntityPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readInt();
             int hostEntityId = buf.readInt();
             boolean asAlive = buf.readBoolean(); 
             Optional<GameType> prevGameMode = NetworkUtil.readOptional(buf, buffer -> buffer.readEnum(GameType.class));
-            IForgeRegistryEntry<?> context = NetworkUtil.readOptional(buf, this::fuckingGenericsAgain).orElse(null);
+            RegistryEntry<?> context = NetworkUtil.readOptional(buf, this::fuckingGenericsAgain).orElse(null);
             return new TrPossessEntityPacket(entityId, hostEntityId, asAlive, prevGameMode, context);
         }
         
-        private IForgeRegistryEntry<?> fuckingGenericsAgain(PacketBuffer buf) {
+        private RegistryEntry<?> fuckingGenericsAgain(FriendlyByteBuf buf) {
             return buf.readRegistryId();
         }
         
@@ -73,7 +73,7 @@ public class TrPossessEntityPacket {
                 IPlayerPossess player = (IPlayerPossess) entity;
                 player.jojoPossessEntity(hostEntity, msg.asAlive, msg.context);
                 player.jojoSetPrePossessGameMode(msg.prevGameMode);
-                ForgeIngameGui.renderSpectatorTooltip = hostEntity == null;
+                ForgeGui.renderSpectatorTooltip = hostEntity == null;
             }
         }
 

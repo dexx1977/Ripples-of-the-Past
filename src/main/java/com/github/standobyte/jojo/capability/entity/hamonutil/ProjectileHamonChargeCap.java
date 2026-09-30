@@ -22,22 +22,22 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil.HamonAttackProperties;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.EggEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.ThrownEgg;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class ProjectileHamonChargeCap {
     private static final Random RANDOM = new Random();
@@ -89,7 +89,7 @@ public class ProjectileHamonChargeCap {
         else {
             if (!chargeWearsOff() || tickCount++ <= maxChargeTicks) {
                 float chargeWearOff = chargeWearOffMultiplier();
-                Vector3d pos = projectile.position();
+                Vec3 pos = projectile.position();
                 HamonSparksLoopSound.playSparkSound(projectile, pos, chargeWearOff);
                 if (chargeWearOff == 1 || RANDOM.nextFloat() < chargeWearOff) {
                     CustomParticlesHelper.createHamonSparkParticles(projectile, pos.x, pos.y, pos.z, 1);
@@ -104,7 +104,7 @@ public class ProjectileHamonChargeCap {
     
     private float chargeWearOffMultiplier() {
         if (chargeWearsOff()) {
-            return MathHelper.clamp((float) (maxChargeTicks - tickCount) / (float) maxChargeTicks, 0.25F, 1F);
+            return Mth.clamp((float) (maxChargeTicks - tickCount) / (float) maxChargeTicks, 0.25F, 1F);
         }
         else {
             return 1;
@@ -115,17 +115,17 @@ public class ProjectileHamonChargeCap {
         return maxChargeTicks >= 0;
     }
     
-    public void onTargetHit(RayTraceResult target) {
-        World world = projectile.level;
+    public void onTargetHit(HitResult target) {
+        Level world = projectile.level;
         if (hasCharge && !world.isClientSide()) {
             // adds hamon damage to splash water bottle
-            if (projectile instanceof PotionEntity) {
-                Vector3d pos = projectile.getBoundingBox().getCenter();
-                PotionEntity potionEntity = (PotionEntity) projectile;
+            if (projectile instanceof ThrownPotion) {
+                Vec3 pos = projectile.getBoundingBox().getCenter();
+                ThrownPotion potionEntity = (ThrownPotion) projectile;
                 if (MCUtil.isPotionWaterBottle(potionEntity)) {
-                    AxisAlignedBB waterSplashArea = projectile.getBoundingBox().inflate(4.0D, 2.0D, 4.0D);
+                    AABB waterSplashArea = projectile.getBoundingBox().inflate(4.0D, 2.0D, 4.0D);
                     List<LivingEntity> splashedEntity = world.getEntitiesOfClass(LivingEntity.class, waterSplashArea, 
-                            EntityPredicates.LIVING_ENTITY_STILL_ALIVE.and(EntityPredicates.NO_SPECTATORS).and(entity -> !entity.is(potionEntity.getOwner())));
+                            EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS).and(entity -> !entity.is(potionEntity.getOwner())));
                     if (!splashedEntity.isEmpty()) {
                         for (LivingEntity targetEntity : splashedEntity) {
                             double distSqr = targetEntity.distanceToSqr(pos);
@@ -136,8 +136,8 @@ public class ProjectileHamonChargeCap {
                     }
                     
                     world.playSound(null, pos.x, pos.y, pos.z, ModSounds.HAMON_SPARK.get(), 
-                            SoundCategory.AMBIENT, 0.1F, 1.0F + (world.random.nextFloat() - 0.5F) * 0.15F);
-                    ((ServerWorld) world).sendParticles(ModParticles.HAMON_SPARK.get(), 
+                            SoundSource.AMBIENT, 0.1F, 1.0F + (world.random.nextFloat() - 0.5F) * 0.15F);
+                    ((ServerLevel) world).sendParticles(ModParticles.HAMON_SPARK.get(), 
                             pos.x, pos.y, pos.z, 32, 0.75, 0.05, 0.75, 0.25);
                 }
                 
@@ -145,13 +145,13 @@ public class ProjectileHamonChargeCap {
             }
             
             // add hamon damage on direct hit
-            if (target.getType() == RayTraceResult.Type.ENTITY) {
-                dealHamonDamageToTarget(((EntityRayTraceResult) target).getEntity(), getHamonDamage());
+            if (target.getType() == HitResult.Type.ENTITY) {
+                dealHamonDamageToTarget(((EntityHitResult) target).getEntity(), getHamonDamage());
             }
             
             // memorize charged egg entity to potentially charge the chicken(s) coming out of it
-            if (projectile instanceof EggEntity) {
-                world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.addChargedEggEntity((EggEntity) projectile));
+            if (projectile instanceof ThrownEgg) {
+                world.getCapability(WorldUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.addChargedEggEntity((ThrownEgg) projectile));
             }
             else if (projectile instanceof MolotovEntity) {
                 ((MolotovEntity) projectile).onHitWithHamonCharge(target, this);
@@ -186,8 +186,8 @@ public class ProjectileHamonChargeCap {
     
     @Nullable
     private Entity getProjectileOwner() {
-        if (projectile instanceof ProjectileEntity) {
-            return ((ProjectileEntity) projectile).getOwner();
+        if (projectile instanceof Projectile) {
+            return ((Projectile) projectile).getOwner();
         }
         return null;
     }
@@ -198,7 +198,7 @@ public class ProjectileHamonChargeCap {
                 .projectileCharge(projectile.getId(), hasCharge, tickCount, maxChargeTicks), projectile);
     }
     
-    public void onTracking(ServerPlayerEntity tracking) {
+    public void onTracking(ServerPlayer tracking) {
         if (hasCharge) {
             PacketManager.sendToClient(TrHamonEntityChargePacket
                     .projectileCharge(projectile.getId(), hasCharge, tickCount, maxChargeTicks), tracking);
@@ -213,8 +213,8 @@ public class ProjectileHamonChargeCap {
     
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putFloat("HamonDamage", hamonBaseDmg);
         nbt.putInt("ChargeAge", tickCount);
         nbt.putInt("ChargeTicks", maxChargeTicks);
@@ -222,7 +222,7 @@ public class ProjectileHamonChargeCap {
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         this.hamonBaseDmg = nbt.getFloat("HamonDamage");
         this.tickCount = nbt.getInt("ChargeAge");
         this.maxChargeTicks = nbt.getInt("ChargeTicks");

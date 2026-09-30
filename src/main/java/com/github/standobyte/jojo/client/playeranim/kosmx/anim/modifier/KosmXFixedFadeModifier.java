@@ -15,8 +15,8 @@ public abstract class KosmXFixedFadeModifier extends AbstractFadeModifier {
     }
     
     @Override
-    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
-        if (type == TransformType.ROTATION && "head".equals(modelName)) {
+    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
+        if (type == ItemDisplayContext.ROTATION && "head".equals(modelName)) {
             value0 = new Vec3f(value0.getX(), MathUtil.wrapRadians(value0.getY()), value0.getZ());
         }
         return super.get3DTransform(modelName, type, tickDelta, value0);
@@ -25,7 +25,7 @@ public abstract class KosmXFixedFadeModifier extends AbstractFadeModifier {
     public static KosmXFixedFadeModifier standardFadeIn(int length, Ease ease) {
         return new KosmXFixedFadeModifier(length) {
             @Override
-            protected float getAlpha(String modelName, TransformType type, float progress) {
+            protected float getAlpha(String modelName, ItemDisplayContext type, float progress) {
                 return Easing.easingFromEnum(ease, progress);
             }
         };
@@ -34,7 +34,7 @@ public abstract class KosmXFixedFadeModifier extends AbstractFadeModifier {
     public static KosmXFixedFadeModifier functionalFadeIn(int length, EasingFunction function) {
         return new KosmXFixedFadeModifier(length) {
             @Override
-            protected float getAlpha(String modelName, TransformType type, float progress) {
+            protected float getAlpha(String modelName, ItemDisplayContext type, float progress) {
                 return function.ease(modelName, type, progress);
             }
         };

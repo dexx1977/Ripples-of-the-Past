@@ -8,23 +8,23 @@ import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 
 public class HamonSkillDescBox {
     protected static final int WIDTH = 198;
     protected static final int HEIGHT = 44;
     protected static final int EDGE_TEXT_OFFSET = 3;
-    protected final FontRenderer font;
+    protected final Font font;
     protected final AbstractHamonSkill skill;
     protected final int x;
     protected final int y;
@@ -34,15 +34,15 @@ public class HamonSkillDescBox {
     protected float yTextScroll = 0;
     protected boolean isDragged = false;
     protected boolean isScrollBarDragged = false;
-    protected List<IReorderingProcessor> skillDesc;
+    protected List<FormattedCharSequence> skillDesc;
     
-    public HamonSkillDescBox(AbstractHamonSkill skill, FontRenderer font, int textWidth, int x, int y) {
+    public HamonSkillDescBox(AbstractHamonSkill skill, Font font, int textWidth, int x, int y) {
         this.skill = skill;
         this.font = font;
         this.x = x;
         this.y = y;
         
-        List<IReorderingProcessor> skillDesc = createFullDescText(skill, font, textWidth);
+        List<FormattedCharSequence> skillDesc = createFullDescText(skill, font, textWidth);
         int textHeight = EDGE_TEXT_OFFSET + font.lineHeight * skillDesc.size();
         boolean scroll = false;
         if (textHeight > HEIGHT) {
@@ -57,14 +57,14 @@ public class HamonSkillDescBox {
         this.hasScrolling = scroll;
     }
     
-    protected List<IReorderingProcessor> createFullDescText(AbstractHamonSkill skill, FontRenderer font, int textWidth) {
-        List<IReorderingProcessor> lines = skill.getDescTranslated().stream()
+    protected List<FormattedCharSequence> createFullDescText(AbstractHamonSkill skill, Font font, int textWidth) {
+        List<FormattedCharSequence> lines = skill.getDescTranslated().stream()
                 .flatMap(desc -> font.split(desc, textWidth).stream())
                 .collect(Collectors.toList());
         return lines;
     }
     
-    public void renderBg(MatrixStack matrixStack, int x, int y, int mouseX, int mouseY) {
+    public void renderBg(PoseStack matrixStack, int x, int y, int mouseX, int mouseY) {
         Minecraft.getInstance().getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
         AbstractGui.blit(matrixStack, this.x + x - 3, this.y + y - 3, 52, 206, WIDTH + 6, HEIGHT + 6, 256, 256);
         
@@ -75,7 +75,7 @@ public class HamonSkillDescBox {
         }
     }
     
-    private void renderScrollBar(MatrixStack matrixStack, int xOffset, int yOffset, int mouseX, int mouseY) {
+    private void renderScrollBar(PoseStack matrixStack, int xOffset, int yOffset, int mouseX, int mouseY) {
         int brightness;
         if (isScrollBarDragged) {
             brightness = 255;
@@ -89,7 +89,7 @@ public class HamonSkillDescBox {
         float[] scrollBar = getScrollBarPosSize(xOffset, yOffset);
 
         RenderSystem.disableTexture();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         ClientUtil.fillRect(bufferBuilder, scrollBar[0], scrollBar[1], scrollBar[2], scrollBar[3], brightness, brightness, brightness, 127);
         RenderSystem.enableTexture();
     }
@@ -111,7 +111,7 @@ public class HamonSkillDescBox {
                 mouseY >= scrollBar[1] && mouseY <= scrollBar[1] + scrollBar[3];
     }
     
-    public void drawDesc(MatrixStack matrixStack, FontRenderer font, Screen screen, int x, int y) {
+    public void drawDesc(PoseStack matrixStack, Font font, Screen screen, int x, int y) {
         int scissorX = HamonScreen.screenX + this.x + x + WINDOW_THIN_BORDER;
         int scissorY = HamonScreen.screenY + this.y + y + WINDOW_UPPER_BORDER;
         
@@ -133,11 +133,11 @@ public class HamonSkillDescBox {
         return mouseX > x && mouseX <= x + WIDTH && mouseY > y && mouseY <= y + HEIGHT;
     }
     
-    public void drawTooltips(MatrixStack matrixStack, Screen screen, double mouseX, double mouseY, double x, double y) {}
+    public void drawTooltips(PoseStack matrixStack, Screen screen, double mouseX, double mouseY, double x, double y) {}
     
     public boolean scroll(float yMovement) {
         if (hasScrolling) {
-            yTextScroll = MathHelper.clamp(yTextScroll + yMovement, 0, getMaxYTextScroll());
+            yTextScroll = Mth.clamp(yTextScroll + yMovement, 0, getMaxYTextScroll());
             return true;
         }
         return false;

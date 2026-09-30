@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class StarPlatinumInhale extends StandEntityAction {
     public static final StandPose INHALE_POSE = new StandPose("inhale");
@@ -22,20 +22,20 @@ public class StarPlatinumInhale extends StandEntityAction {
 
     private static final double RANGE = 12;
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
-        Vector3d mouthPos = standEntity.position()
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+        Vec3 mouthPos = standEntity.position()
                 .add(0, standEntity.getBbHeight() * 0.75F, 0)
-                .add(new Vector3d(0, standEntity.getBbHeight() / 16F, standEntity.getBbWidth() * 0.5F)
+                .add(new Vec3(0, standEntity.getBbHeight() / 16F, standEntity.getBbWidth() * 0.5F)
                         .xRot(-standEntity.xRot * MathUtil.DEG_TO_RAD).yRot((-standEntity.yRot) * MathUtil.DEG_TO_RAD));
         
-        Vector3d spLookVec = standEntity.getLookAngle();
+        Vec3 spLookVec = standEntity.getLookAngle();
         world.getEntities(standEntity, standEntity.getBoundingBox().inflate(RANGE, RANGE, RANGE), 
                 entity -> spLookVec.dot(entity.position().subtract(standEntity.position()).normalize()) > 0.886 && standEntity.canSee(entity)
                 && entity.distanceToSqr(standEntity) > 0.5
                 && (/*standEntity.isManuallyControlled() || */!entity.is(standEntity.getUser()))).forEach(entity -> {
                     if (entity.canUpdate()) {
                         double distance = entity.distanceTo(standEntity);
-                        Vector3d suctionVec = mouthPos.subtract(entity.getBoundingBox().getCenter())
+                        Vec3 suctionVec = mouthPos.subtract(entity.getBoundingBox().getCenter())
                                 .normalize().scale(0.5 * standEntity.getStandEfficiency());
                         entity.setDeltaMovement(distance > 2 ? 
                                 entity.getDeltaMovement().add(suctionVec.scale(1 / distance))
@@ -47,10 +47,10 @@ public class StarPlatinumInhale extends StandEntityAction {
                 });
         if (world.isClientSide()) {
             GeneralUtil.doFractionTimes(() -> {
-                Vector3d particlePos = mouthPos.add(spLookVec.scale(RANGE)
+                Vec3 particlePos = mouthPos.add(spLookVec.scale(RANGE)
                         .xRot((float) ((Math.random() * 2 - 1) * Math.PI / 6))
                         .yRot((float) ((Math.random() * 2 - 1) * Math.PI / 6)));
-                Vector3d vecToStand = mouthPos.subtract(particlePos).normalize().scale(0.75);
+                Vec3 vecToStand = mouthPos.subtract(particlePos).normalize().scale(0.75);
                 world.addParticle(ModParticles.AIR_STREAM.get(), particlePos.x, particlePos.y, particlePos.z, vecToStand.x, vecToStand.y, vecToStand.z);
             }, 2.5);
         }

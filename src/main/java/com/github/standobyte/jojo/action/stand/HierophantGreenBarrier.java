@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.entity.stand.stands.HierophantGreenEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandManifestation;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class HierophantGreenBarrier extends StandEntityAction {
 
@@ -31,7 +31,7 @@ public class HierophantGreenBarrier extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             HierophantGreenEntity hierophant = (HierophantGreenEntity) standEntity;
             hierophant.attachBarrier(task.getTarget().getBlockPos());
@@ -44,10 +44,10 @@ public class HierophantGreenBarrier extends StandEntityAction {
     }
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         IStandManifestation stand = power.getStandManifestation();
         int barriers = stand instanceof HierophantGreenEntity ? ((HierophantGreenEntity) stand).getPlacedBarriersCount() : 0;
-        return new TranslationTextComponent(key, barriers, getMaxBarriersPlaceable(power));
+        return Component.translatable(key, barriers, getMaxBarriersPlaceable(power));
     }
     
     @Override

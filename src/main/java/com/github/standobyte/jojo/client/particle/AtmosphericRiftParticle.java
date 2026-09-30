@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.client.particle;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AtmosphericRiftParticle extends SpriteTexturedParticle {
-    private final IAnimatedSprite sprites;
+public class AtmosphericRiftParticle extends TextureSheetParticle {
+    private final SpriteSet sprites;
 
-    protected AtmosphericRiftParticle(ClientWorld pLevel, double pX, double pY, double pZ, double pQuadSizeMulitiplier, IAnimatedSprite pSprites) {
+    protected AtmosphericRiftParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pQuadSizeMulitiplier, SpriteSet pSprites) {
         super(pLevel, pX, pY, pZ, 0.0D, 0.0D, 0.0D);
         this.lifetime = 6 + this.random.nextInt(4);
         float f = this.random.nextFloat() * 0.6F + 0.4F;
@@ -45,19 +45,19 @@ public class AtmosphericRiftParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprites;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprites;
 
-        public Factory(IAnimatedSprite sprites) {
+        public Factory(SpriteSet sprites) {
             this.sprites = sprites;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType pType, ClientWorld pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+        public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         	AtmosphericRiftParticle sandstormparticle = new AtmosphericRiftParticle(pLevel, pX, pY, pZ, pXSpeed, this.sprites);
             return sandstormparticle;
         }

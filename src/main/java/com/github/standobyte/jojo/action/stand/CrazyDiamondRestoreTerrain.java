@@ -39,28 +39,28 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.LazySupplier;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FallingBlock;
-import net.minecraft.block.FireBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     @ActionConfigField public boolean useOtherPlayersInventories;
@@ -76,7 +76,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
             return ActionConditionResult.NEGATIVE;
         }
         Entity cameraEntity = restorationCenterEntity(user, power);
-        Vector3i eyePosI = eyePos(cameraEntity);
+        Vec3i eyePosI = eyePos(cameraEntity);
         boolean hasResolveEffect = user.hasEffect(ModStatusEffects.RESOLVE.get());
         boolean onlyAimedAt = user.isShiftKeyDown();
         if (getBlocksInRange(user.level, user, eyePosI, restorationDistManhattan(hasResolveEffect), 
@@ -89,17 +89,17 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     
     // FIXME try to mitigate the fps drops when lots of blocks are restored simultaneously
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             LivingEntity user = userPower.getUser();
-            PlayerEntity playerUser = user instanceof PlayerEntity ? (PlayerEntity) user : null;
+            Player playerUser = user instanceof Player ? (Player) user : null;
             boolean creative = playerUser != null ? playerUser.abilities.instabuild : false;
             Entity cameraEntity = restorationCenterEntity(user, userPower);
             boolean resolveEffect = user.hasEffect(ModStatusEffects.RESOLVE.get());
             int manhattanRange = restorationDistManhattan(resolveEffect);
-            Vector3i eyePos = eyePos(cameraEntity);
-            Vector3d lookVec = cameraEntity.getLookAngle();
-            Vector3d eyePosD = cameraEntity.getEyePosition(1.0F);
+            Vec3i eyePos = eyePos(cameraEntity);
+            Vec3 lookVec = cameraEntity.getLookAngle();
+            Vec3 eyePosD = cameraEntity.getEyePosition(1.0F);
             float staminaPerBlock = getStaminaCostPerBlock(userPower);
             int blocksToRestore = resolveEffect ? 64 : 
                 Math.min(blocksPerTick(standEntity), (int) (staminaPerBlock * userPower.getStamina()));
@@ -108,8 +108,8 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
             Stream<PrevBlockInfo> blocks = getBlocksInRange(world, user, eyePos, manhattanRange, 
                     block -> blockPosSelectedForRestoration(block, cameraEntity, lookVec, eyePosD, eyePos, resolveEffect, onlyAimedAt));
             
-            AxisAlignedBB area = cameraEntity.getBoundingBox().inflate(manhattanRange * 2);
-            Vector3d center = area.getCenter();
+            AABB area = cameraEntity.getBoundingBox().inflate(manhattanRange * 2);
+            Vec3 center = area.getCenter();
             List<ItemStack> itemsSource = sourceItemStacks(area, center, user, world, 
                     SourceType.MOB_HELD.fromAllNearby(), 
                     SourceType.ITEM_ENTITY.fromAllNearby(), 
@@ -132,7 +132,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
             @Override
             protected void addItems(List<ItemStack> items, Stream<Entity> entities) {
                 entities.map(entity -> ((LivingEntity) entity)).forEach(mob -> {
-                    for (Hand hand : Hand.values()) {
+                    for (InteractionHand hand : InteractionHand.values()) {
                         ItemStack item = mob.getItemInHand(hand);
                         if (!item.isEmpty()) {
                             items.add(item);
@@ -152,7 +152,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         PLAYER_INVENTORY {
             @Override
             protected void addItems(List<ItemStack> items, Stream<Entity> entities) {
-                entities.map(entity -> ((PlayerEntity) entity).inventory)
+                entities.map(entity -> ((Player) entity).inventory)
                 .forEach(inventory -> {
                     int size = inventory.getContainerSize();
                     for (int i = 0; i < size; i++) {
@@ -196,19 +196,19 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         }
     }
     
-    public static List<ItemStack> sourceItemStacks(AxisAlignedBB entitiesArea, Vector3d center, LivingEntity user, World world, 
+    public static List<ItemStack> sourceItemStacks(AABB entitiesArea, Vec3 center, LivingEntity user, Level world, 
             ItemsSource... order) {
         Map<SourceType, List<Entity>> entitiesAround = world.getEntities(user, entitiesArea,
-                EntityPredicates.NO_SPECTATORS.and(e -> !e.removed))
+                EntitySelector.NO_SPECTATORS.and(e -> !e.removed))
                 .stream().collect(Collectors.groupingBy(e -> {
                     if (e instanceof ItemEntity) {
                         return SourceType.ITEM_ENTITY;
                     }
                     if (e instanceof LivingEntity) {
-                        if (e instanceof PlayerEntity) {
+                        if (e instanceof Player) {
                             return SourceType.PLAYER_INVENTORY;
                         }
-                        if (e instanceof MobEntity) {
+                        if (e instanceof Mob) {
                             return SourceType.MOB_HELD;
                         }
                     }
@@ -241,10 +241,10 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     private static final Random RANDOM = new Random();
-    public static RestoreResult restoreBlocks(World world, Entity trackedEntity, Stream<PrevBlockInfo> blocks, 
+    public static RestoreResult restoreBlocks(Level world, Entity trackedEntity, Stream<PrevBlockInfo> blocks, 
             Comparator<PrevBlockInfo> sort, long limit, 
             boolean isCreative, boolean randomizePos, boolean forgetFailed, 
-            @Nullable PlayerEntity playerWithXp, List<ItemStack> itemsSource) {
+            @Nullable Player playerWithXp, List<ItemStack> itemsSource) {
         RestoreResult result = new RestoreResult();
         if (limit == 0) return result;
         
@@ -296,13 +296,13 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     // this whole junk fixes janky restoration of sand blocks, e.g. explosions in a desert
-    private static boolean restorationExclude(PrevBlockInfo block, World world) {
+    private static boolean restorationExclude(PrevBlockInfo block, Level world) {
         if (block.state.getBlock() instanceof FallingBlock) {
             BlockPos blockBelow = block.pos.below();
             if (world.isEmptyBlock(blockBelow)) {
-                IChunk chunk = world.getChunk(block.pos);
-                if (chunk instanceof Chunk) {
-                    boolean blockBelowCanBeRestored = ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).map(cap -> {
+                ChunkAccess chunk = world.getChunk(block.pos);
+                if (chunk instanceof LevelChunk) {
+                    boolean blockBelowCanBeRestored = ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).map(cap -> {
                         return cap.getBrokenBlocks().anyMatch(brokenBlock -> blockBelow.equals(brokenBlock.pos));
                     }).orElse(false);
                     
@@ -316,7 +316,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         return !block.state.canSurvive(world, block.pos);
     }
     
-    private static int restorationPriority(PrevBlockInfo block, World world) {
+    private static int restorationPriority(PrevBlockInfo block, Level world) {
         if (block.state.getBlock() instanceof FallingBlock && !world.isEmptyBlock(block.pos.below())) {
             return 1;
         }
@@ -324,8 +324,8 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     
-    private static boolean tryPlaceBlock(World world, BlockPos blockPos, BlockState blockState, boolean isCreative, boolean randomizePos, 
-            List<ItemStack> restorationCost, int xpCost, @Nullable PlayerEntity consumeXpFrom, List<ItemStack> itemsSource) {
+    private static boolean tryPlaceBlock(Level world, BlockPos blockPos, BlockState blockState, boolean isCreative, boolean randomizePos, 
+            List<ItemStack> restorationCost, int xpCost, @Nullable Player consumeXpFrom, List<ItemStack> itemsSource) {
         if (xpCost > 0 && (consumeXpFrom == null || consumeXpFrom.totalExperience < xpCost)) {
             return false;
         }
@@ -335,8 +335,8 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
                     RANDOM.nextInt(2) + 1,
                     RANDOM.nextBoolean() ? RANDOM.nextInt(3) - 1 : 0);
             if (blockCanBePlaced(world, blockPos, blockState)) {
-                IChunk chunk = world.getChunk(randomPos);
-                if (!(chunk instanceof Chunk && ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).map(cap -> cap.wasBlockBroken(randomPos)).orElse(false))) {
+                ChunkAccess chunk = world.getChunk(randomPos);
+                if (!(chunk instanceof LevelChunk && ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).map(cap -> cap.wasBlockBroken(randomPos)).orElse(false))) {
                     blockPos = randomPos;
                 }
             }
@@ -355,7 +355,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         }
     }
     
-    public static boolean blockCanBePlaced(World world, BlockPos pos, BlockState placedBlockState) {
+    public static boolean blockCanBePlaced(Level world, BlockPos pos, BlockState placedBlockState) {
         return world.getBlockState(pos).getMaterial().isReplaceable();
     }
     
@@ -437,9 +437,9 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     
     
 
-    public static void addParticlesAroundBlock(World world, BlockPos blockPos, Random random) {
+    public static void addParticlesAroundBlock(Level world, BlockPos blockPos, Random random) {
         if (world.isClientSide() && ClientUtil.canSeeStands()) {
-            Vector3d posLLCorner = Vector3d.atLowerCornerOf(blockPos).subtract(0.25, 0.25, 0.25);
+            Vec3 posLLCorner = Vec3.atLowerCornerOf(blockPos).subtract(0.25, 0.25, 0.25);
             for (int i = 0; i < 24; i++) {
                 world.addParticle(ModParticles.CD_RESTORATION.get(), 
                         posLLCorner.x + random.nextDouble() * 1.5, 
@@ -452,25 +452,25 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     
     
     
-    public static void rememberBrokenBlock(World world, BlockPos pos, BlockState state, Optional<TileEntity> tileEntity, List<ItemStack> drops) {
+    public static void rememberBrokenBlock(Level world, BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
         Block block = state.getBlock();
         if (block instanceof FireBlock) return;
         
-        IChunk chunk = world.getChunk(pos);
-        if (chunk instanceof Chunk) {
-            ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+        ChunkAccess chunk = world.getChunk(pos);
+        if (chunk instanceof LevelChunk) {
+            ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.saveBrokenBlock(pos, state, tileEntity, drops);
             });
         }
     }
     
-    public static void forgetBrokenBlocks(World world, Collection<BlockPos> posCollection) {
+    public static void forgetBrokenBlocks(Level world, Collection<BlockPos> posCollection) {
         posCollection.stream()
         .map(pos -> world.getChunk(pos))
         .distinct()
         .forEach(ichunk -> {
-            if (ichunk instanceof Chunk) {
-                ((Chunk) ichunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+            if (ichunk instanceof LevelChunk) {
+                ((LevelChunk) ichunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                     posCollection.forEach(pos -> cap.removeBrokenBlock(pos));
                 });
             }
@@ -479,15 +479,15 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     
 
     
-    public static Stream<PrevBlockInfo> getBlocksInRange(World world, LivingEntity user, Vector3i center, int blockRange, Predicate<PrevBlockInfo> filter) {
+    public static Stream<PrevBlockInfo> getBlocksInRange(Level world, LivingEntity user, Vec3i center, int blockRange, Predicate<PrevBlockInfo> filter) {
         int chunkXMin = center.getX() - blockRange >> 4;
         int chunkXMax = center.getX() + blockRange >> 4;
         int chunkZMin = center.getZ() - blockRange >> 4;
         int chunkZMax = center.getZ() + blockRange >> 4;
-        Stream.Builder<Chunk> builder = Stream.builder();
+        Stream.Builder<LevelChunk> builder = Stream.builder();
         for (int x = chunkXMin; x <= chunkXMax; x++) {
             for (int z = chunkZMin; z <= chunkZMax; z++) {
-                Chunk chunk = world.getChunk(x, z);
+                LevelChunk chunk = world.getChunk(x, z);
                 if (chunk != null) {
                     builder.add(chunk);
                 }
@@ -496,7 +496,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         return builder.build().flatMap(chunk -> {
             return chunk.getCapability(ChunkCapProvider.CAPABILITY).map(cap -> {
                 return cap.getBrokenBlocks()
-                .filter(block -> block.pos.distManhattan(center) <= blockRange && !user.getBoundingBox().intersects(new AxisAlignedBB(block.pos))
+                .filter(block -> block.pos.distManhattan(center) <= blockRange && !user.getBoundingBox().intersects(new AABB(block.pos))
                 && filter.test(block));
             }).orElse(Stream.empty());
         });
@@ -512,23 +512,23 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
         return user;
     }
     
-    public static Vector3i eyePos(Entity entity) {
-        Vector3d pos = entity.getEyePosition(1.0F);
-        return new Vector3i((int) Math.round(pos.x), (int) Math.round(pos.y), (int) Math.round(pos.z));
+    public static Vec3i eyePos(Entity entity) {
+        Vec3 pos = entity.getEyePosition(1.0F);
+        return new Vec3i((int) Math.round(pos.x), (int) Math.round(pos.y), (int) Math.round(pos.z));
     }
     
     public static boolean blockPosSelectedForRestoration(PrevBlockInfo block, Entity cameraEntity, 
-            Vector3d entityLookVec, Vector3d entityEyePos, Vector3i restorationCenter, boolean resolve, boolean aimedOnly) {
+            Vec3 entityLookVec, Vec3 entityEyePos, Vec3i restorationCenter, boolean resolve, boolean aimedOnly) {
         int rangeManhattan = restorationDistManhattan(resolve);
         if (block.pos.distManhattan(restorationCenter) > rangeManhattan) {
             return false;
         }
         if (aimedOnly) {
-            Vector3d pos2 = entityEyePos.add(entityLookVec.scale(rangeManhattan * 2));
-            return new AxisAlignedBB(block.pos).clip(entityEyePos, pos2).isPresent();
+            Vec3 pos2 = entityEyePos.add(entityLookVec.scale(rangeManhattan * 2));
+            return new AABB(block.pos).clip(entityEyePos, pos2).isPresent();
         }
         else {
-            return entityLookVec.dot(Vector3d.atCenterOf(block.pos).subtract(entityEyePos).normalize()) >= (resolve ? 0 : 0.7071);
+            return entityLookVec.dot(Vec3.atCenterOf(block.pos).subtract(entityEyePos).normalize()) >= (resolve ? 0 : 0.7071);
         }
     }
     
@@ -537,7 +537,7 @@ public class CrazyDiamondRestoreTerrain extends StandEntityAction {
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             @Nullable Phase from, @Nullable Phase to, StandEntityTask task, int nextPhaseTicks) {
         if (world.isClientSide()) {
             if (to == Phase.PERFORM) {

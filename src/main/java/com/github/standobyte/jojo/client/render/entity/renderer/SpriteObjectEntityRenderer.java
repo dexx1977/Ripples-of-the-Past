@@ -4,24 +4,24 @@ import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.ObjectEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
 
-    public SpriteObjectEntityRenderer(EntityRendererManager renderManager) {
+    public SpriteObjectEntityRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
 
@@ -32,7 +32,7 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
     }
     
     @Override
-    public void render(ObjectEntity entity, float entityYaw, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(ObjectEntity entity, float entityYaw, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         matrixStack.pushPose();
 
         renderSprite(matrixStack, 
@@ -54,20 +54,20 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         super.render(entity, entityYaw, partialTick, matrixStack, buffer, packedLight);
     }
     
-    public void renderSprite(MatrixStack matrixStack, Consumer<MatrixStack> beforeRotate, Consumer<MatrixStack> afterRotate, 
-            IVertexBuilder vertexBuilder, int packedLight, int packedOverlay) {
+    public void renderSprite(PoseStack matrixStack, Consumer<PoseStack> beforeRotate, Consumer<PoseStack> afterRotate, 
+            VertexConsumer vertexBuilder, int packedLight, int packedOverlay) {
         beforeRotate.accept(matrixStack);
         matrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
         afterRotate.accept(matrixStack);
         
-        MatrixStack.Entry pose = matrixStack.last();
+        PoseStack.Entry pose = matrixStack.last();
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();
         
         Vector3f normalVec = new Vector3f(0, 0, -1);
         normalVec.transform(matrix3f);
 
-        for (ModelRenderer.PositionTextureVertex vertex : VERTICES) {
+        for (ModelPart.PositionTextureVertex vertex : VERTICES) {
             float vertexX = vertex.pos.x();
             float vertexY = vertex.pos.y();
             float vertexZ = vertex.pos.z();
@@ -84,10 +84,10 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         }
     }
     
-    private static final ModelRenderer.PositionTextureVertex[] VERTICES = new ModelRenderer.PositionTextureVertex[] {
-            new ModelRenderer.PositionTextureVertex(0, 1, 0, 1, 0),
-            new ModelRenderer.PositionTextureVertex(1, 1, 0, 0, 0),
-            new ModelRenderer.PositionTextureVertex(1, 0, 0, 0, 1),
-            new ModelRenderer.PositionTextureVertex(0, 0, 0, 1, 1)
+    private static final ModelPart.PositionTextureVertex[] VERTICES = new ModelPart.PositionTextureVertex[] {
+            new ModelPart.PositionTextureVertex(0, 1, 0, 1, 0),
+            new ModelPart.PositionTextureVertex(1, 1, 0, 0, 0),
+            new ModelPart.PositionTextureVertex(1, 0, 0, 0, 1),
+            new ModelPart.PositionTextureVertex(0, 0, 0, 1, 1)
     };
 }

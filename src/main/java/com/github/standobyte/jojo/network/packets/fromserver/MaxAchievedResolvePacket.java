@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MaxAchievedResolvePacket {
     private final float value;
@@ -21,12 +21,12 @@ public class MaxAchievedResolvePacket {
     public static class Handler implements IModPacketHandler<MaxAchievedResolvePacket> {
 
         @Override
-        public void encode(MaxAchievedResolvePacket msg, PacketBuffer buf) {
+        public void encode(MaxAchievedResolvePacket msg, FriendlyByteBuf buf) {
             buf.writeFloat(msg.value);
         }
 
         @Override
-        public MaxAchievedResolvePacket decode(PacketBuffer buf) {
+        public MaxAchievedResolvePacket decode(FriendlyByteBuf buf) {
             return new MaxAchievedResolvePacket(buf.readFloat());
         }
 

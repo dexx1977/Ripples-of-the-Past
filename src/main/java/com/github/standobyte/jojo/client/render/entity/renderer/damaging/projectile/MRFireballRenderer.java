@@ -1,21 +1,21 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
 import com.github.standobyte.jojo.entity.damaging.projectile.MRFireballEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.SpriteRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
-public class MRFireballRenderer extends SpriteRenderer<MRFireballEntity> {
+public class MRFireballRenderer extends ThrownItemRenderer<MRFireballEntity> {
     
-    public MRFireballRenderer(EntityRendererManager renderManager) {
+    public MRFireballRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, Minecraft.getInstance().getItemRenderer(), 1F, true);
     }
 
     @Override
-    public void render(MRFireballEntity entity, float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(MRFireballEntity entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         if (!entity.isInvisible() || !entity.isInvisibleTo(Minecraft.getInstance().player)) {
             super.render(entity, yRotation, partialTick, matrixStack, buffer, packedLight);
         }

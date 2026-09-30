@@ -11,14 +11,14 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.TrStandEffectPacket;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public abstract class StandEffectInstance {
     @Nonnull public final StandEffectType<?> effectType;
@@ -28,7 +28,7 @@ public abstract class StandEffectInstance {
     private boolean toBeRemoved = false;
     
     protected LivingEntity user;
-    public World world;
+    public Level world;
     protected IStandPower userPower;
     
     private Entity target;
@@ -119,11 +119,11 @@ public abstract class StandEffectInstance {
         }
     }
 
-    protected void updateTarget(World world) {
+    protected void updateTarget(Level world) {
         if (target == null) {
             if (!world.isClientSide()) {
                 if (targetUUID != null) {
-                    Entity entity = ((ServerWorld) world).getEntity(targetUUID);
+                    Entity entity = ((ServerLevel) world).getEntity(targetUUID);
                     setTargetEntity(entity);
                 }
             }
@@ -212,17 +212,17 @@ public abstract class StandEffectInstance {
         return toBeRemoved;
     }
     
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         updateTarget(user.level);
     }
     
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         updateTarget(player.level);
         PacketManager.sendToClient(TrStandEffectPacket.add(this, player == user), player);
     }
 
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putString("Type", effectType.getRegistryName().toString());
         nbt.putInt("TickCount", tickCount);
         if (targetUUID != null) {
@@ -233,7 +233,7 @@ public abstract class StandEffectInstance {
         return nbt;
     }
     
-    public static StandEffectInstance fromNBT(CompoundNBT nbt, World world) {
+    public static StandEffectInstance fromNBT(CompoundTag nbt, Level world) {
         StandEffectType<?> effectType = JojoCustomRegistries.STAND_EFFECTS.getRegistry().getValue(new ResourceLocation(nbt.getString("Type")));
         if (effectType == null) return null;
         StandEffectInstance effect = effectType.create(world);
@@ -246,14 +246,14 @@ public abstract class StandEffectInstance {
         return effect;
     }
     
-    @Deprecated public void writeAdditionalPacketData(PacketBuffer buf) {}
-    @Deprecated public void readAdditionalPacketData(PacketBuffer buf) {}
+    @Deprecated public void writeAdditionalPacketData(FriendlyByteBuf buf) {}
+    @Deprecated public void readAdditionalPacketData(FriendlyByteBuf buf) {}
     
-    public void writeAdditionalPacketData(PacketBuffer buf, boolean sendingToUser) {}
+    public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {}
     
-    public void readAdditionalPacketData(PacketBuffer buf, boolean clientIsUser) {}
+    public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {}
 
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {}
+    protected void writeAdditionalSaveData(CompoundTag nbt) {}
 
-    protected void readAdditionalSaveData(CompoundNBT nbt) {}
+    protected void readAdditionalSaveData(CompoundTag nbt) {}
 }

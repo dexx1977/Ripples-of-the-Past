@@ -13,15 +13,15 @@ import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class LegacyUtil {
     
-    public static Optional<StandInstance> readOldStandCapType(CompoundNBT capNbt) {
-        if (capNbt.contains("StandType", MCUtil.getNbtId(StringNBT.class))) {
+    public static Optional<StandInstance> readOldStandCapType(CompoundTag capNbt) {
+        if (capNbt.contains("StandType", MCUtil.getNbtId(StringTag.class))) {
             String standName = capNbt.getString("StandType");
             if (standName != IPowerType.NO_POWER_NAME) {
                 StandType<?> stand = JojoCustomRegistries.STANDS.getRegistry().getValue(new ResourceLocation(standName));
@@ -31,14 +31,14 @@ public class LegacyUtil {
         return Optional.empty();
     }
     
-    public static void readOldResolveLevels(CompoundNBT mainCounterNBT, ResolveLevelsMap levelsMap, IStandPower standPower) {
+    public static void readOldResolveLevels(CompoundTag mainCounterNBT, ResolveLevelsMap levelsMap, IStandPower standPower) {
         int resolveLevel = mainCounterNBT.getByte("ResolveLevel");
         int extraLevel = mainCounterNBT.getInt("ExtraLevel");
         
         levelsMap.readOldValues(standPower, resolveLevel, extraLevel);
     }
     
-    public static Optional<StandActionLearningProgress.StandActionLearningEntry> readOldStandActionLearning(CompoundNBT mainNbt, String key) {
+    public static Optional<StandActionLearningProgress.StandActionLearningEntry> readOldStandActionLearning(CompoundTag mainNbt, String key) {
         IForgeRegistry<Action<?>> actions = JojoCustomRegistries.ACTIONS.getRegistry();
         ResourceLocation keyResLoc = new ResourceLocation(key);
         if (!actions.containsKey(keyResLoc)) {

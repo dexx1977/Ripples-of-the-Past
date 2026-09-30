@@ -9,25 +9,27 @@ import com.github.standobyte.jojo.client.ClientSetup;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
 import com.github.standobyte.jojo.client.render.item.generic.ItemISTERModelWrapper;
 import com.github.standobyte.jojo.init.ModItems;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.item.Item;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
+import org.joml.Vector3f;
 import net.minecraftforge.common.util.Constants;
+import com.mojang.math.Axis;
+import net.minecraft.nbt.Tag;
 
 public class CustomIconItem {
     public static final Supplier<Item> DUMMY_ITEM = ModItems.METEORIC_SCRAP;
@@ -41,7 +43,7 @@ public class CustomIconItem {
     
     public static final ItemStack makeIconItem(CustomModelIcon icon) {
         ItemStack iconItem = new ItemStack(DUMMY_ITEM.get());
-        CompoundNBT nbt = iconItem.getOrCreateTag();
+        CompoundTag nbt = iconItem.getOrCreateTag();
         nbt.putInt("CustomModel", icon.ordinal() + 1);
         return iconItem;
     }
@@ -86,12 +88,12 @@ public class CustomIconItem {
                         ModLogoModel::new));
         
 //        private final ResourceLocation vanillaModelTransforms;
-        private final Supplier<Callable<ItemStackTileEntityRenderer>> isterSupplier;
-        private Supplier<ItemStackTileEntityRenderer> ister;
+        private final Supplier<Callable<BlockEntityWithoutLevelRenderer>> isterSupplier;
+        private Supplier<BlockEntityWithoutLevelRenderer> ister;
         
         private CustomModelIcon(
 //                ResourceLocation modelWithTransforms, 
-                Supplier<Callable<ItemStackTileEntityRenderer>> ister) {
+                Supplier<Callable<BlockEntityWithoutLevelRenderer>> ister) {
 //            this.vanillaModelTransforms = modelWithTransforms;
             this.isterSupplier = ister;
         }
@@ -100,26 +102,26 @@ public class CustomIconItem {
     
     
     public static void registerModelOverride() {
-        ItemModelsProperties.register(DUMMY_ITEM.get(), 
+        ItemProperties.register(DUMMY_ITEM.get(), 
                 new ResourceLocation(JojoMod.MOD_ID, "icon"), 
                 (itemStack, clientWorld, livingEntity) -> {
                     return itemStack.getOrCreateTag().getInt("Icon");
                 });
     }
     
-    public static void onModelBake(Map<ResourceLocation, IBakedModel> modelRegistry) {
+    public static void onModelBake(Map<ResourceLocation, BakedModel> modelRegistry) {
         ClientSetup.registerCustomBakedModel(DUMMY_ITEM.get().getRegistryName(), modelRegistry, 
                 model -> new ItemISTERModelWrapper(model));
     }
     
     
     
-    public static class DummyIconItemISTER extends ItemStackTileEntityRenderer {
+    public static class DummyIconItemISTER extends BlockEntityWithoutLevelRenderer {
         
         public DummyIconItemISTER() {
             for (CustomModelIcon icon : CustomModelIcon.values()) {
                 try {
-                    ItemStackTileEntityRenderer ister = icon.isterSupplier.get().call();
+                    BlockEntityWithoutLevelRenderer ister = icon.isterSupplier.get().call();
                     icon.ister = () -> ister;
                 }
                 catch (Exception e) {
@@ -130,11 +132,11 @@ public class CustomIconItem {
 
         // TODO display transform
         @Override
-        public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-                IRenderTypeBuffer renderTypeBuffer, int light, int overlay) {
+        public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+                MultiBufferSource renderTypeBuffer, int light, int overlay) {
             if (itemStack.hasTag()) {
-                CompoundNBT nbt = itemStack.getTag();
-                if (nbt.contains("CustomModel", Constants.NBT.TAG_INT)) {
+                CompoundTag nbt = itemStack.getTag();
+                if (nbt.contains("CustomModel", Tag.TAG_INT)) {
                     int modelOrdinal = nbt.getInt("CustomModel") - 1;
                     CustomModelIcon values[] = CustomModelIcon.values();
                     if (modelOrdinal >= 0 && modelOrdinal < values.length) {
@@ -144,31 +146,31 @@ public class CustomIconItem {
                     }
                 }
             }
-            IBakedModel itemModel = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
+            BakedModel itemModel = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
             CustomModelItemISTER.renderItemNormally(matrixStack, itemStack, 
                     transformType, renderTypeBuffer, light, overlay, itemModel);
         }
     }
     
     protected static class ModLogoModel extends Model {
-        private ModelRenderer root;
+        private ModelPart root;
 
         public ModLogoModel() {
             super(RenderType::entityCutoutNoCull);
         }
 
         @Override
-        public void renderToBuffer(MatrixStack pMatrixStack, 
-                IVertexBuilder pBuffer, int pPackedLight, int pPackedOverlay,
+        public void renderToBuffer(PoseStack pMatrixStack, 
+                VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay,
                 float pRed, float pGreen, float pBlue, float pAlpha) {
             if (root != null) {
                 pMatrixStack.pushPose();
                 pMatrixStack.scale(0.75f, 0.75f, 0.75f);
                 pMatrixStack.translate(0, 0.5f, 0);
                 Matrix3f lighting = pMatrixStack.last().normal();
-                lighting.mul(Vector3f.YP.rotationDegrees(-45));
-                lighting.mul(Vector3f.XP.rotationDegrees(-45));
-                lighting.mul(Vector3f.ZP.rotationDegrees(45));
+                lighting.mul(Axis.YP.rotationDegrees(-45));
+                lighting.mul(Axis.XP.rotationDegrees(-45));
+                lighting.mul(Axis.ZP.rotationDegrees(45));
                 root.render(pMatrixStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
                 pMatrixStack.popPose();
             }

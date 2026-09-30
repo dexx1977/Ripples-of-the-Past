@@ -1,13 +1,12 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public class ImageVanillaButton extends Button {
     private final ResourceLocation resourceLocation;
@@ -35,13 +34,13 @@ public class ImageVanillaButton extends Button {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
-                pOnPress, StringTextComponent.EMPTY);
+                pOnPress, Component.empty());
     }
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, ITextComponent pMessage) {
+            Button.IPressable pOnPress, Component pMessage) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, pWidth, pHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -51,7 +50,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, ITextComponent pMessage) {
+            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         this(pX, pY, pWidth, pHeight,
                 pXTexStart, pYTexStart, pWidth, pHeight,
                 pResourceLocation, pTextureWidth, pTextureHeight,
@@ -65,13 +64,13 @@ public class ImageVanillaButton extends Button {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, iconWidth, iconHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
-                pOnPress, NO_TOOLTIP, StringTextComponent.EMPTY);
+                pOnPress, NO_TOOLTIP, Component.empty());
     }
 
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, ITextComponent pMessage) {
+            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.textureWidth = pTextureWidth;
         this.textureHeight = pTextureHeight;
@@ -89,7 +88,7 @@ public class ImageVanillaButton extends Button {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);

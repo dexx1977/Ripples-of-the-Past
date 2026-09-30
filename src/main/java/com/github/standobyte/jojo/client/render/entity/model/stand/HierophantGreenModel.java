@@ -9,27 +9,27 @@ import com.github.standobyte.jojo.client.render.entity.pose.anim.PosedActionAnim
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.stands.HierophantGreenEntity;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
 // Made with Blockbench 3.9.2
 
 
 public class HierophantGreenModel extends HumanoidStandModel<HierophantGreenEntity> {
-    private final ModelRenderer bone7;
-    private final ModelRenderer bone8;
-    private final ModelRenderer bone9;
-    private final ModelRenderer bone10;
-    private final ModelRenderer bone11;
-    private final ModelRenderer bone12;
+    private final ModelPart bone7;
+    private final ModelPart bone8;
+    private final ModelPart bone9;
+    private final ModelPart bone10;
+    private final ModelPart bone11;
+    private final ModelPart bone12;
 
     public HierophantGreenModel() {
         super();
 
-        root = new ModelRenderer(this);
+        root = new ModelPart(this);
         root.setPos(0.0F, 24.0F, 0.0F);
         
 
-        head = new ModelRenderer(this);
+        head = new ModelPart(this);
         head.setPos(0.0F, -24.0F, 0.0F);
         root.addChild(head);
         head.texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F, false);
@@ -40,17 +40,17 @@ public class HierophantGreenModel extends HumanoidStandModel<HierophantGreenEnti
         head.texOffs(0, 0).addBox(-3.0F, -4.0F, -4.15F, 2.0F, 1.0F, 1.0F, 0.0F, false);
         head.texOffs(0, 2).addBox(1.0F, -4.0F, -4.15F, 2.0F, 1.0F, 1.0F, 0.0F, true);
 
-        body = new ModelRenderer(this);
+        body = new ModelPart(this);
         body.setPos(0.0F, -24.0F, 0.0F);
         root.addChild(body);
         
 
-        upperPart = new ModelRenderer(this);
+        upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
         body.addChild(upperPart);
         
 
-        torso = new ModelRenderer(this);
+        torso = new ModelPart(this);
         torso.setPos(0.0F, -12.0F, 0.0F);
         upperPart.addChild(torso);
         torso.texOffs(0, 64).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.0F, false);
@@ -59,98 +59,98 @@ public class HierophantGreenModel extends HumanoidStandModel<HierophantGreenEnti
         torso.texOffs(24, 82).addBox(-2.0F, -0.5F, -2.5F, 4.0F, 4.0F, 5.0F, 0.0F, false);
         torso.texOffs(27, 91).addBox(-2.5F, 4.5F, -2.6F, 5.0F, 5.0F, 1.0F, -0.4F, false);
 
-        bone7 = new ModelRenderer(this);
+        bone7 = new ModelPart(this);
         bone7.setPos(-1.5F, 3.5F, 0.0F);
         torso.addChild(bone7);
         setRotationAngle(bone7, 0.0F, 0.0F, -0.5236F);
         bone7.texOffs(12, 81).addBox(-0.5F, -4.5F, -2.5F, 1.0F, 5.0F, 5.0F, 0.0F, false);
 
-        bone8 = new ModelRenderer(this);
+        bone8 = new ModelPart(this);
         bone8.setPos(1.5F, 3.5F, 0.0F);
         torso.addChild(bone8);
         setRotationAngle(bone8, 0.0F, 0.0F, 0.5236F);
         bone8.texOffs(42, 81).addBox(-0.5F, -4.5F, -2.5F, 1.0F, 5.0F, 5.0F, 0.0F, true);
 
-        bone9 = new ModelRenderer(this);
+        bone9 = new ModelPart(this);
         bone9.setPos(-1.5F, 3.5F, 0.0F);
         torso.addChild(bone9);
         setRotationAngle(bone9, 0.0F, 0.0F, -0.8727F);
         bone9.texOffs(0, 80).addBox(-0.5F, -5.5F, -2.5F, 1.0F, 6.0F, 5.0F, 0.0F, false);
 
-        bone10 = new ModelRenderer(this);
+        bone10 = new ModelPart(this);
         bone10.setPos(1.5F, 3.5F, 0.0F);
         torso.addChild(bone10);
         setRotationAngle(bone10, 0.0F, 0.0F, 0.8727F);
         bone10.texOffs(54, 80).addBox(-0.5F, -5.5F, -2.5F, 1.0F, 6.0F, 5.0F, 0.0F, false);
 
-        bone11 = new ModelRenderer(this);
+        bone11 = new ModelPart(this);
         bone11.setPos(-1.5F, 3.5F, -0.25F);
         torso.addChild(bone11);
         setRotationAngle(bone11, 0.0F, 0.0F, -2.5307F);
         bone11.texOffs(14, 91).addBox(-0.5F, -4.5F, -1.5F, 1.0F, 5.0F, 4.0F, 0.0F, false);
 
-        bone12 = new ModelRenderer(this);
+        bone12 = new ModelPart(this);
         bone12.setPos(1.5F, 3.5F, -0.25F);
         torso.addChild(bone12);
         setRotationAngle(bone12, 0.0F, 0.0F, 2.5307F);
         bone12.texOffs(42, 91).addBox(-0.5F, -4.5F, -1.5F, 1.0F, 5.0F, 4.0F, 0.0F, true);
 
-        leftArm = convertLimb(new ModelRenderer(this));
+        leftArm = convertLimb(new ModelPart(this));
         leftArm.setPos(6.0F, -10.0F, 0.0F);
         upperPart.addChild(leftArm);
         leftArm.texOffs(32, 108).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        leftArmJoint = new ModelRenderer(this);
+        leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftArmJoint);
         leftArmJoint.texOffs(32, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
-        leftForeArm = new ModelRenderer(this);
+        leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftForeArm);
         leftForeArm.texOffs(32, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        rightArm = convertLimb(new ModelRenderer(this));
+        rightArm = convertLimb(new ModelPart(this));
         rightArm.setPos(-6.0F, -10.0F, 0.0F);
         upperPart.addChild(rightArm);
         rightArm.texOffs(0, 108).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        rightArmJoint = new ModelRenderer(this);
+        rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightArmJoint);
         rightArmJoint.texOffs(0, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
-        rightForeArm = new ModelRenderer(this);
+        rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightForeArm);
         rightForeArm.texOffs(0, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        leftLeg = convertLimb(new ModelRenderer(this));
+        leftLeg = convertLimb(new ModelPart(this));
         leftLeg.setPos(1.9F, 12.0F, 0.0F);
         body.addChild(leftLeg);
         leftLeg.texOffs(96, 108).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        leftLegJoint = new ModelRenderer(this);
+        leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLegJoint);
         leftLegJoint.texOffs(96, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
-        leftLowerLeg = new ModelRenderer(this);
+        leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLowerLeg);
         leftLowerLeg.texOffs(96, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
 
-        rightLeg = convertLimb(new ModelRenderer(this));
+        rightLeg = convertLimb(new ModelPart(this));
         rightLeg.setPos(-1.9F, 12.0F, 0.0F);
         body.addChild(rightLeg);
         rightLeg.texOffs(64, 108).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false);
 
-        rightLegJoint = new ModelRenderer(this);
+        rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLegJoint);
         rightLegJoint.texOffs(64, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
-        rightLowerLeg = new ModelRenderer(this);
+        rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLowerLeg);
         rightLowerLeg.texOffs(64, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);

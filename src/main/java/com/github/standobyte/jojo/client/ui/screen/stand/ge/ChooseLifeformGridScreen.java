@@ -20,22 +20,20 @@ import com.github.standobyte.jojo.client.ui.tooltip.TextTooltipLine;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mod.JojoModUtil.Direction2D;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
 
 public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     private GridList<SelectorWidget> entityIconsGrid;
@@ -47,7 +45,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     
     private boolean firstInit = true;
     
-    public ChooseLifeformGridScreen(KeyBinding keyHeld) {
+    public ChooseLifeformGridScreen(KeyMapping keyHeld) {
         super(keyHeld);
     }
     
@@ -112,7 +110,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             x = xMin;
         }
         else {
-            x = MathHelper.clamp(xMiddle - (columnsCount * 15 - 3), xMin, xMax);
+            x = Mth.clamp(xMiddle - (columnsCount * 15 - 3), xMin, xMax);
         }
         entityIconsGrid.x = x;
         entityIconsGrid.y = 8;
@@ -157,7 +155,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         updateHoveredElement(mouseX, mouseY);
         entityIconsGrid.renderGrid(matrixStack, mouseX, mouseY, partialTicks);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -167,11 +165,11 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     @Override
     protected List<ITooltipLine> makeHoveredTooltip(EntitySubtype<?> entityType) {
         List<ITooltipLine> tooltip = super.makeHoveredTooltip(entityType);
-        tooltip.add(new TextTooltipLine(StringTextComponent.EMPTY));
+        tooltip.add(new TextTooltipLine(Component.empty()));
         
-        ITextComponent favHint = (playerUISettings.isGELifeformInFavorites(entityType.vanillaType) ? 
-                new TranslationTextComponent("jojo.ge_lifeform.grid_fav_remove") : new TranslationTextComponent("jojo.ge_lifeform.grid_fav_add"))
-                .withStyle(TextFormatting.DARK_GRAY, TextFormatting.ITALIC);
+        Component favHint = (playerUISettings.isGELifeformInFavorites(entityType.vanillaType) ? 
+                Component.translatable("jojo.ge_lifeform.grid_fav_remove") : Component.translatable("jojo.ge_lifeform.grid_fav_add"))
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
         int width = tooltip.stream().mapToInt(line -> line.getWidth(minecraft.font)).max().orElse(-1);
         if (width > -1) {
             minecraft.font.getSplitter().splitLines(favHint, width, Style.EMPTY)
@@ -209,7 +207,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
     }
     
     @Override
-    protected void renderHoveredTooltip(MatrixStack matrixStack, EntitySubtype<?> entityType, int mouseX, int mouseY) {
+    protected void renderHoveredTooltip(PoseStack matrixStack, EntitySubtype<?> entityType, int mouseX, int mouseY) {
         int x;
         int y;
         if (checkMouseMoved(mouseX, mouseY)) {
@@ -314,7 +312,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
                 super.mouseScrolled(mouseX, mouseY, delta);
     }
     
-    private class SelectorWidget extends Widget implements GridList.IGridElement {
+    private class SelectorWidget extends AbstractWidget implements GridList.IGridElement {
         private final LifeformEntityTypeEntry entityType;
         private boolean isSelected;
         private boolean isHidden;
@@ -338,7 +336,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
         
         @SuppressWarnings("deprecation")
         @Override
-        public void renderButton(MatrixStack matrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+        public void renderButton(PoseStack matrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
             Minecraft mc = Minecraft.getInstance();
             Minecraft.getInstance().getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
             

@@ -11,16 +11,16 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class VampirismDarkAura extends VampirismAction {
 
@@ -37,7 +37,7 @@ public class VampirismDarkAura extends VampirismAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         int difficulty = world.getDifficulty().getId();
         int range = 16 * difficulty - 8;
         if (!world.isClientSide()) {
@@ -45,25 +45,25 @@ public class VampirismDarkAura extends VampirismAction {
                     LivingEntity.class, user, range, false, entity -> 
                     !(JojoModUtil.isUndeadOrVampiric(entity) || OptionalDependencyHelper.vampirism().isEntityVampire(entity))
                             && !(entity instanceof StandEntity && user.is(((StandEntity) entity).getUser())))) {
-                boolean passive = entity instanceof AgeableEntity;
-                int amplifier = MathHelper.floor((difficulty - 1) * 1.5);
+                boolean passive = entity instanceof AgeableMob;
+                int amplifier = Mth.floor((difficulty - 1) * 1.5);
                 int duration = passive ? 600 : 200;
-                entity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, duration, amplifier));
-                entity.addEffect(new EffectInstance(Effects.WEAKNESS, duration, amplifier));
-                entity.addEffect(new EffectInstance(Effects.DIG_SLOWDOWN, duration, amplifier));
+                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amplifier));
+                entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier));
+                entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, amplifier));
                 if (passive) {
-                    entity.addEffect(new EffectInstance(ModStatusEffects.STUN.get(), duration));
+                    entity.addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), duration));
                 }
             }
             if (world.getDifficulty() == Difficulty.HARD) {
                 for (HungryZombieEntity zombie : MCUtil.entitiesAround(
                         HungryZombieEntity.class, user, range, false, zombie -> zombie.isEntityOwner(user))) {
-                    zombie.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 300, 1));
-                    zombie.addEffect(new EffectInstance(Effects.DAMAGE_BOOST, 300, 0));
-                    zombie.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 300, 0));
+                    zombie.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 300, 1));
+                    zombie.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 300, 0));
+                    zombie.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 300, 0));
                 }
             }
-            for (Hand hand : Hand.values()) {
+            for (InteractionHand hand : InteractionHand.values()) {
                 ItemStack item = user.getItemInHand(hand);
                 if (!item.isEmpty() && item.getItem() == Items.POPPY) {
                     ItemStack witherRose = new ItemStack(Items.WITHER_ROSE);

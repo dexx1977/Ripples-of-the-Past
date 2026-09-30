@@ -7,8 +7,8 @@ import java.util.function.UnaryOperator;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class ConditionalModelPose<T extends Entity> implements IModelPose<T> {
     private final List<PoseCondition<T>> poseConditions = new ArrayList<>();
@@ -20,7 +20,7 @@ public class ConditionalModelPose<T extends Entity> implements IModelPose<T> {
 
     @Override
     public void poseModel(float rotationAmount, T entity, float ticks, float yRotOffsetRad, float xRotRad,
-            HandSide side) {
+            HumanoidArm side) {
         for (PoseCondition<T> poseCondition : poseConditions) {
             if (poseCondition.condition.test(entity)) {
                 poseCondition.pose.poseModel(rotationAmount, entity, ticks, yRotOffsetRad, xRotRad, side);

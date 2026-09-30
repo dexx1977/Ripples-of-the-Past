@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class SilverChariotRapierLaunch extends StandEntityAction {
 
@@ -27,7 +27,7 @@ public class SilverChariotRapierLaunch extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             SilverChariotEntity chariot = (SilverChariotEntity) standEntity;
             SCRapierEntity rapier = new SCRapierEntity(standEntity, world);

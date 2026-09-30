@@ -34,15 +34,15 @@ import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.IStandDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 // TODO first person animation
 // TODO counter polish
@@ -54,7 +54,7 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
     
     @Override
     protected ActionConditionResult checkHeldItems(LivingEntity user, INonStandPower power) {
-        if (!MCUtil.areHandsFree(user, Hand.MAIN_HAND, Hand.OFF_HAND)) {
+        if (!MCUtil.areHandsFree(user, InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND)) {
             return conditionMessage("hands");
         }
         return ActionConditionResult.POSITIVE;
@@ -63,7 +63,7 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
     
 
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         Optional<HamonRebuffOverdrive.Instance> curRebuff = getCurRebuff(user);
         if (curRebuff.isPresent()) {
             HamonRebuffOverdrive.Instance rebuff = curRebuff.get();
@@ -132,7 +132,7 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
     public void setCooldownOnUse(INonStandPower power) {}
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {}
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {}
     
     
     public static class Instance extends ContinuousActionInstance<HamonRebuffOverdrive, INonStandPower> {
@@ -173,8 +173,8 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
             if (!user.level.isClientSide()) {
                 MCUtil.removeAttributeModifier(user, Attributes.KNOCKBACK_RESISTANCE, NO_KNOCKBACK);
             }
-            else if (user instanceof PlayerEntity) {
-                ModPlayerAnimations.rebuffOverdrive.stopAnim((PlayerEntity) user);
+            else if (user instanceof Player) {
+                ModPlayerAnimations.rebuffOverdrive.stopAnim((Player) user);
             }
         }
         
@@ -251,8 +251,8 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
                 break;
             }
             
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                setAnim((PlayerEntity) user, nextPhase);
+            if (user.level.isClientSide() && user instanceof Player) {
+                setAnim((Player) user, nextPhase);
             }
         }
         
@@ -353,7 +353,7 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
                         }
                         target.knockback(knockback, user.getX() - target.getX(), user.getZ() - target.getZ());
                         if (canShock && userHamon.isSkillLearned(ModHamonSkills.HAMON_SHOCK.get())) {
-                            target.addEffect(new EffectInstance(ModStatusEffects.HAMON_SHOCK.get(), 50, 0, false, false, true));
+                            target.addEffect(new MobEffectInstance(ModStatusEffects.HAMON_SHOCK.get(), 50, 0, false, false, true));
                         }
                         
                         playerPower.consumeEnergy(energyCost);
@@ -365,8 +365,8 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
                 swing();
             }
             
-            if (user instanceof PlayerEntity) {
-                ((PlayerEntity) user).resetAttackStrengthTicker();
+            if (user instanceof Player) {
+                ((Player) user).resetAttackStrengthTicker();
             }
             didAttack = true;
             actionCooldown = properCounter ? 0 : actionCooldown / 2;
@@ -377,7 +377,7 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
             if (!didSwing && !user.level.isClientSide()) {
                 user.level.playSound(null, user.getX(), user.getEyeY(), user.getZ(), 
                         ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 0.5f);
-                user.swing(Hand.MAIN_HAND, true);
+                user.swing(InteractionHand.MAIN_HAND, true);
                 didSwing = true;
             }
         }
@@ -406,13 +406,13 @@ public class HamonRebuffOverdrive extends HamonAction implements IPlayerAction<H
             return 0;
         }
         
-        private void setAnim(PlayerEntity abstrClientPlayer, Phase phase) {
+        private void setAnim(Player abstrClientPlayer, Phase phase) {
             switch (phase) {
             case WINDUP:
-                ModPlayerAnimations.rebuffOverdrive.setWindupAnim((PlayerEntity) user);
+                ModPlayerAnimations.rebuffOverdrive.setWindupAnim((Player) user);
                 break;
             case PERFORM:
-                ModPlayerAnimations.rebuffOverdrive.setAttackAnim((PlayerEntity) user);
+                ModPlayerAnimations.rebuffOverdrive.setAttackAnim((Player) user);
                 break;
             default:
                 break;

@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.command.configpack.standassign.PlayerStandAssi
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 public class ConfigPackCommand {
@@ -19,8 +19,8 @@ public class ConfigPackCommand {
         PlayerStandAssignmentConfig.init(eventBus);
     }
     
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
-        LiteralArgumentBuilder<CommandSource> command = Commands.literal("jojoconfig").requires(ctx -> ctx.hasPermission(2));
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("jojoconfig").requires(ctx -> ctx.hasPermission(2));
         
         StandStatsConfig.getInstance().commandRegister(command, "stand_stats");
         ActionFieldsConfig.getInstance().commandRegister(command, "abilities");

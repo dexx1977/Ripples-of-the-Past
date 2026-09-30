@@ -7,22 +7,22 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
-public class BloodParticle extends SpriteTexturedParticle {
+public class BloodParticle extends TextureSheetParticle {
     private int waterDownTicks = 0;
-    private Optional<Pair<Entity, Vector3d>> entityOffset = Optional.empty();
+    private Optional<Pair<Entity, Vec3>> entityOffset = Optional.empty();
 
-    protected BloodParticle(ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+    protected BloodParticle(ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         super(world, x, y, z);
         this.xd = xSpeed + (Math.random() * 2.0D - 1.0D) * 0.1;
         this.yd = ySpeed + (Math.random() * 2.0D - 1.0D) * 0.1;
@@ -30,8 +30,8 @@ public class BloodParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BloodParticle extends SpriteTexturedParticle {
                 entityOffset = Optional.empty();
             }
             else {
-                Vector3d pos = entity.position().subtract(entityOffset.get().getRight());
+                Vec3 pos = entity.position().subtract(entityOffset.get().getRight());
                 setPos(pos.x, pos.y, pos.z);
             }
         }
@@ -102,17 +102,17 @@ public class BloodParticle extends SpriteTexturedParticle {
         zd = 0;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
-        private static IAnimatedSprite spriteStatic;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
+        private static SpriteSet spriteStatic;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.spriteSet = sprite;
             spriteStatic = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             BloodParticle particle = new BloodParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(spriteSet);
             particle.setLifetime(60);
@@ -121,7 +121,7 @@ public class BloodParticle extends SpriteTexturedParticle {
             return particle;
         }
         
-        public static IAnimatedSprite getSprite() {
+        public static SpriteSet getSprite() {
             return spriteStatic;
         }
     }

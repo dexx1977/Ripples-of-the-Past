@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.capability.entity.EntityUtilCapProvider;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {

@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.enchantment;
 
 import com.github.standobyte.jojo.init.ModEnchantments;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.entity.EquipmentSlot;
 
 public class StandArrowXpReductionEnchantment extends Enchantment {
     
-    public StandArrowXpReductionEnchantment(Rarity rarity, EquipmentSlotType... slots) {
+    public StandArrowXpReductionEnchantment(Rarity rarity, EquipmentSlot... slots) {
         super(rarity, ModEnchantments.STAND_ARROW, slots);
     }
 

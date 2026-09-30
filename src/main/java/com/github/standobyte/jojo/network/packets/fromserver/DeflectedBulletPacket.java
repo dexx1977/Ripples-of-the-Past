@@ -6,18 +6,18 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.damaging.projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
 
 public class DeflectedBulletPacket {
     private final int entityId;
-    private final Vector3d deflectVec;
-    private final Vector3d deflectedPos;
-    private final Vector3d bulletPos;
+    private final Vec3 deflectVec;
+    private final Vec3 deflectedPos;
+    private final Vec3 bulletPos;
     
-    public DeflectedBulletPacket(int entityId, Vector3d deflectVec, Vector3d deflectedPos, Vector3d bulletPos) {
+    public DeflectedBulletPacket(int entityId, Vec3 deflectVec, Vec3 deflectedPos, Vec3 bulletPos) {
         this.entityId = entityId;
         this.deflectVec = deflectVec;
         this.deflectedPos = deflectedPos;
@@ -29,7 +29,7 @@ public class DeflectedBulletPacket {
     public static class Handler implements IModPacketHandler<DeflectedBulletPacket> {
 
         @Override
-        public void encode(DeflectedBulletPacket msg, PacketBuffer buf) {
+        public void encode(DeflectedBulletPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeDouble(msg.deflectVec.x);
             buf.writeDouble(msg.deflectVec.y);
@@ -43,11 +43,11 @@ public class DeflectedBulletPacket {
         }
 
         @Override
-        public DeflectedBulletPacket decode(PacketBuffer buf) {
+        public DeflectedBulletPacket decode(FriendlyByteBuf buf) {
             return new DeflectedBulletPacket(buf.readInt(), 
-                    new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
-                    new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
-                    new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()));
+                    new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()),
+                    new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()),
+                    new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
         }
 
         @Override

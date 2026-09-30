@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.power;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IStandEffect {
     void onStarted(LivingEntity entity, LivingEntity user);

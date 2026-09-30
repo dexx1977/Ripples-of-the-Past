@@ -24,19 +24,19 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.HamonTechniqueManager;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.Style;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 
 @SuppressWarnings("deprecation")
 public class HamonScreen extends Screen implements IJojoScreen {
@@ -132,11 +132,11 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
     
     @Override
-    public <T extends Widget> T addButton(T button) {
+    public <T extends AbstractWidget> T addButton(T button) {
         return super.addButton(button);
     }
 
-    public void removeButton(Widget button) {
+    public void removeButton(AbstractWidget button) {
         buttons.remove(button);
         children.remove(button);
     }
@@ -173,7 +173,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         IJojoScreen.TabCategory[] activeTabs = IJojoScreen.TabCategory.getVisibleCategories();
         int index = IJojoScreen.getTabMouseOver((int) mouseX, (int) mouseY, 
                 IJojoScreen.uniformX(minecraft), IJojoScreen.uniformY(minecraft) + IJojoScreen.UPPER_TABS_RIGHT_ALIGNMENT_OFFSET, 
-                HandSide.RIGHT, activeTabs.length);
+                HumanoidArm.RIGHT, activeTabs.length);
         if (index >= 0) {
             return activeTabs[index].onClick();
         }
@@ -264,7 +264,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         partialTick = minecraft.getFrameTime(); // i was jebaited
         int x = windowPosX();
         int y = windowPosY();
@@ -297,7 +297,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         tabsWithSkillRequirements.add(tab);
     }
 
-    private void renderInside(MatrixStack matrixStack, int mouseX, int mouseY, int windowX, int windowY, float partialTick) {
+    private void renderInside(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY, float partialTick) {
         if (selectedTab != null) {
             selectedTab.drawContents(this, matrixStack, mouseX, mouseY, partialTick, 
                     (float)(windowX + WINDOW_THIN_BORDER), (float)(windowY + WINDOW_UPPER_BORDER));
@@ -306,7 +306,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         }
     }
 
-    public void renderWindow(MatrixStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
+    public void renderWindow(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         minecraft.getTextureManager().bind(WINDOW);
@@ -320,7 +320,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
             tabGui.drawIcon(matrixStack, windowX, windowY, itemRenderer);
         }
         
-        IJojoScreen.renderVerticalTabs(matrixStack, HandSide.RIGHT, 
+        IJojoScreen.renderVerticalTabs(matrixStack, HumanoidArm.RIGHT, 
                 false, mouseX, mouseY, this, 
                 IJojoScreen.HamonTab.MAIN_SCREEN.get(), HAMON_CATEGORY);
 
@@ -335,7 +335,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
 
     private int tooltipOffsetX;
     private int tooltipOffsetY;
-    private void renderToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
+    private void renderToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         if (selectedTab != null && mouseInsideWindow(mouseX, mouseY)) {
             RenderSystem.pushMatrix();
@@ -349,7 +349,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         }
         for (HamonTabGui hamonTabGui : selectableTabs) {
             if (hamonTabGui.isMouseOnTabIcon(windowX, windowY, (double)mouseX, (double)mouseY)) {
-                List<IReorderingProcessor> tooltipLines = new ArrayList<IReorderingProcessor>();
+                List<FormattedCharSequence> tooltipLines = new ArrayList<FormattedCharSequence>();
                 tooltipLines.add(hamonTabGui.getTitle().getVisualOrderText());
                 tooltipLines.addAll(hamonTabGui.additionalTabNameTooltipInfo());
                 renderTooltip(matrixStack, tooltipLines, mouseX, mouseY);
@@ -359,22 +359,22 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
     
     @Override
-    public void renderComponentHoverEffect(MatrixStack matrixStack, @Nullable Style style, int mouseX, int mouseY) {
+    public void renderComponentHoverEffect(PoseStack matrixStack, @Nullable Style style, int mouseX, int mouseY) {
         super.renderComponentHoverEffect(matrixStack, style, mouseX, mouseY);
     }
 
     // these two overrides make the tooltip wrap at the right edge of the screen correctly
     @Override
-    public void renderToolTip(MatrixStack matrixStack, List<? extends IReorderingProcessor> tooltips, 
-            int mouseX, int mouseY, FontRenderer font) {
+    public void renderToolTip(PoseStack matrixStack, List<? extends FormattedCharSequence> tooltips, 
+            int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
         super.renderToolTip(matrixStack, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY, font);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);
     }
     
     @Override
-    public void renderWrappedToolTip(MatrixStack matrixStack, List<? extends ITextProperties> tooltips, 
-            int mouseX, int mouseY, FontRenderer font) {
+    public void renderWrappedToolTip(PoseStack matrixStack, List<? extends FormattedText> tooltips, 
+            int mouseX, int mouseY, Font font) {
         matrixStack.translate(-tooltipOffsetX, -tooltipOffsetY, 0);
         super.renderWrappedToolTip(matrixStack, tooltips, mouseX + tooltipOffsetX, mouseY + tooltipOffsetY, font);
         matrixStack.translate(tooltipOffsetX, tooltipOffsetY, 0);

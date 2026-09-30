@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class VampireSleepInCoffinPacket {
     private final boolean isRespawning;
@@ -22,19 +22,19 @@ public class VampireSleepInCoffinPacket {
     public static class Handler implements IModPacketHandler<VampireSleepInCoffinPacket> {
 
         @Override
-        public void encode(VampireSleepInCoffinPacket msg, PacketBuffer buf) {
+        public void encode(VampireSleepInCoffinPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.isRespawning);
         }
 
         @Override
-        public VampireSleepInCoffinPacket decode(PacketBuffer buf) {
+        public VampireSleepInCoffinPacket decode(FriendlyByteBuf buf) {
             boolean isRespawning = buf.readBoolean();
             return new VampireSleepInCoffinPacket(isRespawning);
         }
 
         @Override
         public void handle(VampireSleepInCoffinPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(playerData -> {
                 playerData.onSleepingInCoffin(msg.isRespawning);
             });

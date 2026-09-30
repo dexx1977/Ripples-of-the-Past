@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class TrDyingBodyTimerPacket {
     private final int entityId;
@@ -26,14 +26,14 @@ public class TrDyingBodyTimerPacket {
     public static class Handler implements IModPacketHandler<TrDyingBodyTimerPacket> {
 
         @Override
-        public void encode(TrDyingBodyTimerPacket msg, PacketBuffer buf) {
+        public void encode(TrDyingBodyTimerPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeInt(msg.timer);
             buf.writeInt(msg.fullDuration);
         }
 
         @Override
-        public TrDyingBodyTimerPacket decode(PacketBuffer buf) {
+        public TrDyingBodyTimerPacket decode(FriendlyByteBuf buf) {
             return new TrDyingBodyTimerPacket(buf.readInt(), buf.readInt(), buf.readInt());
         }
 

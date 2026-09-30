@@ -28,36 +28,36 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.monster.SkeletonEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.EyeOfEnderEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.EyeOfEnder;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.TriPredicate;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.living.EntityTeleportEvent;
@@ -68,19 +68,19 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
         map.put(item -> item.getItem() == Items.CHORUS_FRUIT, (target, item, user) ->           chorusFruitTeleport(target, user));
         map.put(item -> item.getItem() == Items.ENDER_EYE, (target, item, user) ->              enderEyeFlight(target, item, user));
         map.put(item -> item.getItem() == Items.FIREWORK_ROCKET, (target, item, user) ->        fireworkFlight(target, item, user));
-        map.put(item -> item.getItem() == Items.SNOWBALL, (target, item, user) ->               target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 40, 0)));
-        map.put(item -> item.getItem() == Items.SNOW, (target, item, user) ->                   target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 80, 0)));
-        map.put(item -> item.getItem() == Items.SNOW_BLOCK, (target, item, user) ->             target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 120, 1)));
-        map.put(item -> item.getItem() == Items.ICE, (target, item, user) ->                    target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 200, 1)));
-        map.put(item -> item.getItem() == Items.PACKED_ICE, (target, item, user) ->             target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 200, 2)));
-        map.put(item -> item.getItem() == Items.BLUE_ICE, (target, item, user) ->               target.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 200, 3)));
+        map.put(item -> item.getItem() == Items.SNOWBALL, (target, item, user) ->               target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 40, 0)));
+        map.put(item -> item.getItem() == Items.SNOW, (target, item, user) ->                   target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 80, 0)));
+        map.put(item -> item.getItem() == Items.SNOW_BLOCK, (target, item, user) ->             target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 120, 1)));
+        map.put(item -> item.getItem() == Items.ICE, (target, item, user) ->                    target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 200, 1)));
+        map.put(item -> item.getItem() == Items.PACKED_ICE, (target, item, user) ->             target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 200, 2)));
+        map.put(item -> item.getItem() == Items.BLUE_ICE, (target, item, user) ->               target.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 200, 3)));
         map.put(item -> item.getItem() == Items.FIRE_CHARGE, (target, item, user) ->            DamageUtil.setOnFire(target, 5, false));
         map.put(item -> item.getItem() == Items.BLAZE_POWDER, (target, item, user) ->           DamageUtil.setOnFire(target, 10, false));
         map.put(item -> item.getItem() == Items.BLAZE_ROD, (target, item, user) ->              DamageUtil.setOnFire(target, 20, false));
         map.put(item -> item.getItem() == Items.LAVA_BUCKET, (target, item, user) ->            DamageUtil.setOnFire(target, 20, false));
-        map.put(item -> item.getItem() == Items.GLOWSTONE_DUST, (target, item, user) ->         target.addEffect(new EffectInstance(Effects.GLOWING, 100)));
-        map.put(item -> item.getItem() == Items.SPECTRAL_ARROW, (target, item, user) ->         target.addEffect(new EffectInstance(Effects.GLOWING, 200)));
-        map.put(item -> item.getItem() == Items.GLOWSTONE, (target, item, user) ->              target.addEffect(new EffectInstance(Effects.GLOWING, 400)));
+        map.put(item -> item.getItem() == Items.GLOWSTONE_DUST, (target, item, user) ->         target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100)));
+        map.put(item -> item.getItem() == Items.SPECTRAL_ARROW, (target, item, user) ->         target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 200)));
+        map.put(item -> item.getItem() == Items.GLOWSTONE, (target, item, user) ->              target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 400)));
         map.put(item -> item.getItem() == Items.EXPERIENCE_BOTTLE, (target, item, user) ->      giveXp(target));
         map.put(item -> item.getItem() == Items.MILK_BUCKET, (target, item, user) ->            target.curePotionEffects(item));
         map.put(item -> !PotionUtils.getMobEffects(item).isEmpty(), (target, item, user) ->     PotionUtils.getMobEffects(item).forEach(effect -> target.addEffect(effect)));
@@ -106,11 +106,11 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
     }
     
     @Override
-    public void standTickRecovery(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickRecovery(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         boolean triggerEffect = task.getTicksLeft() <= 1;
         if (task.getAdditionalData().isEmpty(TriggeredFlag.class) && task.affectedTarget.getType() == TargetType.ENTITY) {
             Entity entity = task.affectedTarget.getEntity();
-            if (entity.isAlive() && entity instanceof LivingEntity && !(entity instanceof SkeletonEntity) && !(entity instanceof StandEntity)) {
+            if (entity.isAlive() && entity instanceof LivingEntity && !(entity instanceof Skeleton) && !(entity instanceof StandEntity)) {
                 if (world.isClientSide()) {
                     if (ClientUtil.canSeeStands()) {
                         CrazyDiamondHeal.addParticlesAround(entity);
@@ -172,11 +172,11 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
     }
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         if (power.getStandManifestation() instanceof StandEntity) {
             ItemStack item = ((StandEntity) power.getStandManifestation()).getMainHandItem();
             if (!item.isEmpty()) {
-                return new TranslationTextComponent(key, item.getDisplayName());
+                return Component.translatable(key, item.getDisplayName());
             }
         }
         return super.getTranslatedName(power, key);
@@ -199,10 +199,10 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
 //            double y = MathHelper.clamp(entity.getY() + (double)(random.nextInt(16) - 8), 0.0D, (double)(entity.level.getHeight() - 1));
 //            double z = entity.getZ() + (random.nextDouble() - 0.5D) * 16.0D;
             double x;
-            double y = MathHelper.clamp(target.getY() + (double)(random.nextInt(16) - 8), 0.0D, (double)(target.level.getHeight() - 1));
+            double y = Mth.clamp(target.getY() + (double)(random.nextInt(16) - 8), 0.0D, (double)(target.level.getHeight() - 1));
             double z;
             if (user != null) {
-                Vector3d middlePos = target.position().add(user.getLookAngle().scale(12));
+                Vec3 middlePos = target.position().add(user.getLookAngle().scale(12));
                 x = middlePos.x + (random.nextDouble() - 0.5) * 8.0;
                 z = middlePos.z + (random.nextDouble() - 0.5) * 8.0;
             }
@@ -216,10 +216,10 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
 
             EntityTeleportEvent.ChorusFruit event = ForgeEventFactory.onChorusFruitTeleport(target, x, y, z);
             if (!event.isCanceled() && target.randomTeleport(event.getTargetX(), event.getTargetY(), event.getTargetZ(), true)) {
-                SoundEvent soundevent = target instanceof FoxEntity ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
+                SoundEvent soundevent = target instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
                 target.yRot = random.nextFloat() * 360F;
                 target.yRotO = target.yRot;
-                target.level.playSound((PlayerEntity)null, xPrev, yPrev, zPrev, soundevent, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                target.level.playSound((Player)null, xPrev, yPrev, zPrev, soundevent, SoundSource.PLAYERS, 1.0F, 1.0F);
                 target.playSound(soundevent, 1.0F, 1.0F);
                 break;
             }
@@ -229,9 +229,9 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
     private static void giveXp(LivingEntity entity) {
         entity.level.levelEvent(2002, entity.blockPosition().above(), PotionUtils.getColor(Potions.WATER));
         int xp = 3 + entity.level.random.nextInt(5) + entity.level.random.nextInt(5);
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
-            Entry<EquipmentSlotType, ItemStack> entry = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, player, ItemStack::isDamaged);
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, player, ItemStack::isDamaged);
             if (entry != null) {
                 ItemStack itemstack = entry.getValue();
                 if (!itemstack.isEmpty() && itemstack.isDamaged()) {
@@ -247,34 +247,34 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
         }
         else {
             while (xp > 0) {
-                int xpThisOrb = ExperienceOrbEntity.getExperienceValue(xp);
+                int xpThisOrb = ExperienceOrb.getExperienceValue(xp);
                 xp -= xpThisOrb;
-                entity.level.addFreshEntity(new ExperienceOrbEntity(entity.level, entity.getX(), entity.getY(), entity.getZ(), xpThisOrb));
+                entity.level.addFreshEntity(new ExperienceOrb(entity.level, entity.getX(), entity.getY(), entity.getZ(), xpThisOrb));
             }
         }
     }
     
     private static void enderEyeFlight(LivingEntity entity, ItemStack item, LivingEntity user) {
         if (!entity.level.isClientSide()) {
-            ServerWorld world = (ServerWorld) entity.level;
+            ServerLevel world = (ServerLevel) entity.level;
             BlockPos strongholdPos = world.getChunkSource().getGenerator().findNearestMapFeature(world, Structure.STRONGHOLD, entity.blockPosition(), 100, false);
             if (strongholdPos != null) {
-                EyeOfEnderEntity eyeOfEnder = new EyeOfEnderInsideEntity(entity.level, entity);
+                EyeOfEnder eyeOfEnder = new EyeOfEnderInsideEntity(entity.level, entity);
 
                 eyeOfEnder.setItem(item);
                 eyeOfEnder.signalTo(strongholdPos);
 
                 world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENDER_EYE_LAUNCH, 
-                        SoundCategory.NEUTRAL, 0.5F, 0.4F / (entity.getRandom().nextFloat() * 0.4F + 0.8F));
+                        SoundSource.NEUTRAL, 0.5F, 0.4F / (entity.getRandom().nextFloat() * 0.4F + 0.8F));
                 world.levelEvent(null, 1003, entity.blockPosition(), 0);
 
                 world.addFreshEntity(eyeOfEnder);
                 
-                if (entity instanceof ServerPlayerEntity) {
-                    CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayerEntity) entity, strongholdPos);
+                if (entity instanceof ServerPlayer) {
+                    CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayer) entity, strongholdPos);
                 }
-                if (user instanceof ServerPlayerEntity) {
-                    CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayerEntity) user, strongholdPos);
+                if (user instanceof ServerPlayer) {
+                    CriteriaTriggers.USED_ENDER_EYE.trigger((ServerPlayer) user, strongholdPos);
                 }
             }
         }

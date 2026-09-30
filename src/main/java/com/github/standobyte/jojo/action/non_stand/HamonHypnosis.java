@@ -14,10 +14,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonHypnosis extends HamonAction {
     
@@ -47,7 +47,7 @@ public class HamonHypnosis extends HamonAction {
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, 
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, 
             int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
             if (!world.isClientSide()) {
@@ -56,10 +56,10 @@ public class HamonHypnosis extends HamonAction {
                 });
             }
             else if (target.getEntity() != null) {
-                Vector3d userPos = user.getEyePosition(1.0F);
+                Vec3 userPos = user.getEyePosition(1.0F);
                 double distanceToTarget = JojoModUtil.getDistance(user, target.getEntity().getBoundingBox());
-                Vector3d targetPos = user.getEyePosition(1.0F).add(user.getLookAngle().scale(distanceToTarget));
-                Vector3d particlesPos = userPos.add(targetPos.subtract(userPos).scale(0.5));
+                Vec3 targetPos = user.getEyePosition(1.0F).add(user.getLookAngle().scale(distanceToTarget));
+                Vec3 particlesPos = userPos.add(targetPos.subtract(userPos).scale(0.5));
                 HamonSparksLoopSound.playSparkSound(user, particlesPos, 1.0F, true);
                 CustomParticlesHelper.createHamonSparkParticles(null, particlesPos, 1);
             }
@@ -67,7 +67,7 @@ public class HamonHypnosis extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide() && target.getType() == TargetType.ENTITY) {
             HamonData hamon = power.getTypeSpecificData(ModPowers.HAMON.get()).get();
             float controlLvl = hamon.getHamonControlLevelRatio();

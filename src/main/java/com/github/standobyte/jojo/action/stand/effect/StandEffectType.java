@@ -1,9 +1,17 @@
 package com.github.standobyte.jojo.action.stand.effect;
 
-import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 
-public class StandEffectType<T extends StandEffectInstance> extends ForgeRegistryEntry<StandEffectType<?>> {
+import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
+
+public class StandEffectType<T extends StandEffectInstance> implements RegistryEntry<StandEffectType<?>> {
+    @Override
+    public IForgeRegistry<StandEffectType<?>> getRegistry() {
+        return JojoCustomRegistries.STAND_EFFECTS.getRegistry();
+    }
+
     private IFactory<T> factory;
     
     public StandEffectType(IFactory<T> factory) {
@@ -15,7 +23,7 @@ public class StandEffectType<T extends StandEffectInstance> extends ForgeRegistr
         return create(null);
     }
     
-    public T create(World world) {
+    public T create(Level world) {
         T effect = factory.create(this);
         effect.world = world;
         return effect;

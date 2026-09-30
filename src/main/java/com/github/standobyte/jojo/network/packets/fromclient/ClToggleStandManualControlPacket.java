@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClToggleStandManualControlPacket {
     
@@ -20,16 +20,16 @@ public class ClToggleStandManualControlPacket {
     public static class Handler implements IModPacketHandler<ClToggleStandManualControlPacket> {
 
         @Override
-        public void encode(ClToggleStandManualControlPacket msg, PacketBuffer buf) {}
+        public void encode(ClToggleStandManualControlPacket msg, FriendlyByteBuf buf) {}
 
         @Override
-        public ClToggleStandManualControlPacket decode(PacketBuffer buf) {
+        public ClToggleStandManualControlPacket decode(FriendlyByteBuf buf) {
             return new ClToggleStandManualControlPacket();
         }
     
         @Override
         public void handle(ClToggleStandManualControlPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player.isAlive()) {
                 IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                     if (power.hasPower()) {
@@ -47,11 +47,11 @@ public class ClToggleStandManualControlPacket {
                             }
                         }
                         else {
-                            player.displayClientMessage(new TranslationTextComponent("jojo.chat.message.no_entity_stand"), true);
+                            player.displayClientMessage(Component.translatable("jojo.chat.message.no_entity_stand"), true);
                         }
                     }
                     else {
-                        player.displayClientMessage(new TranslationTextComponent("jojo.chat.message.no_stand"), true);
+                        player.displayClientMessage(Component.translatable("jojo.chat.message.no_stand"), true);
                     }
                 });
             }

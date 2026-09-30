@@ -14,7 +14,7 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -87,7 +87,7 @@ public class MCRecog {
         if (commands != null) {
             boolean result = commands.onVoiceCommand(command, stand, power);
             if (result || printNotTriggered) {
-                Minecraft.getInstance().gui.setOverlayMessage(new StringTextComponent(command), result);
+                Minecraft.getInstance().gui.setOverlayMessage(Component.literal(command), result);
             }
         }
     }

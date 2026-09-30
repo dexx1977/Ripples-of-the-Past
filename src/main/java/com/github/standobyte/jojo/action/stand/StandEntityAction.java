@@ -32,18 +32,18 @@ import com.github.standobyte.jojo.util.general.OptionalUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public abstract class StandEntityAction extends StandAction implements IStandPhasedAction {
     protected final int standWindupDuration;
@@ -179,7 +179,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     @Override
-    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, World world, LivingEntity user, IStandPower power) {
+    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, Level world, LivingEntity user, IStandPower power) {
         if (getTargetRequirement().checkTargetType(TargetType.ENTITY)) {
             ActionTarget target = targetContainer.get();
             if (target.getType() == TargetType.BLOCK) {
@@ -187,8 +187,8 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
                 BlockState blockState = world.getBlockState(blockPos);
                 if (blockState.getCollisionShape(world, blockPos).isEmpty()) {
                     LivingEntity performer = getPerformer(user, power);
-                    RayTraceResult noTallGrass = JojoModUtil.rayTraceMultipleEntities(performer, MCUtil.getPickRange(performer), 
-                            null, RayTraceContext.BlockMode.COLLIDER, 
+                    HitResult noTallGrass = JojoModUtil.rayTraceMultipleEntities(performer, MCUtil.getPickRange(performer), 
+                            null, ClipContext.Block.COLLIDER, 
                             0, 0)[0];
                     targetContainer.set(ActionTarget.fromRayTraceResult(noTallGrass));
                 }
@@ -201,7 +201,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     @Override
-    public void onClick(World world, LivingEntity user, IStandPower power) {
+    public void onClick(Level world, LivingEntity user, IStandPower power) {
         if (!world.isClientSide()) {
             if (!power.isActive()) {
                 switch (getAutoSummonMode(power, user)) {
@@ -229,10 +229,10 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
                         stand.setArmsOnlyMode();
                         break;
                     case MAIN_ARM:
-                        stand.addToArmsOnly(Hand.MAIN_HAND);
+                        stand.addToArmsOnly(InteractionHand.MAIN_HAND);
                         break;
                     case OFF_ARM:
-                        stand.addToArmsOnly(Hand.OFF_HAND);
+                        stand.addToArmsOnly(InteractionHand.OFF_HAND);
                         break;
                     case FULL:
                         stand.fullSummonFromArms();
@@ -246,7 +246,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     @Override
-    public void afterClick(World world, LivingEntity user, IStandPower power, boolean passedRequirements) {
+    public void afterClick(Level world, LivingEntity user, IStandPower power, boolean passedRequirements) {
         if (!world.isClientSide() && power.isActive()) {
             StandEntity standEntity = (StandEntity) power.getStandManifestation();
             if (!standEntity.isAddedToWorld()) {
@@ -256,10 +256,10 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     @Override
-    protected void consumeStamina(World world, IStandPower power) {} // consumed from StandEntity's task instead
+    protected void consumeStamina(Level world, IStandPower power) {} // consumed from StandEntity's task instead
     
     @Override
-    public void startedHolding(World world, LivingEntity user, IStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, IStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
             invokeForStand(power, stand -> {
                 preTaskInit(world, power, stand, target);
@@ -274,10 +274,10 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, IStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {}
+    protected void holdTick(Level world, LivingEntity user, IStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {}
 
     @Override
-    public void stoppedHolding(World world, LivingEntity user, IStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, IStandPower power, int ticksHeld, boolean willFire) {
         if (!willFire) {
             invokeForStand(power, stand -> {
                 if (stand.getCurrentTaskAction() == this) {
@@ -296,7 +296,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
 
     @Override
     protected
-    final void perform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    final void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         invokeForStand(power, stand -> {
             if (stand.getCurrentTask().map(task -> {
                 if (task.getPhase() == Phase.BUTTON_HOLD) {
@@ -316,7 +316,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
         });
     }
     
-    protected void preTaskInit(World world, IStandPower standPower, StandEntity standEntity, ActionTarget target) {}
+    protected void preTaskInit(Level world, IStandPower standPower, StandEntity standEntity, ActionTarget target) {}
     
     protected AutoSummonMode getAutoSummonMode(IStandPower standPower, LivingEntity user) {
         return autoSummonMode;
@@ -346,10 +346,10 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
         return true;
     }
     
-    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {}
+    public void onTaskSet(Level world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {}
     
-    public void taskWriteAdditional(StandEntityTask task, PacketBuffer buffer) {}
-    public void taskReadAdditional(StandEntityTask task, PacketBuffer buffer) {}
+    public void taskWriteAdditional(StandEntityTask task, FriendlyByteBuf buffer) {}
+    public void taskReadAdditional(StandEntityTask task, FriendlyByteBuf buffer) {}
     public void taskCopyAdditional(StandEntityTask task, StandEntityTask sourceTask) {}
     
     public void playSound(StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task) {
@@ -381,7 +381,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
                 .orElse(null);
     }
     
-    protected void playSoundAtStand(World world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
+    protected void playSoundAtStand(Level world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
         if (world.isClientSide()) {
             if (canBeCanceled(standPower, standEntity, phase, null)) {
                 ClientTickingSoundsHelper.playStandEntityCancelableActionSound(standEntity, sound, this, phase, 1.0F, 1.0F, false);
@@ -397,25 +397,25 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
         return barrageVisuals.get() != null;
     }
     
-    public void barrageVisualsPhaseTransition(World world, StandEntity standEntity, IStandPower standPower, @Nullable Phase to, StandEntityTask task) {
+    public void barrageVisualsPhaseTransition(Level world, StandEntity standEntity, IStandPower standPower, @Nullable Phase to, StandEntityTask task) {
         if (world.isClientSide()) {
             standEntity.getBarrageHitSoundsHandler().setIsBarraging(to == Phase.PERFORM && barrageVisuals(standEntity, standPower, task));
         }
     }
     
-    protected void barrageVisualsTick(StandEntity stand, boolean playSound, Vector3d soundPos) {
+    protected void barrageVisualsTick(StandEntity stand, boolean playSound, Vec3 soundPos) {
         if (!stand.level.isClientSide()) {
             SoundEvent hitSound = barrageVisuals.get() != null ? barrageVisuals.get().getHitSound() : null;
             StandEntityMeleeBarrage.tickBarrageSound(playSound, hitSound, soundPos, stand);
         }
     }
     
-    public final void taskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+    public final void taskStopped(Level world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         barrageVisualsPhaseTransition(world, standEntity, standPower, null, task);
         onTaskStopped(world, standEntity, standPower, task, newAction);
     }
     
-    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {}
+    protected void onTaskStopped(Level world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {}
     
     @Nullable
     public StandRelativeOffset getOffsetFromUser(IStandPower standPower, StandEntity standEntity, StandEntityTask task) {
@@ -442,7 +442,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
                 offsetToTarget(standPower, standEntity, target, 
                         minOffset, maxOffset, 
                         () -> ActionTarget.fromRayTraceResult(JojoModUtil.rayTraceMultipleEntities(
-                                standPower.getUser(), maxOffset, standEntity::canHarm, RayTraceContext.BlockMode.COLLIDER, 0.25, 0)[0])), 
+                                standPower.getUser(), maxOffset, standEntity::canHarm, ClipContext.Block.COLLIDER, 0.25, 0)[0])), 
                 () -> StandRelativeOffset.withXRot(0, maxOffset));
     }
     
@@ -457,7 +457,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
             target = noTaskTarget.get();
         }
         
-        Vector3d targetPos = target.getTargetPos(true);
+        Vec3 targetPos = target.getTargetPos(true);
         if (targetPos == null) {
             return Optional.empty();
         }
@@ -466,7 +466,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
                     target.getEntity().getBoundingBox().getXsize() / 2
                     : 0.5);
             double offsetToTarget = targetPos.subtract(user.position()).multiply(1, 0, 1).length() - backAway;
-            return Optional.of(StandRelativeOffset.withXRot(0, MathHelper.clamp(offsetToTarget, minOffset, maxOffset)));
+            return Optional.of(StandRelativeOffset.withXRot(0, Mth.clamp(offsetToTarget, minOffset, maxOffset)));
         }
     }
     
@@ -558,7 +558,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
     }
     
     public void rotateStandTowardsTarget(StandEntity standEntity, ActionTarget target, StandEntityTask task) {
-        Vector3d targetPos = target.getTargetPos(true);
+        Vec3 targetPos = target.getTargetPos(true);
         if (targetPos != null) {
             MCUtil.rotateTowards(standEntity, targetPos, 360F);
         }
@@ -632,7 +632,7 @@ public abstract class StandEntityAction extends StandAction implements IStandPha
         }
         
         public T standUserWalkSpeed(float factor) {
-            this.userWalkSpeed = MathHelper.clamp(factor, 0F, 1F);
+            this.userWalkSpeed = Mth.clamp(factor, 0F, 1F);
             return getThis();
         }
         

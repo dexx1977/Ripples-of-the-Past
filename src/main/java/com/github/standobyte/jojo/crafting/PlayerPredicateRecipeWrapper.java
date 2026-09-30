@@ -4,19 +4,19 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.inventory.container.WorkbenchContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
-public abstract class PlayerPredicateRecipeWrapper<R extends ICraftingRecipe> implements ICraftingRecipe {
+public abstract class PlayerPredicateRecipeWrapper<R extends CraftingRecipe> implements CraftingRecipe {
     protected final R recipe;
     
     protected PlayerPredicateRecipeWrapper(R recipe) {
@@ -24,14 +24,14 @@ public abstract class PlayerPredicateRecipeWrapper<R extends ICraftingRecipe> im
     }
 
     @Override
-    public boolean matches(CraftingInventory inventory, World world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         return recipe.matches(inventory, world) && playerMatches(getPlayer(inventory));
     }
     
-    protected abstract boolean playerMatches(PlayerEntity player);
+    protected abstract boolean playerMatches(Player player);
 
     @Override
-    public ItemStack assemble(CraftingInventory inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         return recipe.assemble(inventory);
     }
 
@@ -56,14 +56,14 @@ public abstract class PlayerPredicateRecipeWrapper<R extends ICraftingRecipe> im
     }
     
     @Nullable
-    private static PlayerEntity getPlayer(CraftingInventory inventory) {
-        PlayerEntity player = null;
-        Container menu = CommonReflection.getCraftingInventoryMenu(inventory);
-        if (menu instanceof PlayerContainer) {
-            player = CommonReflection.getPlayer((PlayerContainer) menu);
+    private static Player getPlayer(CraftingContainer inventory) {
+        Player player = null;
+        AbstractContainerMenu menu = CommonReflection.getCraftingInventoryMenu(inventory);
+        if (menu instanceof InventoryMenu) {
+            player = CommonReflection.getPlayer((InventoryMenu) menu);
         }
-        else if (menu instanceof WorkbenchContainer) {
-            player = CommonReflection.getPlayer((WorkbenchContainer) menu);
+        else if (menu instanceof CraftingMenu) {
+            player = CommonReflection.getPlayer((CraftingMenu) menu);
         }
         return player;
     }

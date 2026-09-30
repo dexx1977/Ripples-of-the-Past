@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class EntityOwnerResolver {
     protected Entity owner;
@@ -27,23 +27,23 @@ public class EntityOwnerResolver {
         this.ownerUUID = ownerUuid;
     }
     
-    public Entity getEntity(World world) {
+    public Entity getEntity(Level world) {
         updateEntity(world);
         return owner;
     }
     
-    public LivingEntity getEntityLiving(World world) {
+    public LivingEntity getEntityLiving(Level world) {
         updateEntity(world);
         return ownerLiving;
     }
     
-    protected void updateEntity(World world) {
+    protected void updateEntity(Level world) {
         if (owner != null && owner.removed) {
             _setNewOwnerEntity(null);
         }
         if (owner == null) {
-            if (ownerUUID != null && world instanceof ServerWorld) {
-                _setNewOwnerEntity(((ServerWorld) world).getEntity(ownerUUID));
+            if (ownerUUID != null && world instanceof ServerLevel) {
+                _setNewOwnerEntity(((ServerLevel) world).getEntity(ownerUUID));
             } else if (ownerNetworkId != 0) {
                 _setNewOwnerEntity(world.getEntity(ownerNetworkId));
             }
@@ -62,21 +62,21 @@ public class EntityOwnerResolver {
     
     
     
-    public void saveNbt(CompoundNBT nbt, String key) {
+    public void saveNbt(CompoundTag nbt, String key) {
         if (ownerUUID != null) {
             nbt.putUUID(key, ownerUUID);
         }
     }
     
-    public void loadNbt(CompoundNBT nbt, String key) {
+    public void loadNbt(CompoundTag nbt, String key) {
         setOwnerUUID(nbt.hasUUID(key) ? nbt.getUUID(key) : null);
     }
     
-    public void writeNetwork(PacketBuffer buf) {
+    public void writeNetwork(FriendlyByteBuf buf) {
         buf.writeInt(ownerNetworkId);
     }
     
-    public void readNetwork(PacketBuffer buf) {
+    public void readNetwork(FriendlyByteBuf buf) {
         ownerNetworkId = buf.readInt();
     }
     
@@ -93,7 +93,7 @@ public class EntityOwnerResolver {
             this.entityClass = entityClass;
         }
         
-        public T getEntityCast(World world) {
+        public T getEntityCast(Level world) {
             updateEntity(world);
             return castEntity;
         }

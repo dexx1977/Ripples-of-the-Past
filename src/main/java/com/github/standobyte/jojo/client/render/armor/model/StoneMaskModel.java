@@ -2,14 +2,14 @@ package com.github.standobyte.jojo.client.render.armor.model;
 
 import java.util.Collections;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
 
 // Made with Blockbench 3.9.2
 
 
-public class StoneMaskModel extends BipedModel<LivingEntity> {
+public class StoneMaskModel extends HumanoidModel<LivingEntity> {
 
     public StoneMaskModel(float size) {
         super(size);
@@ -23,11 +23,11 @@ public class StoneMaskModel extends BipedModel<LivingEntity> {
     }
     
     @Override
-    protected Iterable<ModelRenderer> bodyParts() {
+    protected Iterable<ModelPart> bodyParts() {
         return Collections.emptyList();
     }
 
-    public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+    public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
         modelRenderer.xRot = x;
         modelRenderer.yRot = y;
         modelRenderer.zRot = z;

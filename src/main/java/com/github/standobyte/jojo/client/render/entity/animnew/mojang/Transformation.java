@@ -5,8 +5,8 @@ import java.util.Arrays;
 import com.github.standobyte.jojo.client.render.entity.animnew.IModelRendererScale;
 import com.github.standobyte.jojo.client.render.entity.animnew.molang.KeyframeWithQuery;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.geom.ModelPart;
+import org.joml.Vector3f;
 
 public class Transformation {
     private final Target target;
@@ -31,7 +31,7 @@ public class Transformation {
     }
     
     public static interface Target {
-        public void apply(ModelRenderer var1, Vector3f var2);
+        public void apply(ModelPart var1, Vector3f var2);
     }
     
     public static class Targets {
@@ -46,19 +46,19 @@ public class Transformation {
     }
     
     
-    public static void translateModelPart(ModelRenderer modelRenderer, Vector3f tlVec) {
+    public static void translateModelPart(ModelPart modelRenderer, Vector3f tlVec) {
         modelRenderer.x += tlVec.x();
         modelRenderer.y += tlVec.y();
         modelRenderer.z += tlVec.z();
     }
     
-    public static void rotateModelPart(ModelRenderer modelRenderer, Vector3f rotVec) {
+    public static void rotateModelPart(ModelPart modelRenderer, Vector3f rotVec) {
         modelRenderer.xRot += rotVec.x();
         modelRenderer.yRot += rotVec.y();
         modelRenderer.zRot += rotVec.z();
     }
     
-    public static void scaleModelPart(ModelRenderer modelRenderer, Vector3f scaleVec) {
+    public static void scaleModelPart(ModelPart modelRenderer, Vector3f scaleVec) {
         ((IModelRendererScale) modelRenderer).setScale(scaleVec.x(), scaleVec.y(), scaleVec.z());
     }
 }

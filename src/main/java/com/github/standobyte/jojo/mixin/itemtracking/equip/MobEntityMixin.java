@@ -9,22 +9,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MobEntityMixin extends LivingEntityMixin {
     
-    protected MobEntityMixin(EntityType<? extends MobEntity> type, World world) {
+    protected MobEntityMixin(EntityType<? extends Mob> type, Level world) {
         super(type, world);
     }
     
-    @Shadow public abstract ItemStack getItemBySlot(EquipmentSlotType pSlot);
+    @Shadow public abstract ItemStack getItemBySlot(EquipmentSlot pSlot);
     
     @Override
     public void onTake(Entity entity, int amount, CallbackInfo ci) {
@@ -40,7 +40,7 @@ public abstract class MobEntityMixin extends LivingEntityMixin {
     }
     
     @Inject(method = "setItemSlot", at = @At("TAIL"))
-    public void jojoOnMobItemEquip(EquipmentSlotType pSlot, ItemStack pStack, CallbackInfo ci) {
+    public void jojoOnMobItemEquip(EquipmentSlot pSlot, ItemStack pStack, CallbackInfo ci) {
         if (!level.isClientSide()) {
             TrackerItemStack.getItemTracker(pStack).ifPresent(tracker -> {
                 tracker.setAtEntity(this.getId(), level, KnownItemState.ENTITY_HAS_ITEM);

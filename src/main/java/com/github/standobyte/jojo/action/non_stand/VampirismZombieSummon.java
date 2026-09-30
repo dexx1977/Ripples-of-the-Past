@@ -6,11 +6,11 @@ import com.github.standobyte.jojo.entity.mob.HungryZombieEntity;
 import com.github.standobyte.jojo.init.ModCustomStats;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class VampirismZombieSummon extends VampirismAction {
 
@@ -20,12 +20,12 @@ public class VampirismZombieSummon extends VampirismAction {
     
     @Override
     protected ActionConditionResult checkSpecificConditions(LivingEntity user, INonStandPower power, ActionTarget target) {
-        World world = user.level;
+        Level world = user.level;
         if (world.getDifficulty() == Difficulty.PEACEFUL) {
             return conditionMessage("peaceful");
         }
         int zombiesMaxInArea = world.getDifficulty().getId() * 10;
-        if (world.getEntitiesOfClass(HungryZombieEntity.class, new AxisAlignedBB(
+        if (world.getEntitiesOfClass(HungryZombieEntity.class, new AABB(
                 user.getX(), 0, user.getZ(), 
                 user.getX(), 256, user.getZ())
                 .inflate(16, 0, 16))
@@ -36,7 +36,7 @@ public class VampirismZombieSummon extends VampirismAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             int zombiesToSummon = world.getDifficulty().getId();
             for (int i = 0; i < zombiesToSummon; i++) {
@@ -46,8 +46,8 @@ public class VampirismZombieSummon extends VampirismAction {
                 zombie.setOwner(user);
                 world.addFreshEntity(zombie);
             }
-            if (user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).awardStat(ModCustomStats.VAMPIRE_ZOMBIES_SUMMONED, zombiesToSummon);
+            if (user instanceof ServerPlayer) {
+                ((ServerPlayer) user).awardStat(ModCustomStats.VAMPIRE_ZOMBIES_SUMMONED, zombiesToSummon);
             }
         }
     }

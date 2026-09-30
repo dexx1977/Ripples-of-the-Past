@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.init;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.block.BoilingBloodFluid;
 
-import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 

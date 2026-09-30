@@ -4,13 +4,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 public class MrPresidentKeyItem extends Item {
     public final boolean masterKey;
@@ -21,10 +20,10 @@ public class MrPresidentKeyItem extends Item {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         if (masterKey) {
-            tooltip.add(new TranslationTextComponent(getOrCreateDescriptionId() + ".hint").withStyle(TextFormatting.GRAY));
-            tooltip.add(new TranslationTextComponent("item.jojo.creative_only_tooltip").withStyle(TextFormatting.DARK_GRAY));
+            tooltip.add(Component.translatable(getOrCreateDescriptionId() + ".hint").withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("item.jojo.creative_only_tooltip").withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 

@@ -1,14 +1,14 @@
 package com.github.standobyte.jojo.client.particle;
 
 import net.minecraft.client.particle.CritParticle;
-import net.minecraft.client.particle.IAnimatedSprite;
+import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
 
 public class HamonSparkParticle extends CritParticle {
 
-    public HamonSparkParticle(ClientWorld world, double x, double y, double z,
+    public HamonSparkParticle(ClientLevel world, double x, double y, double z,
             double xDDDDD, double yd, double zd) {
         super(world, x, y, z, xDDDDD, yd, zd);
     }
@@ -28,15 +28,15 @@ public class HamonSparkParticle extends CritParticle {
 
 
     public static class HamonParticleFactory extends CritParticle.Factory {
-        private final IAnimatedSprite sprite;
+        private final SpriteSet sprite;
 
-        public HamonParticleFactory(IAnimatedSprite sprite) {
+        public HamonParticleFactory(SpriteSet sprite) {
             super(sprite);
             this.sprite = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xd, double yd, double zd) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xd, double yd, double zd) {
             HamonSparkParticle particle = new HamonSparkParticle(world, x, y, z, xd, yd, zd);
             particle.pickSprite(sprite);
             particle.setColor(1, 1, 1);

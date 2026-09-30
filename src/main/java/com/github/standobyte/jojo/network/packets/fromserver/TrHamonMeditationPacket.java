@@ -8,11 +8,11 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonMeditationPacket {
     private final int userId;
@@ -28,13 +28,13 @@ public class TrHamonMeditationPacket {
     public static class Handler implements IModPacketHandler<TrHamonMeditationPacket> {
 
         @Override
-        public void encode(TrHamonMeditationPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonMeditationPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.userId);
             buf.writeBoolean(msg.meditation);
         }
 
         @Override
-        public TrHamonMeditationPacket decode(PacketBuffer buf) {
+        public TrHamonMeditationPacket decode(FriendlyByteBuf buf) {
             return new TrHamonMeditationPacket(buf.readInt(), buf.readBoolean());
         }
 
@@ -46,8 +46,8 @@ public class TrHamonMeditationPacket {
                 INonStandPower.getNonStandPowerOptional(userLiving).ifPresent(power -> {
                     power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                         hamon.setIsMeditating(userLiving, msg.meditation);
-                        if (userLiving instanceof PlayerEntity) {
-                            PlayerEntity userPlayer = (PlayerEntity) userLiving;
+                        if (userLiving instanceof Player) {
+                            Player userPlayer = (Player) userLiving;
                             ModPlayerAnimations.meditationPoseAnim.setAnimEnabled(userPlayer, msg.meditation);
                             if (msg.meditation && userPlayer == ClientUtil.getClientPlayer()) {
                                 ClientUtil.setThirdPerson();

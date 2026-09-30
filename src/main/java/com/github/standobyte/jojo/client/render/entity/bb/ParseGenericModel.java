@@ -31,11 +31,11 @@ import com.google.gson.JsonPrimitive;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 
 @SuppressWarnings("unused")
 public class ParseGenericModel {
@@ -77,7 +77,7 @@ public class ParseGenericModel {
             String render_order;
             boolean allow_mirror_modeling;
             
-            public abstract ModelRenderer.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight);
+            public abstract ModelPart.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight);
             
             static final JsonDeserializer<Element> DESERIALIZER = new JsonDeserializer<Element>() {
                 
@@ -150,7 +150,7 @@ public class ParseGenericModel {
 
             private static final Set<String> visitedVertices = new LinkedHashSet<>(4);
             @Override
-            public ModelRenderer.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight) {
+            public ModelPart.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight) {
                 if (origin == null) origin = new float[] { 0, 0, 0 };
                 if (parentOrigin == null) parentOrigin = new float[] { 0, 0, 0 };
                 
@@ -222,7 +222,7 @@ public class ParseGenericModel {
             }
 
             @Override
-            public ModelRenderer.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight) {
+            public ModelPart.ModelBox makeCube(float[] parentOrigin, int texWidth, int texHeight) {
                 float size[] = { 
                         to[0] - from[0], 
                         to[1] - from[1], 
@@ -241,51 +241,51 @@ public class ParseGenericModel {
                 float y1 = originJ.y() + inflate;
                 float z1 = originJ.z() + inflate;
                 
-                ModelRenderer.ModelBox box = new ModelRenderer.ModelBox(
+                ModelPart.ModelBox box = new ModelPart.ModelBox(
                         0, 0, 
                         x0, y0, z0, 
                         size[0], size[1], size[2], 
                         0, 0, 0, 
                         false, texWidth, texHeight);
                 
-                ModelRenderer.TexturedQuad[] polygons = new ModelRenderer.TexturedQuad[6];
+                ModelPart.TexturedQuad[] polygons = new ModelPart.TexturedQuad[6];
                 
-                ModelRenderer.PositionTextureVertex x0y0z0 = new ModelRenderer.PositionTextureVertex(x0, y0, z0, 0.0F, 0.0F);
-                ModelRenderer.PositionTextureVertex x1y0z0 = new ModelRenderer.PositionTextureVertex(x1, y0, z0, 0.0F, 8.0F);
-                ModelRenderer.PositionTextureVertex x1y1z0 = new ModelRenderer.PositionTextureVertex(x1, y1, z0, 8.0F, 8.0F);
-                ModelRenderer.PositionTextureVertex x0y1z0 = new ModelRenderer.PositionTextureVertex(x0, y1, z0, 8.0F, 0.0F);
-                ModelRenderer.PositionTextureVertex x0y0z1 = new ModelRenderer.PositionTextureVertex(x0, y0, z1, 0.0F, 0.0F);
-                ModelRenderer.PositionTextureVertex x1y0z1 = new ModelRenderer.PositionTextureVertex(x1, y0, z1, 0.0F, 8.0F);
-                ModelRenderer.PositionTextureVertex x1y1z1 = new ModelRenderer.PositionTextureVertex(x1, y1, z1, 8.0F, 8.0F);
-                ModelRenderer.PositionTextureVertex x0y1z1 = new ModelRenderer.PositionTextureVertex(x0, y1, z1, 8.0F, 0.0F);
+                ModelPart.PositionTextureVertex x0y0z0 = new ModelPart.PositionTextureVertex(x0, y0, z0, 0.0F, 0.0F);
+                ModelPart.PositionTextureVertex x1y0z0 = new ModelPart.PositionTextureVertex(x1, y0, z0, 0.0F, 8.0F);
+                ModelPart.PositionTextureVertex x1y1z0 = new ModelPart.PositionTextureVertex(x1, y1, z0, 8.0F, 8.0F);
+                ModelPart.PositionTextureVertex x0y1z0 = new ModelPart.PositionTextureVertex(x0, y1, z0, 8.0F, 0.0F);
+                ModelPart.PositionTextureVertex x0y0z1 = new ModelPart.PositionTextureVertex(x0, y0, z1, 0.0F, 0.0F);
+                ModelPart.PositionTextureVertex x1y0z1 = new ModelPart.PositionTextureVertex(x1, y0, z1, 0.0F, 8.0F);
+                ModelPart.PositionTextureVertex x1y1z1 = new ModelPart.PositionTextureVertex(x1, y1, z1, 8.0F, 8.0F);
+                ModelPart.PositionTextureVertex x0y1z1 = new ModelPart.PositionTextureVertex(x0, y1, z1, 8.0F, 0.0F);
                 
-                Map<Direction, ModelRenderer.PositionTextureVertex[]> faceVertices = new EnumMap<>(Direction.class);
-                faceVertices.put(Direction.DOWN, new ModelRenderer.PositionTextureVertex[]{
+                Map<Direction, ModelPart.PositionTextureVertex[]> faceVertices = new EnumMap<>(Direction.class);
+                faceVertices.put(Direction.DOWN, new ModelPart.PositionTextureVertex[]{
                         x1y0z1, 
                         x0y0z1, 
                         x0y0z0, 
                         x1y0z0});
-                faceVertices.put(Direction.UP, new ModelRenderer.PositionTextureVertex[]{
+                faceVertices.put(Direction.UP, new ModelPart.PositionTextureVertex[]{
                         x1y1z0, 
                         x0y1z0, 
                         x0y1z1, 
                         x1y1z1});
-                faceVertices.put(Direction.WEST, new ModelRenderer.PositionTextureVertex[]{
+                faceVertices.put(Direction.WEST, new ModelPart.PositionTextureVertex[]{
                         x0y0z0, 
                         x0y0z1, 
                         x0y1z1, 
                         x0y1z0});
-                faceVertices.put(Direction.NORTH, new ModelRenderer.PositionTextureVertex[]{
+                faceVertices.put(Direction.NORTH, new ModelPart.PositionTextureVertex[]{
                         x1y0z0, 
                         x0y0z0, 
                         x0y1z0, 
                         x1y1z0});
-                faceVertices.put(Direction.EAST, new ModelRenderer.PositionTextureVertex[]{
+                faceVertices.put(Direction.EAST, new ModelPart.PositionTextureVertex[]{
                         x1y0z1, 
                         x1y0z0, 
                         x1y1z0, 
                         x1y1z1});
-                faceVertices.put(Direction.SOUTH, new ModelRenderer.PositionTextureVertex[]{
+                faceVertices.put(Direction.SOUTH, new ModelPart.PositionTextureVertex[]{
                         x0y0z1, 
                         x1y0z1, 
                         x1y1z1, 
@@ -315,7 +315,7 @@ public class ParseGenericModel {
                                 u1 = uv.uv[2];
                                 v1 = uv.uv[3];
                             }
-                            polygons[polygonsCount++] = new ModelRenderer.TexturedQuad(faceVertices.get(direction), 
+                            polygons[polygonsCount++] = new ModelPart.TexturedQuad(faceVertices.get(direction), 
                                     u0, v0, u1, v1, 
                                     texWidth, texHeight, false, direction);
 //                        }
@@ -344,8 +344,8 @@ public class ParseGenericModel {
             
             private int convertedCount = 0;
             
-            ModelRenderer makeModelPart(int texWidth, int texHeight, @Nullable GroupParsed parent) {
-                ModelRenderer modelPart = new ModelRenderer(texWidth, texHeight, 0, 0);
+            ModelPart makeModelPart(int texWidth, int texHeight, @Nullable GroupParsed parent) {
+                ModelPart modelPart = new ModelPart(texWidth, texHeight, 0, 0);
                 
                 float yOffset = 24;
                 
@@ -454,17 +454,17 @@ public class ParseGenericModel {
         }
         
         void addBlockbenchObjectRecursive(EntityModelUnbaked model, ModelParsed.BlockbenchObj bbObj, 
-                @Nullable List<ModelRenderer.ModelBox> parentCubesCollection, 
-                @Nullable ModelRenderer parent, @Nullable ModelParsed.GroupParsed parentParsed) {
+                @Nullable List<ModelPart.ModelBox> parentCubesCollection, 
+                @Nullable ModelPart parent, @Nullable ModelParsed.GroupParsed parentParsed) {
             if (bbObj instanceof ModelParsed.GroupParsed) {
                 ModelParsed.GroupParsed group = (ModelParsed.GroupParsed) bbObj;
                 if (!group.export) return;
                 
-                ModelRenderer modelPart = group.makeModelPart(model.texWidth, model.texHeight, parentParsed);
+                ModelPart modelPart = group.makeModelPart(model.texWidth, model.texHeight, parentParsed);
                 model.addModelPart(group.name, modelPart, parentParsed != null ? parentParsed.name : null);
                 
                 if (group.children != null) {
-                    ObjectList<ModelRenderer.ModelBox> childModelCubes = new ObjectArrayList<>();
+                    ObjectList<ModelPart.ModelBox> childModelCubes = new ObjectArrayList<>();
                     for (ModelParsed.BlockbenchObj child : group.children) {
                         addBlockbenchObjectRecursive(model, child, childModelCubes, modelPart, group);
                     }

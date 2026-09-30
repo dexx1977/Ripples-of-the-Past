@@ -9,25 +9,25 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.merchant.IMerchant;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.nbt.StringNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.trading.Merchant;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.StringTag;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class MerchantData implements INBTSerializable<CompoundNBT> {
+public class MerchantData implements INBTSerializable<CompoundTag> {
     private final LivingEntity entity;
-    private final IMerchant asMerchant;
+    private final Merchant asMerchant;
     private final Collection<UUID> refuseTradingWith = new HashSet<>();
     
     private final Multimap<UUID, String> playersTriedTrading = ArrayListMultimap.create();
     
-    public MerchantData(LivingEntity entity, IMerchant asMerchant) {
+    public MerchantData(LivingEntity entity, Merchant asMerchant) {
         this.entity = entity;
         this.asMerchant = asMerchant;
     }
@@ -40,19 +40,19 @@ public class MerchantData implements INBTSerializable<CompoundNBT> {
         entity.addTag("JojoUniqueTrade");
     }
     
-    public void setPlayerTriedTrading(PlayerEntity player, String tradeType) {
+    public void setPlayerTriedTrading(Player player, String tradeType) {
         playersTriedTrading.put(player.getUUID(), tradeType);
     }
     
-    public boolean getPlayerTriedTrading(PlayerEntity player, String tradeType) {
+    public boolean getPlayerTriedTrading(Player player, String tradeType) {
         return playersTriedTrading.containsEntry(player.getUUID(), tradeType);
     }
     
-    public void resetPlayerTrades(PlayerEntity player) {
+    public void resetPlayerTrades(Player player) {
         playersTriedTrading.removeAll(player.getUUID());
     }
     
-    public boolean resetPlayerTrade(PlayerEntity player, String tradeType) {
+    public boolean resetPlayerTrade(Player player, String tradeType) {
         return playersTriedTrading.remove(player.getUUID(), tradeType);
     }
     
@@ -65,28 +65,28 @@ public class MerchantData implements INBTSerializable<CompoundNBT> {
         }
     }
     
-    public boolean refusesTradingWith(PlayerEntity player) {
+    public boolean refusesTradingWith(Player player) {
         return refuseTradingWith.contains(player.getUUID());
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         
-        CompoundNBT playerTriesNbt = new CompoundNBT();
+        CompoundTag playerTriesNbt = new CompoundTag();
         playersTriedTrading.asMap().forEach((id, tradeTypes) -> {
             if (!tradeTypes.isEmpty()) {
-                ListNBT typesListNbt = new ListNBT();
-                tradeTypes.forEach(tradeType -> typesListNbt.add(StringNBT.valueOf(tradeType)));
+                ListTag typesListNbt = new ListTag();
+                tradeTypes.forEach(tradeType -> typesListNbt.add(StringTag.valueOf(tradeType)));
                 playerTriesNbt.put(id.toString(), typesListNbt);
             }
         });
         nbt.put("PlayerTries", playerTriesNbt);
         
         if (!refuseTradingWith.isEmpty()) {
-            ListNBT refuseTradingWithNbt = new ListNBT();
+            ListTag refuseTradingWithNbt = new ListTag();
             for (UUID id : this.refuseTradingWith) {
-                refuseTradingWithNbt.add(NBTUtil.createUUID(id));
+                refuseTradingWithNbt.add(NbtUtils.createUUID(id));
             }
             nbt.put("RefuseTrade", refuseTradingWithNbt);
         }
@@ -95,13 +95,13 @@ public class MerchantData implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         MCUtil.nbtGetCompoundOptional(nbt, "PlayerTries").ifPresent(playerTriesNbt -> {
             playerTriesNbt.getAllKeys().forEach(key -> {
                 try {
                     UUID playerUuid = UUID.fromString(key);
-                    playerTriesNbt.getList(key, Constants.NBT.TAG_STRING).forEach(tradeType -> {
-                        playersTriedTrading.put(playerUuid, ((StringNBT) tradeType).getAsString());
+                    playerTriesNbt.getList(key, Tag.TAG_STRING).forEach(tradeType -> {
+                        playersTriedTrading.put(playerUuid, ((StringTag) tradeType).getAsString());
                     });
                 }
                 catch (Exception e) {
@@ -111,10 +111,10 @@ public class MerchantData implements INBTSerializable<CompoundNBT> {
         });
         
         refuseTradingWith.clear();
-        MCUtil.getNbtElement(nbt, "RefuseTrade", ListNBT.class).ifPresent(refuseTradingWithNbt -> {
-            for (INBT element : refuseTradingWithNbt) {
+        MCUtil.getNbtElement(nbt, "RefuseTrade", ListTag.class).ifPresent(refuseTradingWithNbt -> {
+            for (Tag element : refuseTradingWithNbt) {
                 try {
-                    UUID id = NBTUtil.loadUUID(element);
+                    UUID id = NbtUtils.loadUUID(element);
                     this.refuseTradingWith.add(id);
                 }
                 catch (IllegalArgumentException e) {

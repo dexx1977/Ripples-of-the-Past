@@ -19,11 +19,11 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondHeal extends StandEntityAction {
     private final double healSpeed;
@@ -42,7 +42,7 @@ public class CrazyDiamondHeal extends StandEntityAction {
         }
         if (!(targetEntity instanceof LivingEntity
                 || targetEntity instanceof IHasHealth
-                || targetEntity instanceof BoatEntity)) {
+                || targetEntity instanceof Boat)) {
             return conditionMessage("heal_target");
         }
         return ActionConditionResult.POSITIVE;
@@ -54,12 +54,12 @@ public class CrazyDiamondHeal extends StandEntityAction {
     }
     
     @Override
-    public boolean standCanTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public boolean standCanTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         return task.getTarget().getType() == TargetType.ENTITY;
     }
     
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         Entity targetEntity = task.getTarget().getEntity();
         
         boolean healedThisTick = false;
@@ -80,8 +80,8 @@ public class CrazyDiamondHeal extends StandEntityAction {
             }
         }
         
-        else if (targetEntity instanceof BoatEntity) {
-            BoatEntity toHeal = (BoatEntity) targetEntity;
+        else if (targetEntity instanceof Boat) {
+            Boat toHeal = (Boat) targetEntity;
             if (toHeal.getDamage() > 0) {
                 if (!world.isClientSide()) {
                     toHeal.setDamage(Math.max(toHeal.getDamage() - (float) healSpeedWithConfig(standEntity), 0));
@@ -97,7 +97,7 @@ public class CrazyDiamondHeal extends StandEntityAction {
         }
     }
 
-    public boolean healLivingEntity(World world, LivingEntity entity, StandEntity standEntity, StandEntityTask task) {
+    public boolean healLivingEntity(Level world, LivingEntity entity, StandEntity standEntity, StandEntityTask task) {
         LivingEntity toHeal = StandUtil.getStandUser(entity);
         // FIXME disable it if the target is a dead body already
         if (entity.deathTime > 0) {
@@ -171,7 +171,7 @@ public class CrazyDiamondHeal extends StandEntityAction {
     
     public static void addParticlesAround(Entity entity) {
         if (entity.level.isClientSide() && ClientUtil.canSeeStands()) {
-            int particlesCount = Math.max(MathHelper.ceil(entity.getBbWidth() * (entity.getBbHeight() * 2 * entity.getBbHeight())), 1);
+            int particlesCount = Math.max(Mth.ceil(entity.getBbWidth() * (entity.getBbHeight() * 2 * entity.getBbHeight())), 1);
             for (int i = 0; i < particlesCount; i++) {
                 entity.level.addParticle(ModParticles.CD_RESTORATION.get(), entity.getRandomX(1), entity.getRandomY(), entity.getRandomZ(1), 0, 0, 0);
             }
@@ -179,7 +179,7 @@ public class CrazyDiamondHeal extends StandEntityAction {
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             @Nullable Phase from, @Nullable Phase to, StandEntityTask task, int nextPhaseTicks) {
         if (world.isClientSide()) {
             if (to == Phase.PERFORM) {

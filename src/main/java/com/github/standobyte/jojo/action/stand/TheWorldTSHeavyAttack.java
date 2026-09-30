@@ -28,18 +28,18 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStandPunch {
     public static final StandPose TS_PUNCH_POSE = new StandPose("timeBreaker");
@@ -77,7 +77,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
     }
 
     @Override
-    public ActionTarget targetBeforePerform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    public ActionTarget targetBeforePerform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
             StandEntity stand = (StandEntity) power.getStandManifestation();
             return ActionTarget.fromRayTraceResult(
@@ -88,7 +88,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
     }
     
     @Override
-    protected void preTaskInit(World world, IStandPower standPower, StandEntity standEntity, ActionTarget target) {
+    protected void preTaskInit(Level world, IStandPower standPower, StandEntity standEntity, ActionTarget target) {
         standEntity.summonLockTicks = 0;
         if (!world.isClientSide() || standEntity.isManuallyControlled()) {
             LivingEntity aimingEntity = standEntity.isManuallyControlled() ? standEntity : standPower.getUser();
@@ -100,7 +100,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
 
                 int timeStopTicks = TimeStop.getTimeStopTicks(standPower, timeStop);
                 if (!StandUtil.standIgnoresStaminaDebuff(standPower) && blink != null && staminaCostTicking > 0) {
-                    timeStopTicks = MathHelper.clamp(MathHelper.floor(
+                    timeStopTicks = Mth.clamp(Mth.floor(
                             (standPower.getStamina() - staminaCostTS) / staminaCostTicking
                             ), 0, timeStopTicks);
                 }
@@ -110,14 +110,14 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
                     ticksForWindup += 20;
                 }
                 if (standEntity.getAttributeValue(Attributes.MOVEMENT_SPEED) > 0) {
-                    Vector3d pos = target.getTargetPos(true);
+                    Vec3 pos = target.getTargetPos(true);
                     if (pos != null) {
                         double offset = 0.5 + standEntity.getBbWidth();
                         if (target.getType() == TargetType.ENTITY) {
                             offset += target.getEntity().getBoundingBox().getXsize() / 2;
                         }
                         boolean backshot = doesBackshot(standPower);
-                        Vector3d offsetFromTarget = aimingEntity.getEyePosition(1.0F).subtract(pos).normalize().scale(offset);
+                        Vec3 offsetFromTarget = aimingEntity.getEyePosition(1.0F).subtract(pos).normalize().scale(offset);
                         if (backshot) {
                             offsetFromTarget = offsetFromTarget.reverse();
                         }
@@ -134,7 +134,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
                         pos = timeStopTicks > ticksForWindup ? pos.subtract(standEntity.position()).scale((double) timeStopTicks - ticksForWindup / ticksForDistance).add(standEntity.position()) : standEntity.position();
                     }
                     else {
-                        timeStopTicks = MathHelper.ceil(ticksForDistance) + ticksForWindup;
+                        timeStopTicks = Mth.ceil(ticksForDistance) + ticksForWindup;
                     }
                     
                     pos = standEntity.collideNextPos(pos);
@@ -151,7 +151,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
                 if (!world.isClientSide()) {
                     MCUtil.playEitherSound(world, null, standEntity.getX(), standEntity.getY(), standEntity.getZ(), 
                             TimeStopHandler::canPlayerSeeInStoppedTime, blink.blinkSound.get(), ModSounds.THE_WORLD_TIME_STOP_UNREVEALED.get(), 
-                            SoundCategory.AMBIENT, 1.0F, 1.0F);
+                            SoundSource.AMBIENT, 1.0F, 1.0F);
                     standPower.consumeStamina(staminaCostTS + timeStopTicks * staminaCostTicking);
                     if (timeStop != null) {
                         standPower.addLearningProgressPoints(theWorldTimeStopBlink.get().getBaseTimeStop(), 
@@ -172,7 +172,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         standEntity.punch(task, this, task.getTarget());
         if (!world.isClientSide()) {
             userPower.getUser().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.hasUsedTimeStopToday = true);
@@ -203,7 +203,7 @@ public class TheWorldTSHeavyAttack extends StandEntityAction implements IHasStan
     }
     
     @Override
-    public void standTickWindup(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickWindup(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         IHasStandPunch.playPunchSwingSound(task, Phase.WINDUP, 3, this, standEntity);
     }
     

@@ -11,27 +11,27 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
 
 public class BloodParticlesPacket {
-    private final Vector3d posSource;
-    private final Optional<Vector3d> posDest;
+    private final Vec3 posSource;
+    private final Optional<Vec3> posDest;
     private final float speed;
     private final int count;
     private final int entityId;
 
-    public BloodParticlesPacket(Vector3d posSource, float speed, int count, int entityId) {
+    public BloodParticlesPacket(Vec3 posSource, float speed, int count, int entityId) {
         this(posSource, Optional.empty(), speed, count, entityId);
     }
 
-    public BloodParticlesPacket(Vector3d posSource, Vector3d posDest, float speed, int count, int entityId) {
+    public BloodParticlesPacket(Vec3 posSource, Vec3 posDest, float speed, int count, int entityId) {
         this(posSource, Optional.of(posDest), speed, count, entityId);
     }
 
-    public BloodParticlesPacket(Vector3d posSource, Optional<Vector3d> posDest, float speed, int count, int entityId) {
+    public BloodParticlesPacket(Vec3 posSource, Optional<Vec3> posDest, float speed, int count, int entityId) {
         this.posSource = posSource;
         this.posDest = posDest;
         this.speed = speed;
@@ -44,7 +44,7 @@ public class BloodParticlesPacket {
     public static class Handler implements IModPacketHandler<BloodParticlesPacket> {
 
         @Override
-        public void encode(BloodParticlesPacket msg, PacketBuffer buf) {
+        public void encode(BloodParticlesPacket msg, FriendlyByteBuf buf) {
             buf.writeDouble(msg.posSource.x);
             buf.writeDouble(msg.posSource.y);
             buf.writeDouble(msg.posSource.z);
@@ -59,10 +59,10 @@ public class BloodParticlesPacket {
         }
 
         @Override
-        public BloodParticlesPacket decode(PacketBuffer buf) {
+        public BloodParticlesPacket decode(FriendlyByteBuf buf) {
             return new BloodParticlesPacket(
-                    new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()), 
-                    NetworkUtil.readOptional(buf, vec -> new Vector3d(
+                    new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()), 
+                    NetworkUtil.readOptional(buf, vec -> new Vec3(
                             buf.readDouble(),
                             buf.readDouble(),
                             buf.readDouble())
@@ -73,10 +73,10 @@ public class BloodParticlesPacket {
         private static final Random RANDOM = new Random();
         @Override
         public void handle(BloodParticlesPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            Optional<Vector3d> diff = msg.posDest.map(vec -> vec.subtract(msg.posSource).normalize().scale(msg.speed));
+            Optional<Vec3> diff = msg.posDest.map(vec -> vec.subtract(msg.posSource).normalize().scale(msg.speed));
             Entity entity = ClientUtil.getEntityById(msg.entityId);
             for (int i = 0; i < msg.count; i++) {
-                Vector3d speedVec = diff.orElseGet(() -> {
+                Vec3 speedVec = diff.orElseGet(() -> {
                     float xRot = (RANDOM.nextFloat() - 0.5f) * (float) Math.PI;
                     float yRot = RANDOM.nextFloat() * (float) Math.PI * 2;
                     return MathUtil.vecFromAngles(xRot, yRot).scale(msg.speed);

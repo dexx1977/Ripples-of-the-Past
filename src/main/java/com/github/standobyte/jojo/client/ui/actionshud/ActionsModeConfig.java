@@ -14,7 +14,7 @@ import com.github.standobyte.jojo.client.controls.HudControlSettings;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 public class ActionsModeConfig<P extends IPower<P, ?>> {
     final PowerClassification powerClassification;

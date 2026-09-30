@@ -6,10 +6,10 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class EntityModelUnbaked {
-    private final Map<String, ModelRenderer> modelParts = new HashMap<>();
+    private final Map<String, ModelPart> modelParts = new HashMap<>();
     public final int texWidth;
     public final int texHeight;
     
@@ -18,13 +18,13 @@ public class EntityModelUnbaked {
         this.texHeight = texHeight;
     }
     
-    private final Map<ModelRenderer, String> orphanage = new HashMap<>();
-    public void addModelPart(String name, ModelRenderer modelPart, @Nullable String parentName) {
+    private final Map<ModelPart, String> orphanage = new HashMap<>();
+    public void addModelPart(String name, ModelPart modelPart, @Nullable String parentName) {
         modelParts.put(name, modelPart);
         if (parentName != null) {
             if (parentName.equals(name)) throw new IllegalArgumentException();
             
-            ModelRenderer parent = modelParts.get(parentName);
+            ModelPart parent = modelParts.get(parentName);
             if (parent != null) {
                 parent.addChild(modelPart);
             }
@@ -34,9 +34,9 @@ public class EntityModelUnbaked {
         }
         
         if (!orphanage.isEmpty()) {
-            Iterator<Map.Entry<ModelRenderer, String>> orphanIter = orphanage.entrySet().iterator();
+            Iterator<Map.Entry<ModelPart, String>> orphanIter = orphanage.entrySet().iterator();
             while (orphanIter.hasNext()) {
-                Map.Entry<ModelRenderer, String> orphan = orphanIter.next();
+                Map.Entry<ModelPart, String> orphan = orphanIter.next();
                 if (orphan.getValue().equals(name)) {
                     modelPart.addChild(orphan.getKey());
                     orphanIter.remove();
@@ -45,7 +45,7 @@ public class EntityModelUnbaked {
         }
     }
     
-    public Map<String, ModelRenderer> getNamedModelParts() {
+    public Map<String, ModelPart> getNamedModelParts() {
         return modelParts;
     }
 

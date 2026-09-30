@@ -43,17 +43,16 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, StandSkin>> {
+public class StandSkinsManager extends SimplePreparableReloadListener<Map<ResourceLocation, StandSkin>> {
     private Map<ResourceLocation, StandSkin> skins = new HashMap<>();
     
     private Map<ResourceLocation, List<StandSkin>> skinsByStand = new HashMap<>();
@@ -110,7 +109,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
     private static final JsonParser PARSER = new JsonParser();
 
     @Override
-    protected Map<ResourceLocation, StandSkin> prepare(IResourceManager resourceManager, IProfiler profiler) {
+    protected Map<ResourceLocation, StandSkin> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         Map<ResourceLocation, StandSkin> skinsMap = new HashMap<>();
         profiler.startTick();
 
@@ -118,7 +117,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
             profiler.push(namespace);
 
             try {
-                for (IResource definition : resourceManager.getResources(new ResourceLocation(namespace, "jojo_stand_skins.json"))) {
+                for (Resource definition : resourceManager.getResources(new ResourceLocation(namespace, "jojo_stand_skins.json"))) {
                     profiler.push(definition.getSourceName());
 
                     try (
@@ -135,7 +134,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
                             ResourceLocation standTypeId = new ResourceLocation(skinJson.get("stand_type").getAsString());
                             int color = parseColor(skinJson.get("color"));
                             
-                            ITextComponent partName = null;
+                            Component partName = null;
                             if (skinJson.has("story_part")) {
                                 partName = parseStoryPart(skinJson.get("story_part"));
                             }
@@ -175,7 +174,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
     }
     
     protected void prepareModels(StandSkin skin, ResourceLocation standTypeId, ResourceLocation skinId,
-            String directory, String pathSuffix, IResourceManager resourceManager, Format format) throws IOException {
+            String directory, String pathSuffix, ResourceManager resourceManager, Format format) throws IOException {
         Collection<ResourceLocation> geckoModelResources = listResources(resourceManager, skinId, standTypeId, 
                 directory, fileName -> fileName.endsWith(pathSuffix));
         for (ResourceLocation modelFilePath : geckoModelResources) {
@@ -185,7 +184,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
             modelResLoc = new ResourceLocation(modelResLoc.getNamespace(), fileName);
             
             try (
-                    IResource resource = resourceManager.getResource(modelFilePath);
+                    Resource resource = resourceManager.getResource(modelFilePath);
                     InputStream modelInputStream = resource.getInputStream();
                     Reader modelReader = new BufferedReader(new InputStreamReader(modelInputStream, StandardCharsets.UTF_8));
                     ) {
@@ -219,7 +218,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
     }
     
     @Override
-    protected void apply(Map<ResourceLocation, StandSkin> skinsMap, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(Map<ResourceLocation, StandSkin> skinsMap, ResourceManager resourceManager, ProfilerFiller profiler) {
         JojoCustomRegistries.STANDS.getRegistry().getValues().forEach(standType -> {
             ResourceLocation id = standType.getRegistryName();
             skinsMap.computeIfAbsent(id, s -> new StandSkin(id, id, 
@@ -267,7 +266,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
     
     
     
-    private Collection<ResourceLocation> listResources(IResourceManager resourceManager, 
+    private Collection<ResourceLocation> listResources(ResourceManager resourceManager, 
             ResourceLocation skinId, ResourceLocation standTypeId, String folderName, Predicate<String> fileNameFilter) {
         ResourceLocation remapped = StandSkin.pathRemapFunc(skinId, new ResourceLocation(standTypeId.getNamespace(), folderName));
         return resourceManager.listResources(remapped.getPath(), fileNameFilter);
@@ -284,7 +283,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
                 }
                 catch (NumberFormatException e) {}
 
-                Color mojangColor = Color.parseColor(str);
+                TextColor mojangColor = TextColor.parseColor(str);
                 if (mojangColor != null) return mojangColor.getValue();
             }
         }
@@ -303,7 +302,7 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
     }
     
     @Nullable
-    private static ITextComponent parseStoryPart(JsonElement storyPartDef) {
+    private static Component parseStoryPart(JsonElement storyPartDef) {
         if (storyPartDef.isJsonPrimitive()) {
             if (storyPartDef.getAsJsonPrimitive().isNumber()) {
                 int num = storyPartDef.getAsInt();
@@ -315,13 +314,13 @@ public class StandSkinsManager extends ReloadListener<Map<ResourceLocation, Stan
             else if (storyPartDef.getAsJsonPrimitive().isString()) {
                 String name = storyPartDef.getAsString();
                 StoryPart existing = StoryPart.getFromName(name);
-                return existing != null ? existing.getName() : new TranslationTextComponent(name);
+                return existing != null ? existing.getName() : Component.translatable(name);
             }
         }
         else if (storyPartDef.isJsonObject()) {
             JsonObject storyPartDefObj = storyPartDef.getAsJsonObject();
             if (storyPartDefObj.has("key") && storyPartDefObj.has("color")) {
-                IFormattableTextComponent name = new TranslationTextComponent(storyPartDefObj.get("key").getAsString());
+                MutableComponent name = Component.translatable(storyPartDefObj.get("key").getAsString());
                 int color = parseColor(storyPartDefObj.get("color"));
                 name.withStyle(ClientUtil.textColor(color));
                 if (storyPartDefObj.has("sprite")) {

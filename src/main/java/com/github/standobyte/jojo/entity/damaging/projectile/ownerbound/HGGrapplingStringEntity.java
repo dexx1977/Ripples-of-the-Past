@@ -10,15 +10,15 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
     private static final UUID MANUAL_MOVEMENT_LOCK = UUID.fromString("ccf94bd5-8f0f-4d1e-b606-ba0773d963f3");
@@ -28,13 +28,13 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
     private boolean placedBarrier = false;
     private boolean caughtAnEntity = false;
 
-    public HGGrapplingStringEntity(World world, StandEntity entity, IStandPower userStand) {
+    public HGGrapplingStringEntity(Level world, StandEntity entity, IStandPower userStand) {
         super(ModEntityTypes.HG_GRAPPLING_STRING.get(), entity, world);
         this.stand = entity;
         this.userStandPower = userStand;
     }
     
-    public HGGrapplingStringEntity(EntityType<? extends HGGrapplingStringEntity> entityType, World world) {
+    public HGGrapplingStringEntity(EntityType<? extends HGGrapplingStringEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -67,7 +67,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
                 }
             }
             else if (owner != null) {
-                Vector3d vecToOwner = owner.position().subtract(bound.position());
+                Vec3 vecToOwner = owner.position().subtract(bound.position());
                 double length = vecToOwner.length();
                 if (length < 2) {
                     if (!level.isClientSide()) {
@@ -90,9 +90,9 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
     protected boolean moveToBlockAttached() {   
         if (super.moveToBlockAttached()) {
             LivingEntity owner = getOwner();
-            Vector3d vecFromOwner = position().subtract(owner.position());
+            Vec3 vecFromOwner = position().subtract(owner.position());
             if (vecFromOwner.lengthSqr() > 4) {
-                Vector3d grappleVec = vecFromOwner.normalize().scale(2);
+                Vec3 grappleVec = vecFromOwner.normalize().scale(2);
                 Entity entity = owner;
                 if (stand == null && owner instanceof StandEntity) {
                     stand = (StandEntity) owner;
@@ -120,9 +120,9 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
         return true;
     }
 
-    private static final Vector3d OFFSET = new Vector3d(-0.3, -0.2, 0.55);
+    private static final Vec3 OFFSET = new Vec3(-0.3, -0.2, 0.55);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 
@@ -169,7 +169,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
     protected void updateMotionFlags() {}
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean brokenBlock) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean brokenBlock) {
         BlockPos blockHitPos = blockRayTraceResult.getBlockPos();
         BlockState hitBlock = level.getBlockState(blockHitPos);
         if (hitBlock.getBlock() == Blocks.BARRIER) {

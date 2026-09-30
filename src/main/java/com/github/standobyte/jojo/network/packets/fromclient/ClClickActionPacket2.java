@@ -13,11 +13,11 @@ import com.github.standobyte.jojo.power.impl.PowerBaseImpl;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClClickActionPacket2 {
     private final PowerClassification power;
@@ -25,7 +25,7 @@ public class ClClickActionPacket2 {
     private final ActionTarget target;
     private boolean sneak;
     
-    private PacketBuffer extraInputData = null;
+    private FriendlyByteBuf extraInputData = null;
     
     public ClClickActionPacket2(PowerClassification power, Action<?> action, ActionTarget target, boolean sneak) {
         this.power = power;
@@ -39,7 +39,7 @@ public class ClClickActionPacket2 {
     public static class Handler implements IModPacketHandler<ClClickActionPacket2> {
     
         @Override
-        public void encode(ClClickActionPacket2 msg, PacketBuffer buf) {
+        public void encode(ClClickActionPacket2 msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.power);
             buf.writeRegistryIdUnsafe(JojoCustomRegistries.ACTIONS.getRegistry(), msg.action);
             msg.target.writeToBuf(buf);
@@ -49,7 +49,7 @@ public class ClClickActionPacket2 {
         }
 
         @Override
-        public ClClickActionPacket2 decode(PacketBuffer buf) {
+        public ClClickActionPacket2 decode(FriendlyByteBuf buf) {
             PowerClassification power = buf.readEnum(PowerClassification.class);
             Action<?> action = buf.readRegistryIdUnsafe(JojoCustomRegistries.ACTIONS.getRegistry());
             ActionTarget target = ActionTarget.readFromBuf(buf);
@@ -62,7 +62,7 @@ public class ClClickActionPacket2 {
         @Override
         public void handle(ClClickActionPacket2 msg, Supplier<NetworkEvent.Context> ctx) {
             if (msg.action == null) return;
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (JojoModUtil.tmpSpectatorCantUsePowers(player) || !player.isAlive()) return;
             
             IPower.getPowerOptional(player, msg.power).ifPresent(power -> {
@@ -72,7 +72,7 @@ public class ClClickActionPacket2 {
         }
         
         public static <P extends IPower<P, ?>> boolean clickAction(IPower<?, ?> p, 
-                Action<P> action, boolean sneak, ActionTarget target, PacketBuffer extraData) {
+                Action<P> action, boolean sneak, ActionTarget target, FriendlyByteBuf extraData) {
             P power = (P) p;
             PowerBaseImpl<P, ?> powerImpl = (PowerBaseImpl<P, ?>) power;
             LivingEntity user = power.getUser();
@@ -85,8 +85,8 @@ public class ClClickActionPacket2 {
                 boolean res;
                 boolean wasActive = power.isActive();
                 action.onClick(user.level, user, power);
-                if (user instanceof ServerPlayerEntity) {
-                    ((ServerPlayerEntity) user).resetLastActionTime();
+                if (user instanceof ServerPlayer) {
+                    ((ServerPlayer) user).resetLastActionTime();
                 }
                 if (result.isPositive()) {
                     if (!user.level.isClientSide()) {

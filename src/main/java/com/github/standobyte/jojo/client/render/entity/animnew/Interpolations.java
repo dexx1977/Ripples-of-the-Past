@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.render.entity.animnew.mojang.Transforma
 import com.github.standobyte.jojo.util.general.MathUtil;
 
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
-import net.minecraft.util.math.vector.Vector3f;
+import org.joml.Vector3f;
 
 public class Interpolations {
     private static final Map<String, Interpolation> LERP_MODES = new HashMap<>();

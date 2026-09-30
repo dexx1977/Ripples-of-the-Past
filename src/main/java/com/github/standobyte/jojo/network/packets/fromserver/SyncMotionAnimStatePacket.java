@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.network.packets.fromclient.ClSyncMotionAnimPacket;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class SyncMotionAnimStatePacket {
     private final int playerId;
@@ -43,7 +43,7 @@ public class SyncMotionAnimStatePacket {
     public static class Handler implements IModPacketHandler<SyncMotionAnimStatePacket> {
 
         @Override
-        public void encode(SyncMotionAnimStatePacket msg, PacketBuffer buf) {
+        public void encode(SyncMotionAnimStatePacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.playerId);
             
             buf.writeBoolean(msg.isMoving);
@@ -53,7 +53,7 @@ public class SyncMotionAnimStatePacket {
         }
 
         @Override
-        public SyncMotionAnimStatePacket decode(PacketBuffer buf) {
+        public SyncMotionAnimStatePacket decode(FriendlyByteBuf buf) {
             int playerId = buf.readInt();
             return new SyncMotionAnimStatePacket(playerId, buf.readBoolean(), buf.readDouble(), buf.readDouble(), buf.readFloat());
         }
@@ -61,8 +61,8 @@ public class SyncMotionAnimStatePacket {
         @Override
         public void handle(SyncMotionAnimStatePacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.playerId);
-            if (entity instanceof PlayerEntity) {
-                ModPlayerAnimations.wallClimbing.tickAnimProperties((PlayerEntity) entity, msg.isMoving, 
+            if (entity instanceof Player) {
+                ModPlayerAnimations.wallClimbing.tickAnimProperties((Player) entity, msg.isMoving, 
                         msg.movementUp, msg.movementLeft, msg.speed);
             }
         }

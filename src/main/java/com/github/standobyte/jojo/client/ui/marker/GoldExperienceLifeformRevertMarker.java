@@ -8,13 +8,13 @@ import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui;
 import com.github.standobyte.jojo.entity.ObjectEntity;
 import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 public class GoldExperienceLifeformRevertMarker extends MarkerRenderer {
     
@@ -30,7 +30,7 @@ public class GoldExperienceLifeformRevertMarker extends MarkerRenderer {
     }
     
     @Override
-    protected void renderIcon(MatrixStack matrixStack, MarkerInstance marker, float partialTick) {
+    protected void renderIcon(PoseStack matrixStack, MarkerInstance marker, float partialTick) {
         marker.standEffect.ifPresent(effect -> {
             if (effect instanceof GECreatedLifeformEffect) {
                 GECreatedLifeformEffect lifeformData = (GECreatedLifeformEffect) effect;

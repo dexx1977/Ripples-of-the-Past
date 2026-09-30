@@ -7,11 +7,11 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.general.OptionalFloat;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonWallClimbingPacket {
     private final int userId;
@@ -33,7 +33,7 @@ public class TrHamonWallClimbingPacket {
     public static class Handler implements IModPacketHandler<TrHamonWallClimbingPacket> {
 
         @Override
-        public void encode(TrHamonWallClimbingPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonWallClimbingPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.userId);
             buf.writeBoolean(msg.wallClimbing);
             buf.writeBoolean(msg.hamon);
@@ -45,7 +45,7 @@ public class TrHamonWallClimbingPacket {
         }
 
         @Override
-        public TrHamonWallClimbingPacket decode(PacketBuffer buf) {
+        public TrHamonWallClimbingPacket decode(FriendlyByteBuf buf) {
             return new TrHamonWallClimbingPacket(buf.readInt(), buf.readBoolean(), buf.readBoolean(), buf.readFloat(), 
                     buf.readBoolean() ? OptionalFloat.of(buf.readFloat()) : OptionalFloat.empty());
         }
@@ -53,7 +53,7 @@ public class TrHamonWallClimbingPacket {
         @Override
         public void handle(TrHamonWallClimbingPacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.userId);
-            if (entity instanceof PlayerEntity) {
+            if (entity instanceof Player) {
                 LivingWallClimbing.getHandler((LivingEntity) entity).ifPresent(cap -> {
                     cap.setWallClimbing(msg.wallClimbing, msg.hamon, msg.climbSpeed, msg.bodyRot);
                 });

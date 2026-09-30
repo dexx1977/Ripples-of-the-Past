@@ -8,8 +8,8 @@ import java.util.Set;
 import com.github.standobyte.jojo.action.ActionConditionResult;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.chat.Component;
 
 public class BaseHamonSkillSet implements IHamonSkillsManager<BaseHamonSkill> {
     private final Set<BaseHamonSkill> wrappedSkillSet = new HashSet<>();
@@ -56,7 +56,7 @@ public class BaseHamonSkillSet implements IHamonSkillsManager<BaseHamonSkill> {
         }
     }
 
-    private static final ActionConditionResult NO_SKILL_POINTS = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.points"));
+    private static final ActionConditionResult NO_SKILL_POINTS = ActionConditionResult.createNegative(Component.translatable("hamon.closed.points"));
     @Override
     public ActionConditionResult canLearnSkill(LivingEntity user, HamonData hamon, BaseHamonSkill skill) {
         if (hamon.getSkillPoints(skill.getStat()) <= 0) {

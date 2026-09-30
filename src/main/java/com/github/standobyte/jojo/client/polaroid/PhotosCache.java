@@ -28,9 +28,9 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.FolderName;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.LevelResource;
 
 public class PhotosCache {
     private static Map<UUID, Long2ObjectMap<PhotoHolder>> photosCache = new HashMap<>();
@@ -77,7 +77,7 @@ public class PhotosCache {
         }
     }
 
-    public static final FolderName PHOTO_DIR = new FolderName("jojo_polaroid");
+    public static final LevelResource PHOTO_DIR = new LevelResource("jojo_polaroid");
     private static File getPhotosFolder(UUID serverId) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.isLocalServer()) {

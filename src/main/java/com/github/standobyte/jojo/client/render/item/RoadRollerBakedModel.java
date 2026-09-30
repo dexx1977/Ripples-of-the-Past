@@ -6,19 +6,19 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 @SuppressWarnings("deprecation")
-public class RoadRollerBakedModel implements IBakedModel {
-    private IBakedModel existingModel;
+public class RoadRollerBakedModel implements BakedModel {
+    private BakedModel existingModel;
 
-    public RoadRollerBakedModel(IBakedModel existingModel) {
+    public RoadRollerBakedModel(BakedModel existingModel) {
         this.existingModel = existingModel;
     }
 
@@ -53,12 +53,12 @@ public class RoadRollerBakedModel implements IBakedModel {
     }
 
     @Override
-    public ItemCameraTransforms getTransforms() {
+    public ItemTransforms getTransforms() {
         return this.existingModel.getTransforms();
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return this.existingModel.getOverrides();
     }
 }

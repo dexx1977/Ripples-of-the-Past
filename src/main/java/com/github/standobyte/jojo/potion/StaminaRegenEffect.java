@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.potion;
 
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectCategory;
 
 public class StaminaRegenEffect extends StatusEffect {
 
-    public StaminaRegenEffect(EffectType type, int liquidColor) {
+    public StaminaRegenEffect(MobEffectCategory type, int liquidColor) {
         super(type, liquidColor);
     }
 

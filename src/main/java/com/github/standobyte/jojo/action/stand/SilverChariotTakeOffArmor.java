@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class SilverChariotTakeOffArmor extends StandEntityAction {
 
@@ -33,7 +33,7 @@ public class SilverChariotTakeOffArmor extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             if (standEntity instanceof SilverChariotEntity) {
                 SilverChariotEntity chariot = (SilverChariotEntity) standEntity;

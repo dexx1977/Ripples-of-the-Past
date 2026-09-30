@@ -17,44 +17,44 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.Effect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity {
-    protected static final DataParameter<Boolean> IS_BOUND_TO_OWNER = EntityDataManager.defineId(OwnerBoundProjectileEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Optional<BlockPos>> BLOCK_ATTACHED_TO = EntityDataManager.defineId(OwnerBoundProjectileEntity.class, DataSerializers.OPTIONAL_BLOCK_POS);
-    private static final DataParameter<Integer> ENTITY_ATTACHED_TO = EntityDataManager.defineId(OwnerBoundProjectileEntity.class, DataSerializers.INT);
-    private static final DataParameter<Boolean> IS_MOVING_FORWARD = EntityDataManager.defineId(OwnerBoundProjectileEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> IS_RETRACTING = EntityDataManager.defineId(OwnerBoundProjectileEntity.class, DataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> IS_BOUND_TO_OWNER = SynchedEntityData.defineId(OwnerBoundProjectileEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Optional<BlockPos>> BLOCK_ATTACHED_TO = SynchedEntityData.defineId(OwnerBoundProjectileEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Integer> ENTITY_ATTACHED_TO = SynchedEntityData.defineId(OwnerBoundProjectileEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IS_MOVING_FORWARD = SynchedEntityData.defineId(OwnerBoundProjectileEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_RETRACTING = SynchedEntityData.defineId(OwnerBoundProjectileEntity.class, EntityDataSerializers.BOOLEAN);
     private double distance;
     private LivingEntity attachedEntity;
     private UUID attachedEntityUUID;
     private int lifeSpan;
 
-    public OwnerBoundProjectileEntity(EntityType<? extends OwnerBoundProjectileEntity> entityType, @Nonnull LivingEntity owner, World world) {
+    public OwnerBoundProjectileEntity(EntityType<? extends OwnerBoundProjectileEntity> entityType, @Nonnull LivingEntity owner, Level world) {
         super(entityType, owner, world);
     }
 
-    public OwnerBoundProjectileEntity(EntityType<? extends OwnerBoundProjectileEntity> entityType, World world) {
+    public OwnerBoundProjectileEntity(EntityType<? extends OwnerBoundProjectileEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -70,13 +70,13 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             }
         }
         if (!level.isClientSide() && attachedEntityUUID != null && attachedEntity == null) {
-            Entity entity = ((ServerWorld) level).getEntity(attachedEntityUUID);
+            Entity entity = ((ServerLevel) level).getEntity(attachedEntityUUID);
             if (entity instanceof LivingEntity) {
                 attachToEntity((LivingEntity) entity);
                 attachedEntityUUID = null;
             }
         }
-        dragged.forEach(entity -> entity.setDeltaMovement(Vector3d.ZERO));
+        dragged.forEach(entity -> entity.setDeltaMovement(Vec3.ZERO));
         dragged.clear();
         super.tick();
     }
@@ -84,7 +84,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     @Override
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
-        dragged.forEach(entity -> entity.setDeltaMovement(Vector3d.ZERO));
+        dragged.forEach(entity -> entity.setDeltaMovement(Vec3.ZERO));
     }
     
     @Override
@@ -99,8 +99,8 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             Entity owner = getOwner();
             setRot(owner.yRot, owner.xRot);
     
-            Vector3d originPoint = ownerPosition(1.0F, false);
-            Vector3d nextOriginOffset = getNextOriginOffset();
+            Vec3 originPoint = ownerPosition(1.0F, false);
+            Vec3 nextOriginOffset = getNextOriginOffset();
             if (nextOriginOffset == null) {
                 if (!level.isClientSide()) {
                     remove();
@@ -114,13 +114,13 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             double nextX = originPoint.x + nextOriginOffset.x;
             double nextY = originPoint.y + nextOriginOffset.y;
             double nextZ = originPoint.z + nextOriginOffset.z;
-            if (!level.getChunkSource().hasChunk(MathHelper.floor(nextX) >> 4, MathHelper.floor(nextZ) >> 4)) {
+            if (!level.getChunkSource().hasChunk(Mth.floor(nextX) >> 4, Mth.floor(nextZ) >> 4)) {
                 if (level.isClientSide()) {
                     remove();
                 }
                 return false;
             }
-            setDeltaMovement(new Vector3d(nextX - getX(), nextY - getY(), nextZ - getZ()));
+            setDeltaMovement(new Vec3(nextX - getX(), nextY - getY(), nextZ - getZ()));
     
             xo = x;
             yo = y;
@@ -160,20 +160,20 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
         return false;
     }
     
-    protected final Vector3d getOriginPoint() {
+    protected final Vec3 getOriginPoint() {
         return getOriginPoint(1.0F);
     }
     
-    public Vector3d getOriginPoint(float partialTick) {
+    public Vec3 getOriginPoint(float partialTick) {
         return ownerPosition(partialTick, isBodyPart());
     }
     
-    protected final Vector3d ownerPosition(float partialTick, boolean useBodyRotation) {
+    protected final Vec3 ownerPosition(float partialTick, boolean useBodyRotation) {
         LivingEntity owner = getOwner();
         if (owner != null) {
             return getPos(owner, partialTick, 
-                    useBodyRotation ? MathHelper.lerp(partialTick, owner.yBodyRotO, owner.yBodyRot) : MathHelper.lerp(partialTick, owner.yRotO, owner.yRot), 
-                            MathHelper.lerp(partialTick, owner.xRotO, owner.xRot));
+                    useBodyRotation ? Mth.lerp(partialTick, owner.yBodyRotO, owner.yBodyRot) : Mth.lerp(partialTick, owner.yRotO, owner.yRot), 
+                            Mth.lerp(partialTick, owner.xRotO, owner.xRot));
         }
         return MCUtil.getEntityPosition(this, partialTick);
     }
@@ -183,7 +183,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
     
     @Nullable
-    protected Vector3d getNextOriginOffset() {
+    protected Vec3 getNextOriginOffset() {
         LivingEntity owner = getOwner();
         double distance = updateDistance();
         updateMotionFlags();
@@ -228,21 +228,21 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
         return movementSpeed() * retractSpeed() * (ticksLifespan() - timeAtFullLength()) / (movementSpeed() + retractSpeed());
     }
     
-    protected Vector3d originOffset(float yRot, float xRot, double distance) {
-        return Vector3d.directionFromRotation(xRot, yRot).scale(distance);
+    protected Vec3 originOffset(float yRot, float xRot, double distance) {
+        return Vec3.directionFromRotation(xRot, yRot).scale(distance);
     }
     
     @Override
-    public AxisAlignedBB getBoundingBoxForCulling() {
+    public AABB getBoundingBoxForCulling() {
         return getBoundingBox().expandTowards(getOriginPoint().subtract(position()));
     }
 
     @Override
-    protected RayTraceResult[] rayTrace() {
-        Vector3d startPos = getOriginPoint();
-        Vector3d endPos = position().add(getDeltaMovement());
-        Vector3d rtVec = startPos.subtract(endPos);
-        AxisAlignedBB aabb = getBoundingBox().expandTowards(rtVec).inflate(1.0D);
+    protected HitResult[] rayTrace() {
+        Vec3 startPos = getOriginPoint();
+        Vec3 endPos = position().add(getDeltaMovement());
+        Vec3 rtVec = startPos.subtract(endPos);
+        AABB aabb = getBoundingBox().expandTowards(rtVec).inflate(1.0D);
         double minDistance = rtVec.length();
         return JojoModUtil.rayTraceMultipleEntities(startPos, endPos, aabb, 
                 minDistance, level, this, this::canHitEntity, 
@@ -260,10 +260,10 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {}
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {}
 
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!blockDestroyed) {
             setIsRetracting(true);
         }
@@ -302,7 +302,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
     
     private final Set<Entity> dragged = new HashSet<>();
-    protected void dragTarget(Entity entity, Vector3d vec) {
+    protected void dragTarget(Entity entity, Vec3 vec) {
         entity = entity.getRootVehicle();
         doDragEntity(entity, vec);
         if (entity instanceof StandEntity) {
@@ -313,10 +313,10 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
         }
     }
     
-    private void doDragEntity(Entity entity, Vector3d vec) {
+    private void doDragEntity(Entity entity, Vec3 vec) {
         if (entity instanceof LivingEntity) {
             LivingEntity target = (LivingEntity) entity;
-            for (Effect effect : target.getActiveEffectsMap().keySet()) {
+            for (MobEffect effect : target.getActiveEffectsMap().keySet()) {
                 if (effect instanceof ImmobilizeEffect && ((ImmobilizeEffect) effect).resetsDeltaMovement()) {
                     entity.move(MoverType.PLAYER, vec);
                     return;
@@ -391,7 +391,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
 
     @Override
-    public boolean isInvisibleTo(PlayerEntity player) {
+    public boolean isInvisibleTo(Player player) {
         boolean ownerInvisible = false;
         if (ownerInvisibility()) {
             LivingEntity owner = getOwner();
@@ -412,7 +412,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
     
     @Override
-    public SoundCategory getSoundSource() {
+    public SoundSource getSoundSource() {
         return isBoundToOwner() && getOwner() != null ? getOwner().getSoundSource() : super.getSoundSource();
     }
     
@@ -427,7 +427,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("BoundToOwner", isBoundToOwner());
         Optional<BlockPos> blockAttachedTo = getBlockPosAttachedTo();
@@ -445,7 +445,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         setBoundToOwner(nbt.getBoolean("BoundToOwner"));
         int[] posArray = nbt.getIntArray("AttachedBlock");
@@ -462,14 +462,14 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
      }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeVarInt(lifeSpan);
         buffer.writeDouble(distance);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         lifeSpan = additionalData.readVarInt();
         distance = additionalData.readDouble();

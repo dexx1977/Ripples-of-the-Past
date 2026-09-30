@@ -10,20 +10,19 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.BlockSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 public class StandRemoverItem extends Item {
     private final boolean oneTimeUse;
@@ -36,7 +35,7 @@ public class StandRemoverItem extends Item {
         this.oneTimeUse = oneTimeUse;
         
         DispenserBlock.registerBehavior(this, new DefaultDispenseItemBehavior() {
-            protected ItemStack execute(IBlockSource blockSource, ItemStack stack) {
+            protected ItemStack execute(BlockSource blockSource, ItemStack stack) {
                 if (MCUtil.dispenseOnNearbyEntity(blockSource, stack, entity -> {
                     return IStandPower.getStandPowerOptional(entity).map(power -> {
                         return useOn(entity, power);
@@ -50,7 +49,7 @@ public class StandRemoverItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         IStandPower power = IStandPower.getPlayerStandPower(player);
         if (!world.isClientSide()) {
@@ -58,14 +57,14 @@ public class StandRemoverItem extends Item {
                 if (oneTimeUse && !player.abilities.instabuild) {
                     stack.shrink(1);
                 }
-                return ActionResult.success(stack);
+                return InteractionResultHolder.success(stack);
             }
-            return ActionResult.fail(stack);
+            return InteractionResultHolder.fail(stack);
         }
         else if (power.hasPower()) {
-            return ActionResult.success(stack);
+            return InteractionResultHolder.success(stack);
         }
-        return ActionResult.fail(stack);
+        return InteractionResultHolder.fail(stack);
     }
     
     private boolean useOn(LivingEntity entity, IStandPower power) {
@@ -90,11 +89,11 @@ public class StandRemoverItem extends Item {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         if (((StandRemoverItem) stack.getItem()).mode == Mode.FULL_CLEAR) {
-            tooltip.add(new TranslationTextComponent("item.jojo.stand_full_clear.hint").withStyle(TextFormatting.GRAY));
+            tooltip.add(Component.translatable("item.jojo.stand_full_clear.hint").withStyle(ChatFormatting.GRAY));
         }
-        tooltip.add(new TranslationTextComponent("item.jojo.creative_only_tooltip").withStyle(TextFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("item.jojo.creative_only_tooltip").withStyle(ChatFormatting.DARK_GRAY));
     }
     
     public static enum Mode {

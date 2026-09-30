@@ -10,9 +10,9 @@ import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXHamonBeatHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
     private static final float SPEED = 2.25F;
@@ -22,7 +22,7 @@ public class KosmXHamonBeatHandler extends AnimLayerHandler<ModifierLayer<IAnima
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, 
                 new KosmXHandsideMirrorModifier(player), 
                 new SpeedModifier(SPEED));
@@ -31,12 +31,12 @@ public class KosmXHamonBeatHandler extends AnimLayerHandler<ModifierLayer<IAnima
 
     private static final ResourceLocation ANIM = new ResourceLocation(JojoMod.MOD_ID, "hamon_beat");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, ANIM);
+            return setAnimFromName((AbstractClientPlayer) player, ANIM);
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn((int) (10 * SPEED), Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn((int) (10 * SPEED), Ease.OUTCUBIC), null);
         }
     }
 

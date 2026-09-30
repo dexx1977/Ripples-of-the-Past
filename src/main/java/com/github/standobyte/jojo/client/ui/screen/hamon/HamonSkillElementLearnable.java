@@ -7,13 +7,12 @@ import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class HamonSkillElementLearnable extends HamonSkillGuiElement {
     private final boolean isFinal;
@@ -41,34 +40,34 @@ public class HamonSkillElementLearnable extends HamonSkillGuiElement {
         this.state = State.getState(isFinal, canBeLearned, isLearned);
     }
     
-    void blitBgSquare(MatrixStack matrixStack, int x, int y) {
+    void blitBgSquare(PoseStack matrixStack, int x, int y) {
         AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
                 state.textureX, state.textureY, 26, 26, 256, 256);
     }
     
-    void blitBgSquareSelection(MatrixStack matrixStack, int x, int y) {
+    void blitBgSquareSelection(PoseStack matrixStack, int x, int y) {
         int texY = state.isFinal ? 78 : 0;
         AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
                 26, texY, 26, 26, 256, 256);
     }
     
-    void blitBgSquareRequirement(MatrixStack matrixStack, int x, int y) {
+    void blitBgSquareRequirement(PoseStack matrixStack, int x, int y) {
         int texY = state.isFinal ? 104 : 26;
         AbstractGui.blit(matrixStack, getX() + x, getY() + y, 
                 26, texY, 26, 26, 256, 256);
     }
     
     @Override
-    void drawTooltip(HamonScreen hamonScreen, MatrixStack matrixStack, int mouseX, int mouseY) {
-        List<ITextComponent> tooltip = new ArrayList<>();
+    void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
+        List<Component> tooltip = new ArrayList<>();
         tooltip.add(name);
         
         List<AbstractHamonSkill> missingSkills = skill.getRequiredSkills().filter(skill -> 
         !hamonScreen.hamon.isSkillLearned(skill)).collect(Collectors.toList());
         if (!missingSkills.isEmpty()) {
-            tooltip.add(new TranslationTextComponent("hamon.skill.required_skills_list").withStyle(TextFormatting.GRAY, TextFormatting.ITALIC));
+            tooltip.add(Component.translatable("hamon.skill.required_skills_list").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
             for (AbstractHamonSkill skill : missingSkills) {
-                tooltip.add(skill.getNameTranslated().withStyle(TextFormatting.RED));
+                tooltip.add(skill.getNameTranslated().withStyle(ChatFormatting.RED));
             }
         }
         

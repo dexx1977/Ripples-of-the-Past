@@ -6,13 +6,13 @@ import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 import com.github.standobyte.jojo.power.IPower;
 
-import net.minecraft.client.renderer.texture.SpriteUploader;
+import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 @Deprecated
-public class ActionSpriteUploader extends SpriteUploader {
+public class ActionSpriteUploader extends TextureAtlasHolder {
     public ActionSpriteUploader(TextureManager textureManager) {
         super(textureManager, new ResourceLocation("textures/atlas/actions.png"), "action");
     }

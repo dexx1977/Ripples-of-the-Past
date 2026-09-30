@@ -11,13 +11,13 @@ import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion.CustomExplosionSupplier;
 import com.google.common.collect.Lists;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
 
 public class CustomExplosionPacket {
     private final double x;
@@ -30,10 +30,10 @@ public class CustomExplosionPacket {
     private final float knockbackZ;
     private final ResourceLocation type;
     private CustomExplosion srvExplosion;
-    private PacketBuffer extraData;
+    private FriendlyByteBuf extraData;
     
     public CustomExplosionPacket(CustomExplosion explosion, double pX, double pY, double pZ, float pPower, 
-            List<BlockPos> pToBlow, @Nullable Vector3d pKnockback, ResourceLocation type) {
+            List<BlockPos> pToBlow, @Nullable Vec3 pKnockback, ResourceLocation type) {
         this.x = pX;
         this.y = pY;
         this.z = pZ;
@@ -58,15 +58,15 @@ public class CustomExplosionPacket {
     public static class Handler implements IModPacketHandler<CustomExplosionPacket> {
 
         @Override
-        public void encode(CustomExplosionPacket msg, PacketBuffer buf) {
+        public void encode(CustomExplosionPacket msg, FriendlyByteBuf buf) {
             buf.writeFloat((float)msg.x);
             buf.writeFloat((float)msg.y);
             buf.writeFloat((float)msg.z);
             buf.writeFloat(msg.power);
             buf.writeInt(msg.toBlow.size());
-            int xInt = MathHelper.floor(msg.x);
-            int yInt = MathHelper.floor(msg.y);
-            int zInt = MathHelper.floor(msg.z);
+            int xInt = Mth.floor(msg.x);
+            int yInt = Mth.floor(msg.y);
+            int zInt = Mth.floor(msg.z);
             
             for (BlockPos blockPos : msg.toBlow) {
                 buf.writeByte(blockPos.getX() - xInt);
@@ -83,16 +83,16 @@ public class CustomExplosionPacket {
         }
 
         @Override
-        public CustomExplosionPacket decode(PacketBuffer buf) {
+        public CustomExplosionPacket decode(FriendlyByteBuf buf) {
             double xPos = (double)buf.readFloat();
             double yPos = (double)buf.readFloat();
             double zPos = (double)buf.readFloat();
             float power = buf.readFloat();
             int blockCount = buf.readInt();
             List<BlockPos> toBlow = Lists.newArrayListWithCapacity(blockCount);
-            int xInt = MathHelper.floor(xPos);
-            int yInt = MathHelper.floor(yPos);
-            int zInt = MathHelper.floor(zPos);
+            int xInt = Mth.floor(xPos);
+            int yInt = Mth.floor(yPos);
+            int zInt = Mth.floor(zPos);
             
             for (int i = 0; i < blockCount; ++i) {
                toBlow.add(new BlockPos(
@@ -107,14 +107,14 @@ public class CustomExplosionPacket {
             
             ResourceLocation type = buf.readResourceLocation();
             
-            CustomExplosionPacket packet = new CustomExplosionPacket(null, xPos, yPos, zPos, power, toBlow, new Vector3d(knockbackX, knockbackY, knockbackZ), type);
+            CustomExplosionPacket packet = new CustomExplosionPacket(null, xPos, yPos, zPos, power, toBlow, new Vec3(knockbackX, knockbackY, knockbackZ), type);
             packet.extraData = buf;
             return packet;
         }
 
         @Override
         public void handle(CustomExplosionPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             CustomExplosionSupplier explosionSupplier = CustomExplosion.Register.REGISTER.get(msg.type);
             if (explosionSupplier != null) {
                 CustomExplosion explosion = explosionSupplier.createExplosion(ClientUtil.getClientWorld(), msg.x, msg.y, msg.z, msg.power);

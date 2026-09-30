@@ -15,22 +15,20 @@ import com.github.standobyte.jojo.client.WalkmanSoundHandler.TrackInfo;
 import com.github.standobyte.jojo.container.WalkmanItemContainer;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 // FIXME cassettes can disappear from Walkman (WalkmanCassetteSlotCap)
@@ -40,22 +38,22 @@ public class WalkmanItem extends Item {
         super(properties);
     }
 
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!world.isClientSide()) {
-            editWalkmanData(stack, data -> data.initId((ServerWorld) world));
+            editWalkmanData(stack, data -> data.initId((ServerLevel) world));
             stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(cap -> {
                 if (cap instanceof WalkmanCassetteSlotCap) {
-                    NetworkHooks.openGui((ServerPlayerEntity) player, (WalkmanCassetteSlotCap) cap, 
+                    NetworkHooks.openGui((ServerPlayer) player, (WalkmanCassetteSlotCap) cap, 
                             buf -> WalkmanItemContainer.writeAdditionalData(buf, stack));
                 }
             });
         }
-        return ActionResult.sidedSuccess(stack, world.isClientSide());
+        return InteractionResultHolder.sidedSuccess(stack, world.isClientSide());
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
         return new WalkmanCassetteSlotProvider(stack);
     }
     
@@ -79,7 +77,7 @@ public class WalkmanItem extends Item {
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         if (world != null) {
             getWalkmanData(stack).ifPresent(walkman -> {
                 if (walkman.isIdInitialized()) {
@@ -87,8 +85,8 @@ public class WalkmanItem extends Item {
                     if (playlist != null && playlist.isPlaying()) {
                         TrackInfo playingNow = playlist.getCurrentTrack();
                         if (playingNow != null) {
-                            tooltip.add(new TranslationTextComponent("record.nowPlaying", playingNow.track.getName()).withStyle(TextFormatting.GRAY));
-                            tooltip.add(new StringTextComponent(" "));
+                            tooltip.add(Component.translatable("record.nowPlaying", playingNow.track.getName()).withStyle(ChatFormatting.GRAY));
+                            tooltip.add(Component.literal(" "));
                         }
                     }
                 }

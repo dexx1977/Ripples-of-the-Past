@@ -20,37 +20,37 @@ import com.github.standobyte.jojo.util.mc.damage.IndirectStandEntityDamageSource
 import com.github.standobyte.jojo.util.mc.damage.ModdedDamageSourceWrapper;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.scores.Team;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
 import net.minecraft.util.IndirectEntityDamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
-public abstract class DamagingEntity extends ProjectileEntity implements IEntityAdditionalSpawnData {
-    protected static final Vector3d DEFAULT_POS_OFFSET = new Vector3d(0.0D, -0.3D, 0.0D);
+public abstract class DamagingEntity extends Projectile implements IEntityAdditionalSpawnData {
+    protected static final Vec3 DEFAULT_POS_OFFSET = new Vec3(0.0D, -0.3D, 0.0D);
     private float damageFactor = 1F;
     // only used for OwnerBoundProjectileEntity
     protected double speedFactor = 1F;
@@ -60,23 +60,23 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     private LazyOptional<INonStandPower> userNonStandPower = LazyOptional.empty();
     private Optional<ResourceLocation> standSkin = Optional.empty();
 
-    public DamagingEntity(EntityType<? extends DamagingEntity> entityType, @Nullable LivingEntity owner, World world) {
+    public DamagingEntity(EntityType<? extends DamagingEntity> entityType, @Nullable LivingEntity owner, Level world) {
         this(entityType, world);
         if (owner != null) {
             setOwner(owner);
             setLivingOwner(owner);
-            Vector3d pos = getPos(owner, 1.0F, owner.yRot, owner.xRot);
+            Vec3 pos = getPos(owner, 1.0F, owner.yRot, owner.xRot);
             setPos(pos.x, pos.y, pos.z);
             setRot(owner.yRot, owner.xRot);
         }
     }
 
-    public DamagingEntity(EntityType<? extends DamagingEntity> entityType, World world) {
+    public DamagingEntity(EntityType<? extends DamagingEntity> entityType, Level world) {
         super(entityType, world);
     }
     
     public void setShootingPosOf(LivingEntity entity) {
-        Vector3d pos = getPos(entity, 1.0F, entity.yRot, entity.xRot);
+        Vec3 pos = getPos(entity, 1.0F, entity.yRot, entity.xRot);
         setPos(pos.x, pos.y, pos.z);
         setRot(entity.yRot, entity.xRot);
     }
@@ -85,19 +85,19 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
         this.standSkin = standSkin;
     }
     
-    protected final Vector3d getPos(LivingEntity owner, float partialTick, float yRot, float xRot) {
+    protected final Vec3 getPos(LivingEntity owner, float partialTick, float yRot, float xRot) {
         return owner.getEyePosition(partialTick)
                 .add(getOwnerRelativeOffset().add(
                         getXRotOffset().xRot(-owner.xRot * MathUtil.DEG_TO_RAD))
                         .yRot(-yRot * MathUtil.DEG_TO_RAD));
     }
     
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return DEFAULT_POS_OFFSET;
     }
     
-    protected Vector3d getXRotOffset() {
-        return Vector3d.ZERO;
+    protected Vec3 getXRotOffset() {
+        return Vec3.ZERO;
     }
     
     @Override
@@ -148,20 +148,20 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     }
     
     protected void checkHit() {
-        RayTraceResult[] rayTrace = rayTrace();
-        for (RayTraceResult result : rayTrace) {
-            if (result.getType() != RayTraceResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, result)) {
+        HitResult[] rayTrace = rayTrace();
+        for (HitResult result : rayTrace) {
+            if (result.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, result)) {
                 onHit(result);
             }
         }
     }
 
-    protected RayTraceResult[] rayTrace() {
-        return new RayTraceResult[] { ProjectileHelper.getHitResult(this, this::canHitEntity) };
+    protected HitResult[] rayTrace() {
+        return new HitResult[] { ProjectileUtil.getHitResult(this, this::canHitEntity) };
     }
     
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+    protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         if (!level.isClientSide() && isAlive()) {
             Entity target = entityRayTraceResult.getEntity();
             LivingEntity owner = getOwner();
@@ -175,8 +175,8 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
                     LivingEntity standUser = ((StandEntity) owner).getUser();
                     if (standUser != null) {
                         LivingEntity livingTarget = (LivingEntity) target;
-                        if (standUser instanceof PlayerEntity) {
-                            livingTarget.setLastHurtByPlayer((PlayerEntity) standUser);
+                        if (standUser instanceof Player) {
+                            livingTarget.setLastHurtByPlayer((Player) standUser);
                             livingTarget.lastHurtByPlayerTime = 100;
                         }
                         livingTarget.setLastHurtByMob(standUser);
@@ -227,7 +227,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
         return 1F;
     }
     
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {}
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {}
 
     @Override
     protected boolean canHitEntity(Entity entity) {
@@ -246,7 +246,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
             }
             return !(checkPvpRules() && 
                     owner instanceof StandEntity && !((StandEntity) owner).canHarm(entity) || 
-                    owner instanceof PlayerEntity && entity instanceof PlayerEntity && !((PlayerEntity) owner).canHarmPlayer((PlayerEntity) entity));
+                    owner instanceof Player && entity instanceof Player && !((Player) owner).canHarmPlayer((Player) entity));
         }
         return false;
     }
@@ -256,19 +256,19 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     }
 
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         super.onHitBlock(blockRayTraceResult);
         if (!level.isClientSide() && isAlive()) {
             BlockPos blockPos = blockRayTraceResult.getBlockPos();
             LivingEntity owner = getOwner();
-            boolean brokenBlock = owner != null && !JojoModUtil.canEntityDestroy((ServerWorld) level, blockPos, level.getBlockState(blockPos), owner) ? 
+            boolean brokenBlock = owner != null && !JojoModUtil.canEntityDestroy((ServerLevel) level, blockPos, level.getBlockState(blockPos), owner) ? 
                     false
                     : destroyBlock(blockRayTraceResult);
             afterBlockHit(blockRayTraceResult, brokenBlock);
         }
     }
     
-    protected boolean destroyBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected boolean destroyBlock(BlockHitResult blockRayTraceResult) {
         BlockPos blockPos = blockRayTraceResult.getBlockPos();
         BlockState blockState = level.getBlockState(blockPos);
         Direction face = blockRayTraceResult.getDirection();
@@ -282,7 +282,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
             if (ownerOrStandUser instanceof StandEntity) {
                 ownerOrStandUser = ((StandEntity) ownerOrStandUser).getUser();
             }
-            boolean dropItem = ownerOrStandUser instanceof PlayerEntity ? !((PlayerEntity) ownerOrStandUser).abilities.instabuild : true;
+            boolean dropItem = ownerOrStandUser instanceof Player ? !((Player) ownerOrStandUser).abilities.instabuild : true;
             brokenBlock = MCUtil.destroyBlock(level, blockPos, dropItem, getOwner());
         }
         return brokenBlock;
@@ -293,7 +293,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
         return hardness >= 0 && hardness <= getMaxHardnessBreakable();
     }
     
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {}
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {}
     
     public boolean isFiery() {
         return false;
@@ -350,7 +350,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     }
 
     @Override
-    public boolean isInvisibleTo(PlayerEntity player) {
+    public boolean isInvisibleTo(Player player) {
         return standVisibility() && !StandUtil.clStandEntityVisibleTo(player) 
                 || !JojoModUtil.seesInvisibleAsSpectator(player) && super.isInvisible();
     }
@@ -388,7 +388,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
 
     @Override
     public void moveTo(double x, double y, double z, float yRot, float xRot) {
-        Vector3d pos = position();
+        Vec3 pos = position();
         this.xo = pos.x;
         this.yo = pos.y;
         this.zo = pos.z;
@@ -408,7 +408,7 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("DamageFactor", damageFactor);
         nbt.putDouble("SpeedFactor", speedFactor);
@@ -417,13 +417,13 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         damageFactor = nbt.getFloat("DamageFactor");
         speedFactor = nbt.getDouble("SpeedFactor");
         tickCount = nbt.getInt("Age");
-        standSkin = MCUtil.getNbtElement(nbt, "StandSkin", StringNBT.class)
-                .map(StringNBT::getAsString)
+        standSkin = MCUtil.getNbtElement(nbt, "StandSkin", StringTag.class)
+                .map(StringTag::getAsString)
                 .map(ResourceLocation::new);
     }
 
@@ -431,21 +431,21 @@ public abstract class DamagingEntity extends ProjectileEntity implements IEntity
     protected void defineSynchedData() {}
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeInt(tickCount);
         buffer.writeDouble(speedFactor);
         NetworkUtil.writeOptional(buffer, standSkin, buffer::writeResourceLocation);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         tickCount = additionalData.readInt();
         speedFactor = additionalData.readDouble();
-        standSkin = NetworkUtil.readOptional(additionalData, PacketBuffer::readResourceLocation);
+        standSkin = NetworkUtil.readOptional(additionalData, FriendlyByteBuf::readResourceLocation);
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

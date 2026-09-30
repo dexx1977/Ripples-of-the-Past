@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXFix
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXStoneFormHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
 
@@ -19,23 +19,23 @@ public class KosmXStoneFormHandler extends AnimLayerHandler<ModifierLayer<IAnima
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null/*, new KosmXHeadRotationModifier(), new KosmXArmsRotationModifier(player, HandSide.LEFT, HandSide.RIGHT)*/);
     }
     
     
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         enabled &= !player.isPassenger();
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, getAnimPath(player));
+            return setAnimFromName((AbstractClientPlayer) player, getAnimPath(player));
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
         }
     }
     
-    private ResourceLocation getAnimPath(PlayerEntity player) { // FIXME sync pillar man pose variant with all clients
+    private ResourceLocation getAnimPath(Player player) { // FIXME sync pillar man pose variant with all clients
         return POSES[player.getRandom().nextInt(POSES.length)];
     }
     

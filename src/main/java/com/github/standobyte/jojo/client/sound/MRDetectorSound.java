@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.client.sound;
 
 import com.github.standobyte.jojo.entity.MRDetectorEntity;
 
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
-public class MRDetectorSound extends TickableSound {
+public class MRDetectorSound extends AbstractTickableSoundInstance {
     private final MRDetectorEntity detector;
 
     public MRDetectorSound(MRDetectorEntity detector) {
@@ -26,7 +26,7 @@ public class MRDetectorSound extends TickableSound {
             y = detector.getY();
             z = detector.getZ();
             Vector3f detectedVec = detector.getDetectedDirection();
-            volume = 1 - (MathHelper.sqrt(detectedVec.dot(detectedVec)) / (float) MRDetectorEntity.DETECTION_RADIUS) * 0.5F;
+            volume = 1 - (Mth.sqrt(detectedVec.dot(detectedVec)) / (float) MRDetectorEntity.DETECTION_RADIUS) * 0.5F;
         } 
         else {
             stop();

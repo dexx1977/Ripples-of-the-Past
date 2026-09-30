@@ -16,36 +16,36 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.DoubleNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
 public class CrimsonBubbleEntity extends Entity {
     private int hamonStrengthPoints;
     private int hamonControlPoints;
-    private Vector3d initialPoint;
+    private Vec3 initialPoint;
 
-    public CrimsonBubbleEntity(World world) {
+    public CrimsonBubbleEntity(Level world) {
         this(ModEntityTypes.CRIMSON_BUBBLE.get(), world);
-        setDeltaMovement(new Vector3d(
+        setDeltaMovement(new Vec3(
                 random.nextDouble() - 0.5D, 
                 (random.nextDouble() - 0.5D) * 0.5D, 
                 random.nextDouble() - 0.5D).normalize().scale(0.002D));
     }
 
-    public CrimsonBubbleEntity(EntityType<?> entityType, World world) {
+    public CrimsonBubbleEntity(EntityType<?> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -78,7 +78,7 @@ public class CrimsonBubbleEntity extends Entity {
                 }
             }
 
-            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, getBoundingBox(), EntityPredicates.NO_CREATIVE_OR_SPECTATOR);
+            List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, getBoundingBox(), EntitySelector.NO_CREATIVE_OR_SPECTATOR);
             for (LivingEntity entity : entities) {
                 if (entity.isAlive()) {
                     collideWithEntity(entity);
@@ -94,15 +94,15 @@ public class CrimsonBubbleEntity extends Entity {
 
             if (initialPoint != null) {
                 if (tickCount % 100 == 0 || position().distanceToSqr(initialPoint) > 2.25D) {
-                    Vector3d vecToInitialPos = initialPoint.subtract(position());
+                    Vec3 vecToInitialPos = initialPoint.subtract(position());
                     setDeltaMovement(vecToInitialPos.add(
-                            new Vector3d(random.nextDouble() - 0.5D, 
+                            new Vec3(random.nextDouble() - 0.5D, 
                             (random.nextDouble() - 0.5D) * 0.5D, 
                             random.nextDouble() - 0.5D)).normalize().scale(0.002D));
                 }
             }
             else {
-                initialPoint = position().add(Vector3d.ZERO);
+                initialPoint = position().add(Vec3.ZERO);
             }
         }
         move(MoverType.SELF, getDeltaMovement());
@@ -124,8 +124,8 @@ public class CrimsonBubbleEntity extends Entity {
             if (hamon.characterIs(ModHamonSkills.CHARACTER_JOSEPH.get())) {
                 JojoModUtil.sayVoiceLine(entity, ModSounds.JOSEPH_CRIMSON_BUBBLE_REACTION.get());
             }
-            if (entity instanceof ServerPlayerEntity) {
-                ModCriteriaTriggers.LAST_HAMON.get().trigger((ServerPlayerEntity) entity, this);
+            if (entity instanceof ServerPlayer) {
+                ModCriteriaTriggers.LAST_HAMON.get().trigger((ServerPlayer) entity, this);
             }
             hamonStrengthPoints = 0;
             hamonControlPoints = 0;
@@ -164,19 +164,19 @@ public class CrimsonBubbleEntity extends Entity {
     protected void defineSynchedData() {}
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag compound) {
         this.hamonStrengthPoints = compound.getInt("StrengthPoints");
         this.hamonControlPoints = compound.getInt("ControlPoints");
-        if (compound.contains("InitialPoint", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT listNBT = compound.getList("InitialPoint", MCUtil.getNbtId(DoubleNBT.class));
+        if (compound.contains("InitialPoint", MCUtil.getNbtId(ListTag.class))) {
+            ListTag listNBT = compound.getList("InitialPoint", MCUtil.getNbtId(DoubleTag.class));
             if (listNBT.size() >= 3) {
-                this.initialPoint = new Vector3d(listNBT.getDouble(0), listNBT.getDouble(1), listNBT.getDouble(2));
+                this.initialPoint = new Vec3(listNBT.getDouble(0), listNBT.getDouble(1), listNBT.getDouble(2));
             }
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag compound) {
         compound.putInt("StrengthPoints", hamonStrengthPoints);
         compound.putInt("ControlPoints", hamonControlPoints);
         if (initialPoint != null) {
@@ -185,7 +185,7 @@ public class CrimsonBubbleEntity extends Entity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

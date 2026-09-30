@@ -3,14 +3,14 @@ package com.github.standobyte.jojo.client.ui.screen.controls.vanilla;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.KeyBindingList;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.controls.KeyBindsList;
 
-public class HoldToggleKeyEntry extends KeyBindingList.Entry {
-    private final KeyBindingList.Entry wrappedEntry;
+public class HoldToggleKeyEntry extends KeyBindsList.Entry {
+    private final KeyBindsList.Entry wrappedEntry;
     private final Button holdToggleButton;
     private final Button changeButton;
 
@@ -18,7 +18,7 @@ public class HoldToggleKeyEntry extends KeyBindingList.Entry {
         this(wrappedEntry, wrappedEntry.changeButton, holdToggleButton);
     }
 
-    public HoldToggleKeyEntry(KeyBindingList.Entry wrappedEntry, Button entryChangeKeyButton, Button holdToggleButton) {
+    public HoldToggleKeyEntry(KeyBindsList.Entry wrappedEntry, Button entryChangeKeyButton, Button holdToggleButton) {
         this.wrappedEntry = wrappedEntry;
         this.holdToggleButton = holdToggleButton;
         changeButton = entryChangeKeyButton;
@@ -26,7 +26,7 @@ public class HoldToggleKeyEntry extends KeyBindingList.Entry {
     }
     
     @Override
-    public void render(MatrixStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
+    public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         holdToggleButton.x = pLeft + 105 + changeButton.getWidth() - 1;
         holdToggleButton.y = pTop;
@@ -36,10 +36,10 @@ public class HoldToggleKeyEntry extends KeyBindingList.Entry {
     }
     
     @Override
-    public List<? extends IGuiEventListener> children() {
-        List<? extends IGuiEventListener> vanillaButtons = wrappedEntry.children();
+    public List<? extends GuiEventListener> children() {
+        List<? extends GuiEventListener> vanillaButtons = wrappedEntry.children();
         List<Button> buttons = new ArrayList<>();
-        for (IGuiEventListener button : vanillaButtons) {
+        for (GuiEventListener button : vanillaButtons) {
             buttons.add((Button) button);
         }
         buttons.add(holdToggleButton);
@@ -48,8 +48,8 @@ public class HoldToggleKeyEntry extends KeyBindingList.Entry {
     
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        List<? extends IGuiEventListener> buttons = children();
-        for (IGuiEventListener button : buttons) {
+        List<? extends GuiEventListener> buttons = children();
+        for (GuiEventListener button : buttons) {
             if (button.mouseClicked(pMouseX, pMouseY, pButton)) {
                 return true;
             }
@@ -60,8 +60,8 @@ public class HoldToggleKeyEntry extends KeyBindingList.Entry {
     
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
-        List<? extends IGuiEventListener> buttons = children();
-        for (IGuiEventListener button : buttons) {
+        List<? extends GuiEventListener> buttons = children();
+        for (GuiEventListener button : buttons) {
             if (button.mouseReleased(pMouseX, pMouseY, pButton)) {
                 return true;
             }

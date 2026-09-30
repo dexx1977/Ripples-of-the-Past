@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.KosmXKeyframeAnim
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class KosmXWindupAttackHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements WindupAttackAnim {
 
@@ -19,8 +19,8 @@ public abstract class KosmXWindupAttackHandler extends AnimLayerHandler<Modifier
         super(id);
     }
     
-    protected boolean setToSwingTick(PlayerEntity player, int minusTicks, ResourceLocation animId) {
-        ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayerEntity) player);
+    protected boolean setToSwingTick(Player player, int minusTicks, ResourceLocation animId) {
+        ModifierLayer<IAnimation> animLayer = getAnimLayer((AbstractClientPlayer) player);
         Optional<KosmXKeyframeAnimPlayer> attackAnim = playingAnim(animLayer, animId);
         if (attackAnim.isPresent()) {
             KosmXKeyframeAnimPlayer anim = attackAnim.get();

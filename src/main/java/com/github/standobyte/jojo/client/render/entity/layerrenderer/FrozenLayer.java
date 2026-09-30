@@ -8,35 +8,35 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.layerrenderer.HamonBurnLayer.TextureSize;
 import com.github.standobyte.jojo.init.ModStatusEffects;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
 
-public class FrozenLayer<T extends LivingEntity, M extends EntityModel<T>> extends LayerRenderer<T, M> implements IFirstPersonHandLayer {
+public class FrozenLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     public static final ResourceLocation BIPED_PATH = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/layer/vampire_freeze/biped");
     public static final ResourceLocation NON_BIPED_PATH = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/layer/vampire_freeze");
     
-    public FrozenLayer(IEntityRenderer<T, M> renderer, ResourceLocation texturesPath) {
+    public FrozenLayer(RenderLayerParent<T, M> renderer, ResourceLocation texturesPath) {
         super(renderer);
         initTextures(texturesPath);
     }
     
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, 
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, 
             T entity, float walkAnimPos, float walkAnimSpeed, float partialTick, 
             float ticks, float headYRotation, float headXRotation) {
         if (!entity.isInvisible()) {
@@ -44,14 +44,14 @@ public class FrozenLayer<T extends LivingEntity, M extends EntityModel<T>> exten
             ResourceLocation texture = getTexture(model, entity);
             if (texture == null) return;
             
-            IVertexBuilder vertexBuilder = buffer.getBuffer(RenderType.entityTranslucent(texture));
-            model.renderToBuffer(matrixStack, vertexBuilder, packedLight, LivingRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
+            VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityTranslucent(texture));
+            model.renderToBuffer(matrixStack, vertexBuilder, packedLight, LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
     
     @Nullable
     private ResourceLocation getTexture(EntityModel<?> model, LivingEntity entity) {
-        EffectInstance freeze = entity.getEffect(ModStatusEffects.FREEZE.get());
+        MobEffectInstance freeze = entity.getEffect(ModStatusEffects.FREEZE.get());
         if (freeze != null) {
             int freezelvl = Math.min(freeze.getAmplifier(), 3);
             TextureSize freezesize = TextureSize.getClosestTexSize(model);
@@ -61,10 +61,10 @@ public class FrozenLayer<T extends LivingEntity, M extends EntityModel<T>> exten
     }
     
     @Override
-    public void renderHandFirstPerson(HandSide side, MatrixStack matrixStack, 
-            IRenderTypeBuffer buffer, int light, AbstractClientPlayerEntity player, 
+    public void renderHandFirstPerson(HumanoidArm side, PoseStack matrixStack, 
+            MultiBufferSource buffer, int light, AbstractClientPlayer player, 
             PlayerRenderer playerRenderer) {
-        PlayerModel<AbstractClientPlayerEntity> model = playerRenderer.getModel();
+        PlayerModel<AbstractClientPlayer> model = playerRenderer.getModel();
         IFirstPersonHandLayer.defaultRender(side, matrixStack, buffer, light, player, playerRenderer, 
                 model, getTexture(model, player));
     }

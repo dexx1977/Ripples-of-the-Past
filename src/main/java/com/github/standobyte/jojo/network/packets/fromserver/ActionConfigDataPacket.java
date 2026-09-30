@@ -10,9 +10,9 @@ import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class ActionConfigDataPacket {
@@ -27,7 +27,7 @@ public class ActionConfigDataPacket {
     public static class Handler implements IModPacketHandler<ActionConfigDataPacket> {
 
         @Override
-        public void encode(ActionConfigDataPacket msg, PacketBuffer buf) {
+        public void encode(ActionConfigDataPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.actions, id -> buf.writeResourceLocation(id.getRegistryName()), false);
             for (Action<?> action : msg.actions) {
                 action.getOrCreateConfigs().toBuf(buf);
@@ -35,8 +35,8 @@ public class ActionConfigDataPacket {
         }
 
         @Override
-        public ActionConfigDataPacket decode(PacketBuffer buf) {
-            List<ResourceLocation> actionIds = NetworkUtil.readCollection(buf, PacketBuffer::readResourceLocation);
+        public ActionConfigDataPacket decode(FriendlyByteBuf buf) {
+            List<ResourceLocation> actionIds = NetworkUtil.readCollection(buf, FriendlyByteBuf::readResourceLocation);
 
             List<Action<?>> actions = new ArrayList<>();
             if (!actionIds.isEmpty()) {

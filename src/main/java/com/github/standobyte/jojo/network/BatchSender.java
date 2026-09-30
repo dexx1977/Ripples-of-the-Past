@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.network;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public abstract class BatchSender {
     protected final byte[] data;
@@ -68,14 +68,14 @@ public abstract class BatchSender {
             this.batchSize = batchSize;
         }
         
-        public void toBuf(PacketBuffer buf) {
+        public void toBuf(FriendlyByteBuf buf) {
             buf.writeVarInt(batchIndex);
             buf.writeBoolean(isLastBatch);
             buf.writeInt(batchSize);
             buf.writeBytes(dataBatch, batchStart, batchSize);
         }
         
-        public static Batch fromBuf(PacketBuffer buf) {
+        public static Batch fromBuf(FriendlyByteBuf buf) {
             int batchIndex = buf.readVarInt();
             boolean isLastBatch = buf.readBoolean();
             int batchSize = buf.readInt();

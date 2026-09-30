@@ -22,28 +22,29 @@ import com.github.standobyte.jojo.util.mod.IPlayerLeap;
 import com.github.standobyte.jojo.util.mod.IPlayerPossess;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 import net.minecraftforge.registries.RegistryManager;
+import net.minecraft.nbt.Tag;
 
-@Mixin(PlayerEntity.class)
+@Mixin(Player.class)
 public abstract class PlayerEntityMixin extends LivingEntityMixin implements PlayerMixinExtension, IPlayerLeap, IPlayerPossess {
     
-    protected PlayerEntityMixin(EntityType<? extends LivingEntity> type, World world) {
+    protected PlayerEntityMixin(EntityType<? extends LivingEntity> type, Level world) {
         super(type, world);
     }
 
@@ -54,20 +55,20 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     }
     
     @Override
-    public void jojoPlayerUndeadCreature(CallbackInfoReturnable<CreatureAttribute> ci) {
+    public void jojoPlayerUndeadCreature(CallbackInfoReturnable<MobType> ci) {
         if (JojoModUtil.playerUndeadAttribute((LivingEntity) (Object) this)) {
-            ci.setReturnValue(CreatureAttribute.UNDEAD);
+            ci.setReturnValue(MobType.UNDEAD);
         }
     }
     
     @Override
     public boolean _isEntityOnGround() {
-        return isOnGround();
+        return onGround();
     }
     
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
-    public void jojoPlayerWallClimb(Vector3d pTravelVector, CallbackInfo ci) {
-        PlayerEntity thisPlayer = (PlayerEntity) (Object) this;
+    public void jojoPlayerWallClimb(Vec3 pTravelVector, CallbackInfo ci) {
+        Player thisPlayer = (Player) (Object) this;
         if (HamonWallClimbing2.travelWallClimb(thisPlayer, pTravelVector)) {
             ci.cancel();
         }
@@ -102,7 +103,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     private final EntityOwnerResolver jojoPossessedEntity = new EntityOwnerResolver();
     private Optional<GameType> jojoPossessPrevGameMode = Optional.empty();
     private boolean jojoPossessingAsAlive;
-    private IForgeRegistryEntry<?> jojoPossessionContext;
+    private RegistryEntry<?> jojoPossessionContext;
     private boolean turnedIntoAngeloRock;
     
     /* TODO specific interactions when possessing someone with asAlive flag:
@@ -113,7 +114,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
      *   ...?
      */
     @Override
-    public void jojoPossessEntity(@Nullable Entity entity, boolean asAlive, IForgeRegistryEntry<?> context) {
+    public void jojoPossessEntity(@Nullable Entity entity, boolean asAlive, RegistryEntry<?> context) {
         if (entity == this) return;
         jojoPossessedEntity.setOwner(entity);
         if (!level.isClientSide()) {
@@ -121,7 +122,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
                 entity = null;
             }
             
-            ServerPlayerEntity player = ((ServerPlayerEntity) (Entity) this);
+            ServerPlayer player = ((ServerPlayer) (Entity) this);
             if (entity != null) {
                 jojoPossessPrevGameMode = Optional.of(player.gameMode.getGameModeForPlayer());
                 player.setGameMode(GameType.SPECTATOR);
@@ -141,7 +142,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
                 player.hurt(new DamageSource("rockBroken").bypassArmor().bypassInvul(), Float.MAX_VALUE);
                 // FIXME (!!) https://bugs.mojang.com/browse/MC/issues/MC-161755 - what the fuck is going on here??
                 if (player.isDeadOrDying()) {
-                    player.remove(player instanceof ServerPlayerEntity);
+                    player.remove(player instanceof ServerPlayer);
                 }
             }
         }
@@ -180,12 +181,12 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
         if (!level.isClientSide()) {
             PacketManager.sendToClient(new TrPossessEntityPacket(this.getId(), 
                     jojoPossessedEntity.getNetworkId(), jojoPossessingAsAlive, 
-                    jojoPossessPrevGameMode, jojoPossessionContext), ((ServerPlayerEntity) (Entity) this));
+                    jojoPossessPrevGameMode, jojoPossessionContext), ((ServerPlayer) (Entity) this));
         }
     }
     
     @Override
-    public IForgeRegistryEntry<?> jojoGetPossessionContext() {
+    public RegistryEntry<?> jojoGetPossessionContext() {
         return jojoPossessionContext;
     }
     
@@ -196,7 +197,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
             if (possessedEntity != null) {
                 jojoPossessEntity(null, false, jojoPossessionContext);
                 if (possessedEntity.getType() == ModEntityTypes.ANGELO_ROCK.get()) {
-                    remove(((Entity) this) instanceof ServerPlayerEntity);
+                    remove(((Entity) this) instanceof ServerPlayer);
                 }
             }
         }
@@ -204,12 +205,12 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     
     
     @Override
-    public void toNBT(CompoundNBT forgeCapNbt) {
+    public void toNBT(CompoundTag forgeCapNbt) {
         jojoPossessedEntity.saveNbt(forgeCapNbt, "Possessed");
         jojoPossessPrevGameMode.ifPresent(gameMode -> forgeCapNbt.putString("PossessPrevMode", gameMode.getName()));
         forgeCapNbt.putBoolean("PossessAsAlive", jojoPossessingAsAlive);
         if (jojoPossessionContext != null) {
-            CompoundNBT ctxNbt = new CompoundNBT();
+            CompoundTag ctxNbt = new CompoundTag();
             IForgeRegistry<?> retrievedRegistry = MCUtil.getRegistry(jojoPossessionContext);
             if (retrievedRegistry != null) {
                 ctxNbt.putString("Registry", retrievedRegistry.getRegistryName().toString());
@@ -220,12 +221,12 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     }
     
     @Override
-    public void fromNBT(CompoundNBT forgeCapNbt) {
+    public void fromNBT(CompoundTag forgeCapNbt) {
         jojoPossessedEntity.loadNbt(forgeCapNbt, "Possessed");
         jojoPossessPrevGameMode = Optional.ofNullable(GameType.byName(forgeCapNbt.getString("PossessPrevMode"), null));
         jojoPossessingAsAlive = forgeCapNbt.getBoolean("PossessAsAlive");
         jojoPossessionContext = MCUtil.nbtGetCompoundOptional(forgeCapNbt, "Ctx").map(ctxNbt -> {
-            if (ctxNbt.contains("Registry", Constants.NBT.TAG_STRING) && ctxNbt.contains("Obj", Constants.NBT.TAG_STRING)) {
+            if (ctxNbt.contains("Registry", Tag.TAG_STRING) && ctxNbt.contains("Obj", Tag.TAG_STRING)) {
                 ResourceLocation registryId = new ResourceLocation(ctxNbt.getString("Registry"));
                 ForgeRegistry<?> registry = RegistryManager.ACTIVE.getRegistry(registryId);
                 if (registry != null) {
@@ -241,7 +242,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     }
 
     @Override
-    public void syncToClient(ServerPlayerEntity thisAsPlayer) {
+    public void syncToClient(ServerPlayer thisAsPlayer) {
         PacketManager.sendToClient(new TrPossessEntityPacket(this.getId(), 
                 jojoPossessedEntity.getNetworkId(), jojoPossessingAsAlive, 
                 jojoPossessPrevGameMode, jojoPossessionContext), thisAsPlayer);
@@ -253,7 +254,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
     }
 
     @Override
-    public void syncToTracking(ServerPlayerEntity tracking) {
+    public void syncToTracking(ServerPlayer tracking) {
         PacketManager.sendToClient(new TrPossessEntityPacket(this.getId(), 
                 jojoPossessedEntity.getNetworkId(), jojoPossessingAsAlive, 
                 Optional.empty(), null), tracking);

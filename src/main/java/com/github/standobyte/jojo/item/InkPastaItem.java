@@ -12,16 +12,16 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.init.power.non_stand.hamon.ModHamonSkills;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class InkPastaItem extends Item {
 
@@ -30,16 +30,16 @@ public class InkPastaItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         return useWithHamon(world, player, hand).orElse(super.use(world, player, hand));
     }
     
     @Override
-    public ItemStack finishUsingItem(ItemStack pStack, World pLevel, LivingEntity entity) {
+    public ItemStack finishUsingItem(ItemStack pStack, Level pLevel, LivingEntity entity) {
         ItemStack item = super.finishUsingItem(pStack, pLevel, entity);
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             onEaten(entity);
-            if (((PlayerEntity) entity).abilities.instabuild) {
+            if (((Player) entity).abilities.instabuild) {
                 return item;
             }
         }
@@ -50,7 +50,7 @@ public class InkPastaItem extends Item {
         player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setInkPastaVisuals());
     }
     
-    public static Optional<ActionResult<ItemStack>> useWithHamon(World world, PlayerEntity player, Hand hand) {
+    public static Optional<InteractionResultHolder<ItemStack>> useWithHamon(Level world, Player player, InteractionHand hand) {
         boolean shootPasta = INonStandPower.getNonStandPowerOptional(player).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.HAMON.get())
                         .map(hamon -> {
@@ -66,7 +66,7 @@ public class InkPastaItem extends Item {
                 player.setItemInHand(hand, new ItemStack(Items.BOWL));
             }
             
-            return Optional.of(ActionResult.consume(pastaItem));
+            return Optional.of(InteractionResultHolder.consume(pastaItem));
         }
         
         return Optional.empty();
@@ -75,7 +75,7 @@ public class InkPastaItem extends Item {
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         ClientUtil.addItemReferenceQuote(tooltip, this);
         tooltip.add(ClientUtil.donoItemTooltip("Scorpivan"));
     }

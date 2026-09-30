@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.init.power.stand;
 
+import net.minecraft.resources.ResourceLocation;
+
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.action.stand.effect.BoyIIManStandPartTakenEffect;
 import com.github.standobyte.jojo.action.stand.effect.CDTurnIntoAngeloRockEffect;
@@ -10,14 +12,14 @@ import com.github.standobyte.jojo.action.stand.effect.GEItemMarkEffect;
 import com.github.standobyte.jojo.action.stand.effect.StandEffectType;
 import com.github.standobyte.jojo.mrpresident.MrPresidentEnteredRoomEffect;
 
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModStandEffects {
     public static final DeferredRegister<StandEffectType<?>> STAND_EFFECTS = DeferredRegister.create(
-            (Class<StandEffectType<?>>) ((Class<?>) StandEffectType.class), JojoMod.MOD_ID);
+            new ResourceLocation(JojoMod.MOD_ID, "stand_effect"), JojoMod.MOD_ID);
     
     public static final RegistryObject<StandEffectType<DriedBloodDrops>> DRIED_BLOOD_DROPS = STAND_EFFECTS.register("dried_blood_drops", 
             () -> new StandEffectType<>(DriedBloodDrops::new));

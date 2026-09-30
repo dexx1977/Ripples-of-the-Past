@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.client.render.entity.model.stand;
 import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 import com.github.standobyte.jojo.client.render.entity.renderer.stand.MagiciansRedRenderer;
 
-import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.renderer.Sheets;
 
 public class MagiciansRedFlameLayerModel extends MagiciansRedModel {
 
     public MagiciansRedFlameLayerModel() {
-        super(tex -> Atlases.translucentCullBlockSheet(), 64, 64);
+        super(tex -> Sheets.translucentCullBlockSheet(), 64, 64);
         isLayerModel = true;
         
         clearAllCubes();

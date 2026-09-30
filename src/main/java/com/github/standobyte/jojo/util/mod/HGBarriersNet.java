@@ -24,13 +24,13 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.general.GraphAdjacencyList;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public class HGBarriersNet {
     private Map<HGBarrierEntity, ShootingPoints> placedBarriers = new HashMap<>();
-    private GraphAdjacencyList<Vector3d> closePoints = new GraphAdjacencyList<>();
+    private GraphAdjacencyList<Vec3> closePoints = new GraphAdjacencyList<>();
     private double lastShotGap = -1;
     private boolean canShoot;
 
@@ -53,18 +53,18 @@ public class HGBarriersNet {
     
     private static final double SHOOTING_POINTS_GAP = 8;
     private ShootingPoints generateShootingPoints(HGBarrierEntity entity) {
-        Vector3d posA = entity.position();
-        Vector3d posB = entity.getOriginPoint(1.0F);
-        Vector3d vecAToB = posB.subtract(posA);
+        Vec3 posA = entity.position();
+        Vec3 posB = entity.getOriginPoint(1.0F);
+        Vec3 vecAToB = posB.subtract(posA);
         
-        List<Vector3d> shootingPoints = new ArrayList<>();
+        List<Vec3> shootingPoints = new ArrayList<>();
         if (vecAToB.lengthSqr() <= SHOOTING_POINTS_GAP * SHOOTING_POINTS_GAP * 4) {
             shootingPoints.add(posA.add(vecAToB.scale(0.5)));
         }
         else {
-            int steps = MathHelper.floor(vecAToB.length() / SHOOTING_POINTS_GAP);
-            Vector3d nextPoint = posA;
-            Vector3d stepVec = vecAToB.normalize().scale(SHOOTING_POINTS_GAP);
+            int steps = Mth.floor(vecAToB.length() / SHOOTING_POINTS_GAP);
+            Vec3 nextPoint = posA;
+            Vec3 stepVec = vecAToB.normalize().scale(SHOOTING_POINTS_GAP);
             for (int i = 0; i < steps; i++) {
                 nextPoint = nextPoint.add(stepVec);
                 shootingPoints.add(nextPoint);
@@ -91,24 +91,24 @@ public class HGBarriersNet {
     }
 
     public void shootEmeraldsFromBarriers(IStandPower standPower, HierophantGreenEntity stand, 
-            Vector3d targetPos, int tick, double maxEmeralds, float staminaPerEmerald, double minGap, boolean breakBlocks) {
+            Vec3 targetPos, int tick, double maxEmeralds, float staminaPerEmerald, double minGap, boolean breakBlocks) {
         if (!canShoot) return;
-        List<Vector3d> shootingPoints = placedBarriers.values().stream().flatMap(points -> 
+        List<Vec3> shootingPoints = placedBarriers.values().stream().flatMap(points -> 
         points.shootingPoints.stream()).collect(Collectors.toCollection(LinkedList::new));
         if (lastShotGap != minGap) {
             closePoints.create((pointA, pointB) -> pointA.distanceToSqr(pointB) < minGap * minGap, shootingPoints);
             lastShotGap = minGap;
         }
 
-        Set<Vector3d> pointsToShootThisTick = new HashSet<>();
+        Set<Vec3> pointsToShootThisTick = new HashSet<>();
         GeneralUtil.doFractionTimes(() -> {
-            Vector3d point = shootingPoints.stream().min(Comparator.comparingDouble(p -> p.distanceToSqr(targetPos))).get();
+            Vec3 point = shootingPoints.stream().min(Comparator.comparingDouble(p -> p.distanceToSqr(targetPos))).get();
             pointsToShootThisTick.add(point);
             shootingPoints.remove(point);
             closePoints.getAllAdjacent(point).forEach(closePoint -> shootingPoints.remove(closePoint));
         }, maxEmeralds, () -> shootingPoints.isEmpty());
         
-        for (Vector3d point : pointsToShootThisTick) {
+        for (Vec3 point : pointsToShootThisTick) {
             if (!standPower.consumeStamina(staminaPerEmerald)) {
                 break;
             }
@@ -118,7 +118,7 @@ public class HGBarriersNet {
         canShoot = false;
     }
     
-    public Stream<Vector3d> wasRippedAt() {
+    public Stream<Vec3> wasRippedAt() {
         return placedBarriers.keySet().stream()
                 .flatMap(barrier -> barrier.wasRippedAt().map(point -> Stream.of(point)).orElse(Stream.empty()));
     }
@@ -128,13 +128,13 @@ public class HGBarriersNet {
         CLOSEST
     }
     
-    private void shootEmerald(HierophantGreenEntity stand, Vector3d shootingPos, Vector3d targetPos, boolean playSound, boolean breakBlocks) {
+    private void shootEmerald(HierophantGreenEntity stand, Vec3 shootingPos, Vec3 targetPos, boolean playSound, boolean breakBlocks) {
         if (!stand.level.isClientSide()) {
             HGEmeraldEntity emeraldEntity = new HGEmeraldEntity(stand, stand.level, null);
             emeraldEntity.setPos(shootingPos.x, shootingPos.y, shootingPos.z);
             emeraldEntity.setBreakBlocks(breakBlocks);
             emeraldEntity.setLowerKnockback(true);
-            Vector3d shootVec = targetPos.subtract(shootingPos);
+            Vec3 shootVec = targetPos.subtract(shootingPos);
             emeraldEntity.shoot(shootVec.x, shootVec.y, shootVec.z, 1.5F, stand.getProjectileInaccuracy(2.0F));
             emeraldEntity.setDamageFactor(0.75F);
             emeraldEntity.withStandSkin(stand.getStandSkin());
@@ -152,9 +152,9 @@ public class HGBarriersNet {
     }
     
     private class ShootingPoints {
-        private final List<Vector3d> shootingPoints;
+        private final List<Vec3> shootingPoints;
         
-        private ShootingPoints(List<Vector3d> shootingPoints) {
+        private ShootingPoints(List<Vec3> shootingPoints) {
             this.shootingPoints = shootingPoints;
         }
     }

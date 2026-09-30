@@ -25,10 +25,10 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Floats;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -419,7 +419,7 @@ public class JojoModConfig {
             
             private final boolean endermenBeyondTimeSpace;
             
-            public SyncedValues(PacketBuffer buf) {
+            public SyncedValues(FriendlyByteBuf buf) {
 //                hamonPointsMultiplier = buf.readDouble();
 //                breathingTrainingMultiplier = buf.readDouble();
                 breathingStatGap = buf.readVarInt();
@@ -459,7 +459,7 @@ public class JojoModConfig {
                 hamonEnergyTicksDown =              (flags[1] & 128) > 0;
             }
 
-            public void writeToBuf(PacketBuffer buf) {
+            public void writeToBuf(FriendlyByteBuf buf) {
 //                buf.writeDouble(hamonPointsMultiplier);
 //                buf.writeDouble(breathingTrainingMultiplier);
                 buf.writeVarInt(breathingStatGap);
@@ -623,11 +623,11 @@ public class JojoModConfig {
 
             
             
-            public static void syncWithClient(ServerPlayerEntity player) {
+            public static void syncWithClient(ServerPlayer player) {
                 PacketManager.sendToClient(new CommonConfigPacket(new SyncedValues(COMMON_FROM_FILE)), player);
             }
             
-            public static void onPlayerLogout(ServerPlayerEntity player) {
+            public static void onPlayerLogout(ServerPlayer player) {
                 PacketManager.sendToClient(new ResetSyncedCommonConfigPacket(), player);
             }
         }

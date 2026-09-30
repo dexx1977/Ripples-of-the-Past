@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.capability.world.SaveFileUtilCapProvider;
 import com.github.standobyte.jojo.item.polaroid.PhotosHandler;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClPhotoRequestPacket {
     private final long photoId;
@@ -23,19 +23,19 @@ public class ClPhotoRequestPacket {
     public static class Handler implements IModPacketHandler<ClPhotoRequestPacket> {
 
         @Override
-        public void encode(ClPhotoRequestPacket msg, PacketBuffer buf) {
+        public void encode(ClPhotoRequestPacket msg, FriendlyByteBuf buf) {
             buf.writeLong(msg.photoId);
         }
 
         @Override
-        public ClPhotoRequestPacket decode(PacketBuffer buf) {
+        public ClPhotoRequestPacket decode(FriendlyByteBuf buf) {
             long photoId = buf.readLong();
             return new ClPhotoRequestPacket(photoId);
         }
 
         @Override
         public void handle(ClPhotoRequestPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             PhotosHandler serverPhotos = SaveFileUtilCapProvider.getSaveFileCap(player).getPolaroidPhotos();
             UUID serverId = SaveFileUtilCapProvider.getSaveFileCap(player).getServerUUID();
             serverPhotos.requestPhoto(msg.photoId, player, serverId);

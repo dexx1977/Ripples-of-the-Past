@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrWalkmanEarbudsPacket {
     private final int entityId;
@@ -24,13 +24,13 @@ public class TrWalkmanEarbudsPacket {
     public static class Handler implements IModPacketHandler<TrWalkmanEarbudsPacket> {
 
         @Override
-        public void encode(TrWalkmanEarbudsPacket msg, PacketBuffer buf) {
+        public void encode(TrWalkmanEarbudsPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeBoolean(msg.earbuds);
         }
 
         @Override
-        public TrWalkmanEarbudsPacket decode(PacketBuffer buf) {
+        public TrWalkmanEarbudsPacket decode(FriendlyByteBuf buf) {
             return new TrWalkmanEarbudsPacket(buf.readInt(), buf.readBoolean());
         }
 

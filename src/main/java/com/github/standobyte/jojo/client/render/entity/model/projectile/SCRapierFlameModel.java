@@ -2,18 +2,18 @@ package com.github.standobyte.jojo.client.render.entity.model.projectile;
 
 import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 import com.github.standobyte.jojo.entity.damaging.projectile.SCRapierEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.core.Direction;
 
 public class SCRapierFlameModel extends EntityModel<SCRapierEntity> {
     private FlameModelRenderer flame;
 
     public SCRapierFlameModel() {
-        super(tex -> Atlases.translucentCullBlockSheet());
+        super(tex -> Sheets.translucentCullBlockSheet());
         
         flame = new FlameModelRenderer(this);
         flame.setPos(-0.5F, 0.0F, 0.0F);
@@ -34,7 +34,7 @@ public class SCRapierFlameModel extends EntityModel<SCRapierEntity> {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         flame.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.client.polaroid.PhotosCache.PhotoHolder;
 import com.github.standobyte.jojo.network.BatchSender;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PhotoDataPacket {
     private final UUID serverId;
@@ -37,7 +37,7 @@ public class PhotoDataPacket {
     public static class Handler implements IModPacketHandler<PhotoDataPacket> {
 
         @Override
-        public void encode(PhotoDataPacket msg, PacketBuffer buf) {
+        public void encode(PhotoDataPacket msg, FriendlyByteBuf buf) {
             buf.writeUUID(msg.serverId);
             buf.writeLong(msg.photoId);
             buf.writeBoolean(msg.hasPhoto);
@@ -47,7 +47,7 @@ public class PhotoDataPacket {
         }
 
         @Override
-        public PhotoDataPacket decode(PacketBuffer buf) {
+        public PhotoDataPacket decode(FriendlyByteBuf buf) {
             UUID serverId = buf.readUUID();
             long photoId = buf.readLong();
             boolean hasPhoto = buf.readBoolean();

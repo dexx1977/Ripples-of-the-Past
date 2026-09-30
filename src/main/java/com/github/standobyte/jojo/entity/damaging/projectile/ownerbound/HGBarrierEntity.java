@@ -15,43 +15,43 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.IDataSerializer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class HGBarrierEntity extends OwnerBoundProjectileEntity {
-    protected static final DataParameter<Boolean> WAS_RIPPED = EntityDataManager.defineId(HGBarrierEntity.class, DataSerializers.BOOLEAN);
-    protected static final DataParameter<Optional<Vector3d>> RIPPED_POINT = EntityDataManager.defineId(HGBarrierEntity.class, 
-            (IDataSerializer<Optional<Vector3d>>) ModDataSerializers.OPTIONAL_VECTOR3D.get().getSerializer());
-    public static final DataParameter<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = EntityDataManager.defineId(HGBarrierEntity.class, 
-            (IDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
+    protected static final EntityDataAccessor<Boolean> WAS_RIPPED = SynchedEntityData.defineId(HGBarrierEntity.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Optional<Vec3>> RIPPED_POINT = SynchedEntityData.defineId(HGBarrierEntity.class, 
+            (EntityDataSerializer<Optional<Vec3>>) ModDataSerializers.OPTIONAL_VECTOR3D.get().getSerializer());
+    public static final EntityDataAccessor<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = SynchedEntityData.defineId(HGBarrierEntity.class, 
+            (EntityDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
     private boolean rippedHurtOwner = false;
     private LivingEntity standUser;
     private BlockPos originBlockPos;
     private int rippedTicks = -1;
     private boolean timeStop = false;
     
-    public HGBarrierEntity(World world, StandEntity entity) {
+    public HGBarrierEntity(Level world, StandEntity entity) {
         super(ModEntityTypes.HG_BARRIER.get(), entity, world);
         this.standUser = entity.getUser();
     }
     
-    public HGBarrierEntity(EntityType<? extends HGBarrierEntity> entityType, World world) {
+    public HGBarrierEntity(EntityType<? extends HGBarrierEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -91,9 +91,9 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
         }
         else if (!level.isClientSide()) {
             if (!wasRipped()) {
-                RayTraceResult[] rayTrace = rayTrace();
-                for (RayTraceResult result : rayTrace) {
-                    if (result.getType() == RayTraceResult.Type.ENTITY && !ForgeEventFactory.onProjectileImpact(this, result)) {
+                HitResult[] rayTrace = rayTrace();
+                for (HitResult result : rayTrace) {
+                    if (result.getType() == HitResult.Type.ENTITY && !ForgeEventFactory.onProjectileImpact(this, result)) {
                         ripAt(result.getLocation());
                         break;
                     }
@@ -119,18 +119,18 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    public Vector3d getOriginPoint(float partialTick) {
+    public Vec3 getOriginPoint(float partialTick) {
         return originBlockPos == null
                 ? standUser == null ? position() : MCUtil.getEntityPosition(standUser, partialTick)
-                        : Vector3d.atCenterOf(originBlockPos);
+                        : Vec3.atCenterOf(originBlockPos);
     }
 
     @Deprecated
     @Override
-    protected Vector3d getNextOriginOffset() { return Vector3d.ZERO; }
+    protected Vec3 getNextOriginOffset() { return Vec3.ZERO; }
     
     @Override
-    protected void onHitBlock(BlockRayTraceResult result) {}
+    protected void onHitBlock(BlockHitResult result) {}
 
     @Override
     protected void defineSynchedData() {
@@ -140,14 +140,14 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
         entityData.define(DATA_PARAM_STAND_SKIN, Optional.empty());
     }
     
-    private static final Vector3d OFFSET = new Vector3d(0.15D, -1.4D, 0);
+    private static final Vec3 OFFSET = new Vec3(0.15D, -1.4D, 0);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
         super.onSyncedDataUpdated(dataParameter);
         if (WAS_RIPPED.equals(dataParameter) && wasRipped()) {
             rippedTicks = 40;
@@ -158,11 +158,11 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
         return entityData.get(WAS_RIPPED);
     }
     
-    public Optional<Vector3d> wasRippedAt() {
+    public Optional<Vec3> wasRippedAt() {
         return entityData.get(RIPPED_POINT);
     }
     
-    private void ripAt(@Nonnull Vector3d pos) {
+    private void ripAt(@Nonnull Vec3 pos) {
         entityData.set(WAS_RIPPED, true);
         entityData.set(RIPPED_POINT, Optional.of(pos));
     }
@@ -179,10 +179,10 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+    protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         if (getBlockPosAttachedTo().isPresent()) {
             Entity target = entityRayTraceResult.getEntity();
-            target.setDeltaMovement(Vector3d.ZERO);
+            target.setDeltaMovement(Vec3.ZERO);
             if (!level.isClientSide()) {
                 super.onHitEntity(entityRayTraceResult);
                 ripAt(entityRayTraceResult.getLocation());
@@ -249,17 +249,17 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeInt(standUser != null ? standUser.getId() : -1);
         boolean isBlockOrigin = originBlockPos != null;
@@ -270,7 +270,7 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         Entity entity = level.getEntity(additionalData.readInt());
         if (entity instanceof LivingEntity) {

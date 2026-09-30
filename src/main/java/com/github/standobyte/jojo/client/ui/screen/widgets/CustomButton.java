@@ -2,46 +2,45 @@ package com.github.standobyte.jojo.client.ui.screen.widgets;
 
 import com.github.standobyte.jojo.client.ui.screen.widgets.utils.IExtendedWidget;
 import com.github.standobyte.jojo.client.ui.screen.widgets.utils.WidgetExtension;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("deprecation")
 public class CustomButton extends Button implements IExtendedWidget {
     private final WidgetExtension extension;
 
     public CustomButton(int x, int y, int width, int height, Button.IPressable onPress) {
-        this(x, y, width, height, StringTextComponent.EMPTY, onPress);
+        this(x, y, width, height, Component.empty(), onPress);
     }
 
     public CustomButton(int x, int y, int width, int height, Button.IPressable onPress, Button.ITooltip tooltip) {
-        this(x, y, width, height, StringTextComponent.EMPTY, onPress, tooltip);
+        this(x, y, width, height, Component.empty(), onPress, tooltip);
     }
 
-    public CustomButton(int x, int y, int width, int height, ITextComponent message, Button.IPressable onPress) {
+    public CustomButton(int x, int y, int width, int height, Component message, Button.IPressable onPress) {
         super(x, y, width, height, message, onPress);
         this.extension = new WidgetExtension(this);
     }
 
-    public CustomButton(int x, int y, int width, int height, ITextComponent message, Button.IPressable onPress, Button.ITooltip tooltip) {
+    public CustomButton(int x, int y, int width, int height, Component message, Button.IPressable onPress, Button.ITooltip tooltip) {
         super(x, y, width, height, message, onPress, tooltip);
         this.extension = new WidgetExtension(this);
     }
 
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         renderCustomButton(matrixStack, mouseX, mouseY, partialTick);
         if (isHovered()) {
             renderToolTip(matrixStack, mouseX, mouseY);
         }
     }
     
-    protected void renderCustomButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -62,7 +61,7 @@ public class CustomButton extends Button implements IExtendedWidget {
     }
     
     @Override
-    public Widget thisAsWidget() {
+    public AbstractWidget thisAsWidget() {
         return this;
     }
 }

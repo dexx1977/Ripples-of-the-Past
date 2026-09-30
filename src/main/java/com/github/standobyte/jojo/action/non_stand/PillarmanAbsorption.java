@@ -14,16 +14,16 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class PillarmanAbsorption extends PillarmanAction {
 
@@ -51,7 +51,7 @@ public class PillarmanAbsorption extends PillarmanAction {
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
             if (!world.isClientSide() && target.getEntity() instanceof LivingEntity) {
                 LivingEntity targetEntity = (LivingEntity) target.getEntity();
@@ -68,20 +68,20 @@ public class PillarmanAbsorption extends PillarmanAction {
         }
     }
 
-    private static final Effect[] BLOOD_DRAIN_EFFECTS = {
-            Effects.MOVEMENT_SLOWDOWN,
-            Effects.DIG_SLOWDOWN,
-            Effects.WEAKNESS,
-            Effects.CONFUSION
+    private static final MobEffect[] BLOOD_DRAIN_EFFECTS = {
+            MobEffects.MOVEMENT_SLOWDOWN,
+            MobEffects.DIG_SLOWDOWN,
+            MobEffects.WEAKNESS,
+            MobEffects.CONFUSION
     };
     
-    public static boolean absorb(World world, LivingEntity attacker, LivingEntity target, float absorbDamage) {
+    public static boolean absorb(Level world, LivingEntity attacker, LivingEntity target, float absorbDamage) {
         if (HamonUtil.preventBlockDamage(target, attacker.level, null, null, 
                 new EntityDamageSource(DamageUtil.PILLAR_MAN_ABSORPTION.getMsgId(), attacker), absorbDamage)) {
-            Vector3d userPos = attacker.getEyePosition(1.0F);
+            Vec3 userPos = attacker.getEyePosition(1.0F);
             double distanceToTarget = JojoModUtil.getDistance(attacker, target.getEntity().getBoundingBox());
-            Vector3d targetPos = attacker.getEyePosition(1.0F).add(attacker.getLookAngle().scale(distanceToTarget));
-            Vector3d particlesPos = userPos.add(targetPos.subtract(userPos).scale(0.5));
+            Vec3 targetPos = attacker.getEyePosition(1.0F).add(attacker.getLookAngle().scale(distanceToTarget));
+            Vec3 particlesPos = userPos.add(targetPos.subtract(userPos).scale(0.5));
             if (world.isClientSide()) {
             	HamonSparksLoopSound.playSparkSound(attacker, particlesPos, 1.0F, true);
             	CustomParticlesHelper.createHamonSparkParticles(null, particlesPos, 1);
@@ -91,12 +91,12 @@ public class PillarmanAbsorption extends PillarmanAction {
         
         boolean hurt = DamageUtil.dealPillarmanAbsorptionDamage(target, absorbDamage, null);
         if (hurt) {
-            for (Effect effect : BLOOD_DRAIN_EFFECTS) {
-                int duration = MathHelper.floor(20F * absorbDamage);
-                EffectInstance effectInstance = target.getEffect(effect);
-                EffectInstance newInstance = effectInstance == null ? 
-                        new EffectInstance(effect, duration, 1)
-                        : new EffectInstance(effect, effectInstance.getDuration() + duration, 1);
+            for (MobEffect effect : BLOOD_DRAIN_EFFECTS) {
+                int duration = Mth.floor(20F * absorbDamage);
+                MobEffectInstance effectInstance = target.getEffect(effect);
+                MobEffectInstance newInstance = effectInstance == null ? 
+                        new MobEffectInstance(effect, duration, 1)
+                        : new MobEffectInstance(effect, effectInstance.getDuration() + duration, 1);
                 target.addEffect(newInstance);
             }
         }

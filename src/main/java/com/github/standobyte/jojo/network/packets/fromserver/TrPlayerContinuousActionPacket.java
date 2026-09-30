@@ -13,11 +13,11 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.IPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrPlayerContinuousActionPacket {
     private final int entityId;
@@ -60,7 +60,7 @@ public class TrPlayerContinuousActionPacket {
     public static class Handler implements IModPacketHandler<TrPlayerContinuousActionPacket> {
 
         @Override
-        public void encode(TrPlayerContinuousActionPacket msg, PacketBuffer buf) {
+        public void encode(TrPlayerContinuousActionPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeEnum(msg.packetType);
             switch (msg.packetType) {
@@ -76,7 +76,7 @@ public class TrPlayerContinuousActionPacket {
         }
 
         @Override
-        public TrPlayerContinuousActionPacket decode(PacketBuffer buf) {
+        public TrPlayerContinuousActionPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readInt();
             PacketType packetType = buf.readEnum(PacketType.class);
             switch (packetType) {
@@ -93,7 +93,7 @@ public class TrPlayerContinuousActionPacket {
         @Override
         public void handle(TrPlayerContinuousActionPacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.entityId);
-            if (entity instanceof PlayerEntity) {
+            if (entity instanceof Player) {
                 LivingEntity player = (LivingEntity) entity;
                 entity.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                     switch (msg.packetType) {

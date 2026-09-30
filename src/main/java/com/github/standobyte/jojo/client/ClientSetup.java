@@ -143,35 +143,35 @@ import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.mco.mcrecog.MCRecog;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.particle.CloudParticle;
-import net.minecraft.client.particle.IAnimatedSprite;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.particle.PlayerCloudParticle;
+import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.LavaParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.color.ItemColors;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.FireworkRocketRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.SpriteRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.Items;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.entity.FireworkEntityRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -187,7 +187,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientSetup {
 
-    public static final IItemPropertyGetter STAND_ITEM_INVISIBLE = (itemStack, clientWorld, livingEntity) -> {
+    public static final ItemPropertyFunction STAND_ITEM_INVISIBLE = (itemStack, clientWorld, livingEntity) -> {
         return !ClientUtil.canSeeStands() ? 1 : 0;
     };
     
@@ -239,8 +239,8 @@ public class ClientSetup {
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_DETECTOR.get(), MRDetectorRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CD_BLOOD_CUTTER.get(), CDBloodCutterRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CD_BLOCK_BULLET.get(), CDBlockBulletRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkRocketRenderer(manager, Minecraft.getInstance().getItemRenderer()));
+        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
+        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager, Minecraft.getInstance().getItemRenderer()));
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.ANGELO_ROCK.get(), AngeloRockRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), GETransformationRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HUNGRY_ZOMBIE.get(), HungryZombieRenderer::new);
@@ -280,44 +280,44 @@ public class ClientSetup {
         
         event.enqueueWork(() -> {
             CustomIconItem.registerModelOverride();
-            ItemModelsProperties.register(ModItems.KNIFE.get(), new ResourceLocation(JojoMod.MOD_ID, "count"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(ModItems.KNIFE.get(), new ResourceLocation(JojoMod.MOD_ID, "count"), (itemStack, clientWorld, livingEntity) -> {
                 return livingEntity != null ? itemStack.getCount() : 1;
             });
-            ItemModelsProperties.register(ModItems.STONE_MASK.get(), new ResourceLocation(JojoMod.MOD_ID, "stone_mask_activated"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(ModItems.STONE_MASK.get(), new ResourceLocation(JojoMod.MOD_ID, "stone_mask_activated"), (itemStack, clientWorld, livingEntity) -> {
                 return itemStack.getTag().getByte(StoneMaskItem.NBT_ACTIVATION_KEY) > 0 ? 1 : 0;
             });
-            ItemModelsProperties.register(ModItems.TOMMY_GUN.get(), new ResourceLocation(JojoMod.MOD_ID, "swing"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(ModItems.TOMMY_GUN.get(), new ResourceLocation(JojoMod.MOD_ID, "swing"), (itemStack, clientWorld, livingEntity) -> {
                 return livingEntity != null && livingEntity.swinging && livingEntity.getItemInHand(livingEntity.swingingArm) == itemStack ? 1 : 0;
             });
-            ItemModelsProperties.register(Items.BOW, new ResourceLocation(JojoMod.MOD_ID, "stand_arrow"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(Items.BOW, new ResourceLocation(JojoMod.MOD_ID, "stand_arrow"), (itemStack, clientWorld, livingEntity) -> {
                 return livingEntity != null && livingEntity.isUsingItem() && livingEntity.getUseItem() == itemStack
                         && livingEntity.getProjectile(itemStack).getItem() instanceof StandArrowItem ? 1 : 0;
             });
-            ItemModelsProperties.register(Items.CROSSBOW, new ResourceLocation(JojoMod.MOD_ID, "stand_arrow"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(Items.CROSSBOW, new ResourceLocation(JojoMod.MOD_ID, "stand_arrow"), (itemStack, clientWorld, livingEntity) -> {
                 return livingEntity != null && CrossbowItem.isCharged(itemStack) && (
                         CrossbowItem.containsChargedProjectile(itemStack, ModItems.STAND_ARROW.get()) || 
                         CrossbowItem.containsChargedProjectile(itemStack, ModItems.STAND_ARROW_BEETLE.get())) ? 1 : 0;
             });
-            ItemModelsProperties.register(ModItems.STAND_DISC.get(), new ResourceLocation(JojoMod.MOD_ID, "stand_id"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(ModItems.STAND_DISC.get(), new ResourceLocation(JojoMod.MOD_ID, "stand_id"), (itemStack, clientWorld, livingEntity) -> {
                 return StandDiscItem.validStandDisc(itemStack, true) ? JojoCustomRegistries.STANDS.getNumericId(StandDiscItem.getStandFromStack(itemStack).getType().getRegistryName()) : -1;
             });
-            ItemModelsProperties.register(ModItems.CASSETTE_RECORDED.get(), new ResourceLocation(JojoMod.MOD_ID, "cassette_distortion"), (itemStack, clientWorld, livingEntity) -> {
+            ItemProperties.register(ModItems.CASSETTE_RECORDED.get(), new ResourceLocation(JojoMod.MOD_ID, "cassette_distortion"), (itemStack, clientWorld, livingEntity) -> {
                 return CassetteRecordedItem.getCassetteData(itemStack)
-                        .map(cap -> MathHelper.clamp(cap.getGeneration(), 0, CassetteCap.MAX_GENERATION))
+                        .map(cap -> Mth.clamp(cap.getGeneration(), 0, CassetteCap.MAX_GENERATION))
                         .orElse(0).floatValue();
             });
 //            ItemModelsProperties.register(ModItems.EMPEROR.get(), new ResourceLocation(JojoMod.MOD_ID, "stand_invisible"), STAND_ITEM_INVISIBLE);
-            ItemModelsProperties.register(ModItems.POLAROID.get(), new ResourceLocation(JojoMod.MOD_ID, "is_held"), (itemStack, clientWorld, livingEntity) -> {
-                return livingEntity != null && (livingEntity.getItemInHand(Hand.MAIN_HAND) == itemStack || livingEntity.getItemInHand(Hand.OFF_HAND) == itemStack) ? 1 : 0;
+            ItemProperties.register(ModItems.POLAROID.get(), new ResourceLocation(JojoMod.MOD_ID, "is_held"), (itemStack, clientWorld, livingEntity) -> {
+                return livingEntity != null && (livingEntity.getItemInHand(InteractionHand.MAIN_HAND) == itemStack || livingEntity.getItemInHand(InteractionHand.OFF_HAND) == itemStack) ? 1 : 0;
             });
 
-            RenderTypeLookup.setRenderLayer(ModBlocks.STONE_MASK.get(), RenderType.cutoutMipped());
-            RenderTypeLookup.setRenderLayer(ModBlocks.AJA_STONE_MASK.get(), RenderType.cutoutMipped());
-            RenderTypeLookup.setRenderLayer(ModBlocks.SLUMBERING_PILLARMAN.get(), RenderType.cutoutMipped());
-            RenderTypeLookup.setRenderLayer(ModBlocks.MAGICIANS_RED_FIRE.get(), RenderType.cutout());
-            ModBlocks.WOODEN_COFFIN_OAK.values().forEach(coffinBlock -> RenderTypeLookup.setRenderLayer(coffinBlock.get(), RenderType.cutout()));
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.STONE_MASK.get(), RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.AJA_STONE_MASK.get(), RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.SLUMBERING_PILLARMAN.get(), RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.MAGICIANS_RED_FIRE.get(), RenderType.cutout());
+            ModBlocks.WOODEN_COFFIN_OAK.values().forEach(coffinBlock -> ItemBlockRenderTypes.setRenderLayer(coffinBlock.get(), RenderType.cutout()));
             
-            ScreenManager.register(ModContainers.WALKMAN.get(), WalkmanScreen::new);
+            MenuScreens.register(ModContainers.WALKMAN.get(), WalkmanScreen::new);
 
             ClientEventHandler.init(mc);
             ActionsOverlayGui.init(mc);
@@ -376,11 +376,11 @@ public class ClientSetup {
         renderer.addLayer(new HamonProtectionLayer<>(renderer));
     }
     
-    private static <T extends LivingEntity, M extends BipedModel<T>> void addLayersToEntities(EntityRenderer<?> renderer) {
-        if (renderer instanceof LivingRenderer<?, ?>) {
-            LivingRenderer<T, M> livingRenderer = (LivingRenderer<T, M>) renderer;
+    private static <T extends LivingEntity, M extends HumanoidModel<T>> void addLayersToEntities(EntityRenderer<?> renderer) {
+        if (renderer instanceof LivingEntityRenderer<?, ?>) {
+            LivingEntityRenderer<T, M> livingRenderer = (LivingEntityRenderer<T, M>) renderer;
             addLivingLayers(livingRenderer);
-            if (((LivingRenderer<?, ?>) renderer).getModel() instanceof BipedModel<?>) {
+            if (((LivingEntityRenderer<?, ?>) renderer).getModel() instanceof HumanoidModel<?>) {
                 addBipedLayers(livingRenderer, false);
             }
             else {
@@ -390,11 +390,11 @@ public class ClientSetup {
         }
     }
     
-    private static <T extends LivingEntity, M extends EntityModel<T>> void addLivingLayers(LivingRenderer<T, M> renderer) {
+    private static <T extends LivingEntity, M extends EntityModel<T>> void addLivingLayers(LivingEntityRenderer<T, M> renderer) {
         renderer.addLayer(new HamonBurnLayer<>(renderer));
     }
     
-    private static <T extends LivingEntity, M extends BipedModel<T>> void addBipedLayers(LivingRenderer<T, M> renderer, boolean slim) {
+    private static <T extends LivingEntity, M extends HumanoidModel<T>> void addBipedLayers(LivingEntityRenderer<T, M> renderer, boolean slim) {
         renderer.addLayer(new ZombieLayer<>(renderer));
         renderer.addLayer(new PillarmanLayer<>(renderer));
         renderer.addLayer(new FrozenLayer<>(renderer, FrozenLayer.BIPED_PATH));
@@ -438,15 +438,15 @@ public class ClientSetup {
         StandDiscOverrideList.onModelRegistry();
     }
     
-    public static void addUnreferencedBlockModels(RenderMaterial... renderMaterials) {
-        Set<RenderMaterial> textures = ClientReflection.getModelBakeryUnreferencedTextures();
+    public static void addUnreferencedBlockModels(Material... renderMaterials) {
+        Set<Material> textures = ClientReflection.getModelBakeryUnreferencedTextures();
         Collections.addAll(textures, renderMaterials);
     }
     
     
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
-        Map<ResourceLocation, IBakedModel> registry = event.getModelRegistry();
+        Map<ResourceLocation, BakedModel> registry = event.getModelRegistry();
         registerCustomBakedModel(ModItems.ROAD_ROLLER.get().getRegistryName(), registry,                model -> new RoadRollerBakedModel(model));
         registerCustomBakedModel(ModItems.STAND_DISC.get().getRegistryName(), registry,                 model -> new StandDiscISTERModel(model));
         registerCustomBakedModel(ModItems.POLAROID.get().getRegistryName(), registry,                   model -> new ItemISTERModelWrapper(model).setCaptureEntity());
@@ -457,9 +457,9 @@ public class ClientSetup {
     }
     
     public static void registerCustomBakedModel(ResourceLocation resLoc, 
-            Map<ResourceLocation, IBakedModel> modelRegistry, UnaryOperator<IBakedModel> newModel) {
+            Map<ResourceLocation, BakedModel> modelRegistry, UnaryOperator<BakedModel> newModel) {
         ModelResourceLocation modelResLoc = new ModelResourceLocation(resLoc, "inventory");
-        IBakedModel existingModel = modelRegistry.get(modelResLoc);
+        BakedModel existingModel = modelRegistry.get(modelResLoc);
         if (existingModel == null) {
             JojoMod.getLogger().error("Did not find original {} model in registry", modelResLoc);
         }
@@ -509,14 +509,14 @@ public class ClientSetup {
         CustomRenderType.addExtraFixedBuffers(mc);
     }
 
-    private static class SoulCloudParticleFactory extends CloudParticle.Factory {
+    private static class SoulCloudParticleFactory extends PlayerCloudParticle.Factory {
 
-        public SoulCloudParticleFactory(IAnimatedSprite sprite) {
+        public SoulCloudParticleFactory(SpriteSet sprite) {
             super(sprite);
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
            Particle particle = super.createParticle(type, world, x, y, z, xSpeed, ySpeed, zSpeed);
            particle.setColor(1.0F, 1.0F, 0.25F);
            return particle;

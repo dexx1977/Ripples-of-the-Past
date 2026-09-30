@@ -21,17 +21,16 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
 public abstract class BarsRenderer {
     static final int BARS_WIDTH_PX = 28;
@@ -54,7 +53,7 @@ public abstract class BarsRenderer {
         barTransparencies.put(BarType.RESOLVE, resolve);
     }
 
-    void render(MatrixStack matrixStack, int x, int y, Alignment alignment, 
+    void render(PoseStack matrixStack, int x, int y, Alignment alignment, 
             @Nullable ActionsModeConfig<?> currentMode, ActionsModeConfig<INonStandPower> nonStandMode, ActionsModeConfig<IStandPower> standMode, 
             int tickCounter, float partialTick, Minecraft mc) {
         PowerClassification currentModeType = currentMode != null ? currentMode.powerClassification : null;
@@ -87,7 +86,7 @@ public abstract class BarsRenderer {
             float energy = nonStandPower.getEnergy();
             
             float translucentVal = nonStandPower
-                    .getTypeSpecificData(ModPowers.HAMON.get()).map(hamon -> MathHelper.lerp(partialTick, hamon.getBreathStability(), hamon.getPrevBreathStability()))
+                    .getTypeSpecificData(ModPowers.HAMON.get()).map(hamon -> Mth.lerp(partialTick, hamon.getBreathStability(), hamon.getPrevBreathStability()))
                     .orElse(0F);
             
             float maxEnergy = nonStandPower
@@ -116,7 +115,7 @@ public abstract class BarsRenderer {
                         StandUtil.standIgnoresStaminaDebuff(standPower) ? 0.3F : 1F, tickCounter, partialTick);
             }
             if (standPower.usesResolve()) {
-                float resolve = MathHelper.lerp(partialTick, 
+                float resolve = Mth.lerp(partialTick, 
                         Math.min(standPower.getPrevTickResolve(), standPower.getResolve()), 
                         Math.max(standPower.getPrevTickResolve(), standPower.getResolve()));
                 int color = ActionsOverlayGui.getPowerUiColor(standPower);
@@ -146,13 +145,13 @@ public abstract class BarsRenderer {
     protected int resolveBonusX;
     protected int resolveBonusY;
     protected Alignment resolveBonusAlignment;
-    void drawTextAfterRender(MatrixStack matrixStack, 
+    void drawTextAfterRender(PoseStack matrixStack, 
             @Nullable PowerClassification currentMode, INonStandPower nonStandPower, IStandPower standPower, 
-            int tickCounter, float partialTick, FontRenderer font, ActionsOverlayGui hud) {
+            int tickCounter, float partialTick, Font font, ActionsOverlayGui hud) {
         if (currentMode == PowerClassification.STAND && standPower != null && standPower.hasPower() && standPower.usesResolve()) {
             float bonus = standPower.getResolveCounter().getBoostVisible(standPower.getUser());
             if (bonus > 1) {
-                drawText(matrixStack, new StringTextComponent("x" + String.format("%.2f", bonus)), 
+                drawText(matrixStack, Component.literal("x" + String.format("%.2f", bonus)), 
                         resolveBonusX, resolveBonusY, Alignment.RIGHT, ActionsOverlayGui.getPowerUiColor(standPower), partialTick, font, hud);
             }
         }
@@ -160,7 +159,7 @@ public abstract class BarsRenderer {
     
     protected abstract void align(Alignment alignment);
     
-    private void renderBarStart(MatrixStack matrixStack, BarType barType, 
+    private void renderBarStart(PoseStack matrixStack, BarType barType, 
             boolean fullSize, int color, float iconFill, 
             float value, float maxValue, 
             float attackCostValue, float abilityCostValue, float costTick, 
@@ -175,7 +174,7 @@ public abstract class BarsRenderer {
                 alpha, ticks, partialTick);
     }
     
-    protected abstract void renderBarWithIcon(MatrixStack matrixStack, BarType barType, 
+    protected abstract void renderBarWithIcon(PoseStack matrixStack, BarType barType, 
             boolean fullSize, int color, float iconFill, 
             float value, float maxValue, 
             float attackCostValue, float abilityCostValue, float costTick, 
@@ -183,7 +182,7 @@ public abstract class BarsRenderer {
             float alpha, int ticks, float partialTick);
     
     @SuppressWarnings("deprecation")
-    protected final void renderBar(MatrixStack matrixStack, int x, int y, Alignment alignment, 
+    protected final void renderBar(PoseStack matrixStack, int x, int y, Alignment alignment, 
             int texX, int texY, int width, int length, int fill, int barColor, float barAlpha, 
             int borderTexX, int borderTexY, int scaleTexX, int scaleTexY, 
             int tranclucentFill, int cost1Fill, int cost2Fill, float costTick, 
@@ -225,20 +224,20 @@ public abstract class BarsRenderer {
         }
     }
     
-    protected abstract void barFill(MatrixStack matrixStack, int x, int y, Alignment alignment, 
+    protected abstract void barFill(PoseStack matrixStack, int x, int y, Alignment alignment, 
             int texX, int texY, int width, int length, int fill);
     
-    protected void drawBarElement(MatrixStack matrixStack, int x, int y, int texX, int texY, int width, int length) {
+    protected void drawBarElement(PoseStack matrixStack, int x, int y, int texX, int texY, int width, int length) {
         gui.blit(matrixStack, x, y, texX, texY, width, length);
     }
     
-    protected void renderCost(MatrixStack matrixStack, 
+    protected void renderCost(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int width, int length, 
             int costFill, int barFill, 
             int offset, float alpha) {}
 
-    protected void renderRedHighlight(MatrixStack matrixStack, 
+    protected void renderRedHighlight(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int width, int length, 
             float alpha) {}
@@ -294,7 +293,7 @@ public abstract class BarsRenderer {
         }
     }
     
-    protected final void renderIcon(MatrixStack matrixStack, int x, int y, 
+    protected final void renderIcon(PoseStack matrixStack, int x, int y, 
             int texX, int texY, int width, int height, int scale) {
         if (scale > 1) {
             matrixStack.pushPose();
@@ -359,12 +358,12 @@ public abstract class BarsRenderer {
         
         private float lerpValue(float value, float partialTick) {
             this.thisTickValue = value;
-            return MathHelper.lerp(partialTick, prevTickValue, value);
+            return Mth.lerp(partialTick, prevTickValue, value);
         }
         
         private float lerpTranslucentValue(float value, float partialTick) {
             this.thisTickTranslucentValue = value;
-            return MathHelper.lerp(partialTick, prevTickTranslucentValue, value);
+            return Mth.lerp(partialTick, prevTickTranslucentValue, value);
         }
     }
     
@@ -374,8 +373,8 @@ public abstract class BarsRenderer {
     
     
 
-    protected void drawText(MatrixStack matrixStack, ITextComponent text, int x, int y, Alignment alignment, 
-            int color, float partialTick, FontRenderer font, ActionsOverlayGui hud) {
+    protected void drawText(PoseStack matrixStack, Component text, int x, int y, Alignment alignment, 
+            int color, float partialTick, Font font, ActionsOverlayGui hud) {
         hud.drawBackdrop(matrixStack, x, y, font.width(text), alignment, null, 1.0F, partialTick);
         hud.drawString(matrixStack, font, text, x, y, alignment, color);
     }

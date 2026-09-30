@@ -25,38 +25,38 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.GameData;
 
 public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawnData, IHasHealth, EntityMadeFromBlock {
@@ -65,11 +65,11 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     private static final float MAX_HEALTH = 4F;
     private static final int MAX_PASSENGERS = 4;
 
-    private static final DataParameter<Boolean> IS_FLYING = EntityDataManager.defineId(LeavesGliderEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Float> ENERGY = EntityDataManager.defineId(LeavesGliderEntity.class, DataSerializers.FLOAT);
-    private static final DataParameter<Float> HEALTH = EntityDataManager.defineId(LeavesGliderEntity.class, DataSerializers.FLOAT);
-    private static final DataParameter<Byte> HAMON_USERS_CHARGING = EntityDataManager.defineId(LeavesGliderEntity.class, DataSerializers.BYTE);
-    private static final DataParameter<Optional<BlockPos>> CRAZY_D_RESTORE = EntityDataManager.defineId(LeavesGliderEntity.class, DataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Boolean> IS_FLYING = SynchedEntityData.defineId(LeavesGliderEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> ENERGY = SynchedEntityData.defineId(LeavesGliderEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(LeavesGliderEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Byte> HAMON_USERS_CHARGING = SynchedEntityData.defineId(LeavesGliderEntity.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Optional<BlockPos>> CRAZY_D_RESTORE = SynchedEntityData.defineId(LeavesGliderEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
     
     private BlockState leavesBlock = Blocks.OAK_LEAVES.defaultBlockState();
     private ResourceLocation leavesBlockTex = null;
@@ -88,11 +88,11 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     private double lerpYRot;
     private double lerpXRot;
 
-    public LeavesGliderEntity(World world) {
+    public LeavesGliderEntity(Level world) {
         this(ModEntityTypes.LEAVES_GLIDER.get(), world);
     }
 
-    public LeavesGliderEntity(EntityType<?> type, World world) {
+    public LeavesGliderEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
 
@@ -137,7 +137,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
                 }
                 
                 float energyRatio = energy / MAX_ENERGY;
-                Vector3d soundPos = clSoundPos();
+                Vec3 soundPos = clSoundPos();
                 if (isBeingCharged || random.nextFloat() < energyRatio * 0.2F) {
                     HamonSparksLoopSound.playSparkSound(this, soundPos, energyRatio);
                     CustomParticlesHelper.createHamonSparkParticles(this, this.getRandomX(0.5F), this.getY(1.0F), this.getRandomZ(0.5F), 
@@ -146,8 +146,8 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
             }
             
             for (Entity passenger : getPassengers()) { 
-                if (passenger instanceof ClientPlayerEntity) {
-                    ClientReflection.setHandsBusy((ClientPlayerEntity) passenger, true);
+                if (passenger instanceof LocalPlayer) {
+                    ClientReflection.setHandsBusy((LocalPlayer) passenger, true);
                 }
             }
         }
@@ -157,7 +157,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
         if (level.isClientSide()) {
-            Vector3d soundPos = clSoundPos();
+            Vec3 soundPos = clSoundPos();
             SoundType soundType = leavesBlock.getSoundType();
             level.playLocalSound(soundPos.x, soundPos.y, soundPos.z, 
                     soundType.getBreakSound(), getSoundSource(), 
@@ -252,7 +252,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
             double xLerp = getX() + (lerpX - getX()) / (double) lerpSteps;
             double yLerp = getY() + (lerpY - getY()) / (double) lerpSteps;
             double zLerp = getZ() + (lerpZ - getZ()) / (double) lerpSteps;
-            double yRotLerp = MathHelper.wrapDegrees(lerpYRot - (double) yRot);
+            double yRotLerp = Mth.wrapDegrees(lerpYRot - (double) yRot);
             yRot = (float) ((double) yRot + yRotLerp / (double) lerpSteps);
             xRot = (float) ((double) xRot + (lerpXRot - (double) xRot) / (double) lerpSteps);
             --lerpSteps;
@@ -273,9 +273,9 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     
     private void updateFlying() {
         boolean prevIsFlying = isFlying();
-        boolean isFlying = !isOnGround() && !isInWaterOrBubble();
+        boolean isFlying = !onGround() && !isInWaterOrBubble();
         if (prevIsFlying && !isFlying) {
-            setDeltaMovement(Vector3d.ZERO);
+            setDeltaMovement(Vec3.ZERO);
             if (!level.isClientSide()) {
                 ejectPassengers();
             }
@@ -287,13 +287,13 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
         Optional<BlockPos> crazyDRestore = entityData.get(CRAZY_D_RESTORE);
         if (crazyDRestore.isPresent()) {
             CrazyDiamondHeal.addParticlesAround(this);
-            setDeltaMovement(Vector3d.atCenterOf(crazyDRestore.get()).subtract(position()).normalize().scale(0.75));
+            setDeltaMovement(Vec3.atCenterOf(crazyDRestore.get()).subtract(position()).normalize().scale(0.75));
             if (isControlledByLocalInstance()) {
                 move(MoverType.SELF, getDeltaMovement());
             }
         }
         else if (isFlying() && isControlledByLocalInstance()) {
-            Vector3d prevMovement = getDeltaMovement().subtract(0, getDeltaMovement().y, 0);
+            Vec3 prevMovement = getDeltaMovement().subtract(0, getDeltaMovement().y, 0);
             if (level.isClientSide()) {
                 if (isVehicle()) {
                     updateRotationDelta();
@@ -305,11 +305,11 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
                             ((LivingEntity) passenger).yBodyRot += yRotDelta;
                         }
                     }
-                    prevMovement = Vector3d.directionFromRotation(0, yRot).scale(prevMovement.length());
+                    prevMovement = Vec3.directionFromRotation(0, yRot).scale(prevMovement.length());
                 }
             }
             double gravity = isNoGravity() ? 0.0D : GRAVITY * (1 + getPassengers().size());
-            Vector3d movement = prevMovement.normalize().scale(Math.min(prevMovement.length() + 0.01D, 0.5D));
+            Vec3 movement = prevMovement.normalize().scale(Math.min(prevMovement.length() + 0.01D, 0.5D));
             setDeltaMovement(movement.x, Math.max(getDeltaMovement().y, 0) + gravity, movement.z);
             move(MoverType.SELF, getDeltaMovement());
         }
@@ -342,14 +342,14 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
     
     @Override
-    public ActionResultType interact(PlayerEntity player, Hand hand) {
+    public InteractionResult interact(Player player, InteractionHand hand) {
         if (player.isSecondaryUseActive() || this.is(player.getVehicle())) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         } 
         if (!level.isClientSide()) {
-            return player.startRiding(this) ? ActionResultType.CONSUME : ActionResultType.PASS;
+            return player.startRiding(this) ? InteractionResult.CONSUME : InteractionResult.PASS;
         } 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
     
     
@@ -372,14 +372,14 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
             entity.setYBodyRot(entity.yRot);
             
             float minGap = 1;
-            double groundGap = -CollisionUtil.collide(this, new Vector3d(0, -minGap, 0)).y;
+            double groundGap = -CollisionUtil.collide(this, new Vec3(0, -minGap, 0)).y;
             if (groundGap < minGap) {
                 float liftUp = minGap - (float) groundGap;
-                move(MoverType.SELF, new Vector3d(0, entity.getBbHeight() + liftUp, 0));
+                move(MoverType.SELF, new Vec3(0, entity.getBbHeight() + liftUp, 0));
             }
 
-            Vector3d riderMovement = entity.getDeltaMovement().multiply(1, 0, 1);
-            Vector3d gliderRotVec = Vector3d.directionFromRotation(0, yRot);
+            Vec3 riderMovement = entity.getDeltaMovement().multiply(1, 0, 1);
+            Vec3 gliderRotVec = Vec3.directionFromRotation(0, yRot);
             // TODO add the entity's movement (when making a glider after leap)
             setDeltaMovement(gliderRotVec.scale(Math.max(riderMovement.dot(gliderRotVec), 0.05D)));
         }
@@ -413,25 +413,25 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    public EntitySize getDimensions(Pose pose) {
-        EntitySize defaultSize = super.getDimensions(pose);
-        return new EntitySize(defaultSize.width, defaultSize.height + passengersHeight, defaultSize.fixed);
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions defaultSize = super.getDimensions(pose);
+        return new EntityDimensions(defaultSize.width, defaultSize.height + passengersHeight, defaultSize.fixed);
     }
     
     
     
-    private static final Vector3d[] OFFSETS = {
-        new Vector3d(0, 0, 0.625), 
-        new Vector3d(0.625, 0, 0), 
-        new Vector3d(-0.625, 0, 0), 
-        new Vector3d(0, 0, -0.625)
+    private static final Vec3[] OFFSETS = {
+        new Vec3(0, 0, 0.625), 
+        new Vec3(0.625, 0, 0), 
+        new Vec3(-0.625, 0, 0), 
+        new Vec3(0, 0, -0.625)
     };
     @Override
     public void positionRider(Entity entity) {
         if (hasPassenger(entity)) {
             int i = getPassengers().indexOf(entity);
             if (i < MAX_PASSENGERS) {
-                Vector3d rotatedVec = OFFSETS[i].yRot(-yRot * MathUtil.DEG_TO_RAD);
+                Vec3 rotatedVec = OFFSETS[i].yRot(-yRot * MathUtil.DEG_TO_RAD);
                 entity.setPos(
                         getX() + rotatedVec.x, 
                         getY(1.0) - super.getDimensions(Pose.STANDING).height - entity.getBbHeight(), 
@@ -514,7 +514,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     public void setHealth(float health) {
-        entityData.set(HEALTH, MathHelper.clamp(health, 0, getMaxHealth()));
+        entityData.set(HEALTH, Mth.clamp(health, 0, getMaxHealth()));
     }
 
     @Override
@@ -552,7 +552,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     
     private float prevHealth = 0;
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> parameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> parameter) {
         super.onSyncedDataUpdated(parameter);
         if (level.isClientSide()) {
             if (IS_FLYING.equals(parameter) && isFlying()) {
@@ -565,7 +565,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
                     addLeavesParticles(Math.max((int) (diff * 100), 1));
                     
                     SoundType soundType = leavesBlock.getSoundType();
-                    Vector3d soundPos = clSoundPos();
+                    Vec3 soundPos = clSoundPos();
                     level.playLocalSound(soundPos.x, soundPos.y, soundPos.z, 
                             soundType.getHitSound(), getSoundSource(), 
                             (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.8F, false);
@@ -575,15 +575,15 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
         }
     }
     
-    private Vector3d clSoundPos() {
-        PlayerEntity clientPlayer = ClientUtil.getClientPlayer();
+    private Vec3 clSoundPos() {
+        Player clientPlayer = ClientUtil.getClientPlayer();
         return clientPlayer.getVehicle() == this ? 
-                new Vector3d(clientPlayer.getX(), this.getY(1.0F), clientPlayer.getZ()) 
-                : new Vector3d(this.getX(), this.getY(1.0F), this.getZ());
+                new Vec3(clientPlayer.getX(), this.getY(1.0F), clientPlayer.getZ()) 
+                : new Vec3(this.getX(), this.getY(1.0F), this.getZ());
     }
     
     private void addLeavesParticles(int count) {
-        IParticleData leavesParticle = new BlockParticleData(ParticleTypes.BLOCK, leavesBlock);
+        ParticleOptions leavesParticle = new BlockParticleOption(ParticleTypes.BLOCK, leavesBlock);
         for (int i = 0; i < count; i++) {
             level.addParticle(leavesParticle, 
                     getRandomX(0.5F), 
@@ -595,7 +595,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     private int resetCrazyDTimer;
     @Override
     public boolean crazyDRestore(BlockPos blockPos) {
-        if (position().distanceToSqr(Vector3d.atCenterOf(blockPos)) < 0.25) {
+        if (position().distanceToSqr(Vec3.atCenterOf(blockPos)) < 0.25) {
             remove();
             return true;
         }
@@ -622,40 +622,40 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         setIsFlying(nbt.getBoolean("Flight"));
         if (nbt.contains("Energy")) setEnergy(nbt.getFloat("Energy"));
         if (nbt.contains("Health")) setHealth(nbt.getFloat("Health"));
         if (nbt.contains("Color"))  foliageColor = nbt.getInt("Color");
-        if (nbt.contains("Block", MCUtil.getNbtId(CompoundNBT.class))) {
-            setLeavesBlock(NBTUtil.readBlockState(nbt.getCompound("Block")));
+        if (nbt.contains("Block", MCUtil.getNbtId(CompoundTag.class))) {
+            setLeavesBlock(NbtUtils.readBlockState(nbt.getCompound("Block")));
         }
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putBoolean("Flight", isFlying());
         nbt.putFloat("Energy", getEnergy());
         nbt.putFloat("Health", getHealth());
         if (foliageColor >= 0) {
             nbt.putInt("Color", foliageColor);
         }
-        nbt.put("Block", NBTUtil.writeBlockState(leavesBlock));
+        nbt.put("Block", NbtUtils.writeBlockState(leavesBlock));
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(Block.getId(leavesBlock));
         buffer.writeInt(foliageColor);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         setLeavesBlock(GameData.getBlockStateIDMap().byId(additionalData.readVarInt()));
         
         foliageColor = additionalData.readInt();

@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class LeapCooldownPacket {
     private final PowerClassification classification;
@@ -24,13 +24,13 @@ public class LeapCooldownPacket {
     public static class Handler implements IModPacketHandler<LeapCooldownPacket> {
 
         @Override
-        public void encode(LeapCooldownPacket msg, PacketBuffer buf) {
+        public void encode(LeapCooldownPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.classification);
             buf.writeInt(msg.cooldown);
         }
 
         @Override
-        public LeapCooldownPacket decode(PacketBuffer buf) {
+        public LeapCooldownPacket decode(FriendlyByteBuf buf) {
             return new LeapCooldownPacket(buf.readEnum(PowerClassification.class), buf.readInt());
         }
 

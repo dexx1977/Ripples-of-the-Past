@@ -14,16 +14,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 
-@Mixin(PlayerInventory.class)
-public abstract class PlayerInventoryMixin implements IInventory {
+@Mixin(Inventory.class)
+public abstract class PlayerInventoryMixin implements Container {
     @Shadow
-    @Final public PlayerEntity player;
+    @Final public Player player;
     @Shadow
     @Final private List<NonNullList<ItemStack>> compartments;
     

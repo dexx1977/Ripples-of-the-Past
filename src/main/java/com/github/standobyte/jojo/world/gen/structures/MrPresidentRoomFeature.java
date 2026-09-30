@@ -6,37 +6,37 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.world.gen.LoadMeFeature;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ISeedReader;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
-import net.minecraft.world.gen.feature.template.Template;
-import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-public class MrPresidentRoomFeature extends Feature<NoFeatureConfig> implements LoadMeFeature {
+public class MrPresidentRoomFeature extends Feature<NoneFeatureConfiguration> implements LoadMeFeature {
     private final ResourceLocation roomPath = new ResourceLocation(JojoMod.MOD_ID, "mr_president_room");
-    private Template roomTemplate;
+    private StructureTemplate roomTemplate;
 
-    public MrPresidentRoomFeature(Codec<NoFeatureConfig> codec) {
+    public MrPresidentRoomFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
     }
     
     @Override
-    public void loadTemplate(TemplateManager templateManager) {
+    public void loadTemplate(StructureTemplateManager templateManager) {
         roomTemplate = templateManager.getOrCreate(roomPath);
     }
     
     @Override
-    public boolean place(ISeedReader world, ChunkGenerator chunkGenerator, 
-            Random random, BlockPos blockPos, NoFeatureConfig config) {
+    public boolean place(WorldGenLevel world, ChunkGenerator chunkGenerator, 
+            Random random, BlockPos blockPos, NoneFeatureConfiguration config) {
         if (roomTemplate != null) {
-            PlacementSettings settings = new PlacementSettings().addProcessor(BlockIgnoreStructureProcessor.STRUCTURE_AND_AIR);
+            StructurePlaceSettings settings = new StructurePlaceSettings().addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
             BlockPos blockpos1 = roomTemplate.getZeroPositionWithTransform(blockPos.offset(0, 0, 0), Mirror.NONE, Rotation.NONE);
             return roomTemplate.placeInWorld(world, blockpos1, blockpos1, settings, random, 2);
         }

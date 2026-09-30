@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.animnew.mojang;
 
-import net.minecraft.util.math.vector.Vector3f;
+import org.joml.Vector3f;
 
 public class Keyframe {
     private final float timestamp;

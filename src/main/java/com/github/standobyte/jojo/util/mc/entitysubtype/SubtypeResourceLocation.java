@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class SubtypeResourceLocation extends ResourceLocation {
     public final ResourceLocation withoutSubtype;

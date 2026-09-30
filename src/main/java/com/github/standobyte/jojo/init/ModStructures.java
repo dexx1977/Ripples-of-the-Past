@@ -22,23 +22,23 @@ import com.github.standobyte.jojo.world.gen.structures.PillarmanTempleStructure;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -49,17 +49,17 @@ public class ModStructures {
     public static final DeferredRegister<Structure<?>> STRUCTURES = DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, JojoMod.MOD_ID);
     
 
-    public static final RegistryObject<Structure<NoFeatureConfig>> HAMON_TEMPLE = STRUCTURES.register("hamon_temple", 
-            () -> (new HamonTempleStructure(NoFeatureConfig.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_HAMON_TEMPLE = new ConfiguredStructureSupplier<>(HAMON_TEMPLE, IFeatureConfig.NONE);
+    public static final RegistryObject<Structure<NoneFeatureConfiguration>> HAMON_TEMPLE = STRUCTURES.register("hamon_temple", 
+            () -> (new HamonTempleStructure(NoneFeatureConfiguration.CODEC)));
+    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_HAMON_TEMPLE = new ConfiguredStructureSupplier<>(HAMON_TEMPLE, FeatureConfiguration.NONE);
 
-    public static final RegistryObject<Structure<NoFeatureConfig>> METEORITE = STRUCTURES.register("meteorite", 
-            () -> (new MeteoriteStructure(NoFeatureConfig.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_METEORITE = new ConfiguredStructureSupplier<>(METEORITE, IFeatureConfig.NONE);
+    public static final RegistryObject<Structure<NoneFeatureConfiguration>> METEORITE = STRUCTURES.register("meteorite", 
+            () -> (new MeteoriteStructure(NoneFeatureConfiguration.CODEC)));
+    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_METEORITE = new ConfiguredStructureSupplier<>(METEORITE, FeatureConfiguration.NONE);
 
     public static final RegistryObject<PillarmanTempleStructure> PILLARMAN_TEMPLE = STRUCTURES.register("pillarman_temple", 
-            () -> (new PillarmanTempleStructure(NoFeatureConfig.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_PILLARMAN_TEMPLE = new ConfiguredStructureSupplier<>(PILLARMAN_TEMPLE, IFeatureConfig.NONE);
+            () -> (new PillarmanTempleStructure(NoneFeatureConfiguration.CODEC)));
+    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_PILLARMAN_TEMPLE = new ConfiguredStructureSupplier<>(PILLARMAN_TEMPLE, FeatureConfiguration.NONE);
 
     public static final Predicate<BiomeLoadingEvent> HAMON_TEMPLE_BIOMES = biome -> biome.getCategory() == Biome.Category.EXTREME_HILLS;
     public static final Predicate<BiomeLoadingEvent> METEORITE_BIOMES = biome -> biome.getClimate().precipitation == Biome.RainType.SNOW && biome.getCategory() != Biome.Category.OCEAN;
@@ -67,8 +67,8 @@ public class ModStructures {
     
 
     public static final RegistryObject<MrPresidentRoomFeature> MR_PRESIDENT_ROOM = FEATURES.register("mr_president_room", 
-            () -> (new MrPresidentRoomFeature(NoFeatureConfig.CODEC)));
-    public static final ConfiguredFeatureSupplier<?, ?> CONFIGURED_MR_PRESIDENT_ROOM = new ConfiguredFeatureSupplier<>(MR_PRESIDENT_ROOM, IFeatureConfig.NONE);
+            () -> (new MrPresidentRoomFeature(NoneFeatureConfiguration.CODEC)));
+    public static final ConfiguredFeatureSupplier<?, ?> CONFIGURED_MR_PRESIDENT_ROOM = new ConfiguredFeatureSupplier<>(MR_PRESIDENT_ROOM, FeatureConfiguration.NONE);
     
     
     @SubscribeEvent(priority = EventPriority.LOW)

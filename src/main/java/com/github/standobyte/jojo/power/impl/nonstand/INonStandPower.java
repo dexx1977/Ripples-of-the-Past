@@ -9,8 +9,8 @@ import com.github.standobyte.jojo.entity.mob.IMobPowerUser;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.LazyOptional;
 
 public interface INonStandPower extends IPower<INonStandPower, NonStandPowerType<?>> {
@@ -34,7 +34,7 @@ public interface INonStandPower extends IPower<INonStandPower, NonStandPowerType
         return entity.getCapability(NonStandCapProvider.NON_STAND_CAP);
     }
     
-    public static INonStandPower getPlayerNonStandPower(PlayerEntity player) {
+    public static INonStandPower getPlayerNonStandPower(Player player) {
         return getNonStandPowerOptional(player).orElseThrow(() -> new IllegalStateException("Player's non-stand power capability is empty."));
     }
 }

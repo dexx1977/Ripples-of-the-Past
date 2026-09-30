@@ -11,8 +11,8 @@ import com.github.standobyte.jojo.capability.world.TimeStopInstance;
 import com.github.standobyte.jojo.capability.world.WorldUtilCapProvider;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class TimeResume extends StandAction {
 
@@ -20,7 +20,7 @@ public class TimeResume extends StandAction {
         super(builder);
     }
     
-    public static boolean userTimeStopInstance(World world, LivingEntity user, @Nullable Consumer<TimeStopInstance> invoke) {
+    public static boolean userTimeStopInstance(Level world, LivingEntity user, @Nullable Consumer<TimeStopInstance> invoke) {
         return world.getCapability(WorldUtilCapProvider.CAPABILITY)
                 .map(cap -> cap.getTimeStopHandler().userStoppedTime(user).map(instance -> {
                     if (invoke != null) {
@@ -32,7 +32,7 @@ public class TimeResume extends StandAction {
     
     private static final int TICKS_FIRST_CLICK = TimeStopInstance.TIME_RESUME_SOUND_TICKS + 1;
     @Override
-    protected void perform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             userTimeStopInstance(world, user, instance -> 
             instance.setTicksLeft(!instance.wereTicksManuallySet() && instance.getTicksLeft() > TICKS_FIRST_CLICK ? TICKS_FIRST_CLICK : 0));

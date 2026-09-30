@@ -22,23 +22,23 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.BrokenChunkBlocksPacket;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 public class ChunkCap {
-    private final Chunk chunk;
+    private final LevelChunk chunk;
     
     private boolean loadedNBT = false;
     private final Map<BlockPos, PrevBlockInfo> brokenBlocks = new HashMap<>();
@@ -46,13 +46,13 @@ public class ChunkCap {
     private final List<PrevBlockInfo> blocksToSync = new ArrayList<>();
 //    private Set<ServerPlayerEntity> syncedTo = new HashSet<>();
 
-    public ChunkCap(Chunk chunk) {
+    public ChunkCap(LevelChunk chunk) {
         this.chunk = chunk;
     }
 
-    public void saveBrokenBlock(BlockPos pos, BlockState state, Optional<TileEntity> tileEntity, List<ItemStack> drops) {
+    public void saveBrokenBlock(BlockPos pos, BlockState state, Optional<BlockEntity> tileEntity, List<ItemStack> drops) {
         // FIXME remember blocks with inventory
-        if (tileEntity.filter(te -> te instanceof IInventory || te.getType() == ModTileEntities.STONE_MASK.get()).isPresent()) return;
+        if (tileEntity.filter(te -> te instanceof Container || te.getType() == ModTileEntities.STONE_MASK.get()).isPresent()) return;
         
         saveBrokenBlock(new PrevBlockInfo(pos, state, drops, false));
     }
@@ -117,7 +117,7 @@ public class ChunkCap {
     }
 
     // FIXME fix the blocks resetting on client after being synced
-    public void onChunkLoad(ServerPlayerEntity player) {
+    public void onChunkLoad(ServerPlayer player) {
 //        if (!chunk.getLevel().isClientSide() && !syncedTo.contains(player) && !brokenBlocks.isEmpty()) {
 //            PacketManager.sendToClient(new BrokenChunkBlocksPacket(brokenBlocks.values(), true), player);
 //            syncedTo.add(player);
@@ -146,10 +146,10 @@ public class ChunkCap {
     }
     
     
-    CompoundNBT save() {
-        CompoundNBT nbt = new CompoundNBT();
+    CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
         if (JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get()) {
-            ListNBT blocksBroken = new ListNBT();
+            ListTag blocksBroken = new ListTag();
             for (PrevBlockInfo block : brokenBlocks.values()) {
                 blocksBroken.add(block.toNBT());
             }
@@ -158,11 +158,11 @@ public class ChunkCap {
         return nbt;
     }
     
-    void load(CompoundNBT nbt) {
+    void load(CompoundTag nbt) {
         if (JojoModConfig.getCommonConfigInstance(false).saveDestroyedBlocks.get()
-                && nbt.contains("Blocks", MCUtil.getNbtId(ListNBT.class))) {
-            nbt.getList("Blocks", MCUtil.getNbtId(CompoundNBT.class)).forEach(blockNBT -> {
-                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundNBT) blockNBT);
+                && nbt.contains("Blocks", MCUtil.getNbtId(ListTag.class))) {
+            nbt.getList("Blocks", MCUtil.getNbtId(CompoundTag.class)).forEach(blockNBT -> {
+                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundTag) blockNBT);
                 if (block != null) {
                     brokenBlocks.put(block.pos, block);
                 }
@@ -223,16 +223,16 @@ public class ChunkCap {
             return !keep && tickCount++ == 24000;
         }
 
-        public CompoundNBT toNBT() {
-            CompoundNBT nbt = new CompoundNBT();
-            nbt.put("Pos", NBTUtil.writeBlockPos(pos));
-            nbt.put("State", NBTUtil.writeBlockState(state));
+        public CompoundTag toNBT() {
+            CompoundTag nbt = new CompoundTag();
+            nbt.put("Pos", NbtUtils.writeBlockPos(pos));
+            nbt.put("State", NbtUtils.writeBlockState(state));
             nbt.putBoolean("Keep", keep);
             nbt.putInt("TickCount", tickCount);
             
-            ListNBT itemsNBT = new ListNBT();
+            ListTag itemsNBT = new ListTag();
             for (ItemStack stack : drops) {
-                itemsNBT.add(stack.save(new CompoundNBT()));
+                itemsNBT.add(stack.save(new CompoundTag()));
             }
             nbt.put("Drops", itemsNBT);
             nbt.putInt("Xp", xp);
@@ -241,18 +241,18 @@ public class ChunkCap {
         }
 
         @Nullable
-        public static PrevBlockInfo fromNBT(CompoundNBT nbt) {
+        public static PrevBlockInfo fromNBT(CompoundTag nbt) {
             if (!(
-                    nbt.contains("Pos", MCUtil.getNbtId(CompoundNBT.class)) &&
-                    nbt.contains("State", MCUtil.getNbtId(CompoundNBT.class)) && 
-                    nbt.contains("Drops", MCUtil.getNbtId(ListNBT.class)))) {
+                    nbt.contains("Pos", MCUtil.getNbtId(CompoundTag.class)) &&
+                    nbt.contains("State", MCUtil.getNbtId(CompoundTag.class)) && 
+                    nbt.contains("Drops", MCUtil.getNbtId(ListTag.class)))) {
                 return null;
             }
             
             List<ItemStack> drops = new ArrayList<>();
-            ListNBT dropsNBT = nbt.getList("Drops", MCUtil.getNbtId(CompoundNBT.class));
-            for (INBT nbtElement : dropsNBT) {
-                CompoundNBT itemNBT = (CompoundNBT) nbtElement;
+            ListTag dropsNBT = nbt.getList("Drops", MCUtil.getNbtId(CompoundTag.class));
+            for (Tag nbtElement : dropsNBT) {
+                CompoundTag itemNBT = (CompoundTag) nbtElement;
                 ItemStack item = ItemStack.of(itemNBT);
                 if (!item.isEmpty()) {
                     drops.add(item);
@@ -260,8 +260,8 @@ public class ChunkCap {
             }
             
             PrevBlockInfo block = new PrevBlockInfo(
-                    NBTUtil.readBlockPos(nbt.getCompound("Pos")), 
-                    NBTUtil.readBlockState(nbt.getCompound("State")), 
+                    NbtUtils.readBlockPos(nbt.getCompound("Pos")), 
+                    NbtUtils.readBlockState(nbt.getCompound("State")), 
                     drops, 
                     nbt.getBoolean("Keep"));
             block.tickCount = nbt.getInt("TickCount");
@@ -269,12 +269,12 @@ public class ChunkCap {
             return block;
         }
         
-        public void toBuf(PacketBuffer buf) {
+        public void toBuf(FriendlyByteBuf buf) {
             buf.writeBlockPos(pos);
             buf.writeVarInt(Block.getId(state));
         }
         
-        public static PrevBlockInfo fromBuf(PacketBuffer buf) {
+        public static PrevBlockInfo fromBuf(FriendlyByteBuf buf) {
             return new PrevBlockInfo(buf.readBlockPos(), Block.stateById(buf.readVarInt()), new ArrayList<>(), true);
         }
     }

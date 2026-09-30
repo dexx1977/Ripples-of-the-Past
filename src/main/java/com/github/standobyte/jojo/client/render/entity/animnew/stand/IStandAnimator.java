@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityModel;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 public interface IStandAnimator {
     boolean isLegacy();
@@ -15,6 +15,6 @@ public interface IStandAnimator {
     
     <T extends StandEntity> void addBarrageSwings(T entity, StandEntityModel<T> model, float ticks);
     <T extends StandEntity> void renderBarrageSwings(T entity, StandEntityModel<T> model, float yRotOffsetDeg, float xRotDeg, 
-            MatrixStack matrixStack, IVertexBuilder buffer, 
+            PoseStack matrixStack, VertexConsumer buffer, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 }

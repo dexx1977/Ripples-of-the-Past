@@ -10,22 +10,22 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
 
 public class StandLevelCommand {
     private static final DynamicCommandExceptionType STAND_SINGLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.stand.query.failed.single", player));
+            player -> Component.translatable("commands.stand.query.failed.single", player));
     private static final DynamicCommandExceptionType STAND_RESOLVE_SINGLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.stand.resolve.failed.single", player));
+            player -> Component.translatable("commands.stand.resolve.failed.single", player));
     private static final DynamicCommandExceptionType STAND_RESOLVE_MULTIPLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.stand.resolve.failed.multiple", count));
+            count -> Component.translatable("commands.stand.resolve.failed.multiple", count));
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("standlevel").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("set").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("level", IntegerArgumentType.integer(0))
                         .executes(ctx -> setStandLevel(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"), IntegerArgumentType.getInteger(ctx, "level"))))))
@@ -37,47 +37,47 @@ public class StandLevelCommand {
         JojoCommandsCommand.addCommand("standlevel");
     }
 
-    private static int getStandLevel(CommandSource source, ServerPlayerEntity target) throws CommandSyntaxException {
+    private static int getStandLevel(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
         IStandPower stand = getStands(Util.make(new ArrayList<>(), list -> list.add(target))).iterator().next();
         int level = stand.getResolveLevel();
-        source.sendSuccess(new TranslationTextComponent("commands.standlevel.query.success", target.getDisplayName(), level), false);
+        source.sendSuccess(Component.translatable("commands.standlevel.query.success", target.getDisplayName(), level), false);
         return level;
     }
 
-    private static int addStandLevel(CommandSource source, Collection<? extends ServerPlayerEntity> targets, int levels) throws CommandSyntaxException {
+    private static int addStandLevel(CommandSourceStack source, Collection<? extends ServerPlayer> targets, int levels) throws CommandSyntaxException {
         Collection<IStandPower> stands = getStands(targets);
         for (IStandPower stand : stands) {
             stand.setResolveLevel(stand.getResolveLevel() + levels);
         }
         
         if (stands.size() == 1) {
-            source.sendSuccess(new TranslationTextComponent("commands.standlevel.add.success.single", levels, targets.iterator().next().getDisplayName()), true);
+            source.sendSuccess(Component.translatable("commands.standlevel.add.success.single", levels, targets.iterator().next().getDisplayName()), true);
         } else {
-            source.sendSuccess(new TranslationTextComponent("commands.standlevel.add.success.multiple", levels, stands.size()), true);
+            source.sendSuccess(Component.translatable("commands.standlevel.add.success.multiple", levels, stands.size()), true);
         }
         
         return stands.size();
     }
 
-    private static int setStandLevel(CommandSource source, Collection<? extends ServerPlayerEntity> targets, int level) throws CommandSyntaxException {
+    private static int setStandLevel(CommandSourceStack source, Collection<? extends ServerPlayer> targets, int level) throws CommandSyntaxException {
         Collection<IStandPower> stands = getStands(targets);
         for (IStandPower stand : stands) {
             stand.setResolveLevel(level);
         }
         
         if (stands.size() == 1) {
-            source.sendSuccess(new TranslationTextComponent("commands.standlevel.set.success.single", level, targets.iterator().next().getDisplayName()), true);
+            source.sendSuccess(Component.translatable("commands.standlevel.set.success.single", level, targets.iterator().next().getDisplayName()), true);
         } else {
-            source.sendSuccess(new TranslationTextComponent("commands.standlevel.set.success.multiple", level, stands.size()), true);
+            source.sendSuccess(Component.translatable("commands.standlevel.set.success.multiple", level, stands.size()), true);
         }
         
         return stands.size();
     }
     
-    private static Collection<IStandPower> getStands(Collection<? extends ServerPlayerEntity> targets) throws CommandSyntaxException {
+    private static Collection<IStandPower> getStands(Collection<? extends ServerPlayer> targets) throws CommandSyntaxException {
         List<IStandPower> stands = new ArrayList<>();
         boolean noStand = false;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             IStandPower stand = IStandPower.getStandPowerOptional(player).orElse(null);
             if (stand == null || !stand.hasPower()) {
                 noStand = true;

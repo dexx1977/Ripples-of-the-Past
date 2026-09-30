@@ -10,14 +10,14 @@ import com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer;
 import com.github.standobyte.jojo.client.ui.actionshud.BarsRenderer.BarType;
 import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.Style;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 
 public class IconTooltipLine implements ITooltipLine {
     private Icon icon;
@@ -47,7 +47,7 @@ public class IconTooltipLine implements ITooltipLine {
     
     
     @Override
-    public void draw(MatrixStack matrixStack, float x, float y, FontRenderer font) {
+    public void draw(PoseStack matrixStack, float x, float y, Font font) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         int[] iconTex;
@@ -91,7 +91,7 @@ public class IconTooltipLine implements ITooltipLine {
     }
     
     @Override
-    public int getWidth(FontRenderer font) {
+    public int getWidth(Font font) {
         switch (icon) {
         case NON_STAND_ENERGY:
             return 9 + rightSideSpace;
@@ -105,17 +105,17 @@ public class IconTooltipLine implements ITooltipLine {
     }
 
     @Override
-    public int getHeight(FontRenderer font) {
+    public int getHeight(Font font) {
         return 10;
     }
     
     @Override
-    public List<ITooltipLine> split(int width, FontRenderer font, Style style) {
+    public List<ITooltipLine> split(int width, Font font, Style style) {
         return Collections.singletonList(this);
     }
     
     @Override
-    public Stream<ITextProperties> getTextOnly() {
+    public Stream<FormattedText> getTextOnly() {
         return Stream.empty();
     }
     

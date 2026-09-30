@@ -3,23 +3,23 @@ package com.github.standobyte.jojo.client.particle;
 import java.util.Random;
 
 import com.github.standobyte.jojo.client.particle.custom.HamonAuraParticleRenderType;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.RisingParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.client.particle.BaseAshSmokeParticle;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
 
-public class LightGlintParticle extends RisingParticle {
+public class LightGlintParticle extends BaseAshSmokeParticle {
     private static final Random RANDOM = new Random();
     private final int startingSpriteRandom;
     
-    protected LightGlintParticle(ClientWorld world, double x, double y, double z, 
-            double xda, double yda, double zda, IAnimatedSprite sprites) {
+    protected LightGlintParticle(ClientLevel world, double x, double y, double z, 
+            double xda, double yda, double zda, SpriteSet sprites) {
         super(world, x, y, z, 0.1F, 0.1F, 0.1F, xda, yda, zda, 1.2F + 0.6F * RANDOM.nextFloat(), sprites, 0.3F, 8, 0.004D, false);
         this.rCol = 1;
         this.gCol = 1;
@@ -30,7 +30,7 @@ public class LightGlintParticle extends RisingParticle {
     }
     
     @Override
-    public IParticleRenderType getRenderType() {
+    public ParticleRenderType getRenderType() {
         return HamonAuraParticleRenderType.HAMON_AURA;
     }
     
@@ -42,7 +42,7 @@ public class LightGlintParticle extends RisingParticle {
     private static final float ALPHA_MIN = 0.05F;
     private static final float ALPHA_DIFF = 0.3F;
     @Override
-    public void render(IVertexBuilder vertexBuilder, ActiveRenderInfo camera, float partialTick) {
+    public void render(VertexConsumer vertexBuilder, Camera camera, float partialTick) {
         float ageF = ((float) age + partialTick) / (float) lifetime;
         float alphaFunc = ageF <= 0.5F ? ageF * 2 : (1 - ageF) * 2;
         this.alpha = ALPHA_MIN + alphaFunc * ALPHA_DIFF;
@@ -50,19 +50,19 @@ public class LightGlintParticle extends RisingParticle {
     }
     
     @Override
-    public void setSpriteFromAge(IAnimatedSprite pSprite) {
+    public void setSpriteFromAge(SpriteSet pSprite) {
         setSprite(pSprite.get((age + startingSpriteRandom) % lifetime, lifetime));
     }
     
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.spriteSet = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             LightGlintParticle particle = new LightGlintParticle(world, x, y, z, xSpeed, ySpeed, zSpeed, this.spriteSet);
             return particle;
         }

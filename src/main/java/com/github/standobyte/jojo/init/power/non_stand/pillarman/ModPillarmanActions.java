@@ -29,7 +29,7 @@ import com.github.standobyte.jojo.action.non_stand.PillarmanUnnaturalAgility;
 import com.github.standobyte.jojo.action.non_stand.PillarmanWindCloak;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanPowerType;
 
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModPillarmanActions {
 

@@ -17,9 +17,9 @@ import com.github.standobyte.jojo.power.impl.stand.StandActionLearningProgress.S
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandActionLearningPacket {
     public final StandActionLearningEntry entry;
@@ -35,13 +35,13 @@ public class StandActionLearningPacket {
     public static class Handler implements IModPacketHandler<StandActionLearningPacket> {
 
         @Override
-        public void encode(StandActionLearningPacket msg, PacketBuffer buf) {
+        public void encode(StandActionLearningPacket msg, FriendlyByteBuf buf) {
             msg.entry.toBuf(buf);
             buf.writeBoolean(msg.showToast);
         }
 
         @Override
-        public StandActionLearningPacket decode(PacketBuffer buf) {
+        public StandActionLearningPacket decode(FriendlyByteBuf buf) {
             return new StandActionLearningPacket(StandActionLearningEntry.fromBuf(buf), buf.readBoolean());
         }
 
@@ -66,7 +66,7 @@ public class StandActionLearningPacket {
                     }
                     
                     if (toastType != null) {
-                        ToastGui toastGui = Minecraft.getInstance().getToasts();
+                        ToastComponent toastGui = Minecraft.getInstance().getToasts();
                         ActionToast.addOrUpdate(toastGui, toastType, action, power);
                     }
                 }

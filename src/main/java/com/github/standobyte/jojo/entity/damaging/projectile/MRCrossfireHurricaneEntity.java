@@ -21,46 +21,46 @@ import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     private boolean small;
     private float scale = 1F;
-    private Vector3d targetPos;
+    private Vec3 targetPos;
     @Nullable
     private IStandPower userStandPower;
     
-    public MRCrossfireHurricaneEntity(boolean small, LivingEntity shooter, World world, IStandPower standPower) {
+    public MRCrossfireHurricaneEntity(boolean small, LivingEntity shooter, Level world, IStandPower standPower) {
         super(small ? ModEntityTypes.MR_CROSSFIRE_HURRICANE_SPECIAL.get() : ModEntityTypes.MR_CROSSFIRE_HURRICANE.get(), shooter, world);
         this.small = small;
         userStandPower = standPower;
     }
 
-    public MRCrossfireHurricaneEntity(EntityType<? extends MRCrossfireHurricaneEntity> type, World world) {
+    public MRCrossfireHurricaneEntity(EntityType<? extends MRCrossfireHurricaneEntity> type, Level world) {
         super(type, world);
     }
     
-    public void setSpecial(Vector3d targetPos) {
+    public void setSpecial(Vec3 targetPos) {
         this.targetPos = targetPos;
     }
     
@@ -73,7 +73,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public EntitySize getDimensions(Pose pose) {
+    public EntityDimensions getDimensions(Pose pose) {
         return super.getDimensions(pose).scale(scale);
     }
 
@@ -83,10 +83,10 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
         if (targetPos != null) {
             double velocitySqr = getDeltaMovement().lengthSqr();
             if (velocitySqr > 0) {
-                Vector3d targetVec = targetPos.subtract(position());
+                Vec3 targetVec = targetPos.subtract(position());
                 double targetDistSqr = targetVec.lengthSqr();
                 if (velocitySqr < targetDistSqr) {
-                    Vector3d vec = getDeltaMovement().scale(targetDistSqr / velocitySqr);
+                    Vec3 vec = getDeltaMovement().scale(targetDistSqr / velocitySqr);
                     setDeltaMovement(vec.add(targetVec).normalize().scale(Math.sqrt(velocitySqr)));
                 }
                 else if (!level.isClientSide()) {
@@ -116,7 +116,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     public void clearFire() {
         super.clearFire();
         if (!level.isClientSide()) {
-            JojoModUtil.extinguishFieryStandEntity(this, (ServerWorld) level);
+            JojoModUtil.extinguishFieryStandEntity(this, (ServerLevel) level);
         }
     }
     
@@ -152,10 +152,10 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     
     private void burnBlocksTick() {
         if (!level.isClientSide() && !small && JojoModUtil.breakingBlocksEnabled(level)) {
-            ServerWorld world = (ServerWorld) level;
+            ServerLevel world = (ServerLevel) level;
             LivingEntity owner = getOwner();
             
-            AxisAlignedBB fireAABB = getBoundingBox().move(getDeltaMovement()).inflate(0.5);
+            AABB fireAABB = getBoundingBox().move(getDeltaMovement()).inflate(0.5);
             BlockPos pos1 = new BlockPos(fireAABB.minX, fireAABB.minY, fireAABB.minZ);
             BlockPos pos2 = new BlockPos(fireAABB.maxX, fireAABB.maxY, fireAABB.maxZ);
 
@@ -210,12 +210,12 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
                     if (level.isEmptyBlock(blockPos)) {
                         BlockState blockState = level.getBlockState(blockPos);
                         LivingEntity user = StandUtil.getStandUser(getOwner());
-                        if (user != null && user.getBoundingBox().intersects(new AxisAlignedBB(blockPos))) {
+                        if (user != null && user.getBoundingBox().intersects(new AABB(blockPos))) {
                             return;
                         }
                         BlockPos blockPosSolid = blockPos.relative(direction);
                         blockState = level.getBlockState(blockPosSolid);
-                        if (blockState.getCollisionShape(level, blockPosSolid) != VoxelShapes.empty()) {
+                        if (blockState.getCollisionShape(level, blockPosSolid) != Shapes.empty()) {
                             level.setBlockAndUpdate(blockPos, ModBlocks.MAGICIANS_RED_FIRE.get().getStateForPlacement(level, blockPos));
                         }
                     }
@@ -230,12 +230,12 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean brokenBlock) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean brokenBlock) {
         explode();
     }
     
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         explode();
     }
     
@@ -248,7 +248,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
             CrossfireHurricaneExplosion explosion = new CrossfireHurricaneExplosion(level, this, 
                     dmgSource.setExplosion(), null, 
                     getX(), getY(), getZ(), 
-                    (small ? 1.0F : 3.0F) * getScale(), true, Explosion.Mode.NONE);
+                    (small ? 1.0F : 3.0F) * getScale(), true, Explosion.BlockInteraction.NONE);
             CustomExplosion.explode(explosion);
         }
     }
@@ -257,14 +257,14 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     public static class CrossfireHurricaneExplosion extends CustomExplosion {
         private MRCrossfireHurricaneEntity sourceProjectile;
 
-        public CrossfireHurricaneExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
+        public CrossfireHurricaneExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
             super(pLevel, pToBlowX, pToBlowY, pToBlowZ, pRadius);
         }
         
-        public CrossfireHurricaneExplosion(World pLevel, @Nullable Entity pSource, 
-                @Nullable DamageSource pDamageSource, @Nullable ExplosionContext pDamageCalculator, 
+        public CrossfireHurricaneExplosion(Level pLevel, @Nullable Entity pSource, 
+                @Nullable DamageSource pDamageSource, @Nullable ExplosionDamageCalculator pDamageCalculator, 
                 double pToBlowX, double pToBlowY, double pToBlowZ, 
-                float pRadius, boolean pFire, Explosion.Mode pBlockInteraction) {
+                float pRadius, boolean pFire, Explosion.BlockInteraction pBlockInteraction) {
             super(pLevel, pSource, pDamageSource, pDamageCalculator, pToBlowX, pToBlowY, pToBlowZ, pRadius, pFire, pBlockInteraction);
             this.sourceProjectile = pSource instanceof MRCrossfireHurricaneEntity ? (MRCrossfireHurricaneEntity) pSource : null;
         }
@@ -287,7 +287,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
         }
         
         @Override
-        protected void hurtEntity(Entity entity, float damage, double knockback, Vector3d vecToEntityNorm) {
+        protected void hurtEntity(Entity entity, float damage, double knockback, Vec3 vecToEntityNorm) {
             super.hurtEntity(entity, damage, knockback, vecToEntityNorm);
             
             LivingEntity magiciansRed = sourceProjectile != null ? sourceProjectile.getOwner() : null;
@@ -335,7 +335,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeBoolean(targetPos != null);
         if (targetPos != null) {
@@ -347,10 +347,10 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         if (additionalData.readBoolean()) {
-            targetPos = new Vector3d(additionalData.readDouble(), additionalData.readDouble(), additionalData.readDouble());
+            targetPos = new Vec3(additionalData.readDouble(), additionalData.readDouble(), additionalData.readDouble());
         }
         scale = additionalData.readFloat();
     }

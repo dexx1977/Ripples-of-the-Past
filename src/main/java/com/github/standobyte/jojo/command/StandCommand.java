@@ -13,28 +13,27 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 public class StandCommand {
     private static final DynamicCommandExceptionType GIVE_SINGLE_EXCEPTION_ALREADY_HAS = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.stand.give.failed.single.has", player));
+            player -> Component.translatable("commands.stand.give.failed.single.has", player));
     private static final DynamicCommandExceptionType GIVE_MULTIPLE_EXCEPTION_ALREADY_HAVE = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.stand.give.failed.multiple.have", count));
+            count -> Component.translatable("commands.stand.give.failed.multiple.have", count));
     private static final DynamicCommandExceptionType GIVE_SINGLE_EXCEPTION_RANDOM = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.stand.give.failed.single.random", player));
+            player -> Component.translatable("commands.stand.give.failed.single.random", player));
     private static final DynamicCommandExceptionType GIVE_MULTIPLE_EXCEPTION_RANDOM = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.stand.give.failed.multiple.random", count));
+            count -> Component.translatable("commands.stand.give.failed.multiple.random", count));
     private static final DynamicCommandExceptionType QUERY_SINGLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.stand.query.failed.single", player));
+            player -> Component.translatable("commands.stand.query.failed.single", player));
     private static final DynamicCommandExceptionType QUERY_MULTIPLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.stand.query.failed.multiple", count));
+            count -> Component.translatable("commands.stand.query.failed.multiple", count));
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("stand").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("give").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("stand", new StandArgument())
                         .executes(ctx -> giveStands(ctx.getSource(), EntityArgument.getPlayers(ctx, "targets"), StandArgument.getStandType(ctx, "stand"), false))
@@ -52,9 +51,9 @@ public class StandCommand {
         JojoCommandsCommand.addCommand("stand");
     }
 
-    private static int giveStands(CommandSource source, Collection<ServerPlayerEntity> targets, StandType<?> standType, boolean replace) throws CommandSyntaxException {
+    private static int giveStands(CommandSourceStack source, Collection<ServerPlayer> targets, StandType<?> standType, boolean replace) throws CommandSyntaxException {
         int i = 0;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             IStandPower power = IStandPower.getStandPowerOptional(player).orElse(null);
             if (power != null) {
                 if (replace) {
@@ -77,12 +76,12 @@ public class StandCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent(
+                source.sendSuccess(Component.translatable(
                         "commands.stand.give.success.single", 
                         standType.getName(), targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(new TranslationTextComponent(
+                source.sendSuccess(Component.translatable(
                         "commands.stand.give.success.multiple", 
                         standType.getName(), i), true);
             }
@@ -90,21 +89,21 @@ public class StandCommand {
         }
     }
     
-    private static int giveRandomStands(CommandSource source, Collection<ServerPlayerEntity> targets, boolean replace) throws CommandSyntaxException {
+    private static int giveRandomStands(CommandSourceStack source, Collection<ServerPlayer> targets, boolean replace) throws CommandSyntaxException {
         int i = 0;
         if (!targets.isEmpty()) {
-            for (ServerPlayerEntity player : targets) {
-                ITextComponent errorMessage = null;
+            for (ServerPlayer player : targets) {
+                Component errorMessage = null;
                 IStandPower power = IStandPower.getStandPowerOptional(player).orElse(null);
                 if (power != null) {
-                    Either<StandType<?>, ITextComponent> standOrError = null;
+                    Either<StandType<?>, Component> standOrError = null;
                     if (!replace && power.hasPower()) {
-                        errorMessage = (ITextComponent) GIVE_SINGLE_EXCEPTION_ALREADY_HAS.create(player.getName()).getRawMessage();
+                        errorMessage = (Component) GIVE_SINGLE_EXCEPTION_ALREADY_HAS.create(player.getName()).getRawMessage();
                     }
                     else {
                         standOrError = StandUtil.randomStandOrError(player, player.getRandom());
                         if (standOrError.right().isPresent()) {
-                            errorMessage = new TranslationTextComponent("commands.list.nameAndId", 
+                            errorMessage = Component.translatable("commands.list.nameAndId", 
                                     GIVE_SINGLE_EXCEPTION_RANDOM.create(player.getName()).getRawMessage(), 
                                     standOrError.right().get());
                         }
@@ -129,20 +128,20 @@ public class StandCommand {
         }
         if (i > 0) {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent("commands.stand.give.success.single.random", 
+                source.sendSuccess(Component.translatable("commands.stand.give.success.single.random", 
                         targets.iterator().next().getDisplayName()), true);
             }
             else {
-                source.sendSuccess(new TranslationTextComponent("commands.stand.give.success.multiple.random", i), true);
+                source.sendSuccess(Component.translatable("commands.stand.give.success.multiple.random", i), true);
             }
         }
         return i;
     }
 
-    private static int removeStands(CommandSource source, Collection<ServerPlayerEntity> targets) throws CommandSyntaxException {
+    private static int removeStands(CommandSourceStack source, Collection<ServerPlayer> targets) throws CommandSyntaxException {
         int i = 0;
         StandType<?> removedStand = null;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             IStandPower power = IStandPower.getStandPowerOptional(player).orElse(null);
             if (power != null) {
                 removedStand = power.getType();
@@ -159,29 +158,29 @@ public class StandCommand {
             }
         } else {
             if (targets.size() == 1) {
-                ITextComponent message;
+                Component message;
                 if (removedStand != null) {
-                    message = new TranslationTextComponent("commands.stand.remove.success.single", 
+                    message = Component.translatable("commands.stand.remove.success.single", 
                             removedStand.getName(), targets.iterator().next().getDisplayName());
                 }
                 else {
-                    message = new TranslationTextComponent("commands.stand.remove.success.single.no_stand", 
+                    message = Component.translatable("commands.stand.remove.success.single.no_stand", 
                             targets.iterator().next().getDisplayName());
                 }
                 source.sendSuccess(message, true);
             } else {
-                source.sendSuccess(new TranslationTextComponent("commands.stand.remove.success.multiple", i), true);
+                source.sendSuccess(Component.translatable("commands.stand.remove.success.multiple", i), true);
             }
             return i;
         }
     }
 
-    private static int queryStand(CommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
+    private static int queryStand(CommandSourceStack source, ServerPlayer player) throws CommandSyntaxException {
         IStandPower power = IStandPower.getStandPowerOptional(player).orElse(null);
         if (power != null) {
             if (power.hasPower()) {
                 StandType<?> type = power.getType();
-                source.sendSuccess(new TranslationTextComponent("commands.stand.query.success", player.getDisplayName(), type.getName()), false);
+                source.sendSuccess(Component.translatable("commands.stand.query.success", player.getDisplayName(), type.getName()), false);
                 return JojoCustomRegistries.STANDS.getNumericId(type.getRegistryName());
             }
         }

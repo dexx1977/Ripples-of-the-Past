@@ -5,15 +5,15 @@ import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.init.ModTileEntities;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.sounds.SoundSource;
 
-public class StoneMaskTileEntity extends TileEntity implements ITickableTileEntity {
+public class StoneMaskTileEntity extends BlockEntity implements ITickableTileEntity {
     protected ItemStack maskStack = new ItemStack(ModItems.STONE_MASK.get());
     private int activationTicks;
     
@@ -21,12 +21,12 @@ public class StoneMaskTileEntity extends TileEntity implements ITickableTileEnti
         super(ModTileEntities.STONE_MASK.get());
     }
 
-    protected StoneMaskTileEntity(TileEntityType<?> tileEntityType) {
+    protected StoneMaskTileEntity(BlockEntityType<?> tileEntityType) {
         super(tileEntityType);
     }
     
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
+    public void load(BlockState state, CompoundTag compound) {
         super.load(state, compound);
         if (compound.contains("Item", 10)) {
             maskStack = ItemStack.of(compound.getCompound("Item"));
@@ -35,9 +35,9 @@ public class StoneMaskTileEntity extends TileEntity implements ITickableTileEnti
     }
     
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    public CompoundTag save(CompoundTag compound) {
         super.save(compound);
-        compound.put("Item", maskStack.save(new CompoundNBT()));
+        compound.put("Item", maskStack.save(new CompoundTag()));
         compound.putInt("ActivationTicks", activationTicks);
         return compound;
     }
@@ -48,7 +48,7 @@ public class StoneMaskTileEntity extends TileEntity implements ITickableTileEnti
             activationTicks--;
             setChanged();
             if (activationTicks == 0) {
-                level.playSound(null, this.getBlockPos(), ModSounds.STONE_MASK_DEACTIVATION.get(), SoundCategory.BLOCKS, 1.0F, 1.0F);
+                level.playSound(null, this.getBlockPos(), ModSounds.STONE_MASK_DEACTIVATION.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
                 level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(StoneMaskBlock.BLOOD_ACTIVATION, false));
             }
         }

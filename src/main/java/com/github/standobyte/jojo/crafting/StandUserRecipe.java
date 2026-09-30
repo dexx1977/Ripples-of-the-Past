@@ -10,16 +10,15 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 
-public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerPredicateRecipeWrapper<R> {
+public abstract class StandUserRecipe<R extends CraftingRecipe> extends PlayerPredicateRecipeWrapper<R> {
     private final NonNullList<ResourceLocation> standIds;
     private final List<StandType<?>> standTypes;
     private final List<ResourceLocation> missingIds;
@@ -40,7 +39,7 @@ public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerP
     }
     
     @Override
-    protected boolean playerMatches(PlayerEntity player) {
+    protected boolean playerMatches(Player player) {
         IStandPower standPower = IStandPower.getPlayerStandPower(player);
         return standPower.hasPower() && (standIds.isEmpty() || standIds.contains(standPower.getType().getRegistryName()));
     }
@@ -53,11 +52,11 @@ public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerP
         return missingIds;
     }
 
-    public static class Serializer<R extends ICraftingRecipe> extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<StandUserRecipe<R>> {
-        private final IRecipeSerializer<R> wrappedRecipeSerializer;
+    public static class Serializer<R extends CraftingRecipe> implements RecipeSerializer<StandUserRecipe<R>> {
+        private final RecipeSerializer<R> wrappedRecipeSerializer;
         private final Factory<R> factory;
         
-        public Serializer(IRecipeSerializer<R> wrappedRecipeSerializer, Factory<R> factory) {
+        public Serializer(RecipeSerializer<R> wrappedRecipeSerializer, Factory<R> factory) {
             this.wrappedRecipeSerializer = wrappedRecipeSerializer;
             this.factory = factory;
         }
@@ -74,7 +73,7 @@ public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerP
         }
 
         @Override
-        public StandUserRecipe<R> fromNetwork(ResourceLocation id, PacketBuffer buf) {
+        public StandUserRecipe<R> fromNetwork(ResourceLocation id, FriendlyByteBuf buf) {
             R recipe = wrappedRecipeSerializer.fromNetwork(id, buf);
             NonNullList<ResourceLocation> stands = NonNullList.create();
             int standsCount = buf.readVarInt();
@@ -85,7 +84,7 @@ public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerP
         }
 
         @Override
-        public void toNetwork(PacketBuffer buf, StandUserRecipe<R> recipe) {
+        public void toNetwork(FriendlyByteBuf buf, StandUserRecipe<R> recipe) {
             wrappedRecipeSerializer.toNetwork(buf, recipe.recipe);
             
             buf.writeVarInt(recipe.standIds.size());
@@ -96,7 +95,7 @@ public abstract class StandUserRecipe<R extends ICraftingRecipe> extends PlayerP
         
     }
     
-    public static interface Factory<R extends ICraftingRecipe> {
+    public static interface Factory<R extends CraftingRecipe> {
         public StandUserRecipe<R> create(R recipe, NonNullList<ResourceLocation> stands);
     }
 

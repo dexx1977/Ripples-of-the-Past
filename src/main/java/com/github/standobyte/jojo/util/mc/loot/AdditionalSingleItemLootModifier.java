@@ -6,14 +6,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -22,7 +22,7 @@ public class AdditionalSingleItemLootModifier extends LootModifier {
     private final ItemStack additionalItem;
     private final boolean replace;
 
-    public AdditionalSingleItemLootModifier(ILootCondition[] conditions, ItemStack additionalItem, boolean replace) {
+    public AdditionalSingleItemLootModifier(LootItemCondition[] conditions, ItemStack additionalItem, boolean replace) {
         super(conditions);
         this.additionalItem = additionalItem;
         this.replace = replace;
@@ -40,20 +40,20 @@ public class AdditionalSingleItemLootModifier extends LootModifier {
     public static class Serializer extends GlobalLootModifierSerializer<AdditionalSingleItemLootModifier> {
 
         @Override
-        public AdditionalSingleItemLootModifier read(ResourceLocation location, JsonObject object, ILootCondition[] conditions) {
-            JsonObject itemObject = JSONUtils.getAsJsonObject(object, "additional_item");
+        public AdditionalSingleItemLootModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] conditions) {
+            JsonObject itemObject = GsonHelper.getAsJsonObject(object, "additional_item");
             
-            Item additionalItem = JSONUtils.getAsItem(itemObject, "name");
+            Item additionalItem = GsonHelper.getAsItem(itemObject, "name");
             ItemStack itemStack = new ItemStack(additionalItem);
             if (itemObject.has("nbt")) {
                 try {
-                    CompoundNBT nbt = JsonToNBT.parseTag(JSONUtils.convertToString(itemObject.get("nbt"), "nbt"));
+                    CompoundTag nbt = TagParser.parseTag(GsonHelper.convertToString(itemObject.get("nbt"), "nbt"));
                     itemStack.setTag(nbt);
                 } catch (CommandSyntaxException commandsyntaxexception) {
                     throw new JsonSyntaxException("Invalid nbt tag: " + commandsyntaxexception.getMessage());
                 }
             }
-            boolean replace = JSONUtils.getAsBoolean(object, "replace", false);
+            boolean replace = GsonHelper.getAsBoolean(object, "replace", false);
             
             return new AdditionalSingleItemLootModifier(conditions, itemStack, replace);
         }

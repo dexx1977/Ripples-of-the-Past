@@ -7,14 +7,14 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.client.particle.BloodParticle;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.IParticleData;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.ParticleOptions;
 
 public class BloodFromEntityParticle extends BloodParticle {
     private final Entity entity;
 
-    protected BloodFromEntityParticle(ClientWorld world, Entity entity, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+    protected BloodFromEntityParticle(ClientLevel world, Entity entity, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         super(world, x, y, z, xSpeed, ySpeed, zSpeed);
         this.entity = entity;
     }
@@ -25,7 +25,7 @@ public class BloodFromEntityParticle extends BloodParticle {
                 entity -> entity.getType() != ModEntityTypes.CD_BLOOD_CUTTER.get());
     }
 
-    public static BloodFromEntityParticle createCustomParticle(IParticleData type, ClientWorld world, @Nullable Entity entity,
+    public static BloodFromEntityParticle createCustomParticle(ParticleOptions type, ClientLevel world, @Nullable Entity entity,
             double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         BloodFromEntityParticle particle = new BloodFromEntityParticle(world, entity, x, y, z, xSpeed, ySpeed, zSpeed);
         particle.pickSprite(BloodParticle.Factory.getSprite());

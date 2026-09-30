@@ -5,20 +5,20 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.rendertype.CustomRenderType;
 import com.github.standobyte.jojo.entity.HamonProjectileShieldEntity;
 import com.github.standobyte.jojo.util.general.PlaneRectangle;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectileShieldEntity> {
     private static final ResourceLocation GLINT_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectile_shield.png");
     
-    public HamonProjectileShieldRenderer(EntityRendererManager renderManager) {
+    public HamonProjectileShieldRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
     
@@ -29,9 +29,9 @@ public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectil
     
     @Override
     public void render(HamonProjectileShieldEntity entity, float yRotation, float partialTick, 
-            MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
-        MatrixStack.Entry matrixstack$entry = matrixStack.last();
-        IVertexBuilder vertexBuilder = buffer.getBuffer(CustomRenderType.hamonProjectileShield(getTextureLocation(entity)));
+            PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
+        PoseStack.Entry matrixstack$entry = matrixStack.last();
+        VertexConsumer vertexBuilder = buffer.getBuffer(CustomRenderType.hamonProjectileShield(getTextureLocation(entity)));
         PlaneRectangle rectangle = entity.getShieldRectangle();
         packedLight = ClientUtil.MAX_MODEL_LIGHT;
         
@@ -48,8 +48,8 @@ public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectil
         vertex(matrixstack$entry, vertexBuilder, packedLight, rectangle.pLU.subtract(entity.position()), 1.0F, 1, 0);
     }
     
-    private void vertex(MatrixStack.Entry matrixstack$entry, IVertexBuilder vertexBuilder,
-            int packedLight, Vector3d pos, float strength, float u, float v) {
+    private void vertex(PoseStack.Entry matrixstack$entry, VertexConsumer vertexBuilder,
+            int packedLight, Vec3 pos, float strength, float u, float v) {
         float alpha = 0.5F * strength;
         ClientUtil.vertex(matrixstack$entry, vertexBuilder, 
                 packedLight, OverlayTexture.NO_OVERLAY, alpha, alpha, alpha, 1.0F, 

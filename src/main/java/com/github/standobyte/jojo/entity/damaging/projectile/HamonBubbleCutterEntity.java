@@ -8,26 +8,26 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonBubbleCutterEntity extends ModdedProjectileEntity { // TODO bubble lenses
     private boolean gliding;
     private float hamonStatPoints;
     
-    public HamonBubbleCutterEntity(LivingEntity shooter, World world) {
+    public HamonBubbleCutterEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.HAMON_BUBBLE_CUTTER.get(), shooter, world);
     }
 
-    public HamonBubbleCutterEntity(EntityType<? extends HamonBubbleCutterEntity> type, World world) {
+    public HamonBubbleCutterEntity(EntityType<? extends HamonBubbleCutterEntity> type, Level world) {
         super(type, world);
     }
     
@@ -56,7 +56,7 @@ public class HamonBubbleCutterEntity extends ModdedProjectileEntity { // TODO bu
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             LivingEntity owner = getOwner();
             if (owner != null) {
@@ -70,10 +70,10 @@ public class HamonBubbleCutterEntity extends ModdedProjectileEntity { // TODO bu
     }
     
     @Override
-    protected void onHitBlock(BlockRayTraceResult result) {
+    protected void onHitBlock(BlockHitResult result) {
         if (gliding && result.getDirection().getAxis() == Axis.Y) {
-            Vector3d movementVec = getDeltaMovement();
-            Vector3d newVec = new Vector3d(movementVec.x, 0, movementVec.z);
+            Vec3 movementVec = getDeltaMovement();
+            Vec3 newVec = new Vec3(movementVec.x, 0, movementVec.z);
             this.setDeltaMovement(newVec.scale(Math.sqrt(movementVec.lengthSqr() / newVec.lengthSqr())));
         }
         else {
@@ -102,27 +102,27 @@ public class HamonBubbleCutterEntity extends ModdedProjectileEntity { // TODO bu
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("Gliding", gliding);
         nbt.putFloat("Points", hamonStatPoints);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         gliding = nbt.getBoolean("Gliding");
         hamonStatPoints = nbt.getFloat("Points");
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeBoolean(gliding);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.gliding = additionalData.readBoolean();
     }

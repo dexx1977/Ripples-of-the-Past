@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCap;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.SpaceRipperStingyEyesEntity;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class VampirismSpaceRipperStingyEyes extends VampirismAction implements IPlayerAction<VampirismSpaceRipperStingyEyes.Instance, INonStandPower> {
 
@@ -22,7 +22,7 @@ public class VampirismSpaceRipperStingyEyes extends VampirismAction implements I
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!user.level.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -46,7 +46,7 @@ public class VampirismSpaceRipperStingyEyes extends VampirismAction implements I
         
         @Override
         public void onStart() {
-            World world = user.level;
+            Level world = user.level;
             if (!world.isClientSide()) {
                 world.addFreshEntity(lasers[0] = new SpaceRipperStingyEyesEntity(world, user, true));
                 world.addFreshEntity(lasers[1] = new SpaceRipperStingyEyesEntity(world, user, false));

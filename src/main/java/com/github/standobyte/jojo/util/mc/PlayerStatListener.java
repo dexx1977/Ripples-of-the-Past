@@ -1,16 +1,16 @@
 package com.github.standobyte.jojo.util.mc;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 
 public abstract class PlayerStatListener<T> {
-    private final ServerPlayerEntity player;
+    private final ServerPlayer player;
     private final Stat<T> stat;
     
     private boolean firstTick = true;
     private long oldVal;
     
-    public PlayerStatListener(Stat<T> stat, ServerPlayerEntity player) {
+    public PlayerStatListener(Stat<T> stat, ServerPlayer player) {
         this.stat = stat;
         this.player = player;
     }
@@ -29,5 +29,5 @@ public abstract class PlayerStatListener<T> {
         }
     }
     
-    protected abstract void handleChanged(T item, ServerPlayerEntity player, long oldVal, long newVal);
+    protected abstract void handleChanged(T item, ServerPlayer player, long oldVal, long newVal);
 }

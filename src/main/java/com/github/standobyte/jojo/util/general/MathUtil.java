@@ -8,12 +8,12 @@ import java.util.stream.StreamSupport;
 
 import com.github.standobyte.jojo.mixin.Matrix4fAccessor;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class MathUtil {
     public static final float DEG_TO_RAD = (float) (Math.PI / 180D);
@@ -21,21 +21,21 @@ public class MathUtil {
     private static final float PI = (float) Math.PI;
     private static final float DOUBLE_PI = PI * 2F;
     
-    public static float yRotDegFromVec(Vector3d vec) {
-        return (float) -MathHelper.atan2(vec.x, vec.z) * RAD_TO_DEG;
+    public static float yRotDegFromVec(Vec3 vec) {
+        return (float) -Mth.atan2(vec.x, vec.z) * RAD_TO_DEG;
     }
     
-    public static float xRotDegFromVec(Vector3d vec) {
-        return (float) -MathHelper.atan2(vec.y, MathHelper.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG;
+    public static float xRotDegFromVec(Vec3 vec) {
+        return (float) -Mth.atan2(vec.y, Mth.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG;
     }
     
     /**
      * @deprecated Use {@link Vector3d#yRot(float)} (multiply the yRot parameter by -MathUtil.DEG_TO_RAD).
      */
     @Deprecated
-    public static Vector3d relativeCoordsToAbsolute(double left, double up, double forward, float yAxisRot) {
+    public static Vec3 relativeCoordsToAbsolute(double left, double up, double forward, float yAxisRot) {
         double yRotRad = yAxisRot * DEG_TO_RAD;
-        return new Vector3d(
+        return new Vec3(
                 left * Math.cos(yRotRad) - forward * Math.sin(yRotRad), 
                 up, 
                 left * Math.sin(yRotRad) + forward * Math.cos(yRotRad));
@@ -45,11 +45,11 @@ public class MathUtil {
      * @deprecated Use {@link Vector3d#yRot(float)} (multiply the yRot parameter by -MathUtil.DEG_TO_RAD).
      */
     @Deprecated
-    public static Vector3d relativeVecToAbsolute(Vector3d relativeVec, float yAxisRot) {
+    public static Vec3 relativeVecToAbsolute(Vec3 relativeVec, float yAxisRot) {
         return relativeCoordsToAbsolute(relativeVec.x, relativeVec.y, relativeVec.z, yAxisRot);
     }
     
-    public static Vector2f xRotYRotOffsets(double angleXYRad, double z) {
+    public static Vec2 xRotYRotOffsets(double angleXYRad, double z) {
         double xSq = -Math.cos(angleXYRad);
         double ySq = Math.sin(angleXYRad);
         xSq *= xSq;
@@ -63,7 +63,7 @@ public class MathUtil {
         if (angleXYRad > Math.PI / 2 && angleXYRad < Math.PI * 3 / 2) {
             angleYZ *= -1;
         }
-        return new Vector2f((float) Math.toDegrees(angleYZ), (float) Math.toDegrees(angleXZ));
+        return new Vec2((float) Math.toDegrees(angleYZ), (float) Math.toDegrees(angleXZ));
     }
     
     public static float rotLerpRad(float lerp, float angleA, float angleB) {
@@ -84,7 +84,7 @@ public class MathUtil {
     public static float inverseArmorProtectionDamage(float damageAfterAbsorb, float armor, float toughness) {
         float f = armor / 25 - 1;
         float f2 = 25 * (1 + toughness / 8);
-        return MathHelper.clamp(
+        return Mth.clamp(
                 f2 * (f + (float) Math.sqrt(f * f + 2 * damageAfterAbsorb / f2)), 
                 damageAfterAbsorb / (1 - armor / 125), 
                 5 * damageAfterAbsorb);
@@ -94,28 +94,28 @@ public class MathUtil {
         return (x - a) / (b - a);
     }
     
-    public static Vector3d lerpVector(float partial, Vector3d vec1, Vector3d vec2) {
+    public static Vec3 lerpVector(float partial, Vec3 vec1, Vec3 vec2) {
         return lerpVector(partial, vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);
     }
     
-    public static Vector3d lerpVector(float partial, double x1, double y1, double z1, double x2, double y2, double z2) {
-        double x = MathHelper.lerp(partial, x1, x2);
-        double y = MathHelper.lerp(partial, y1, y2);
-        double z = MathHelper.lerp(partial, z1, z2);
-        return new Vector3d(x, y, z);
+    public static Vec3 lerpVector(float partial, double x1, double y1, double z1, double x2, double y2, double z2) {
+        double x = Mth.lerp(partial, x1, x2);
+        double y = Mth.lerp(partial, y1, y2);
+        double z = Mth.lerp(partial, z1, z2);
+        return new Vec3(x, y, z);
     }
     
-    public static Vector3d vecFromAngles(float xRotRad, float yRotRad) {
+    public static Vec3 vecFromAngles(float xRotRad, float yRotRad) {
         yRotRad = -yRotRad;
-        float f2 = MathHelper.cos(yRotRad);
-        float f3 = MathHelper.sin(yRotRad);
-        float f4 = MathHelper.cos(xRotRad);
-        float f5 = MathHelper.sin(xRotRad);
-        return new Vector3d((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
+        float f2 = Mth.cos(yRotRad);
+        float f3 = Mth.sin(yRotRad);
+        float f4 = Mth.cos(xRotRad);
+        float f5 = Mth.sin(xRotRad);
+        return new Vec3((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
     }
     
     public static int fractionRandomInc(double num) {
-        int numInt = MathHelper.floor(num);
+        int numInt = Mth.floor(num);
         if (Math.random() < num - (double) numInt) {
             numInt++;
         }
@@ -124,7 +124,7 @@ public class MathUtil {
     
     private static final Random RANDOM = new Random();
     public static int fractionRandomInc(float num) {
-        int numInt = MathHelper.floor(num);
+        int numInt = Mth.floor(num);
         if (RANDOM.nextFloat() < num - (float) numInt) {
             numInt++;
         }
@@ -181,7 +181,7 @@ public class MathUtil {
     public static float fadeOut(float time, float maxTime, float fractionUntilFadeOut) {
         if (fractionUntilFadeOut >= 1) return 1;
         float f = 1 / (1 - fractionUntilFadeOut);
-        return MathHelper.clamp(time * -f / maxTime + f, 0, 1);
+        return Mth.clamp(time * -f / maxTime + f, 0, 1);
     }
     
     
@@ -206,7 +206,7 @@ public class MathUtil {
     }
     
     
-    public static Vector3f multiplyPoint(Matrix4f matrix, Vector3d point) {
+    public static Vector3f multiplyPoint(Matrix4f matrix, Vec3 point) {
         Vector3f pointF = new Vector3f((float) point.x, (float) point.y, (float) point.z);
         Vector3f res = new Vector3f();
         float w;
@@ -253,7 +253,7 @@ public class MathUtil {
     
     
     
-    public static Quaternion quaternionZYX(float x, float y, float z, boolean degrees) {
+    public static Quaternionf quaternionZYX(float x, float y, float z, boolean degrees) {
         if (degrees) {
             x *= DEG_TO_RAD;
             y *= DEG_TO_RAD;
@@ -272,7 +272,7 @@ public class MathUtil {
         float k = c1 * c2 * s3 - s1 * s2 * c3;
         float r = c1 * c2 * c3 + s1 * s2 * s3;
         
-        return new Quaternion(i, j, k, r);
+        return new Quaternionf(i, j, k, r);
     }
     
     
@@ -296,7 +296,7 @@ public class MathUtil {
         private float m32;
         private float m33;
         
-        public Matrix4ZYX(Quaternion q) {
+        public Matrix4ZYX(Quaternionf q) {
             float f = q.i();
             float f1 = q.j();
             float f2 = q.k();
@@ -327,14 +327,14 @@ public class MathUtil {
             double yRot;
             double zRot;
 
-            yRot = Math.asin(-MathHelper.clamp(m20, -1, 1 ));
+            yRot = Math.asin(-Mth.clamp(m20, -1, 1 ));
 
             if (Math.abs(m20) < 0.999999) {
-                xRot = MathHelper.atan2(m21, m22);
-                zRot = MathHelper.atan2(m10, m00);
+                xRot = Mth.atan2(m21, m22);
+                zRot = Mth.atan2(m10, m00);
             } else {
                 xRot = 0;
-                zRot = MathHelper.atan2(-m01, m11);
+                zRot = Mth.atan2(-m01, m11);
             }
             
             return new Vector3f((float) xRot, (float) yRot, (float) zRot);

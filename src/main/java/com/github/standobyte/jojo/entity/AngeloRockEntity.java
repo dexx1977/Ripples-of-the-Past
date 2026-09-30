@@ -29,48 +29,49 @@ import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.github.standobyte.jojo.util.mod.IPlayerPossess;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PickaxeItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.nbt.Tag;
 
 public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnData {
-    protected static final DataParameter<Optional<BlockPos>> DATA_ATTACH_POS_ID = EntityDataManager.defineId(AngeloRockEntity.class, DataSerializers.OPTIONAL_BLOCK_POS);
-    protected static final DataParameter<Boolean> CREATION_COMPLETE = EntityDataManager.defineId(AngeloRockEntity.class, DataSerializers.BOOLEAN);
-    protected static final DataParameter<Float> DAMAGE = EntityDataManager.defineId(AngeloRockEntity.class, DataSerializers.FLOAT);
+    protected static final EntityDataAccessor<Optional<BlockPos>> DATA_ATTACH_POS_ID = SynchedEntityData.defineId(AngeloRockEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    protected static final EntityDataAccessor<Boolean> CREATION_COMPLETE = SynchedEntityData.defineId(AngeloRockEntity.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(AngeloRockEntity.class, EntityDataSerializers.FLOAT);
     private static final int CREATION_ANIM_LEN = 40;
     private int creationAnimTicks;
     private Map<BlockPos, PrevBlockInfo> angeloRockBlocks = new HashMap<>();
@@ -78,16 +79,16 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     private boolean startedSound;
     private EntityOwnerResolver angeloEntity = new EntityOwnerResolver();
     public boolean keepMobInside;
-    /* fuck it, sure, yeah */ private MobEntity mob;
+    /* fuck it, sure, yeah */ private Mob mob;
     private boolean useMobHurtSound;
     private TimerQueue responseSoundTimer = new TimerQueue(false);
     
     
-    public AngeloRockEntity(EntityType<?> pType, World pLevel) {
+    public AngeloRockEntity(EntityType<?> pType, Level pLevel) {
         super(pType, pLevel);
     }
     
-    public static AngeloRockEntity turnIntoRock(World world, Entity entity, Vector3d rockPos, float yRot, 
+    public static AngeloRockEntity turnIntoRock(Level world, Entity entity, Vec3 rockPos, float yRot, 
             PrevBlockInfo... angeloRockBlocks) {
         if (world.isClientSide()) {
             return null;
@@ -119,12 +120,12 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     }
     
     @Override
-    public ActionResultType interact(PlayerEntity pPlayer, Hand pHand) {
+    public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
         if (!isFullyFormed()) {
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
         if (level.isClientSide()) {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         else {
             if (mob != null) {
@@ -146,7 +147,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
             else {
                 playMobResponseSound();
             }
-            return ActionResultType.CONSUME;
+            return InteractionResult.CONSUME;
         }
     }
     
@@ -174,7 +175,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         
         if ("player".equals(dmgSource.getMsgId()) && dmgSource.getEntity() instanceof LivingEntity) {
             LivingEntity attacker = (LivingEntity) dmgSource.getEntity();
-            boolean creative = attacker instanceof PlayerEntity && ((PlayerEntity) attacker).abilities.instabuild;
+            boolean creative = attacker instanceof Player && ((Player) attacker).abilities.instabuild;
             if (creative) {
                 dropMode = DropMode.NONE;
                 
@@ -215,7 +216,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                 
                 entityData.set(DAMAGE, entityData.get(DAMAGE) + dmgAmount);
                 if (!creative && isBroken()) {
-                    item.hurt(1, random, attacker instanceof ServerPlayerEntity ? (ServerPlayerEntity) attacker : null);
+                    item.hurt(1, random, attacker instanceof ServerPlayer ? (ServerPlayer) attacker : null);
                 }
                 
                 return true;
@@ -258,7 +259,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
             angeloRockBlocks.values().forEach(block -> {
                 CrazyDiamondRestoreTerrain.rememberBrokenBlock(level, block.pos, block.state, Optional.empty(), block.drops);
             });
-            Vector3d pos = position();
+            Vec3 pos = position();
             // TODO angelo rock silk touch
             if (dropMode == DropMode.SILK_TOUCH) {
                 
@@ -308,7 +309,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     
     
     public static boolean cancelPlayerHitSound = false;
-    public static MobEntity mobLootFortune;
+    public static Mob mobLootFortune;
     
     
     @Override
@@ -329,7 +330,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT pCompound) {
+    protected void addAdditionalSaveData(CompoundTag pCompound) {
         BlockPos blockpos = this.getAttachPosition();
         if (blockpos != null) {
             pCompound.putInt("APX", blockpos.getX());
@@ -341,7 +342,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         pCompound.putFloat("RockDamage", entityData.get(DAMAGE));
         
         if (!angeloRockBlocks.isEmpty()) {
-            ListNBT blocksNbt = new ListNBT();
+            ListTag blocksNbt = new ListTag();
             for (PrevBlockInfo block : angeloRockBlocks.values()) {
                 blocksNbt.add(block.toNBT());
             }
@@ -349,10 +350,10 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         }
         
         if (!itemDrops.isEmpty()) {
-            ListNBT blockDropsNbt = new ListNBT();
+            ListTag blockDropsNbt = new ListTag();
             for (ItemStack item : itemDrops) {
                 if (!item.isEmpty()) {
-                    blockDropsNbt.add(item.save(new CompoundNBT()));
+                    blockDropsNbt.add(item.save(new CompoundTag()));
                 }
             }
             pCompound.put("BlockDrops", blockDropsNbt);
@@ -362,7 +363,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         if (mob != null) {
             String s = mob.getEncodeId();
             if (s != null) {
-                CompoundNBT mobNBT = new CompoundNBT();
+                CompoundTag mobNBT = new CompoundTag();
                 mobNBT.putString("id", s);
                 mob.saveWithoutId(mobNBT);
                 mobNBT.remove("Passengers");
@@ -373,7 +374,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT pCompound) {
+    protected void readAdditionalSaveData(CompoundTag pCompound) {
         if (pCompound.contains("APX")) {
             int i = pCompound.getInt("APX");
             int j = pCompound.getInt("APY");
@@ -386,10 +387,10 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         this.creationAnimTicks = pCompound.getInt("CreationAnim");
         entityData.set(DAMAGE, pCompound.getFloat("RockDamage"));
         
-        MCUtil.getNbtElement(pCompound, "RockBlocks", ListNBT.class).ifPresent(blocksNbt -> {
-            if (blocksNbt.getElementType() != Constants.NBT.TAG_COMPOUND) return;
+        MCUtil.getNbtElement(pCompound, "RockBlocks", ListTag.class).ifPresent(blocksNbt -> {
+            if (blocksNbt.getElementType() != Tag.TAG_COMPOUND) return;
             blocksNbt.forEach(blockNbt -> {
-                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundNBT) blockNbt);
+                PrevBlockInfo block = PrevBlockInfo.fromNBT((CompoundTag) blockNbt);
                 if (block != null) {
                     angeloRockBlocks.put(block.pos, block);
                 }
@@ -397,8 +398,8 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         });
         
         itemDrops.clear();
-        pCompound.getList("BlockDrops", Constants.NBT.TAG_COMPOUND).forEach(itemNbt -> {
-            ItemStack item = ItemStack.of((CompoundNBT) itemNbt);
+        pCompound.getList("BlockDrops", Tag.TAG_COMPOUND).forEach(itemNbt -> {
+            ItemStack item = ItemStack.of((CompoundTag) itemNbt);
             if (!item.isEmpty()) {
                 itemDrops.add(item);
             }
@@ -412,7 +413,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                 return Optional.empty();
             }
         }).orElse(null);
-        this.mob = mobEntity instanceof MobEntity ? (MobEntity) mobEntity : null;
+        this.mob = mobEntity instanceof Mob ? (Mob) mobEntity : null;
         if (mob != null) {
             mob.removed = true;
         }
@@ -457,7 +458,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
             angeloEntity.animationPosition = 0;
             angeloEntity.animationSpeed = 0;
             angeloEntity.animationSpeedOld = 0;
-            angeloEntity.addEffect(new EffectInstance(ModStatusEffects.IMMOBILIZE.get(), 10, 0, false, false, true));
+            angeloEntity.addEffect(new MobEffectInstance(ModStatusEffects.IMMOBILIZE.get(), 10, 0, false, false, true));
             angeloEntity.setPosAndOldPos(getX(), getY(), getZ());
             angeloEntity.setPose(Pose.STANDING);
             if (creationAnimTicks <= 0) {
@@ -468,8 +469,8 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                     }
                     else {
                         angeloEntity.remove();
-                        if (keepMobInside && angeloEntity instanceof MobEntity) {
-                            this.mob = (MobEntity) angeloEntity;
+                        if (keepMobInside && angeloEntity instanceof Mob) {
+                            this.mob = (Mob) angeloEntity;
                             useMobHurtSound = CommonReflection.getAmbientSound(mob) == null;
                         }
                     }
@@ -502,7 +503,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
 //            if (isAddedToWorld() && level instanceof ServerWorld) {
 //                ((ServerWorld)level).updateChunkPos(this); // Forge - Process chunk registration after moving.
 //            }
-            setBoundingBox(new AxisAlignedBB(
+            setBoundingBox(new AABB(
                     getX() - 0.5, 
                     getY(), 
                     getZ() - 0.5, 
@@ -550,7 +551,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> pKey) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> pKey) {
         if (DATA_ATTACH_POS_ID.equals(pKey)) {
             if (level.isClientSide && !isPassenger()) {
                 BlockPos blockpos = getAttachPosition();
@@ -599,14 +600,14 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         NetworkUtil.writeOptionally(buffer, angeloEntity.getEntityLiving(level), entity -> buffer.writeInt(entity.getId()));
         buffer.writeVarInt(creationAnimTicks);
         NetworkUtil.writeCollection(buffer, angeloRockBlocks.values(), PrevBlockInfo::toBuf, false);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity angeloEntity = NetworkUtil.readOptional(additionalData, buf -> ClientUtil.getEntityById(buf.readInt())).orElse(null);
         if (angeloEntity instanceof LivingEntity) {
             this.angeloEntity.setOwner(angeloEntity);
@@ -617,7 +618,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

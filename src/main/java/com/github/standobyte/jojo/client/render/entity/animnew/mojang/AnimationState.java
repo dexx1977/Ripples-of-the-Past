@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.client.render.entity.animnew.mojang;
 
 import java.util.function.Consumer;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class AnimationState {
     private static final long STOPPED = Long.MAX_VALUE;
@@ -42,7 +42,7 @@ public class AnimationState {
         if (!this.isRunning()) {
             return;
         }
-        long l = MathHelper.lfloor(animationProgress * 1000.0f / 20.0f);
+        long l = Mth.lfloor(animationProgress * 1000.0f / 20.0f);
         this.timeRunning += (long)((float)(l - this.updatedAt) * speedMultiplier);
         this.updatedAt = l;
     }

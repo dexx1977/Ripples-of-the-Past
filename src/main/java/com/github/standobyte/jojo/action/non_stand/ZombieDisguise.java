@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.zombie.ZombieData;
 import com.github.standobyte.jojo.util.general.LazySupplier;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 public class ZombieDisguise extends ZombieAction {
 
@@ -45,7 +45,7 @@ public class ZombieDisguise extends ZombieAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {  
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {  
         if (!world.isClientSide()) {
             power.getTypeSpecificData(ModPowers.ZOMBIE.get()).get().toggleDisguise();
         }

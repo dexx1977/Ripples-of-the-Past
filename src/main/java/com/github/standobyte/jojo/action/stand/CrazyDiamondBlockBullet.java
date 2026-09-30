@@ -21,18 +21,18 @@ import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 import com.github.standobyte.jojo.util.general.LazySupplier;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondBlockBullet extends StandEntityAction {
     public static final StandPose BLOCK_BULLET_SHOT_POSE = new StandPose("blockBullet");
@@ -80,14 +80,14 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
     }
 
     @Override
-    public void standTickWindup(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickWindup(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (world.isClientSide() && userPower.getUser() != null && ClientUtil.canSeeStands()) {
-            CustomParticlesHelper.createCDRestorationParticle(userPower.getUser(), Hand.OFF_HAND);
+            CustomParticlesHelper.createCDRestorationParticle(userPower.getUser(), InteractionHand.OFF_HAND);
         }
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             LivingEntity user = userPower.getUser();
             if (user == null) return;
@@ -97,7 +97,7 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
             bullet.setShootingPosOf(user);
             bullet.setBlock(((BlockItem) item.getItem()).getBlock());
             standEntity.shootProjectile(bullet, 2.0F, 0.25F);
-            if (!(user instanceof PlayerEntity && ((PlayerEntity) user).abilities.instabuild)) {
+            if (!(user instanceof Player && ((Player) user).abilities.instabuild)) {
                 item.shrink(1);
             }
             if (!JojoModUtil.useShiftVar(user)) {
@@ -109,7 +109,7 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
     }
     
     @Override
-    protected void playSoundAtStand(World world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
+    protected void playSoundAtStand(Level world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
         if (world.isClientSide() && phase == Phase.WINDUP) {
             ClientTickingSoundsHelper.playStandEntityCancelableActionSound(standEntity, sound, this, phase, 1.0F, 1.0F, false);
         }
@@ -122,7 +122,7 @@ public class CrazyDiamondBlockBullet extends StandEntityAction {
     public StandRelativeOffset getOffsetFromUser(IStandPower standPower, StandEntity standEntity, StandEntityTask task) {
         if (!standEntity.isArmsOnlyMode()) {
             LivingEntity user = standEntity.getUser();
-            if (user.getMainArm() == HandSide.LEFT) {
+            if (user.getMainArm() == HumanoidArm.LEFT) {
                 return userOffsetLeftArm;
             }
         }

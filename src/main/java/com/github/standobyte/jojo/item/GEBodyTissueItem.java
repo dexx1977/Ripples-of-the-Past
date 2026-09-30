@@ -10,18 +10,18 @@ import com.github.standobyte.jojo.action.stand.GoldExperienceHeal;
 import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.Util;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class GEBodyTissueItem extends Item {
 
@@ -30,12 +30,12 @@ public class GEBodyTissueItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
         ActionConditionResult canUse = GoldExperienceHeal.canHeal(player, player, true, GoldExperienceHeal.MAX_REGEN_LVL - 1);
         if (canUse.isPositive()) {
             if (!world.isClientSide()) {
-                Optional<LivingEntity> userCreator = getGEUser((ServerWorld) world, item);
+                Optional<LivingEntity> userCreator = getGEUser((ServerLevel) world, item);
                 if (userCreator == null) { // item was created by other means, does not have data about the user
                     healAfterDelay(player, null);
                 }
@@ -51,13 +51,13 @@ public class GEBodyTissueItem extends Item {
                     item.shrink(1);
                 }
             }
-            return ActionResult.consume(item);
+            return InteractionResultHolder.consume(item);
         }
         else {
             if (!world.isClientSide()) {
-                ((ServerPlayerEntity) player).sendMessage(canUse.getWarning(), ChatType.GAME_INFO, Util.NIL_UUID);
+                ((ServerPlayer) player).sendMessage(canUse.getWarning(), ChatType.GAME_INFO, Util.NIL_UUID);
             }
-            return ActionResult.fail(item);
+            return InteractionResultHolder.fail(item);
         }
     }
     
@@ -75,7 +75,7 @@ public class GEBodyTissueItem extends Item {
     }
     
     @Nullable
-    private static Optional<LivingEntity> getGEUser(ServerWorld world, ItemStack item) {
+    private static Optional<LivingEntity> getGEUser(ServerLevel world, ItemStack item) {
         if (item.hasTag() && item.getTag().hasUUID("GEUser")) {
             UUID id = item.getTag().getUUID("GEUser");
             Entity entity = world.getEntity(id);

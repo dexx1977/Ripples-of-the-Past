@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.KnockbackResTickPacket;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
 public class NoKnockbackOnBlocking {
     private static final UUID ONE_TICK_KB_RES_ID = UUID.fromString("94d947b4-5036-4453-a548-d1c213d8281a");
@@ -17,7 +17,7 @@ public class NoKnockbackOnBlocking {
             "No stagger when blocking a hit", 1, AttributeModifier.Operation.ADDITION);
     
     public static void setOneTickKbRes(LivingEntity entity) {
-        ModifiableAttributeInstance kbRes = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+        AttributeInstance kbRes = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
         if (kbRes != null && kbRes.getModifier(ONE_TICK_KB_RES_ID) == null) {
             kbRes.addTransientModifier(ONE_TICK_KB_RES);
         }
@@ -41,7 +41,7 @@ public class NoKnockbackOnBlocking {
     }
     
     public static void tickAttribute(LivingEntity entity) {
-        ModifiableAttributeInstance kbRes = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+        AttributeInstance kbRes = entity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
         if (kbRes.hasModifier(ONE_TICK_KB_RES)) {
             kbRes.removeModifier(ONE_TICK_KB_RES);
         }

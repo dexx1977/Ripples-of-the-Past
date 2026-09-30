@@ -8,21 +8,21 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.AxisRotation;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.AxisCycle;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LevelReader;
 
 public class CollideBlocks {
 
-    public static BlockCollisionResult collideBoundingBox(Vector3d pVec, AxisAlignedBB pCollisionBox, IWorldReader pLevel, ISelectionContext pSelectionContext) {
+    public static BlockCollisionResult collideBoundingBox(Vec3 pVec, AABB pCollisionBox, LevelReader pLevel, CollisionContext pSelectionContext) {
         BlockCollisionResult collision = new BlockCollisionResult();
         double x = pVec.x;
         double y = pVec.y;
@@ -62,30 +62,30 @@ public class CollideBlocks {
         return collision;
     }
 
-    private static double collide(Direction.Axis pMovementAxis, AxisAlignedBB pCollisionBox, 
-            IWorldReader pLevelReader, double pDesiredOffset, ISelectionContext pSelectionContext, Collection<Pair<BlockPos, VoxelShape>> blockPosCollide) {
-        return collide(pCollisionBox, pLevelReader, pDesiredOffset, pSelectionContext, AxisRotation.between(pMovementAxis, Direction.Axis.Z), blockPosCollide);
+    private static double collide(Direction.Axis pMovementAxis, AABB pCollisionBox, 
+            LevelReader pLevelReader, double pDesiredOffset, CollisionContext pSelectionContext, Collection<Pair<BlockPos, VoxelShape>> blockPosCollide) {
+        return collide(pCollisionBox, pLevelReader, pDesiredOffset, pSelectionContext, AxisCycle.between(pMovementAxis, Direction.Axis.Z), blockPosCollide);
     }
 
-    public static double collide(AxisAlignedBB pCollisionBox, IWorldReader pLevelReader, 
-            double pDesiredOffset, ISelectionContext pSelectionContext, AxisRotation pRotationAxis, Collection<Pair<BlockPos, VoxelShape>> blockPosCollide) {
+    public static double collide(AABB pCollisionBox, LevelReader pLevelReader, 
+            double pDesiredOffset, CollisionContext pSelectionContext, AxisCycle pRotationAxis, Collection<Pair<BlockPos, VoxelShape>> blockPosCollide) {
         if (!(pCollisionBox.getXsize() < 1.0E-6D) && !(pCollisionBox.getYsize() < 1.0E-6D) && !(pCollisionBox.getZsize() < 1.0E-6D)) {
             if (Math.abs(pDesiredOffset) < 1.0E-7D) {
                 return 0.0D;
             } else {
-                AxisRotation axisrotation = pRotationAxis.inverse();
+                AxisCycle axisrotation = pRotationAxis.inverse();
                 Direction.Axis direction$axis = axisrotation.cycle(Direction.Axis.X);
                 Direction.Axis direction$axis1 = axisrotation.cycle(Direction.Axis.Y);
                 Direction.Axis direction$axis2 = axisrotation.cycle(Direction.Axis.Z);
-                BlockPos.Mutable blockpos = new BlockPos.Mutable();
-                int i = MathHelper.floor(pCollisionBox.min(direction$axis) - 1.0E-7D) - 1;
-                int j = MathHelper.floor(pCollisionBox.max(direction$axis) + 1.0E-7D) + 1;
-                int k = MathHelper.floor(pCollisionBox.min(direction$axis1) - 1.0E-7D) - 1;
-                int l = MathHelper.floor(pCollisionBox.max(direction$axis1) + 1.0E-7D) + 1;
+                BlockPos.MutableBlockPos blockpos = new BlockPos.MutableBlockPos();
+                int i = Mth.floor(pCollisionBox.min(direction$axis) - 1.0E-7D) - 1;
+                int j = Mth.floor(pCollisionBox.max(direction$axis) + 1.0E-7D) + 1;
+                int k = Mth.floor(pCollisionBox.min(direction$axis1) - 1.0E-7D) - 1;
+                int l = Mth.floor(pCollisionBox.max(direction$axis1) + 1.0E-7D) + 1;
                 double d0 = pCollisionBox.min(direction$axis2) - 1.0E-7D;
                 double d1 = pCollisionBox.max(direction$axis2) + 1.0E-7D;
                 boolean flag = pDesiredOffset > 0.0D;
-                int i1 = flag ? MathHelper.floor(pCollisionBox.max(direction$axis2) - 1.0E-7D) - 1 : MathHelper.floor(pCollisionBox.min(direction$axis2) + 1.0E-7D) + 1;
+                int i1 = flag ? Mth.floor(pCollisionBox.max(direction$axis2) - 1.0E-7D) - 1 : Mth.floor(pCollisionBox.min(direction$axis2) + 1.0E-7D) + 1;
                 int j1 = lastC(pDesiredOffset, d0, d1);
                 int k1 = flag ? 1 : -1;
                 int l1 = i1;
@@ -165,7 +165,7 @@ public class CollideBlocks {
     }
 
     private static int lastC(double pDesiredOffset, double pMin, double pMax) {
-        return pDesiredOffset > 0.0D ? MathHelper.floor(pMax + pDesiredOffset) + 1 : MathHelper.floor(pMin + pDesiredOffset) - 1;
+        return pDesiredOffset > 0.0D ? Mth.floor(pMax + pDesiredOffset) + 1 : Mth.floor(pMin + pDesiredOffset) - 1;
     }
     
     public static class BlockCollisionResult {
@@ -182,18 +182,18 @@ public class CollideBlocks {
     
     
     
-    public static Collection<BlockPos> getBlocksOutlineTowards(AxisAlignedBB collisionBox, Vector3d vec, IWorldReader world, boolean sort) {
+    public static Collection<BlockPos> getBlocksOutlineTowards(AABB collisionBox, Vec3 vec, LevelReader world, boolean sort) {
         List<BlockPos> blocks = new ArrayList<>();
         double vecLengthSqr = vec.lengthSqr();
-        Vector3d center1 = collisionBox.getCenter();
+        Vec3 center1 = collisionBox.getCenter();
         
         if (vecLengthSqr == 0) {
-            int x1 = MathHelper.floor(collisionBox.minX);
-            int y1 = MathHelper.floor(collisionBox.minY);
-            int z1 = MathHelper.floor(collisionBox.minZ);
-            int x2 = MathHelper.ceil(collisionBox.maxX);
-            int y2 = MathHelper.ceil(collisionBox.maxY);
-            int z2 = MathHelper.ceil(collisionBox.maxZ);
+            int x1 = Mth.floor(collisionBox.minX);
+            int y1 = Mth.floor(collisionBox.minY);
+            int z1 = Mth.floor(collisionBox.minZ);
+            int x2 = Mth.ceil(collisionBox.maxX);
+            int y2 = Mth.ceil(collisionBox.maxY);
+            int z2 = Mth.ceil(collisionBox.maxZ);
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
                     for (int z = z1; z <= z2; z++) {
@@ -203,22 +203,22 @@ public class CollideBlocks {
             }
         }
         else {
-            BlockPos.Mutable blockPos = new BlockPos.Mutable();
-            AxisAlignedBB box2 = collisionBox.move(vec);
-            int x1 = MathHelper.floor(Math.min(collisionBox.minX, box2.minX));
-            int y1 = MathHelper.floor(Math.min(collisionBox.minY, box2.minY));
-            int z1 = MathHelper.floor(Math.min(collisionBox.minZ, box2.minZ));
-            int x2 = MathHelper.ceil(Math.max(collisionBox.maxX, box2.maxX));
-            int y2 = MathHelper.ceil(Math.max(collisionBox.maxY, box2.maxY));
-            int z2 = MathHelper.ceil(Math.max(collisionBox.maxZ, box2.maxZ));
+            BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
+            AABB box2 = collisionBox.move(vec);
+            int x1 = Mth.floor(Math.min(collisionBox.minX, box2.minX));
+            int y1 = Mth.floor(Math.min(collisionBox.minY, box2.minY));
+            int z1 = Mth.floor(Math.min(collisionBox.minZ, box2.minZ));
+            int x2 = Mth.ceil(Math.max(collisionBox.maxX, box2.maxX));
+            int y2 = Mth.ceil(Math.max(collisionBox.maxY, box2.maxY));
+            int z2 = Mth.ceil(Math.max(collisionBox.maxZ, box2.maxZ));
             for (int x = x1; x <= x2; x++) {
                 for (int y = y1; y <= y2; y++) {
                     for (int z = z1; z <= z2; z++) {
                         blockPos.set(x, y, z);
                         if (!world.isEmptyBlock(blockPos)) {
-                            Vector3d blockRelPos = Vector3d.atCenterOf(blockPos).subtract(center1);
+                            Vec3 blockRelPos = Vec3.atCenterOf(blockPos).subtract(center1);
                             double projScale = vec.dot(blockRelPos) / vecLengthSqr;
-                            Vector3d projOnAxisVec = vec.scale(projScale);
+                            Vec3 projOnAxisVec = vec.scale(projScale);
                             if (collisionBox.move(projOnAxisVec).intersects(
                                     blockPos.getX(),     blockPos.getY(),     blockPos.getZ(), 
                                     blockPos.getX() + 1, blockPos.getY() + 1, blockPos.getZ() + 1)) {

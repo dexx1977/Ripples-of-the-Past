@@ -5,18 +5,18 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
 @Deprecated
-public class ModifiedRenderTypeBuffers2 extends IRenderTypeBuffer.Impl {
+public class ModifiedRenderTypeBuffers2 extends MultiBufferSource.Impl {
     private final UnaryOperator<RenderType> remapFunction;
     private final Map<RenderType, RenderType> renderTypesRemapped;
     
-    public static IRenderTypeBuffer.Impl create(BufferBuilder builder, IRenderTypeBuffer.Impl originalBuffers, UnaryOperator<RenderType> remapFunction) {
+    public static MultiBufferSource.Impl create(BufferBuilder builder, MultiBufferSource.Impl originalBuffers, UnaryOperator<RenderType> remapFunction) {
         Map<RenderType, BufferBuilder> fixedBuffersOriginal = ClientReflection.getFixedBuffers(originalBuffers);
         
         Map<RenderType, RenderType> renderTypesRemapped = fixedBuffersOriginal.keySet().stream()
@@ -42,7 +42,7 @@ public class ModifiedRenderTypeBuffers2 extends IRenderTypeBuffer.Impl {
     }
 
     @Override
-    public IVertexBuilder getBuffer(RenderType renderType) {
+    public VertexConsumer getBuffer(RenderType renderType) {
         if (renderTypesRemapped.containsKey(renderType)) {
             renderType = renderTypesRemapped.get(renderType);
         }

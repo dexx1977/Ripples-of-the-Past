@@ -18,16 +18,16 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<HamonSendoWaveKick.Instance, INonStandPower> {
 
@@ -37,12 +37,12 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
     
     @Override
     protected ActionConditionResult checkSpecificConditions(LivingEntity user, INonStandPower power, ActionTarget target) {
-        return ActionConditionResult.noMessage(user.isOnGround());
+        return ActionConditionResult.noMessage(user.onGround());
     }
 
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
-        if (user instanceof PlayerEntity) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
+        if (user instanceof Player) {
             if (!user.level.isClientSide()) {
                 user.setOnGround(false);
                 setPlayerAction(user, power);
@@ -50,7 +50,7 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
             else {
                 user.setOnGround(false);
                 user.hasImpulse = true;
-                Vector3d leap = Vector3d.directionFromRotation(MathHelper.clamp(user.xRot, -45F, -18F), user.yRot)
+                Vec3 leap = Vec3.directionFromRotation(Mth.clamp(user.xRot, -45F, -18F), user.yRot)
                         .scale(1 + user.getAttributeValue(Attributes.MOVEMENT_SPEED) * 5);
                 user.setDeltaMovement(leap.x, leap.y * 0.5, leap.z);
             }
@@ -58,15 +58,15 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
     }
     
     private static boolean dealPhysicalDamage(LivingEntity user, Entity target) {
-        return target.hurt(new EntityDamageSource(user instanceof PlayerEntity ? "player" : "mob", user), 
+        return target.hurt(new EntityDamageSource(user instanceof Player ? "player" : "mob", user), 
                 DamageUtil.getDamageWithoutHeldItem(user));
     }
     
-    public static AxisAlignedBB kickHitbox(LivingEntity user) {
+    public static AABB kickHitbox(LivingEntity user) {
         float xzAngle = -user.yRot * MathUtil.DEG_TO_RAD;
-        Vector3d lookVec = new Vector3d(Math.sin(xzAngle), 0, Math.cos(xzAngle));
-        Vector3d hitboxXZCenter = user.position().add(lookVec.scale(user.getBbWidth() * 0.75F));
-        return new AxisAlignedBB(hitboxXZCenter, hitboxXZCenter)
+        Vec3 lookVec = new Vec3(Math.sin(xzAngle), 0, Math.cos(xzAngle));
+        Vec3 hitboxXZCenter = user.position().add(lookVec.scale(user.getBbWidth() * 0.75F));
+        return new AABB(hitboxXZCenter, hitboxXZCenter)
                 .inflate(user.getBbWidth() * 1.25F, 0.125, user.getBbWidth() * 1.25F)
                 .expandTowards(0, user.getBbHeight() / 2, 0);
     }
@@ -74,8 +74,8 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
     @Override
     public Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.sendoWaveKick.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.sendoWaveKick.setAnimEnabled((Player) user, true);
         }
         Instance sendoWaveKick = new Instance(user, userCap, power, this);
         
@@ -129,7 +129,7 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
                         positionWaitingTimer++;
                     }
                 }
-                if (positionWaitingTimer < 0 && (user.isOnGround() || !user.level.getFluidState(user.blockPosition()).isEmpty())
+                if (positionWaitingTimer < 0 && (user.onGround() || !user.level.getFluidState(user.blockPosition()).isEmpty())
                         || positionWaitingTimer >= USUAL_SENDO_WAVE_KICK_DURATION) {
                     stopAction();
                     return;
@@ -143,12 +143,12 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
                         boolean kickDamage = dealPhysicalDamage(user, target);
                         boolean hamonDamage = DamageUtil.dealHamonDamage(target, 3.0F, user, null);
                         if (kickDamage || hamonDamage) {
-                            Vector3d vecToTarget = target.position().subtract(user.position());
-                            boolean left = MathHelper.wrapDegrees(
+                            Vec3 vecToTarget = target.position().subtract(user.position());
+                            boolean left = Mth.wrapDegrees(
                                     user.yBodyRot - MathUtil.yRotDegFromVec(vecToTarget))
                                     < 0;
                             float knockbackYRot = (60F + user.getRandom().nextFloat() * 30F) * (left ? 1 : -1);
-                            knockbackYRot += (float) -MathHelper.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG;
+                            knockbackYRot += (float) -Mth.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG;
                             DamageUtil.knockback((LivingEntity) target, 0.75F, knockbackYRot);
                             
                             if (hamonDamage) {
@@ -169,7 +169,7 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
             }
             
             else {
-                HamonSparksLoopSound.playSparkSound(user, new Vector3d(user.getX(), user.getY(0.25), user.getZ()), 1.0F, true);
+                HamonSparksLoopSound.playSparkSound(user, new Vec3(user.getX(), user.getY(0.25), user.getZ()), 1.0F, true);
             }
             
             user.fallDistance = 0;
@@ -178,8 +178,8 @@ public class HamonSendoWaveKick extends HamonAction implements IPlayerAction<Ham
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.sendoWaveKick.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.sendoWaveKick.setAnimEnabled((Player) user, false);
             }
         }
         

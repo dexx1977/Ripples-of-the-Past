@@ -11,11 +11,11 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData.Mode;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 public class PillarmanDivineSandstorm extends PillarmanAction {
 
@@ -52,7 +52,7 @@ public class PillarmanDivineSandstorm extends PillarmanAction {
     }
 
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide()) {
             int maxTicks = Math.max(getHoldDurationToFire(power), 1);
             if (ticksHeld >= maxTicks && power.getEnergy() > 0 && ticksHeld % 2 == 0) {
@@ -64,7 +64,7 @@ public class PillarmanDivineSandstorm extends PillarmanAction {
                 sanstormWave.shootFromRotation(user, 0.9F, 2F);
                 world.addFreshEntity(sanstormWave);
                 world.playSound(null, user.getX(), user.getY(), user.getZ(), ModSounds.MAGICIANS_RED_FIRE_BLAST.get(), 
-                        SoundCategory.AMBIENT, 0.2F, 1.0F);
+                        SoundSource.AMBIENT, 0.2F, 1.0F);
                 /*PillarmanDivineSandstormEntity sanstormWave2 = new PillarmanDivineSandstormEntity(world, user, -2F)
                         .setRadius(1.5F)
                         .setDamage(1F)
@@ -75,7 +75,7 @@ public class PillarmanDivineSandstorm extends PillarmanAction {
         }
     }
     
-    public static void auraEffect(LivingEntity user, IParticleData particles, int intensity) {
+    public static void auraEffect(LivingEntity user, ParticleOptions particles, int intensity) {
         if (user.level.isClientSide()) {
             boolean isUserTheCameraEntity = user == ClientUtil.getCameraEntity();
             for (int i = 0; i < intensity; i++) {
@@ -91,12 +91,12 @@ public class PillarmanDivineSandstorm extends PillarmanAction {
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.divineSandstorm.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.divineSandstorm.setAnimEnabled(user, false);
     }
 }

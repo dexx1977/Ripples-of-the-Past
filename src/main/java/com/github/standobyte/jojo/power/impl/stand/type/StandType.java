@@ -36,21 +36,26 @@ import com.github.standobyte.jojo.util.mc.damage.IStandDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.google.common.collect.Iterables;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
-public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry<StandType<?>> implements IPowerType<IStandPower, StandType<?>> {
+public abstract class StandType<T extends StandStats> implements IPowerType<IStandPower, StandType<?>> {
+    @Override
+    public IForgeRegistry<StandType<?>> getRegistry() {
+        return JojoCustomRegistries.STANDS.getRegistry();
+    }
+
     @Deprecated
     private final int color;
     
@@ -62,7 +67,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     private String translationKey;
     private ResourceLocation iconTexture;
     
-    private final ITextComponent partName;
+    private final Component partName;
     private final T defaultStats;
     private final Class<T> statsClass;
     private final IStandPool survivalGameplayPool;
@@ -72,7 +77,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     private final int resolveMultiplierTier;
     
     @Deprecated
-    public StandType(int color, ITextComponent partName, 
+    public StandType(int color, Component partName, 
             StandAction[] leftClickHotbar, StandAction[] rightClickHotbar, StandAction defaultQuickAccess, 
             Class<T> statsClass, T defaultStats, @Nullable StandTypeOptionals additions) {
         this.color = color;
@@ -104,7 +109,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     
     public static abstract class AbstractBuilder<B extends AbstractBuilder<B, T>, T extends StandStats> {
         private int color = 0x000000;
-        private ITextComponent storyPartName = StringTextComponent.EMPTY;
+        private Component storyPartName = Component.empty();
         private StandAction[] leftClickHotbar = {};
         private StandAction[] rightClickHotbar = {};
         private StandAction mmbAction = null;
@@ -118,7 +123,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
             return getThis();
         }
         
-        public B storyPartName(ITextComponent actions) {
+        public B storyPartName(Component actions) {
             this.storyPartName = actions;
             return getThis();
         }
@@ -348,10 +353,10 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
         if (!user.level.isClientSide()) {
             unlockNewActions(power);
             
-            if (user instanceof PlayerEntity) {
+            if (user instanceof Player) {
                 List<ItemStack> giveItems = resolveLevelItems.get(power.getResolveLevel());
                 if (giveItems != null) {
-                    PlayerEntity player = (PlayerEntity) user;
+                    Player player = (Player) user;
                     giveItems.forEach(item -> player.addItem(item.copy()));
                 }
             }
@@ -384,7 +389,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
         return multiplier;
     }
     
-    public ITextComponent getPartName() {
+    public Component getPartName() {
         return partName;
     }
     
@@ -398,8 +403,8 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     }
     
     protected void triggerAdvancement(IStandPower standPower, IStandManifestation stand) {
-        if (standPower.getUser() instanceof ServerPlayerEntity) {
-            ModCriteriaTriggers.SUMMON_STAND.get().trigger((ServerPlayerEntity) standPower.getUser(), standPower);
+        if (standPower.getUser() instanceof ServerPlayer) {
+            ModCriteriaTriggers.SUMMON_STAND.get().trigger((ServerPlayer) standPower.getUser(), standPower);
         }
     }
 
@@ -506,12 +511,12 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     
     public static interface IStandPool {
         
-        default boolean addToCreativeTab(Item item, StandType<?> standType, ItemGroup creativeTab, boolean clientSide) {
+        default boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
             return false;
         }
         
         @Deprecated
-        default boolean addToCreativeTab(StandType<?> standType, ItemGroup creativeTab, boolean clientSide) {
+        default boolean addToCreativeTab(StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
             return addToCreativeTab(ModItems.STAND_DISC.get(), standType, creativeTab, clientSide);
         }
         
@@ -523,7 +528,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
     public static enum StandSurvivalGameplayPool implements IStandPool {
         PLAYER_ARROW {
             @Override
-            public boolean addToCreativeTab(Item item, StandType<?> standType, ItemGroup creativeTab, boolean clientSide) {
+            public boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
                 return MCUtil.itemAllowedIn(item, creativeTab) && !StandUtil.isStandBanned(standType, clientSide);
             }
             
@@ -534,7 +539,7 @@ public abstract class StandType<T extends StandStats> extends ForgeRegistryEntry
         },
         NON_ARROW { // Requiems, C-Moon, Made in Heaven, Acts depending on their implementation, etc.
             @Override
-            public boolean addToCreativeTab(Item item, StandType<?> standType, ItemGroup creativeTab, boolean clientSide) {
+            public boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
                 return MCUtil.itemAllowedIn(item, creativeTab) && !StandUtil.isStandBanned(standType, clientSide);
             }
         },

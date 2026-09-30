@@ -8,12 +8,12 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData.Mode;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
 
@@ -29,7 +29,7 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
         		auraEffect(user, ModParticles.HAMON_AURA_GREEN.get(), 3);
         	} else {
         		for (int i = 0; i < 3; i++) {
-                    Vector3d particlePos = user.position().add(
+                    Vec3 particlePos = user.position().add(
                             (Math.random() - 0.5) * (user.getBbWidth() + 0.5), 
                             Math.random() * (user.getBbHeight()), 
                             (Math.random() - 0.5) * (user.getBbWidth() + 0.5));
@@ -52,7 +52,7 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
 
     public static final DamageSource FINAL_MODE_SELF_DAMAGE = (new DamageSource("generic")).bypassArmor(); // TODO separate msgId & death message in lang files
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide()) {
             int maxTicks = Math.max(getHoldDurationToFire(power), 1);
             if (ticksHeld >= maxTicks && power.getEnergy() > 0 && ticksHeld % 2 == 0) {
@@ -64,8 +64,8 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
                 sanstormWave.shootFromRotation(user, 1.75F, 1F);
                 world.addFreshEntity(sanstormWave);
                 world.playSound(null, user.getX(), user.getY(), user.getZ(), ModSounds.MAGICIANS_RED_FIRE_BLAST.get(), 
-                        SoundCategory.AMBIENT, 0.1F, 1.0F);
-                PlayerEntity playerentity = user instanceof PlayerEntity ? (PlayerEntity)user : null;
+                        SoundSource.AMBIENT, 0.1F, 1.0F);
+                Player playerentity = user instanceof Player ? (Player)user : null;
                 if (playerentity == null || !playerentity.abilities.instabuild) {
                     user.hurt(FINAL_MODE_SELF_DAMAGE, 1F);
                 }
@@ -74,12 +74,12 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
     }
 
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.atmosphericRift.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.atmosphericRift.setAnimEnabled(user, false);
     }
 }

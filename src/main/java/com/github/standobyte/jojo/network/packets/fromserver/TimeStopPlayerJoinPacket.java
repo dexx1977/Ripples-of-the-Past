@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.capability.world.WorldUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TimeStopPlayerJoinPacket {
     private final Phase phase;
@@ -22,12 +22,12 @@ public class TimeStopPlayerJoinPacket {
     public static class Handler implements IModPacketHandler<TimeStopPlayerJoinPacket> {
 
         @Override
-        public void encode(TimeStopPlayerJoinPacket msg, PacketBuffer buf) {
+        public void encode(TimeStopPlayerJoinPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.phase == Phase.PRE);
         }
 
         @Override
-        public TimeStopPlayerJoinPacket decode(PacketBuffer buf) {
+        public TimeStopPlayerJoinPacket decode(FriendlyByteBuf buf) {
             return new TimeStopPlayerJoinPacket(buf.readBoolean() ? Phase.PRE : Phase.POST);
         }
 

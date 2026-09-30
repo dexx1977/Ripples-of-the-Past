@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.action.non_stand.HamonRebuffOverdrive;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClStopRebuffPacket {
     
@@ -16,16 +16,16 @@ public class ClStopRebuffPacket {
     public static class Handler implements IModPacketHandler<ClStopRebuffPacket> {
 
         @Override
-        public void encode(ClStopRebuffPacket msg, PacketBuffer buf) {}
+        public void encode(ClStopRebuffPacket msg, FriendlyByteBuf buf) {}
 
         @Override
-        public ClStopRebuffPacket decode(PacketBuffer buf) {
+        public ClStopRebuffPacket decode(FriendlyByteBuf buf) {
             return new ClStopRebuffPacket();
         }
     
         @Override
         public void handle(ClStopRebuffPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             HamonRebuffOverdrive.onWASDInput(player);
         }
 

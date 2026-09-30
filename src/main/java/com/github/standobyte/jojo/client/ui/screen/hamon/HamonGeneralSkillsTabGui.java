@@ -14,17 +14,15 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkillTree;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     private static final Map<HamonStat, BaseHamonSkillTree[]> SKILL_TREES = Util.make(new EnumMap<>(HamonStat.class), map -> {
@@ -41,17 +39,17 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     });
     
     private final HamonStat skillsType;
-    private List<IReorderingProcessor> nextPointHintLines;
-    private final List<IReorderingProcessor> unspentPointsLines;
-    private final List<IReorderingProcessor> unspentPointsNoTeacherLines;
+    private List<FormattedCharSequence> nextPointHintLines;
+    private final List<FormattedCharSequence> unspentPointsLines;
+    private final List<FormattedCharSequence> unspentPointsNoTeacherLines;
 
     HamonGeneralSkillsTabGui(Minecraft minecraft, HamonScreen screen, String title, HamonStat skillsType) {
         super(minecraft, screen, title, -1, -1);
         this.skillsType = skillsType;
-        unspentPointsLines = minecraft.font.split(new TranslationTextComponent("hamon.unspent_points")
-                .withStyle(TextFormatting.ITALIC, TextFormatting.GRAY), 100);
-        unspentPointsNoTeacherLines = minecraft.font.split(new TranslationTextComponent("hamon.unspent_points_no_teacher")
-                .withStyle(TextFormatting.ITALIC, TextFormatting.GRAY), 100);
+        unspentPointsLines = minecraft.font.split(Component.translatable("hamon.unspent_points")
+                .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY), 100);
+        unspentPointsNoTeacherLines = minecraft.font.split(Component.translatable("hamon.unspent_points_no_teacher")
+                .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY), 100);
         
         fillSkillLines();
     }
@@ -67,7 +65,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
             for (List<? extends AbstractHamonSkill> tier : skillTree.getAllTiers()) {
                 int tierSize = tier.size();
                 for (int tierI = 0; tierI < tierSize; tierI++) {
-                    int gridX = tierSize == 1 ? 1 : tierI * MathHelper.ceil(3f / tierSize);
+                    int gridX = tierSize == 1 ? 1 : tierI * Mth.ceil(3f / tierSize);
                     int gridY = tierCount;
                     
                     AbstractHamonSkill skill = tier.get(tierI);
@@ -89,7 +87,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     }
 
     @Override
-    void drawIcon(MatrixStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
+    void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
         minecraft.getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
         int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
@@ -106,18 +104,18 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     }
 
     @Override
-    List<IReorderingProcessor> additionalTabNameTooltipInfo() {
+    List<FormattedCharSequence> additionalTabNameTooltipInfo() {
         int points = screen.hamon.getSkillPoints(skillsType);
             return points > 0 ? screen.isTeacherNearby ? unspentPointsLines : unspentPointsNoTeacherLines : super.additionalTabNameTooltipInfo();
     }
 
     @Override
-    protected void drawText(MatrixStack matrixStack) {
+    protected void drawText(PoseStack matrixStack) {
         drawDesc(matrixStack);
         BaseHamonSkillTree[] trees = SKILL_TREES.get(skillsType);
         for (int i = 0; i < 3; i++) {
-            List<IReorderingProcessor> nameLines = minecraft.font.split(
-                    new TranslationTextComponent(String.format("hamon.skills.%s", trees[i].getName())), 75);
+            List<FormattedCharSequence> nameLines = minecraft.font.split(
+                    Component.translatable(String.format("hamon.skills.%s", trees[i].getName())), 75);
             for (int line = 0; line < nameLines.size(); line++) {
                 ClientUtil.drawCenteredString(matrixStack, minecraft.font, nameLines.get(line), 
                         9 + i * 68 + xOffset(1) + 13 + intScrollX, 
@@ -128,24 +126,24 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     }
 
     @Override
-    protected void drawDesc(MatrixStack matrixStack) {
+    protected void drawDesc(PoseStack matrixStack) {
         int points = screen.hamon.getSkillPoints(skillsType);
         if (getSelectedSkill() != null) {
             drawSkillDesc(matrixStack);
         }
         else {
-            ITextComponent lvl = skillsType == HamonStat.STRENGTH ? new TranslationTextComponent("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL) : 
-                new TranslationTextComponent("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL);
+            Component lvl = skillsType == HamonStat.STRENGTH ? Component.translatable("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL) : 
+                Component.translatable("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL);
             drawString(matrixStack, minecraft.font, lvl, intScrollX + 6, intScrollY + 5, 0xFFFFFF);
-            ClientUtil.drawRightAlignedString(matrixStack, minecraft.font, new TranslationTextComponent("hamon.skill_points", 
-                    new StringTextComponent(String.valueOf(points)).withStyle(points > 0 ? TextFormatting.DARK_GREEN : TextFormatting.DARK_RED)),
+            ClientUtil.drawRightAlignedString(matrixStack, minecraft.font, Component.translatable("hamon.skill_points", 
+                    Component.literal(String.valueOf(points)).withStyle(points > 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_RED)),
                     intScrollX + WINDOW_WIDTH - 15 - WINDOW_THIN_BORDER, intScrollY + 5, 0xFFFFFF);
             super.drawDesc(matrixStack);
         }
     }
 
     @Override
-    void drawToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
+    void drawToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
         super.drawToolTips(matrixStack, mouseX, mouseY, windowPosX, windowPosY);
         if (getSelectedSkill() == null) {
             if (mouseX >= 193 && mouseX <= 205 && mouseY >= 4 && mouseY <= 12) {
@@ -160,8 +158,8 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
             int i = (mouseX - x0) / xWidth;
             if (i >= 0 && i < 3) {
                 BaseHamonSkillTree skillTree = SKILL_TREES.get(skillsType)[i];
-                ITextComponent toooltip = new TranslationTextComponent(String.format("hamon.skills.%s.desc", skillTree.getName()))
-                        .withStyle(TextFormatting.ITALIC);
+                Component toooltip = Component.translatable(String.format("hamon.skills.%s.desc", skillTree.getName()))
+                        .withStyle(ChatFormatting.ITALIC);
                 screen.renderTooltip(matrixStack, minecraft.font.split(toooltip, 200), mouseX, mouseY);
             }
         }
@@ -171,12 +169,12 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
     void updateTab() {
         super.updateTab();
         int statLvl = skillsType == HamonStat.STRENGTH ? screen.hamon.getHamonStrengthLevel() : screen.hamon.getHamonControlLevel();
-        ITextComponent textComponent;
+        Component textComponent;
         if (statLvl < HamonData.MAX_STAT_LEVEL) {
-            textComponent = new TranslationTextComponent("hamon.next_point." + (skillsType == HamonStat.STRENGTH ? "strength" : "control"), screen.hamon.nextSkillPointLvl(skillsType));
+            textComponent = Component.translatable("hamon.next_point." + (skillsType == HamonStat.STRENGTH ? "strength" : "control"), screen.hamon.nextSkillPointLvl(skillsType));
         }
         else {
-            textComponent = new TranslationTextComponent("hamon.max_skill_points");
+            textComponent = Component.translatable("hamon.max_skill_points");
         }
         nextPointHintLines = minecraft.font.split(textComponent, 100);
     }

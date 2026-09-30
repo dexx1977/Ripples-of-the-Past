@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.action.stand.GoldExperienceChooseLifeform;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClAllGELifeformsButtonPacket {
     
@@ -19,17 +19,17 @@ public class ClAllGELifeformsButtonPacket {
     public static class Handler implements IModPacketHandler<ClAllGELifeformsButtonPacket> {
     
         @Override
-        public void encode(ClAllGELifeformsButtonPacket msg, PacketBuffer buf) {
+        public void encode(ClAllGELifeformsButtonPacket msg, FriendlyByteBuf buf) {
         }
 
         @Override
-        public ClAllGELifeformsButtonPacket decode(PacketBuffer buf) {
+        public ClAllGELifeformsButtonPacket decode(FriendlyByteBuf buf) {
             return new ClAllGELifeformsButtonPacket();
         }
 
         @Override
         public void handle(ClAllGELifeformsButtonPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             if (player.abilities.instabuild) {
                 GoldExperienceChooseLifeform.unlockAllEntityTypes(player);
             }

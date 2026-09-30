@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging;
 
 import com.github.standobyte.jojo.init.ModParticles;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class FlameRenderer<T extends Entity> extends EntityRenderer<T> {
 
-    public FlameRenderer(EntityRendererManager renderManager) {
+    public FlameRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
 
@@ -26,13 +26,13 @@ public abstract class FlameRenderer<T extends Entity> extends EntityRenderer<T> 
     private static final double STEP_LENGTH = 0.4D;
     @Override
     public void render(T entity, float yRotation, float partialTick, 
-            MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+            PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         if (!entity.isInvisible() || !entity.isInvisibleTo(Minecraft.getInstance().player)) {
-            Vector3d pos = entity.getPosition(partialTick);
-            Vector3d vec = getStartingPos(entity).subtract(pos);
+            Vec3 pos = entity.getPosition(partialTick);
+            Vec3 vec = getStartingPos(entity).subtract(pos);
             double length = vec.length();
-            Vector3d step = vec.scale(STEP_LENGTH / length);
-            for (int i = MathHelper.floor(length / STEP_LENGTH); i > 0; i--) {
+            Vec3 step = vec.scale(STEP_LENGTH / length);
+            for (int i = Mth.floor(length / STEP_LENGTH); i > 0; i--) {
                 entity.level.addAlwaysVisibleParticle(ModParticles.FLAME_ONE_TICK.get(), true, pos.x, pos.y, pos.z, 0, 0, 0);
                 pos = pos.add(step);
             }
@@ -40,5 +40,5 @@ public abstract class FlameRenderer<T extends Entity> extends EntityRenderer<T> 
         }
     }
     
-    protected abstract Vector3d getStartingPos(T entity);
+    protected abstract Vec3 getStartingPos(T entity);
 }

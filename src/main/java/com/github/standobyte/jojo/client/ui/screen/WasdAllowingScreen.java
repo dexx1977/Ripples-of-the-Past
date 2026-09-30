@@ -10,14 +10,14 @@ import org.lwjgl.glfw.GLFW;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.MovementInputFromOptions;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.player.Input;
+import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.settings.KeyBindingMap;
 import net.minecraftforge.client.settings.KeyConflictContext;
 
@@ -28,7 +28,7 @@ public class WasdAllowingScreen extends Screen {
      * keep the previous motion
      */
 
-    public WasdAllowingScreen(ITextComponent pTitle) {
+    public WasdAllowingScreen(Component pTitle) {
         super(pTitle);
         saveHeldKeyBinds();
         heldKeyBinds.forEach(keybind -> keybind.setDown(true));
@@ -45,18 +45,18 @@ public class WasdAllowingScreen extends Screen {
     }
     
     @Override
-    public void setFocused(@Nullable IGuiEventListener pListener) {
+    public void setFocused(@Nullable GuiEventListener pListener) {
     } // otherwise space will press focused buttons instead of jumping
     
-    protected void doSetFocused(@Nullable IGuiEventListener pListener) {
+    protected void doSetFocused(@Nullable GuiEventListener pListener) {
         super.setFocused(pListener);
     }
     
     
-    protected Collection<KeyBinding> heldKeyBinds;
+    protected Collection<KeyMapping> heldKeyBinds;
     private void saveHeldKeyBinds() {
-        Collection<KeyBinding> allKeyBindings = ClientReflection.getKeyBindingsMap().values();
-        heldKeyBinds = allKeyBindings.stream().filter(KeyBinding::isDown).collect(Collectors.toList());
+        Collection<KeyMapping> allKeyBindings = ClientReflection.getKeyBindingsMap().values();
+        heldKeyBinds = allKeyBindings.stream().filter(KeyMapping::isDown).collect(Collectors.toList());
     }
     
     @Override
@@ -71,8 +71,8 @@ public class WasdAllowingScreen extends Screen {
         passEvents = acceptsKeyInput();
     }
     
-    public void tickInput(Minecraft mc, ClientPlayerEntity player, MovementInput input) {
-        if (!KeyConflictContext.IN_GAME.isActive() && input instanceof MovementInputFromOptions && acceptsKeyInput()) {
+    public void tickInput(Minecraft mc, LocalPlayer player, Input input) {
+        if (!KeyConflictContext.IN_GAME.isActive() && input instanceof KeyboardInput && acceptsKeyInput()) {
             boolean isMovingSlowly = player.isMovingSlowly();
             
             input.up = isDownNoConflictContext(mc.options.keyUp);
@@ -94,16 +94,16 @@ public class WasdAllowingScreen extends Screen {
     public void clickKey(Minecraft mc, int key, int scanCode, int action, int modifiers, KeyBindingMap keyBindingMap) {
         if (action == GLFW.GLFW_RELEASE || !acceptsKeyInput()) return;
         
-        InputMappings.Input inputmappings$input = InputMappings.getKey(key, scanCode);
+        InputConstants.Input inputmappings$input = InputConstants.getKey(key, scanCode);
         
-        for (KeyBinding keybinding : keyBindingMap.lookupAll(inputmappings$input)) {
+        for (KeyMapping keybinding : keyBindingMap.lookupAll(inputmappings$input)) {
             if (keybinding != null) {
                 clickIfKeyIs(keybinding, mc.options.keyTogglePerspective);
             }
         }
     }
     
-    private void clickIfKeyIs(KeyBinding keyPressed, KeyBinding keyNeeded) {
+    private void clickIfKeyIs(KeyMapping keyPressed, KeyMapping keyNeeded) {
         if (keyPressed == keyNeeded && keyPressed.getKeyModifier().isActive(null) && !keyPressed.getKeyConflictContext().isActive()) {
             ClientReflection.setClickCount(keyPressed, ClientReflection.getClickCount(keyPressed) + 1);
         }
@@ -113,7 +113,7 @@ public class WasdAllowingScreen extends Screen {
      * Some keybinds only work when there's no screen opened, so they need to bypass the check
      * {@link net.minecraft.client.GameSettings#setForgeKeybindProperties}
      */
-    private static boolean isDownNoConflictContext(KeyBinding keyBinding) {
+    private static boolean isDownNoConflictContext(KeyMapping keyBinding) {
         return keyBinding.getKeyModifier().isActive(null) && ClientReflection.isDownFieldOnly(keyBinding);
     }
     

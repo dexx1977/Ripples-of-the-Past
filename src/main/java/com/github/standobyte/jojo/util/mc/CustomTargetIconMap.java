@@ -8,43 +8,42 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.render.item.CustomIconMapRender;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FilledMapItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.MapData;
-import net.minecraft.world.storage.MapDecoration;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 public class CustomTargetIconMap {
     
     @Nullable
-    public static ItemStack createMap(ServerWorld serverWorld, Structure<?> structure, BlockPos traderBlockPos, 
+    public static ItemStack createMap(ServerLevel serverWorld, Structure<?> structure, BlockPos traderBlockPos, 
             OptionalInt customColor, String structureName, ResourceLocation iconPath) {
         BlockPos blockpos = serverWorld.findNearestMapFeature(structure, traderBlockPos, 100, true);
         if (blockpos == null) return null;
         
-        ItemStack mapItem = FilledMapItem.create(serverWorld, blockpos.getX(), blockpos.getZ(), (byte)2, true, true);
-        FilledMapItem.renderBiomePreviewMap(serverWorld, mapItem);
-        MapData.addTargetDecoration(mapItem, blockpos, "+", MapDecoration.Type.TARGET_POINT);
+        ItemStack mapItem = MapItem.create(serverWorld, blockpos.getX(), blockpos.getZ(), (byte)2, true, true);
+        MapItem.renderBiomePreviewMap(serverWorld, mapItem);
+        MapItemSavedData.addTargetDecoration(mapItem, blockpos, "+", MapDecoration.Type.TARGET_POINT);
         customColor.ifPresent(color -> {
-            CompoundNBT compoundnbt1 = mapItem.getOrCreateTagElement("display");
+            CompoundTag compoundnbt1 = mapItem.getOrCreateTagElement("display");
             compoundnbt1.putInt("MapColor", color);
         });
-        mapItem.setHoverName(new TranslationTextComponent("filled_map." + structure.getFeatureName().toLowerCase(Locale.ROOT)));
+        mapItem.setHoverName(Component.translatable("filled_map." + structure.getFeatureName().toLowerCase(Locale.ROOT)));
         
         mapItem.getTag().putString("JojoStructure", structureName); // no fucking clue why the advancement criteria doesn't work with the custom item name
         
-        CompoundNBT customIconNBT = new CompoundNBT();
+        CompoundTag customIconNBT = new CompoundTag();
         customIconNBT.putString("path", iconPath.toString());
         customIconNBT.putDouble("x", blockpos.getX());
         customIconNBT.putDouble("z", blockpos.getZ());
@@ -55,23 +54,23 @@ public class CustomTargetIconMap {
         return mapItem;
     }
     
-    public static void mixinMakeIconDecoration(PlayerEntity player, ItemStack mapStack, IMapDataMixin mapData) {
-        CompoundNBT nbt = mapStack.getTag();
+    public static void mixinMakeIconDecoration(Player player, ItemStack mapStack, IMapDataMixin mapData) {
+        CompoundTag nbt = mapStack.getTag();
         String decorationKey = "jojotargeticon";
         if (nbt != null) {
             MCUtil.nbtGetCompoundOptional(nbt, "JojoIcon").ifPresent(iconNBT -> {
-                World pLevel = player.level;
+                Level pLevel = player.level;
                 double pLevelX = iconNBT.getDouble("x");
                 double pLevelZ = iconNBT.getDouble("z");
                 double pRotation = iconNBT.getDouble("rot");
                 MapDecoration.Type pType = MapDecoration.Type.MANSION;
-                ITextComponent hackToSendData = iconNBT.contains("iconPath", Constants.NBT.TAG_STRING)
-                        ? new StringTextComponent(CustomIconMapDecoration.ICON_PATH_PREFIX + iconNBT.getString("iconPath")) : null;
+                Component hackToSendData = iconNBT.contains("iconPath", Tag.TAG_STRING)
+                        ? Component.literal(CustomIconMapDecoration.ICON_PATH_PREFIX + iconNBT.getString("iconPath")) : null;
                 
                 int x = mapData.x();
                 int z = mapData.z();
                 byte scale = mapData.scale();
-                RegistryKey<World> dimension = mapData.dimension();
+                ResourceKey<Level> dimension = mapData.dimension();
                 Map<String, MapDecoration> decorations = mapData.decorations();
                 
                 int i = 1 << scale;
@@ -83,7 +82,7 @@ public class CustomTargetIconMap {
                 if (f >= -63.0F && f1 >= -63.0F && f <= 63.0F && f1 <= 63.0F) {
                     pRotation = pRotation + (pRotation < 0.0D ? -8.0D : 8.0D);
                     b2 = (byte)((int)(pRotation * 16.0D / 360.0D));
-                    if (dimension == World.NETHER && pLevel != null) {
+                    if (dimension == Level.NETHER && pLevel != null) {
                         int l = (int)(pLevel.getLevelData().getDayTime() / 10L);
                         b2 = (byte)(l * l * 34187121 + l * 121 >> 15 & 15);
                     }
@@ -106,8 +105,8 @@ public class CustomTargetIconMap {
             boolean hasExplorerMapTarget = false;
             for (int i = 0; i < icons.length; i++) {
                 MapDecoration originalIcon = icons[i];
-                if (originalIcon.getName() instanceof StringTextComponent) {
-                    String data = ((StringTextComponent) originalIcon.getName()).getString();
+                if (originalIcon.getName() instanceof Component) {
+                    String data = ((Component) originalIcon.getName()).getString();
                     if (data.startsWith(ICON_PATH_PREFIX)) {
                         String iconPath = data.substring(ICON_PATH_PREFIX.length());
                         icons[i] = new CustomIconMapDecoration(originalIcon.getType(), 
@@ -144,7 +143,7 @@ public class CustomTargetIconMap {
     
     private static class DummyMapDecoration extends MapDecoration {
 
-        public DummyMapDecoration(Type pType, byte pX, byte pY, byte pRot, ITextComponent pName) {
+        public DummyMapDecoration(Type pType, byte pX, byte pY, byte pRot, Component pName) {
             super(pType, pX, pY, pRot, pName);
         }
         
@@ -161,6 +160,6 @@ public class CustomTargetIconMap {
         int x();
         int z();
         byte scale();
-        RegistryKey<World> dimension();
+        ResourceKey<Level> dimension();
     }
 }

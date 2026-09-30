@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets.utils;
 
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.components.AbstractWidget;
 
 public interface IExtendedWidget {
     WidgetExtension getWidgetExtension();
-    Widget thisAsWidget();
+    AbstractWidget thisAsWidget();
 }

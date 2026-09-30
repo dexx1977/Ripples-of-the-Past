@@ -14,19 +14,19 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 
 public class VampirismClawLacerate extends VampirismAction implements IPlayerAction<VampirismClawLacerate.Instance, INonStandPower> {
@@ -37,7 +37,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -46,8 +46,8 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
     @Override
     public VampirismClawLacerate.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.vampireClawSwipe.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.vampireClawSwipe.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -57,7 +57,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
     public void setCooldownOnUse(INonStandPower power) {}
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {}
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {}
     
     
     public static class Instance extends ContinuousActionInstance<VampirismClawLacerate, INonStandPower> {
@@ -74,7 +74,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.VAMPIRE_SWIPE.get(), user.getSoundSource(), 1.0f, 1.25f);
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                 }
                 break;
             case 5:
@@ -103,8 +103,8 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.vampireClawSwipe.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.vampireClawSwipe.setAnimEnabled((Player) user, false);
             }
         }
         
@@ -112,7 +112,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
     
     
     
-    public static void punchPerform(World world, LivingEntity user, INonStandPower power, ActionTarget target, SoundEvent sound, float volume, float pitch) {
+    public static void punchPerform(Level world, LivingEntity user, INonStandPower power, ActionTarget target, SoundEvent sound, float volume, float pitch) {
     	switch (target.getType()) {
         case BLOCK:
             if (JojoModUtil.breakingBlocksEnabled(world)) {
@@ -142,7 +142,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
                 Entity entity = target.getEntity();
                 if (entity instanceof LivingEntity) {
                     LivingEntity targetEntity = (LivingEntity) entity;
-                    PlayerEntity pEntity = (PlayerEntity) user;
+                    Player pEntity = (Player) user;
                     if (entity.hurt(EntityDamageSource.playerAttack(pEntity), getDamage(world, user))) {
                         world.playSound(null, targetEntity.getX(), targetEntity.getEyeY(), targetEntity.getZ(), sound, targetEntity.getSoundSource(), volume, pitch);
                         targetEntity.knockback(2F, user.getX() - targetEntity.getX(), user.getZ() - targetEntity.getZ());
@@ -160,15 +160,15 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
         }
     }
     
-    public static void blockDestroy(World world, LivingEntity user, INonStandPower power, ActionTarget target, double x, double y, double z) {
+    public static void blockDestroy(Level world, LivingEntity user, INonStandPower power, ActionTarget target, double x, double y, double z) {
     	BlockPos pos = target.getBlockPos().offset(x, y, z);
-        if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerWorld) world, pos, world.getBlockState(pos), user)) {
+        if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerLevel) world, pos, world.getBlockState(pos), user)) {
             if (!world.isEmptyBlock(pos)) {
                 BlockState blockState = world.getBlockState(pos);
                 float digDuration = blockState.getDestroySpeed(world, pos);
                 boolean dropItem = true;
-                if (user instanceof PlayerEntity) {
-                    PlayerEntity player = (PlayerEntity) user;
+                if (user instanceof Player) {
+                    Player player = (Player) user;
                     digDuration /= player.getDigSpeed(blockState, pos)/2;
                     if (player.abilities.instabuild) {
                         digDuration = 0;
@@ -184,13 +184,13 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
                 }
                 else {
                     SoundType soundType = blockState.getSoundType(world, pos, user);
-                    world.playSound(null, pos, soundType.getHitSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+                    world.playSound(null, pos, soundType.getHitSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
                 }
             }
         }
     }
     
-    public static float getDamage(World world, LivingEntity entity) {
+    public static float getDamage(Level world, LivingEntity entity) {
         return (float) entity.getAttribute(Attributes.ATTACK_DAMAGE).getValue() + 4;
     }
 }

@@ -11,11 +11,11 @@ import com.github.standobyte.jojo.client.render.entity.layerrenderer.barrage.Bar
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXBarrageAnimHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements PlayerBarrageAnim {
 
@@ -24,13 +24,13 @@ public class KosmXBarrageAnimHandler extends AnimLayerHandler<ModifierLayer<IAni
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
-        return new ModifierLayer<>(null, new KosmXHeadRotationModifier(), new KosmXArmsRotationModifier(player, HandSide.LEFT, HandSide.RIGHT));
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
+        return new ModifierLayer<>(null, new KosmXHeadRotationModifier(), new KosmXArmsRotationModifier(player, HumanoidArm.LEFT, HumanoidArm.RIGHT));
     }
     
     
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         boolean res;
         if (enabled) {
             res = setAnim(player, createSwingAnim(null));
@@ -45,11 +45,11 @@ public class KosmXBarrageAnimHandler extends AnimLayerHandler<ModifierLayer<IAni
 
     @Override
     public IPlayerBarrageAnimation createBarrageAfterimagesAnim(
-            PlayerModel<AbstractClientPlayerEntity> model, BarrageFistAfterimagesLayer layer) {
+            PlayerModel<AbstractClientPlayer> model, BarrageFistAfterimagesLayer layer) {
         return new KosmXPlayerBarrageAfterimagesAnim(model, createSwingAnim(model), layer);
     }
     
-    public KosmXPlayerBarrageAnim createSwingAnim(PlayerModel<AbstractClientPlayerEntity> model) {
+    public KosmXPlayerBarrageAnim createSwingAnim(PlayerModel<AbstractClientPlayer> model) {
         return new KosmXPlayerBarrageAnim(model);
     }
     

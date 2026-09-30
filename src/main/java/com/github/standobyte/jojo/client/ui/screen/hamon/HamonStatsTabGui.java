@@ -22,36 +22,33 @@ import com.github.standobyte.jojo.network.packets.fromclient.ClHamonMeditationPa
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData.Exercise;
 import com.google.common.collect.Streams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.HoverEvent;
 
 @SuppressWarnings("deprecation")
 public class HamonStatsTabGui extends HamonTabGui {
-    private final List<IReorderingProcessor> strengthDescLines;
-    private final List<IReorderingProcessor> controlDescLines;
-    private final List<IReorderingProcessor> breathingDescLines;
-    private final List<IReorderingProcessor> exercisesDescLines;
-    private final IFormattableTextComponent breathMaskHoverable;
-    private final List<IReorderingProcessor> breathingDeteriorationLines;
-    private final List<IReorderingProcessor> breathingStatGapLines;
-    private final List<IReorderingProcessor> statLimitTooltip;
-    private final List<IReorderingProcessor> meditationTooltip;
+    private final List<FormattedCharSequence> strengthDescLines;
+    private final List<FormattedCharSequence> controlDescLines;
+    private final List<FormattedCharSequence> breathingDescLines;
+    private final List<FormattedCharSequence> exercisesDescLines;
+    private final MutableComponent breathMaskHoverable;
+    private final List<FormattedCharSequence> breathingDeteriorationLines;
+    private final List<FormattedCharSequence> breathingStatGapLines;
+    private final List<FormattedCharSequence> statLimitTooltip;
+    private final List<FormattedCharSequence> meditationTooltip;
 
     private HamonScreenButton abandonTrainingButton;
     private boolean hamonStrengthLimited;
@@ -66,28 +63,28 @@ public class HamonStatsTabGui extends HamonTabGui {
     HamonStatsTabGui(Minecraft minecraft, HamonScreen screen, String title) {
         super(minecraft, screen, title, -1, 1);
         int textWidth = WINDOW_WIDTH - 30;
-        strengthDescLines = minecraft.font.split(new TranslationTextComponent("hamon.strength_stat.desc"), textWidth);
-        controlDescLines = minecraft.font.split(new TranslationTextComponent("hamon.control_stat.desc"), textWidth);
-        IFormattableTextComponent breathingDesc = new TranslationTextComponent("hamon.breathing_stat.desc");
+        strengthDescLines = minecraft.font.split(Component.translatable("hamon.strength_stat.desc"), textWidth);
+        controlDescLines = minecraft.font.split(Component.translatable("hamon.control_stat.desc"), textWidth);
+        MutableComponent breathingDesc = Component.translatable("hamon.breathing_stat.desc");
         if (JojoModConfig.getCommonConfigInstance(true).breathingHamonStatGap.get() >= 0) {
-            breathingDesc.append(new TranslationTextComponent("hamon.breathing_stat.desc.gap"));
+            breathingDesc.append(Component.translatable("hamon.breathing_stat.desc.gap"));
         }
         breathingDescLines = minecraft.font.split(breathingDesc, textWidth);
-        breathMaskHoverable = new TranslationTextComponent("hamon.breathing_stat.desc2.mask")
-                .withStyle(TextFormatting.UNDERLINE)
+        breathMaskHoverable = Component.translatable("hamon.breathing_stat.desc2.mask")
+                .withStyle(ChatFormatting.UNDERLINE)
                 .withStyle(style -> {
                     ItemStack item = new ItemStack(ModItems.BREATH_CONTROL_MASK.get());
                     item.enchant(Enchantments.BINDING_CURSE, 1);
                     return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemHover(item)));
                 });
-        exercisesDescLines = minecraft.font.split(new TranslationTextComponent("hamon.breathing_stat.desc2", breathMaskHoverable), textWidth);
-        breathingDeteriorationLines = minecraft.font.split(new TranslationTextComponent("hamon.breathing_stat.desc3"), textWidth);
-        breathingStatGapLines = minecraft.font.split(new TranslationTextComponent("hamon.breathing_stat.desc4", JojoModConfig.getCommonConfigInstance(true).breathingHamonStatGap.get()), textWidth);
-        statLimitTooltip = minecraft.font.split(new TranslationTextComponent("hamon.stat_limited"), 150);
+        exercisesDescLines = minecraft.font.split(Component.translatable("hamon.breathing_stat.desc2", breathMaskHoverable), textWidth);
+        breathingDeteriorationLines = minecraft.font.split(Component.translatable("hamon.breathing_stat.desc3"), textWidth);
+        breathingStatGapLines = minecraft.font.split(Component.translatable("hamon.breathing_stat.desc4", JojoModConfig.getCommonConfigInstance(true).breathingHamonStatGap.get()), textWidth);
+        statLimitTooltip = minecraft.font.split(Component.translatable("hamon.stat_limited"), 150);
         meditationTooltip = Streams.concat(
-                minecraft.font.split(new TranslationTextComponent("hamon.meditation_button", new KeybindTextComponent("key.sneak"), new KeybindTextComponent("jojo.key.hamon_skills_window")),
+                minecraft.font.split(Component.translatable("hamon.meditation_button", Component.keybind("key.sneak"), Component.keybind("jojo.key.hamon_skills_window")),
                         150).stream(),
-                minecraft.font.split(new TranslationTextComponent("hamon.meditation_button.stability_hint").withStyle(TextFormatting.GRAY, TextFormatting.ITALIC),
+                minecraft.font.split(Component.translatable("hamon.meditation_button.stability_hint").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC),
                         150).stream())
                 .collect(Collectors.toList());
     }
@@ -95,14 +92,14 @@ public class HamonStatsTabGui extends HamonTabGui {
     @Override
     public void addButtons() {
         addButton(abandonTrainingButton = new HamonScreenButton(screen.windowPosX() + 13, screen.windowPosY() + 999, 204, 20, 
-                new TranslationTextComponent("hamon.abandon.tab"), button -> {
+                Component.translatable("hamon.abandon.tab"), button -> {
                     screen.abandonTrainingTab.setPrevTab(this);
                     screen.selectTab(screen.abandonTrainingTab);
                 }));
     }
 
     @Override
-    protected void drawActualContents(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         minecraft.getTextureManager().bind(HamonScreen.WINDOW);
         float breathingTraining = screen.hamon.getBreathingLevel();
         RenderSystem.enableBlend();
@@ -209,7 +206,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         RenderSystem.disableBlend();
     }
     
-    public static void drawExerciseBar(AbstractGui gui, MatrixStack matrixStack, int x, int y, HamonData hamon, 
+    public static void drawExerciseBar(AbstractGui gui, PoseStack matrixStack, int x, int y, HamonData hamon, 
             Exercise exercise, float alpha, boolean renderShadowCheckmark) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
         int ticks = hamon.getExerciseTicks(exercise);
@@ -234,12 +231,12 @@ public class HamonStatsTabGui extends HamonTabGui {
     }
 
     @Override
-    protected void drawText(MatrixStack matrixStack) {
+    protected void drawText(PoseStack matrixStack) {
         int textX = intScrollX + 5;
         int textY = intScrollY + 6;
         strengthStatY = textY;
         
-        drawString(matrixStack, minecraft.font, new TranslationTextComponent("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
+        drawString(matrixStack, minecraft.font, Component.translatable("hamon.strength_level", screen.hamon.getHamonStrengthLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (int i = 0; i < strengthDescLines.size(); i++) {
@@ -250,7 +247,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         textY += 15;
         controlStatY = textY;
         
-        drawString(matrixStack, minecraft.font, new TranslationTextComponent("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
+        drawString(matrixStack, minecraft.font, Component.translatable("hamon.control_level", screen.hamon.getHamonControlLevel(), HamonData.MAX_STAT_LEVEL), textX - 3, textY, 0xFFFFFF);
         textY += 2;
         for (int i = 0; i < controlDescLines.size(); i++) {
             textY += minecraft.font.lineHeight;
@@ -259,7 +256,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         
         textY += 15;
         breathingStatY = textY;
-        drawString(matrixStack, minecraft.font, new TranslationTextComponent("hamon.breathing_level", (int) screen.hamon.getBreathingLevel(), (int) HamonData.MAX_BREATHING_LEVEL), textX - 3, textY, 0xFFFFFF);
+        drawString(matrixStack, minecraft.font, Component.translatable("hamon.breathing_level", (int) screen.hamon.getBreathingLevel(), (int) HamonData.MAX_BREATHING_LEVEL), textX - 3, textY, 0xFFFFFF);
         
         textY += 2;
         for (int i = 0; i < breathingDescLines.size(); i++) {
@@ -288,12 +285,12 @@ public class HamonStatsTabGui extends HamonTabGui {
         float breathingIncrease = screen.hamon.getBreathingIncrease(minecraft.player, false);
         if (breathingIncrease != 0) {
             DecimalFormat decimalFormat = new DecimalFormat("+#.##;-#");
-            IFormattableTextComponent breathingIncreaseLine = new StringTextComponent(decimalFormat.format(breathingIncrease));
+            MutableComponent breathingIncreaseLine = Component.literal(decimalFormat.format(breathingIncrease));
             if (breathingIncrease < 0) {
-                breathingIncreaseLine.withStyle(TextFormatting.RED);
+                breathingIncreaseLine.withStyle(ChatFormatting.RED);
             }
             else if (breathingIncrease > 0) {
-                breathingIncreaseLine.withStyle(TextFormatting.GREEN);
+                breathingIncreaseLine.withStyle(ChatFormatting.GREEN);
             }
             float middleX = textX + (float) (HamonScreen.WINDOW_WIDTH - HamonScreen.WINDOW_THIN_BORDER * 2 - minecraft.font.width(breathingIncreaseLine)) / 2;
             minecraft.font.drawShadow(matrixStack, breathingIncreaseLine, middleX, (float) textY + 8, 0xFFFFFF);
@@ -325,18 +322,18 @@ public class HamonStatsTabGui extends HamonTabGui {
     }
 
     @Override
-    void drawIcon(MatrixStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
+    void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
 //        int iconX = windowX - 32 + 12;
 //        int iconY = windowY + getTabY() + 6;
         int iconX = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int iconY = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
         minecraft.getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
         float barRatio = (float) screen.hamon.getHamonStrengthLevel() / (float) HamonData.MAX_STAT_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, MathHelper.floor(barRatio * 11F), 16, 229, 0, 22, 32, 256, 256);
+        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 0, 22, 32, 256, 256);
         barRatio = (float) screen.hamon.getHamonControlLevel() / (float) HamonData.MAX_STAT_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, MathHelper.floor(barRatio * 11F), 16, 229, 32, 22, 32, 256, 256);
+        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 32, 22, 32, 256, 256);
         barRatio = screen.hamon.getBreathingLevel() / HamonData.MAX_BREATHING_LEVEL;
-        blit(matrixStack, iconX + 3, iconY, MathHelper.floor(barRatio * 11F), 16, 229, 64, 22, 32, 256, 256);
+        blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 64, 22, 32, 256, 256);
         blit(matrixStack, iconX, iconY, 16, 16, 192, 0, 32, 32, 256, 256);
     }
 
@@ -355,7 +352,7 @@ public class HamonStatsTabGui extends HamonTabGui {
     }
 
     @Override
-    void drawToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
+    void drawToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
         if (mouseX >= 142 && mouseX <= 149) {
             int y = strengthStatY;
             if (hamonStrengthLimited && mouseY >= y && mouseY <= y + 7) {
@@ -373,13 +370,13 @@ public class HamonStatsTabGui extends HamonTabGui {
             if (mouseY >= y && mouseY <= y + 6) {
                 int level = screen.hamon.getHamonStrengthLevel();
                 if (level == HamonData.MAX_STAT_LEVEL) {
-                    screen.renderTooltip(matrixStack, new TranslationTextComponent("hamon.max_level"), mouseX, mouseY);
+                    screen.renderTooltip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                 }
                 else {
                     int ptsAtLvl = HamonData.pointsAtLevel(level);
                     int pts = screen.hamon.getHamonStrengthPoints() - ptsAtLvl;
                     int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                    screen.renderTooltip(matrixStack, new StringTextComponent(pts + "/" + ptsTotal), mouseX, mouseY);
+                    screen.renderTooltip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                 }
             }
             else {
@@ -387,13 +384,13 @@ public class HamonStatsTabGui extends HamonTabGui {
                 if (mouseY >= y && mouseY <= y + 6) {
                     int level = screen.hamon.getHamonControlLevel();
                     if (level == HamonData.MAX_STAT_LEVEL) {
-                        screen.renderTooltip(matrixStack, new TranslationTextComponent("hamon.max_level"), mouseX, mouseY);
+                        screen.renderTooltip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                     }
                     else {
                         int ptsAtLvl = HamonData.pointsAtLevel(level);
                         int pts = screen.hamon.getHamonControlPoints() - ptsAtLvl;
                         int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                        screen.renderTooltip(matrixStack, new StringTextComponent(pts + "/" + ptsTotal), mouseX, mouseY);
+                        screen.renderTooltip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                     }
                 }
             }
@@ -402,11 +399,11 @@ public class HamonStatsTabGui extends HamonTabGui {
         float breathingIncrease = screen.hamon.getBreathingIncrease(minecraft.player, false);
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         float breathingBonus = screen.hamon.getTrainingBonus(true);
-        IFormattableTextComponent bonusTooltip = new TranslationTextComponent(
+        MutableComponent bonusTooltip = Component.translatable(
                 "hamon.training_bonus", decimalFormat.format(breathingBonus));
         boolean bonusWillAddUp = breathingIncrease > 0;
         if (!bonusWillAddUp) {
-            bonusTooltip.withStyle(TextFormatting.DARK_GRAY, TextFormatting.ITALIC);
+            bonusTooltip.withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
         }
         if (breathingBonus > 0 && 
                 mouseX >= 3 && mouseX <= 11 && 
@@ -419,33 +416,33 @@ public class HamonStatsTabGui extends HamonTabGui {
         }
         
         else if (mouseX >= 12 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
-            ITextComponent totalExercises1 = new TranslationTextComponent("hamon.exercise.all.count", 
+            Component totalExercises1 = Component.translatable("hamon.exercise.all.count", 
                     screen.hamon.getCompleteExercisesCount(), HamonData.MAX_EXERCISES_NEEDED);
             
-            ITextComponent totalExercises2 = null;
+            Component totalExercises2 = null;
             if (breathingIncrease > 0) {
                 if (breathingBonus > 0) {
-                    totalExercises2 = new TranslationTextComponent("hamon.exercise.all.day_end_increase.bonus", 
+                    totalExercises2 = Component.translatable("hamon.exercise.all.day_end_increase.bonus", 
                             decimalFormat.format(breathingIncrease - breathingBonus), decimalFormat.format(breathingBonus));
                 }
                 else {
-                    totalExercises2 = new TranslationTextComponent("hamon.exercise.all.day_end_increase", 
+                    totalExercises2 = Component.translatable("hamon.exercise.all.day_end_increase", 
                             decimalFormat.format(breathingIncrease));
                 }
             }
             else if (breathingIncrease < 0) {
-                totalExercises2 = new TranslationTextComponent("hamon.exercise.all.day_end_decrease", 
+                totalExercises2 = Component.translatable("hamon.exercise.all.day_end_decrease", 
                         decimalFormat.format(-breathingIncrease));
             }
             else {
                 if (screen.hamon.getCanSkipTrainingDays() > 0 && screen.hamon.breathingCanGoDown(minecraft.player)) {
-                    totalExercises2 = new TranslationTextComponent("hamon.exercise.can_skip", screen.hamon.getCanSkipTrainingDays());
+                    totalExercises2 = Component.translatable("hamon.exercise.can_skip", screen.hamon.getCanSkipTrainingDays());
                 }
             }
             
-            List<IReorderingProcessor> totalExercisesTooltip = new ArrayList<>(minecraft.font.split(totalExercises1, 120));
+            List<FormattedCharSequence> totalExercisesTooltip = new ArrayList<>(minecraft.font.split(totalExercises1, 120));
             if (totalExercises2 != null) {
-                totalExercisesTooltip.add(StringTextComponent.EMPTY.getVisualOrderText());
+                totalExercisesTooltip.add(Component.empty().getVisualOrderText());
                 totalExercisesTooltip.addAll(minecraft.font.split(totalExercises2, 120));
             }
             screen.renderTooltip(matrixStack, totalExercisesTooltip, mouseX, mouseY);
@@ -481,41 +478,41 @@ public class HamonStatsTabGui extends HamonTabGui {
     
     private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("#.#");
     
-    private List<IReorderingProcessor> completedExerciseTooltip(
+    private List<FormattedCharSequence> completedExerciseTooltip(
             @Nullable Exercise exercise /*null signifies the tooltip about the bonus for completing all 4 exercises */) {
         String tooltip1Key;
         boolean hasBuff;
-        List<IFormattableTextComponent> tooltip2 = new ArrayList<>();
+        List<MutableComponent> tooltip2 = new ArrayList<>();
         
         if (exercise != null) {
             tooltip1Key = "hamon.exercise.completion_buff_hint";
             hasBuff = screen.hamon.isExerciseComplete(exercise);
-            tooltip2.add(new TranslationTextComponent(String.format("hamon.exercise.%s.completion_buff", exercise.name().toLowerCase()), 
+            tooltip2.add(Component.translatable(String.format("hamon.exercise.%s.completion_buff", exercise.name().toLowerCase()), 
                     PERCENTAGE_FORMAT.format(exercise.getBuffPercentage()), 
-                    new TranslationTextComponent("hamon.exercise.completion_buff_hint2")));
+                    Component.translatable("hamon.exercise.completion_buff_hint2")));
         }
         
         else {
             tooltip1Key = "hamon.exercise.full_completion_hint";
             hasBuff = screen.hamon.has4ExercisesBonus();
-            tooltip2.add(new TranslationTextComponent("hamon.exercise.full_completion_buff", 
+            tooltip2.add(Component.translatable("hamon.exercise.full_completion_buff", 
                     PERCENTAGE_FORMAT.format(HamonData.ALL_EXERCISES_EFFICIENCY_ADD_MULTIPLIER * 100F), 
-                    new TranslationTextComponent("hamon.exercise.completion_buff_hint2")));
+                    Component.translatable("hamon.exercise.completion_buff_hint2")));
             Collections.addAll(tooltip2,
-                    new StringTextComponent(" "),
-                    new TranslationTextComponent("hamon.exercise.full_completion_hint3"));
+                    Component.literal(" "),
+                    Component.translatable("hamon.exercise.full_completion_hint3"));
         }
 
-        List<IReorderingProcessor> tooltip = new ArrayList<>();
+        List<FormattedCharSequence> tooltip = new ArrayList<>();
         if (hasBuff) {
             tooltip2.forEach(text -> {
                 tooltip.addAll(minecraft.font.split(text, 150));
             });
         }
         else {
-            tooltip.addAll(minecraft.font.split(new TranslationTextComponent(tooltip1Key, HamonData.MAX_EXERCISES_NEEDED), 150));
+            tooltip.addAll(minecraft.font.split(Component.translatable(tooltip1Key, HamonData.MAX_EXERCISES_NEEDED), 150));
             tooltip2.forEach(text -> {
-                text.withStyle(TextFormatting.GRAY, TextFormatting.ITALIC);
+                text.withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
                 tooltip.addAll(minecraft.font.split(text, 150));
             });
         }

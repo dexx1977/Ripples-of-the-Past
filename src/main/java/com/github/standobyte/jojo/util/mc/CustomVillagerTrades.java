@@ -31,30 +31,29 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.merchant.IMerchant;
-import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
-import net.minecraft.entity.merchant.villager.VillagerData;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
-import net.minecraft.entity.merchant.villager.VillagerTrades;
-import net.minecraft.entity.merchant.villager.VillagerTrades.ITrade;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.villager.VillagerType;
-import net.minecraft.inventory.MerchantInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.gen.feature.structure.Structure;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.trading.Merchant;
+import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.VillagerData;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.npc.VillagerType;
+import net.minecraft.world.inventory.MerchantContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,8 +69,8 @@ public class CustomVillagerTrades {
         if (!target.level.isClientSide() && target instanceof LivingEntity) {
             LivingEntity targetLiving = (LivingEntity) target;
             target.getCapability(MerchantDataProvider.CAPABILITY).ifPresent(merchantData -> {
-                VillagerEntity asVillager = target instanceof VillagerEntity ? (VillagerEntity) target : null;
-                PlayerEntity player = event.getPlayer();
+                Villager asVillager = target instanceof Villager ? (Villager) target : null;
+                Player player = event.getPlayer();
                 
                 if (merchantData.refusesTradingWith(player)) {
                     if (asVillager != null) {
@@ -83,7 +82,7 @@ public class CustomVillagerTrades {
                     float voicePitch = targetLiving.isBaby() ? (random.nextFloat() - random.nextFloat()) * 0.2F + 1.5F : (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F;
                     asVillager.playSound(SoundEvents.VILLAGER_NO, soundVolume, voicePitch);
                     event.setCanceled(true);
-                    event.setCancellationResult(ActionResultType.CONSUME);
+                    event.setCancellationResult(InteractionResult.CONSUME);
                     return;
                 }
                 
@@ -95,7 +94,7 @@ public class CustomVillagerTrades {
         }
     }
     
-    private static boolean giveTradeManually(VillagerEntity villager, PlayerEntity player, MerchantData merchantData) {
+    private static boolean giveTradeManually(Villager villager, Player player, MerchantData merchantData) {
         VillagerData villagerData = villager.getVillagerData();
         VillagerProfession profession = villagerData.getProfession();
         
@@ -121,8 +120,8 @@ public class CustomVillagerTrades {
         return false;
     }
     
-    public static void onTrade(PlayerEntity player, ItemStack stack, 
-            MerchantInventory slots, MerchantOffer offer) {
+    public static void onTrade(Player player, ItemStack stack, 
+            MerchantContainer slots, MerchantOffer offer) {
         if (stack.isEmpty()) return;
         
         if (stack.getItem() == Items.FILLED_MAP && stack.hasCustomHoverName()) {
@@ -148,7 +147,7 @@ public class CustomVillagerTrades {
             public static final MapTrade METEORITE_MAP = new MapTrade(VillagerType.SNOW, "meteorite_map",
                     new EmeraldForMapTrade(16, ModStructures.METEORITE, 
                             new ResourceLocation(JojoMod.MOD_ID, "textures/map/meteorite.png"), OptionalInt.of(0x6d6bb9), 1, 15),
-                    new TranslationTextComponent("filled_map.jojo:meteorite"), ModSounds.MAP_BOUGHT_METEORITE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_METEORITE_MAP) {
+                    Component.translatable("filled_map.jojo:meteorite"), ModSounds.MAP_BOUGHT_METEORITE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_METEORITE_MAP) {
                 @Override
                 public double getMapChance(@Nullable StandType<?> standType, @Nullable NonStandPowerType<?> powerType, VillagerData villager) {
                     double meteoriteMapChance;
@@ -172,7 +171,7 @@ public class CustomVillagerTrades {
             public static final MapTrade HAMON_MAP = new MapTrade(VillagerType.TAIGA, "hamon_map",
                     new EmeraldForMapTrade(24, ModStructures.HAMON_TEMPLE, 
                             new ResourceLocation(JojoMod.MOD_ID, "textures/map/hamon_temple.png"), OptionalInt.of(0x474747), 1, 23),
-                    new TranslationTextComponent("filled_map.jojo:hamon_temple"), ModSounds.MAP_BOUGHT_HAMON_TEMPLE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_HAMON_TEMPLE_MAP) {
+                    Component.translatable("filled_map.jojo:hamon_temple"), ModSounds.MAP_BOUGHT_HAMON_TEMPLE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_HAMON_TEMPLE_MAP) {
                 @Override
                 public double getMapChance(@Nullable StandType<?> standType, @Nullable NonStandPowerType<?> powerType, VillagerData villager) {
                     double hamonTempleMapChance;
@@ -194,7 +193,7 @@ public class CustomVillagerTrades {
             public static final MapTrade PILLARMAN_MAP = new MapTrade(VillagerType.JUNGLE, "pillarman_map",
                     new EmeraldForMapTrade(32, ModStructures.PILLARMAN_TEMPLE, 
                             new ResourceLocation(JojoMod.MOD_ID, "textures/map/pillarman_temple.png"), OptionalInt.of(0x508d50), 1, 30),
-                    new TranslationTextComponent("filled_map.jojo:pillarman_temple"), ModSounds.MAP_BOUGHT_PILLAR_MAN_TEMPLE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_PILLAR_MAN_TEMPLE_MAP) {
+                    Component.translatable("filled_map.jojo:pillarman_temple"), ModSounds.MAP_BOUGHT_PILLAR_MAN_TEMPLE.get(), PlayerUtilCap.OneTimeNotification.BOUGHT_PILLAR_MAN_TEMPLE_MAP) {
                 @Override
                 public double getMapChance(@Nullable StandType<?> standType, @Nullable NonStandPowerType<?> powerType, VillagerData villager) {
                     double pillarManTempleMapChance;
@@ -228,15 +227,15 @@ public class CustomVillagerTrades {
             
             
             
-            public final ITrade trade;
+            public final ItemListing trade;
             @Nullable public final VillagerType biome;
             public final String name;
-            public final ITextComponent mapName;
+            public final Component mapName;
             public final SoundEvent onFirstBuyFlavorSound;
             public final PlayerUtilCap.OneTimeNotification playerNotification;
             
             public MapTrade(@Nullable VillagerType biome, String name, EmeraldForMapTrade trade,
-                    ITextComponent mapName, SoundEvent onFirstBuyFlavorSound, PlayerUtilCap.OneTimeNotification playerNotification) {
+                    Component mapName, SoundEvent onFirstBuyFlavorSound, PlayerUtilCap.OneTimeNotification playerNotification) {
                 this.trade = trade;
                 trade.destinationType = this;
                 this.name = name;
@@ -256,14 +255,14 @@ public class CustomVillagerTrades {
                 return VALUES;
             }
             
-            public void onTrade(PlayerEntity player, ItemStack stack, MerchantInventory slots, MerchantOffer offer) {
+            public void onTrade(Player player, ItemStack stack, MerchantContainer slots, MerchantOffer offer) {
                 if (playerNotification == null || onFirstBuyFlavorSound == null) return;
                 
                 Optional<PlayerUtilCap> playerNotifications = player.getCapability(PlayerUtilCapProvider.CAPABILITY).resolve();
                 if (DEBUG || playerNotifications.map(notif -> !notif.sentNotification(playerNotification)).orElse(false)) {
                     playerNotifications.get().setSentNotification(playerNotification, true);
                     
-                    IMerchant merchant = CommonReflection.getMerchant(slots);
+                    Merchant merchant = CommonReflection.getMerchant(slots);
                     if (merchant instanceof Entity) {
                         Entity merchantEntity = (Entity) merchant;
                         player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
@@ -285,7 +284,7 @@ public class CustomVillagerTrades {
         private static final String TRIED_BUYING_EXPERT_MAP = "ExpertStructureMap";
         
         // the VillagerTrades.ITrade implementation classes are package private in the vanilla code
-        public static class EmeraldForMapTrade implements VillagerTrades.ITrade {
+        public static class EmeraldForMapTrade implements VillagerTrades.ItemListing {
             private final int emeraldCost;
             private final Supplier<? extends Structure<?>> destination;
             private final ResourceLocation iconPath;
@@ -306,10 +305,10 @@ public class CustomVillagerTrades {
 
             @Nullable
             public MerchantOffer getOffer(Entity pTrader, Random pRand) {
-                if (!(pTrader.level instanceof ServerWorld)) {
+                if (!(pTrader.level instanceof ServerLevel)) {
                     return null;
                 } else {
-                    ServerWorld serverworld = (ServerWorld)pTrader.level;
+                    ServerLevel serverworld = (ServerLevel)pTrader.level;
                     Structure<?> structure = destination.get();
                     ItemStack itemstack = CustomTargetIconMap.createMap(serverworld, structure, pTrader.blockPosition(), 
                             customColor, destinationType.name.toLowerCase(), iconPath);
@@ -373,8 +372,8 @@ public class CustomVillagerTrades {
     
     
     public static boolean addTrade(double randomChance,
-            AbstractVillagerEntity trader, ITrade trade, 
-            PlayerEntity player, MerchantData merchantData, @Nullable String checkAndSetTag) {
+            AbstractVillager trader, ItemListing trade, 
+            Player player, MerchantData merchantData, @Nullable String checkAndSetTag) {
         if (checkAndSetTag != null) {
             if (merchantData.getPlayerTriedTrading(player, checkAndSetTag)) {
                 return false;

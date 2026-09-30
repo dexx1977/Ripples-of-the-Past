@@ -5,20 +5,20 @@ import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRend
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.OwnerBoundProjectileEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class ExtendingEntityRenderer<T extends OwnerBoundProjectileEntity, M extends RepeatingModel<T>> extends SimpleEntityRenderer<T, M> {
 
-    public ExtendingEntityRenderer(EntityRendererManager renderManager, M model, ResourceLocation texPath) {
+    public ExtendingEntityRenderer(EntityRenderDispatcher renderManager, M model, ResourceLocation texPath) {
         super(renderManager, model, texPath);
     }
     
@@ -33,25 +33,25 @@ public abstract class ExtendingEntityRenderer<T extends OwnerBoundProjectileEnti
     }
 
     @Override
-    protected void rotateModel(M model, T entity, float partialTick, float yRotation, float xRotation, MatrixStack matrixStack) {
-        Vector3d originPos = getOriginPos(entity, partialTick);
-        Vector3d entityPos = new Vector3d(
-                MathHelper.lerp((double) partialTick, entity.xo, entity.getX()), 
-                MathHelper.lerp((double) partialTick, entity.yo, entity.getY()), 
-                MathHelper.lerp((double) partialTick, entity.zo, entity.getZ()));
-        Vector3d extentVec = entityPos.subtract(originPos);
+    protected void rotateModel(M model, T entity, float partialTick, float yRotation, float xRotation, PoseStack matrixStack) {
+        Vec3 originPos = getOriginPos(entity, partialTick);
+        Vec3 entityPos = new Vec3(
+                Mth.lerp((double) partialTick, entity.xo, entity.getX()), 
+                Mth.lerp((double) partialTick, entity.yo, entity.getY()), 
+                Mth.lerp((double) partialTick, entity.zo, entity.getZ()));
+        Vec3 extentVec = entityPos.subtract(originPos);
         yRotation = MathUtil.yRotDegFromVec(extentVec);
         xRotation = MathUtil.xRotDegFromVec(extentVec);
         model.setLength((float) extentVec.length());
         model.setupAnim(entity, 0, 0, entity.tickCount + partialTick, yRotation, xRotation);
     }
     
-    protected Vector3d getOriginPos(T entity, float partialTick) {
+    protected Vec3 getOriginPos(T entity, float partialTick) {
         return entity.getOriginPoint(partialTick);
     }
     
     @Override
-    protected void doRender(T entity, M model, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    protected void doRender(T entity, M model, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         LivingEntity owner = entity.getOwner();
         if (owner != null) {
             packedLight = entityRenderDispatcher.getPackedLightCoords(entity.getOwner(), partialTick);
@@ -60,7 +60,7 @@ public abstract class ExtendingEntityRenderer<T extends OwnerBoundProjectileEnti
     }
     
     @Override
-    protected void renderModel(T entity, M model, float partialTick, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int packedLight) {
+    protected void renderModel(T entity, M model, float partialTick, PoseStack matrixStack, VertexConsumer vertexBuilder, int packedLight) {
         model.renderToBuffer(matrixStack, vertexBuilder, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, getAlpha(entity, partialTick));
     }
 }

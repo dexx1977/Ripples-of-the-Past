@@ -8,21 +8,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.SidedItemTrackerMap;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.level.Level;
 
-@Mixin(AbstractArrowEntity.class)
-public abstract class AbstractArrowEntityMixin extends ProjectileEntity {
+@Mixin(AbstractArrow.class)
+public abstract class AbstractArrowEntityMixin extends Projectile {
 
-    public AbstractArrowEntityMixin(EntityType<? extends ProjectileEntity> type, World world) {
+    public AbstractArrowEntityMixin(EntityType<? extends Projectile> type, Level world) {
         super(type, world);
     }
 
     @Inject(method = "onHitEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setArrowCount(I)V"))
-    public void jojoOnArrowStuck(EntityRayTraceResult pResult, CallbackInfo ci) {
+    public void jojoOnArrowStuck(EntityHitResult pResult, CallbackInfo ci) {
         SidedItemTrackerMap.getSidedTrackers(level).values().stream()
         .filter(tracker -> tracker.getAtEntity(level) == this)
         .forEach(tracker -> {

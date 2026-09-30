@@ -14,15 +14,14 @@ import com.github.standobyte.jojo.network.packets.fromclient.ClRPSGameInputPacke
 import com.github.standobyte.jojo.network.packets.fromclient.ClRPSPickThoughtsPacket;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public class RockPaperScissorsScreen extends ChatScreen {
     public static final ResourceLocation WINDOW = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/rock_paper_scissors.png");
@@ -50,9 +49,9 @@ public class RockPaperScissorsScreen extends ChatScreen {
     @Override
     protected void init() {
         super.init();
-        cheatButton = new Button((width - WIDTH) / 2 + WIDTH - 25, (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y, 20, 20, StringTextComponent.EMPTY, button -> {
+        cheatButton = new Button((width - WIDTH) / 2 + WIDTH - 25, (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y, 20, 20, Component.empty(), button -> {
             if (cheatPower != null) {
-                PlayerEntity playerEntity = minecraft.player;
+                Player playerEntity = minecraft.player;
                 RPSCheat cheat = game.getCheat(playerEntity, cheatPower);
                 if (cheat != null) {
                     cheatedThisRound = true;
@@ -96,7 +95,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         if (game == null) {
             this.onClose();
             return;
@@ -114,7 +113,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
     }
 
     @SuppressWarnings("deprecation")
-    private void renderScreen(MatrixStack matrixStack, int windowX, int windowY) {
+    private void renderScreen(PoseStack matrixStack, int windowX, int windowY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         minecraft.getTextureManager().bind(WINDOW);
@@ -125,7 +124,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
     }
 
     @SuppressWarnings("deprecation")
-    private void renderElements(MatrixStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
+    private void renderElements(PoseStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
         nonTieRound = game.player1.getPreviousPicks().size();
         int y = 26;
         for (int i = 0; i < nonTieRound; i++) {
@@ -168,12 +167,12 @@ public class RockPaperScissorsScreen extends ChatScreen {
 
         RenderSystem.disableRescaleNormal();
         RenderSystem.disableDepthTest();
-        minecraft.font.drawShadow(matrixStack, new StringTextComponent(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
+        minecraft.font.drawShadow(matrixStack, Component.literal(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
         RenderSystem.enableDepthTest();
         RenderSystem.enableRescaleNormal();
     }
 
-    private void renderCheatIcon(MatrixStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
+    private void renderCheatIcon(PoseStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
         cheatPower = PowerClassification.STAND;
         RPSCheat cheat = game.getCheat(minecraft.player, cheatPower);
         if (cheat == null) {
@@ -188,15 +187,15 @@ public class RockPaperScissorsScreen extends ChatScreen {
             minecraft.getTextureManager().bind(cheatPowerCap.clGetPowerTypeIcon());
             blit(matrixStack, cheatButton.x + 2, cheatButton.y + 2, 0, 0, 16, 16, 16, 16);
             if (cheatButton.isMouseOver(mouseX, mouseY)) {
-                renderTooltip(matrixStack, minecraft.font.split(new TranslationTextComponent(
+                renderTooltip(matrixStack, minecraft.font.split(Component.translatable(
                         "jojo.rps.cheat." + cheatPowerCap.getType().getRegistryName().toString().replace(":", ".")), 150), mouseX, mouseY);
             }
         }
     }
 
-    private void renderTooltips(MatrixStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
+    private void renderTooltips(PoseStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
         if (game.player1.getCurrentPick() == null && pickMouseOver != null) {
-            renderTooltip(matrixStack, new TranslationTextComponent("jojo.rps." + pickMouseOver.name().toLowerCase()), mouseX, mouseY);
+            renderTooltip(matrixStack, Component.translatable("jojo.rps." + pickMouseOver.name().toLowerCase()), mouseX, mouseY);
         }
     }
     

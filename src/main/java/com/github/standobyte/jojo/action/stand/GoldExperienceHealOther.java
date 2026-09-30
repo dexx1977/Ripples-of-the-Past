@@ -12,10 +12,10 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceHealOther extends GoldExperienceHeal {
 
@@ -49,7 +49,7 @@ public class GoldExperienceHealOther extends GoldExperienceHeal {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide() && task.getTarget().getEntity() instanceof LivingEntity) {
             LivingEntity user = userPower.getUser();
             spendAndHeal(world, (LivingEntity) task.getTarget().getEntity(), user, userPower, standEntity);
@@ -57,10 +57,10 @@ public class GoldExperienceHealOther extends GoldExperienceHeal {
     }
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         ActionTarget target = ActionsOverlayGui.getInstance().getMouseTarget();
         if (target.getEntity() != null) {
-            return new TranslationTextComponent(key, target.getEntity().getName()); 
+            return Component.translatable(key, target.getEntity().getName()); 
         }
         return super.getTranslatedName(power, key);
     }

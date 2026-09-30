@@ -11,10 +11,10 @@ import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.core.util.Vec3f;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class KosmXSYOHandler extends KosmXWindupAttackHandler {
 
@@ -23,7 +23,7 @@ public class KosmXSYOHandler extends KosmXWindupAttackHandler {
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, new KosmXHandsideMirrorModifier(player));
     }
     
@@ -31,17 +31,17 @@ public class KosmXSYOHandler extends KosmXWindupAttackHandler {
     private static final ResourceLocation SY_OVERDRIVE = new ResourceLocation(JojoMod.MOD_ID, "sunlight_yellow_overdrive");
     
     @Override
-    public boolean setWindupAnim(PlayerEntity player) {
+    public boolean setWindupAnim(Player player) {
         return setAnimFromName(player, SY_OVERDRIVE, anim -> new ChargedAttackAnimPlayer(anim).windupStopsAt(anim.returnToTick));
     }
 
     @Override
-    public boolean setAttackAnim(PlayerEntity player) {
+    public boolean setAttackAnim(Player player) {
         return setToSwingTick(player, -1, SY_OVERDRIVE);
     }
     
     @Override
-    public void stopAnim(PlayerEntity player) {
+    public void stopAnim(Player player) {
         fadeOutAnim(player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
     }
     
@@ -68,12 +68,12 @@ public class KosmXSYOHandler extends KosmXWindupAttackHandler {
         }
         
         @Override
-        public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
+        public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
             BodyPartTransform part = bodyParts.get(modelName);
             if (part == null) return value0;
             
             if (isWindup && currentTick + tickDelta >= windupStopsAt) {
-                int tick = MathHelper.floor(windupStopsAt);
+                int tick = Mth.floor(windupStopsAt);
                 tickDelta = windupStopsAt - tick;
                 return part.get3DTransform(type, tick, tickDelta, value0, data, false);
             }
@@ -83,7 +83,7 @@ public class KosmXSYOHandler extends KosmXWindupAttackHandler {
         @Override
         public void tick() {
             if (isActive() && isWindup) {
-                int maxTick = MathHelper.floor(windupStopsAt);
+                int maxTick = Mth.floor(windupStopsAt);
                 if (currentTick >= maxTick) {
                     currentTick = maxTick;
                     return;

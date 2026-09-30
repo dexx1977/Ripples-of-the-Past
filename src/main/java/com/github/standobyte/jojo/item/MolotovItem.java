@@ -12,48 +12,47 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.TorchBlock;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.dispenser.IDispenseItemBehavior;
-import net.minecraft.dispenser.IPosition;
-import net.minecraft.dispenser.ProjectileDispenseBehavior;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.LavaFluid;
-import net.minecraft.item.FireChargeItem;
-import net.minecraft.item.FlintAndSteelItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.TorchBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.LavaFluid;
+import net.minecraft.world.item.FireChargeItem;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class MolotovItem extends Item {
 
     public MolotovItem(Properties pProperties) {
         super(pProperties);
 
-        DispenserBlock.registerBehavior(this, new IDispenseItemBehavior() {
-            public ItemStack dispense(IBlockSource blockSource, ItemStack item) {
-                return new ProjectileDispenseBehavior() {
+        DispenserBlock.registerBehavior(this, new DispenseItemBehavior() {
+            public ItemStack dispense(BlockSource blockSource, ItemStack item) {
+                return new AbstractProjectileDispenseBehavior() {
                     
                     @Override
-                    protected ProjectileEntity getProjectile(World pLevel, IPosition pPosition, ItemStack pStack) {
+                    protected Projectile getProjectile(Level pLevel, Position pPosition, ItemStack pStack) {
                         return new MolotovEntity(pLevel, pPosition.x(), pPosition.y(), pPosition.z());
                     }
                     
@@ -72,15 +71,15 @@ public class MolotovItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack heldItem = player.getItemInHand(hand);
         
         boolean hasFire = useFire(player, world);
         if (!hasFire) {
             if (!world.isClientSide()) {
-                player.displayClientMessage(new TranslationTextComponent("jojo.message.action_condition.molotov_fire"), true);
+                player.displayClientMessage(Component.translatable("jojo.message.action_condition.molotov_fire"), true);
             }
-            return ActionResult.fail(heldItem);
+            return InteractionResultHolder.fail(heldItem);
         }
         
         if (!world.isClientSide) {
@@ -98,10 +97,10 @@ public class MolotovItem extends Item {
             player.playSound(ModSounds.MOLOTOV_THROW.get(), 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
         }
         
-        return ActionResult.sidedSuccess(heldItem, world.isClientSide());
+        return InteractionResultHolder.sidedSuccess(heldItem, world.isClientSide());
     }
     
-    public static boolean useFire(PlayerEntity player, World world) {
+    public static boolean useFire(Player player, Level world) {
         boolean hasFire = player.isOnFire() || IStandPower.getStandPowerOptional(player).resolve()
                 .map(stand -> stand.getType() == ModStands.MAGICIANS_RED.getStandType()).orElse(false);
         ObjectWrapper<ItemStack> flintAndSteelWr = new ObjectWrapper<>(ItemStack.EMPTY);
@@ -115,7 +114,7 @@ public class MolotovItem extends Item {
                         BlockState blockState = world.getBlockState(pos);
                         FluidState fluidState = world.getFluidState(pos);
                         if (
-                                blockState.getBlock() instanceof AbstractFireBlock || 
+                                blockState.getBlock() instanceof BaseFireBlock || 
                                     ((blockState.getBlock() instanceof AbstractFurnaceBlock || blockState.getBlock() instanceof CampfireBlock
                                             || blockState.getBlock() instanceof TorchBlock && blockState.getBlock() != Blocks.REDSTONE_TORCH)
                                      && (!blockState.hasProperty(BlockStateProperties.LIT) || blockState.getValue(BlockStateProperties.LIT))) || 
@@ -172,7 +171,7 @@ public class MolotovItem extends Item {
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         ClientUtil.addItemReferenceQuote(tooltip, this);
         tooltip.add(ClientUtil.donoItemTooltip("ArchLunatic"));
     }

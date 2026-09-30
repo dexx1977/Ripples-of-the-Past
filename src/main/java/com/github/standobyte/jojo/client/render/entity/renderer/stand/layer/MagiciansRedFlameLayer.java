@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.client.render.entity.renderer.stand.MagiciansR
 import com.github.standobyte.jojo.entity.stand.stands.MagiciansRedEntity;
 
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.resources.ResourceLocation;
 
 public class MagiciansRedFlameLayer extends StandModelLayerRenderer<MagiciansRedEntity, StandEntityModel<MagiciansRedEntity>> {
 
@@ -25,7 +25,7 @@ public class MagiciansRedFlameLayer extends StandModelLayerRenderer<MagiciansRed
     @Deprecated
     @Override
     public ResourceLocation getLayerTexture(Optional<ResourceLocation> standSkin) {
-        return PlayerContainer.BLOCK_ATLAS;
+        return InventoryMenu.BLOCK_ATLAS;
     }
 
     @Override

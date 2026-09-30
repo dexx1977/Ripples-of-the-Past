@@ -5,7 +5,7 @@ import com.github.standobyte.jojo.util.mc.loot.AdditionalSingleItemLootModifier;
 import com.github.standobyte.jojo.util.mc.loot.ReplaceItemNbtModifier;
 
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 

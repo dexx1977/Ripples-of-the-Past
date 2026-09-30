@@ -35,42 +35,42 @@ import com.github.standobyte.jojo.power.impl.stand.StandInstance.StandPart;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 // Made with Blockbench 3.9.2
 
 
 public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<T> {
-    public ModelRenderer head;
-    public ModelRenderer headRot;
-    public ModelRenderer body;
-    public ModelRenderer upperPart;
-    public ModelRenderer torso;
-    public ModelRenderer leftArmXRot;
+    public ModelPart head;
+    public ModelPart headRot;
+    public ModelPart body;
+    public ModelPart upperPart;
+    public ModelPart torso;
+    public ModelPart leftArmXRot;
     public XRotationModelRenderer leftArm;
-    public ModelRenderer leftArmJoint;
-    public ModelRenderer leftForeArm;
-    public ModelRenderer rightArmXRot;
+    public ModelPart leftArmJoint;
+    public ModelPart leftForeArm;
+    public ModelPart rightArmXRot;
     public XRotationModelRenderer rightArm;
-    public ModelRenderer rightArmJoint;
-    public ModelRenderer rightForeArm;
-    public ModelRenderer leftLegXRot;
+    public ModelPart rightArmJoint;
+    public ModelPart rightForeArm;
+    public ModelPart leftLegXRot;
     public XRotationModelRenderer leftLeg;
-    public ModelRenderer leftLegJoint;
-    public ModelRenderer leftLowerLeg;
-    public ModelRenderer rightLegXRot;
+    public ModelPart leftLegJoint;
+    public ModelPart leftLowerLeg;
+    public ModelPart rightLegXRot;
     public XRotationModelRenderer rightLeg;
-    public ModelRenderer rightLegJoint;
-    public ModelRenderer rightLowerLeg;
+    public ModelPart rightLegJoint;
+    public ModelPart rightLowerLeg;
     
 
     public HumanoidStandModel() {
@@ -84,21 +84,21 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     public static <T extends StandEntity> HumanoidStandModel<T> createBasic() {
         HumanoidStandModel<T> model = new HumanoidStandModel<>();
 
-        model.head = new ModelRenderer(model);
+        model.head = new ModelPart(model);
         model.head.setPos(0.0F, 0.0F, 0.0F);
 
-        model.body = new ModelRenderer(model);
+        model.body = new ModelPart(model);
         model.body.setPos(0.0F, 0.0F, 0.0F);
 
-        model.upperPart = new ModelRenderer(model);
+        model.upperPart = new ModelPart(model);
         model.upperPart.setPos(0.0F, 12.0F, 0.0F);
         model.body.addChild(model.upperPart);
 
-        model.torso = new ModelRenderer(model);
+        model.torso = new ModelPart(model);
         model.torso.setPos(0.0F, -12.0F, 0.0F);
         model.upperPart.addChild(model.torso);
 
-        model.leftArmXRot = new ModelRenderer(model);
+        model.leftArmXRot = new ModelPart(model);
         model.leftArmXRot.setPos(6.0F, -10.0F, 0.0F);
         model.upperPart.addChild(model.leftArmXRot);
 
@@ -106,15 +106,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         model.leftArm.setPos(0.0F, 0.0F, 0.0F);
         model.leftArmXRot.addChild(model.leftArm);
 
-        model.leftArmJoint = new ModelRenderer(model);
+        model.leftArmJoint = new ModelPart(model);
         model.leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
         model.leftArm.addChild(model.leftArmJoint);
 
-        model.leftForeArm = new ModelRenderer(model);
+        model.leftForeArm = new ModelPart(model);
         model.leftForeArm.setPos(0.0F, 4.0F, 0.0F);
         model.leftArm.addChild(model.leftForeArm);
 
-        model.rightArmXRot = new ModelRenderer(model);
+        model.rightArmXRot = new ModelPart(model);
         model.rightArmXRot.setPos(-6.0F, -10.0F, 0.0F);
         model.upperPart.addChild(model.rightArmXRot);
 
@@ -122,15 +122,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         model.rightArm.setPos(0.0F, 0.0F, 0.0F);
         model.rightArmXRot.addChild(model.rightArm);
 
-        model.rightArmJoint = new ModelRenderer(model);
+        model.rightArmJoint = new ModelPart(model);
         model.rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
         model.rightArm.addChild(model.rightArmJoint);
 
-        model.rightForeArm = new ModelRenderer(model);
+        model.rightForeArm = new ModelPart(model);
         model.rightForeArm.setPos(0.0F, 4.0F, 0.0F);
         model.rightArm.addChild(model.rightForeArm);
 
-        model.leftLegXRot = new ModelRenderer(model);
+        model.leftLegXRot = new ModelPart(model);
         model.leftLegXRot.setPos(2.0F, 12.0F, 0.0F);
         model.body.addChild(model.leftLegXRot);
 
@@ -138,15 +138,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         model.leftLeg.setPos(0.0F, 0.0F, 0.0F);
         model.leftLegXRot.addChild(model.leftLeg);
 
-        model.leftLegJoint = new ModelRenderer(model);
+        model.leftLegJoint = new ModelPart(model);
         model.leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
         model.leftLeg.addChild(model.leftLegJoint);
 
-        model.leftLowerLeg = new ModelRenderer(model);
+        model.leftLowerLeg = new ModelPart(model);
         model.leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         model.leftLeg.addChild(model.leftLowerLeg);
 
-        model.rightLegXRot = new ModelRenderer(model);
+        model.rightLegXRot = new ModelPart(model);
         model.rightLegXRot.setPos(-2.0F, 12.0F, 0.0F);
         model.body.addChild(model.rightLegXRot);
 
@@ -154,11 +154,11 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         model.rightLeg.setPos(0.0F, 0.0F, 0.0F);
         model.rightLegXRot.addChild(model.rightLeg);
 
-        model.rightLegJoint = new ModelRenderer(model);
+        model.rightLegJoint = new ModelPart(model);
         model.rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
         model.rightLeg.addChild(model.rightLegJoint);
 
-        model.rightLowerLeg = new ModelRenderer(model);
+        model.rightLowerLeg = new ModelPart(model);
         model.rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         model.rightLeg.addChild(model.rightLowerLeg);
 
@@ -184,72 +184,72 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         this.texWidth = textureWidth;
         this.texHeight = textureHeight;
 
-        head = new ModelRenderer(this);
+        head = new ModelPart(this);
         head.setPos(0.0F, 0.0F, 0.0F);
 
-        body = new ModelRenderer(this);
+        body = new ModelPart(this);
         body.setPos(0.0F, 0.0F, 0.0F);
 
 
-        upperPart = new ModelRenderer(this);
+        upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
         body.addChild(upperPart);
 
 
-        torso = new ModelRenderer(this);
+        torso = new ModelPart(this);
         torso.setPos(0.0F, -12.0F, 0.0F);
         upperPart.addChild(torso);
 
-        leftArm = convertLimb(new ModelRenderer(this));
+        leftArm = convertLimb(new ModelPart(this));
         leftArm.setPos(6.0F, -10.0F, 0.0F);
         upperPart.addChild(leftArm);
 
-        leftArmJoint = new ModelRenderer(this);
+        leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftArmJoint);
 
-        leftForeArm = new ModelRenderer(this);
+        leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftForeArm);
 
-        rightArm = convertLimb(new ModelRenderer(this));
+        rightArm = convertLimb(new ModelPart(this));
         rightArm.setPos(-6.0F, -10.0F, 0.0F);
         upperPart.addChild(rightArm);
 
-        rightArmJoint = new ModelRenderer(this);
+        rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightArmJoint);
 
-        rightForeArm = new ModelRenderer(this);
+        rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightForeArm);
 
-        leftLeg = convertLimb(new ModelRenderer(this));
+        leftLeg = convertLimb(new ModelPart(this));
         leftLeg.setPos(2.0F, 12.0F, 0.0F);
         body.addChild(leftLeg);
 
-        leftLegJoint = new ModelRenderer(this);
+        leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLegJoint);
 
-        leftLowerLeg = new ModelRenderer(this);
+        leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLowerLeg);
 
-        rightLeg = convertLimb(new ModelRenderer(this));
+        rightLeg = convertLimb(new ModelPart(this));
         rightLeg.setPos(-2.0F, 12.0F, 0.0F);
         body.addChild(rightLeg);
 
-        rightLegJoint = new ModelRenderer(this);
+        rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLegJoint);
 
-        rightLowerLeg = new ModelRenderer(this);
+        rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLowerLeg);
         
         
-        baseHumanoidBoxGenerators = ImmutableMap.<Supplier<ModelRenderer>, Consumer<ModelRenderer>>builder()
+        baseHumanoidBoxGenerators = ImmutableMap.<Supplier<ModelPart>, Consumer<ModelPart>>builder()
                 .put(() -> head, part ->          part.texOffs(0, 0)    .addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F, false))
                 .put(() -> torso, part ->         part.texOffs(0, 64)   .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.0F, false))
                 .put(() -> leftArm, part ->       part.texOffs(32, 108) .addBox(-2.0F, -2.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.0F, false))
@@ -268,7 +268,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
     
     @Deprecated
-    protected final XRotationModelRenderer convertLimb(ModelRenderer limbModelPart) {
+    protected final XRotationModelRenderer convertLimb(ModelPart limbModelPart) {
         return new XRotationModelRenderer(this);
     }
     
@@ -298,11 +298,11 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         putNamedModelPart("rightLowerLeg", rightLowerLeg);
     }
 
-    @Deprecated private final Map<Supplier<ModelRenderer>, Consumer<ModelRenderer>> baseHumanoidBoxGenerators;
+    @Deprecated private final Map<Supplier<ModelPart>, Consumer<ModelPart>> baseHumanoidBoxGenerators;
     @Deprecated
-    protected final void addHumanoidBaseBoxes(@Nullable Predicate<ModelRenderer> partPredicate) {
-        for (Map.Entry<Supplier<ModelRenderer>, Consumer<ModelRenderer>> entry : baseHumanoidBoxGenerators.entrySet()) {
-            ModelRenderer modelRenderer = entry.getKey().get();
+    protected final void addHumanoidBaseBoxes(@Nullable Predicate<ModelPart> partPredicate) {
+        for (Map.Entry<Supplier<ModelPart>, Consumer<ModelPart>> entry : baseHumanoidBoxGenerators.entrySet()) {
+            ModelPart modelRenderer = entry.getKey().get();
             if (partPredicate == null || partPredicate.test(modelRenderer)) {
                 entry.getValue().accept(modelRenderer);
             }
@@ -314,10 +314,10 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         VisibilityMode baseMode = mode.baseMode;
         boolean setVisible = !mode.isInverted;
         
-        ModelRenderer leftArm = getArm(HandSide.LEFT);
-        ModelRenderer rightArm = getArm(HandSide.RIGHT);
-        ModelRenderer leftLeg = getLeg(HandSide.LEFT);
-        ModelRenderer rightLeg = getLeg(HandSide.RIGHT);
+        ModelPart leftArm = getArm(HumanoidArm.LEFT);
+        ModelPart rightArm = getArm(HumanoidArm.RIGHT);
+        ModelPart leftLeg = getLeg(HumanoidArm.LEFT);
+        ModelPart rightLeg = getLeg(HumanoidArm.RIGHT);
         
         if (baseMode == VisibilityMode.ALL) {
             head.visible = setVisible;
@@ -362,22 +362,22 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
             torso.visible = false;
             break;
         case ARMS:
-            getArm(HandSide.LEFT).visible = false;
-            getArm(HandSide.RIGHT).visible = false;
+            getArm(HumanoidArm.LEFT).visible = false;
+            getArm(HumanoidArm.RIGHT).visible = false;
             break;
         case LEGS:
-            getLeg(HandSide.LEFT).visible = false;
-            getLeg(HandSide.RIGHT).visible = false;
+            getLeg(HumanoidArm.LEFT).visible = false;
+            getLeg(HumanoidArm.RIGHT).visible = false;
             break;
         }
     }
     
     
-    public void addCrumbleParticleAt(HumanoidPart humanoidPart, ResourceLocation texture, Vector3d pos) {
+    public void addCrumbleParticleAt(HumanoidPart humanoidPart, ResourceLocation texture, Vec3 pos) {
         Minecraft mc = Minecraft.getInstance();
         StandCrumbleParticle particle = new StandCrumbleParticle(mc.level, pos.x, pos.y, pos.z, 0, 0, 0);
         
-        ModelRenderer mainPart;
+        ModelPart mainPart;
         switch (humanoidPart) {
         case HEAD: 
             mainPart = head;
@@ -401,16 +401,16 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
             throw new IllegalArgumentException();
         }
         Random random = new Random();
-        List<ModelRenderer> allModelParts = new ArrayList<>();
+        List<ModelPart> allModelParts = new ArrayList<>();
         addChildren(mainPart, allModelParts);
-        ModelRenderer randomPart = allModelParts.get(random.nextInt(allModelParts.size()));
-        ObjectList<ModelRenderer.ModelBox> cubes = randomPart.cubes;
+        ModelPart randomPart = allModelParts.get(random.nextInt(allModelParts.size()));
+        ObjectList<ModelPart.ModelBox> cubes = randomPart.cubes;
         if (!cubes.isEmpty()) {
-            ModelRenderer.ModelBox cube = cubes.get(random.nextInt(cubes.size()));
-            ModelRenderer.TexturedQuad[] polygons = cube.polygons;
-            ModelRenderer.TexturedQuad polygon = polygons[random.nextInt(polygons.length)];
+            ModelPart.ModelBox cube = cubes.get(random.nextInt(cubes.size()));
+            ModelPart.TexturedQuad[] polygons = cube.polygons;
+            ModelPart.TexturedQuad polygon = polygons[random.nextInt(polygons.length)];
             if (polygon != null) {
-                ModelRenderer.PositionTextureVertex[] vertices = polygon.vertices;
+                ModelPart.PositionTextureVertex[] vertices = polygon.vertices;
                 if (vertices.length > 0) {
                     float u0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.u).min().getAsDouble();
                     float v0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.v).min().getAsDouble();
@@ -423,9 +423,9 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         }
     }
     
-    private void addChildren(ModelRenderer parent, Collection<ModelRenderer> collection) {
+    private void addChildren(ModelPart parent, Collection<ModelPart> collection) {
         collection.add(parent);
-        for (ModelRenderer child : parent.children) {
+        for (ModelPart child : parent.children) {
             addChildren(child, collection);
         }
     }
@@ -594,7 +594,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
                         RotationAngle.fromDegrees(rightForeArm, -90, 30, -90),
                         RotationAngle.fromDegrees(leftForeArm, -90, -30, 90)
                 }).setAdditionalAnim((rotationAmount, entity, ticks, yRotOffsetRad, xRotRad) -> {
-                    float blockXRot = MathHelper.clamp(xRotRad, -60 * MathUtil.DEG_TO_RAD, 60 * MathUtil.DEG_TO_RAD) / 2;
+                    float blockXRot = Mth.clamp(xRotRad, -60 * MathUtil.DEG_TO_RAD, 60 * MathUtil.DEG_TO_RAD) / 2;
                     rightArm.xRot = -1.5708F + blockXRot;
                     leftArm.xRot = rightArm.xRot;
 
@@ -670,7 +670,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     
     
     @Override
-    public ModelRenderer getArm(HandSide side) {
+    public ModelPart getArm(HumanoidArm side) {
         switch (side) {
         case LEFT:
             return leftArmXRot != null ? leftArmXRot : leftArm;
@@ -681,7 +681,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
     
     @Override
-    public ModelRenderer getArmNoXRot(HandSide side) {
+    public ModelPart getArmNoXRot(HumanoidArm side) {
         switch (side) {
         case LEFT:
             return leftArm != null ? leftArm : leftArm;
@@ -691,7 +691,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         return null;
     }
     
-    protected ModelRenderer getForeArm(HandSide side) {
+    protected ModelPart getForeArm(HumanoidArm side) {
         switch (side) {
         case LEFT:
             return leftForeArm;
@@ -701,15 +701,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         return null;
     }
     
-    public ModelRenderer getHead() {
+    public ModelPart getHead() {
         return head;
     }
     
-    public ModelRenderer getTorso() {
+    public ModelPart getTorso() {
         return torso;
     }
     
-    public ModelRenderer getLeg(HandSide side) {
+    public ModelPart getLeg(HumanoidArm side) {
         switch (side) {
         case LEFT:
             return leftLegXRot != null ? leftLegXRot : leftLeg;
@@ -719,7 +719,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         return null;
     }
     
-    public ModelRenderer getLegNoXRot(HandSide side) {
+    public ModelPart getLegNoXRot(HumanoidArm side) {
         switch (side) {
         case LEFT:
             return leftLeg != null ? leftLeg : leftLeg;
@@ -767,15 +767,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     private static final int TICKS_MOTION_TILT_LERP = 5;
     public static void motionTilt(StandEntity entity, HumanoidStandModel<?> model, float ticks) {
         if (entity.getStandPose() != StandPose.SUMMON) {
-            Vector3d tiltVec;
-            List<Vector3d> vecQueue = entity.tiltVecQueue;
+            Vec3 tiltVec;
+            List<Vec3> vecQueue = entity.tiltVecQueue;
             while (vecQueue.size() > TICKS_MOTION_TILT_LERP) vecQueue.remove(vecQueue.size() - 1);
             boolean fillQueue = vecQueue.size() < TICKS_MOTION_TILT_LERP;
-            if (fillQueue || MathHelper.floor(entity.lastMotionTiltTick) != MathHelper.floor(ticks)) {
-                Vector3d motion = entity.position().subtract(entity.xOld, entity.yOld, entity.zOld);
+            if (fillQueue || Mth.floor(entity.lastMotionTiltTick) != Mth.floor(ticks)) {
+                Vec3 motion = entity.position().subtract(entity.xOld, entity.yOld, entity.zOld);
                 
                 tiltVec = motion.yRot(entity.yBodyRot * MathUtil.DEG_TO_RAD).scale(2);
-                tiltVec = new Vector3d(tiltVec.z, 0, tiltVec.x);
+                tiltVec = new Vec3(tiltVec.z, 0, tiltVec.x);
                 double motionSqr = tiltVec.lengthSqr();
                 if (motionSqr > Math.pow(Math.PI / 4, 2)) {
                     tiltVec = tiltVec.normalize().scale(Math.PI / 4);
@@ -794,13 +794,13 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
                 entity.lastMotionTiltTick = ticks;
             }
             
-            float partialTick = MathHelper.frac(ticks);
+            float partialTick = Mth.frac(ticks);
             tiltVec = lerpVecs(vecQueue, partialTick);
             
             double tiltSqr = tiltVec.lengthSqr();
             if (tiltSqr > 1.0E-4) {
                 double tilt = Math.sqrt(tiltSqr);
-                double d1 = MathHelper.clamp(1 - tilt / Math.PI * 4, 0, 1);
+                double d1 = Mth.clamp(1 - tilt / Math.PI * 4, 0, 1);
                 boolean idlePose = entity.getStandPose() == StandPose.IDLE;
                 
                 float tiltX = (float) tiltVec.x;
@@ -813,7 +813,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
                     model.body.yRot *= d1;
                 }
 
-                double d = MathHelper.clamp(1 - 1.5 * tilt / Math.PI, 0, 1);
+                double d = Mth.clamp(1 - 1.5 * tilt / Math.PI, 0, 1);
                 model.leftLowerLeg.xRot *= d;
                 model.rightLowerLeg.xRot *= d;
                 model.leftLowerLeg.yRot *= d;
@@ -829,7 +829,7 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
                     model.rightForeArm.zRot *= d;
                 }
                 
-                double d2 = MathHelper.clamp(1 - tilt / (2 * Math.PI), 0, 1);
+                double d2 = Mth.clamp(1 - tilt / (2 * Math.PI), 0, 1);
                 if (idlePose) {
                     model.leftArm.xRot *= d2;
                     model.rightArm.xRot *= d2;
@@ -860,24 +860,24 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         }
     }
     
-    private static Vector3d lerpVecs(List<Vector3d> vecs, float partialTick) {
+    private static Vec3 lerpVecs(List<Vec3> vecs, float partialTick) {
         double x = 0;
         double y = 0;
         double z = 0;
-        Vector3d prevVec = vecs.get(0);
-        Vector3d vec;
+        Vec3 prevVec = vecs.get(0);
+        Vec3 vec;
         float n = vecs.size();
         for (int i = 1; i < n; i++) {
             vec = vecs.get(i);
-            x += MathHelper.lerp(partialTick, prevVec.x, vec.x);
-            y += MathHelper.lerp(partialTick, prevVec.y, vec.y);
-            z += MathHelper.lerp(partialTick, prevVec.z, vec.z);
+            x += Mth.lerp(partialTick, prevVec.x, vec.x);
+            y += Mth.lerp(partialTick, prevVec.y, vec.y);
+            z += Mth.lerp(partialTick, prevVec.z, vec.z);
             prevVec = vec;
         }
-        return new Vector3d(x / n, y / n, z / n);
+        return new Vec3(x / n, y / n, z / n);
     }
 
-    protected void rotateJoint(ModelRenderer joint, ModelRenderer limbPart) {
+    protected void rotateJoint(ModelPart joint, ModelPart limbPart) {
         if (joint != null) {
             joint.xRot = limbPart.xRot / 2;
             joint.yRot = limbPart.yRot / 2;
@@ -886,12 +886,12 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
 
     @Override
-    public Iterable<ModelRenderer> headParts() {
+    public Iterable<ModelPart> headParts() {
         return ImmutableList.of(head);
     }
 
     @Override
-    public Iterable<ModelRenderer> bodyParts() {
+    public Iterable<ModelPart> bodyParts() {
         return ImmutableList.of(body);
     }
     
@@ -905,15 +905,15 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
     
     @Override
-    public void translateToHand(HandSide handSide, MatrixStack matrixStack) {
-        matrixStack.translate(handSide == HandSide.LEFT ? -0.0625 : 0.0625, 0, 0);
+    public void translateToHand(HumanoidArm handSide, PoseStack matrixStack) {
+        matrixStack.translate(handSide == HumanoidArm.LEFT ? -0.0625 : 0.0625, 0, 0);
         body.translateAndRotate(matrixStack);
         upperPart.translateAndRotate(matrixStack);
         
-        ModelRenderer arm = getArm(handSide);
+        ModelPart arm = getArm(handSide);
         arm.translateAndRotate(matrixStack);
 
-        ModelRenderer foreArm = getForeArm(handSide);
+        ModelPart foreArm = getForeArm(handSide);
         foreArm.translateAndRotate(matrixStack);
         matrixStack.translate(
                 (double)(-foreArm.x / 16.0F), 
@@ -922,13 +922,13 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
     
     
-    protected Map<TargetHitPart, List<ModelRenderer.ModelBox>> cubesCache;
+    protected Map<TargetHitPart, List<ModelPart.ModelBox>> cubesCache;
     @Override
-    public ModelRenderer.ModelBox getRandomCubeAt(TargetHitPart entityPart) {
+    public ModelPart.ModelBox getRandomCubeAt(TargetHitPart entityPart) {
         if (cubesCache == null) {
             cacheCubes();
         }
-        List<ModelRenderer.ModelBox> cubes = cubesCache.get(entityPart);
+        List<ModelPart.ModelBox> cubes = cubesCache.get(entityPart);
         if (cubes != null && !cubes.isEmpty()) {
             return cubes.get(RANDOM.nextInt(cubes.size()));
         }
@@ -937,9 +937,9 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     
     protected void cacheCubes() {
         cubesCache = new EnumMap<>(TargetHitPart.class);
-        List<ModelRenderer> headParts = new ArrayList<>();
-        List<ModelRenderer> legsParts = new ArrayList<>();
-        List<ModelRenderer> middleParts = new ArrayList<>();
+        List<ModelPart> headParts = new ArrayList<>();
+        List<ModelPart> legsParts = new ArrayList<>();
+        List<ModelPart> middleParts = new ArrayList<>();
         addChildrenRecursive(head, headParts);
         addChildrenRecursive(leftLeg, legsParts);
         addChildrenRecursive(rightLeg, legsParts);
@@ -951,25 +951,25 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         cubesCache.put(TargetHitPart.LEGS, allCubes(legsParts));
     }
     
-    public static void addChildrenRecursive(ModelRenderer modelPart, Collection<ModelRenderer> collection) {
+    public static void addChildrenRecursive(ModelPart modelPart, Collection<ModelPart> collection) {
         collection.add(modelPart);
-        for (ModelRenderer child : modelPart.children) {
+        for (ModelPart child : modelPart.children) {
             addChildrenRecursive(child, collection);
         }
     }
     
-    public static List<ModelRenderer.ModelBox> allCubes(List<ModelRenderer> modelParts) {
-        List<ModelRenderer.ModelBox> cubes = modelParts.stream()
+    public static List<ModelPart.ModelBox> allCubes(List<ModelPart> modelParts) {
+        List<ModelPart.ModelBox> cubes = modelParts.stream()
                 .flatMap(modelPart -> modelPart.cubes.stream())
                 .collect(Collectors.toList());
         return cubes;
     }
     
     // TODO select quads with weight depending on their size
-    public static ModelRenderer.TexturedQuad getRandomQuad(ModelRenderer.ModelBox cube) {
+    public static ModelPart.TexturedQuad getRandomQuad(ModelPart.ModelBox cube) {
         if (cube == null) return null;
-        ModelRenderer.TexturedQuad[] polygons = cube.polygons;
-        ModelRenderer.TexturedQuad polygon = polygons[RANDOM.nextInt(polygons.length)];
+        ModelPart.TexturedQuad[] polygons = cube.polygons;
+        ModelPart.TexturedQuad polygon = polygons[RANDOM.nextInt(polygons.length)];
         return polygon;
     }
     

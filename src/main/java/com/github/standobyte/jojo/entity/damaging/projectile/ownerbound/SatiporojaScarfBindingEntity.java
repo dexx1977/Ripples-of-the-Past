@@ -4,20 +4,20 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class SatiporojaScarfBindingEntity extends OwnerBoundProjectileEntity {
     
-    public SatiporojaScarfBindingEntity(World world, LivingEntity entity) {
+    public SatiporojaScarfBindingEntity(Level world, LivingEntity entity) {
         super(ModEntityTypes.SATIPOROJA_SCARF_BINDING.get(), entity, world);
     }
 
-    public SatiporojaScarfBindingEntity(EntityType<? extends SatiporojaScarfBindingEntity> entityType, World world) {
+    public SatiporojaScarfBindingEntity(EntityType<? extends SatiporojaScarfBindingEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -28,8 +28,8 @@ public class SatiporojaScarfBindingEntity extends OwnerBoundProjectileEntity {
             Entity ensnaredEntity = getEntityAttachedTo();
             if (ensnaredEntity == null || !ensnaredEntity.isAlive()) {
                 Entity owner = getOwner();
-                if (owner instanceof PlayerEntity) {
-                    ((PlayerEntity) owner).getCooldowns().addCooldown(ModItems.SATIPOROJA_SCARF.get(), 0);
+                if (owner instanceof Player) {
+                    ((Player) owner).getCooldowns().addCooldown(ModItems.SATIPOROJA_SCARF.get(), 0);
                 }
                 remove();
             }
@@ -37,7 +37,7 @@ public class SatiporojaScarfBindingEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected Vector3d getNextOriginOffset() {
+    protected Vec3 getNextOriginOffset() {
         return getOriginPoint();
     }
 

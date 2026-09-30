@@ -18,8 +18,8 @@ import com.github.standobyte.jojo.client.render.entity.animnew.INamedModelParts;
 import com.github.standobyte.jojo.client.render.entity.pose.XRotationModelRenderer;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class BlockbenchStandModelHelper {
 
@@ -36,13 +36,13 @@ public class BlockbenchStandModelHelper {
      */
     public static void fillFromBlockbenchExport(Model bbSourceModel, Model inModModel) {
         Field[] bbModelPartFields = bbSourceModel.getClass().getDeclaredFields();
-        Map<String, ModelRenderer> bbModelParts = new HashMap<>();
+        Map<String, ModelPart> bbModelParts = new HashMap<>();
 
         try {
             for (Field bbModelPartField : bbModelPartFields) {
-                if (bbModelPartField.getType() == ModelRenderer.class) {
+                if (bbModelPartField.getType() == ModelPart.class) {
                     bbModelPartField.setAccessible(true);
-                    bbModelParts.put(bbModelPartField.getName(), (ModelRenderer) bbModelPartField.get(bbSourceModel));
+                    bbModelParts.put(bbModelPartField.getName(), (ModelPart) bbModelPartField.get(bbSourceModel));
                 }
             }
             
@@ -55,17 +55,17 @@ public class BlockbenchStandModelHelper {
         inModModel.texHeight = bbSourceModel.texHeight;
     }
     
-    public static void replaceModelParts(Model inModModel, Map<String, ModelRenderer> source) throws IllegalArgumentException, IllegalAccessException {
+    public static void replaceModelParts(Model inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {
         Set<Field> declaredModelParts = FieldUtils.getAllFieldsList(inModModel.getClass()).stream()
-                .filter(field -> ModelRenderer.class.isAssignableFrom(field.getType()))
+                .filter(field -> ModelPart.class.isAssignableFrom(field.getType()))
                 .collect(Collectors.toCollection(HashSet::new));
-        List<ModelRenderer> editedParts = new ArrayList<>();
-        Map<ModelRenderer, ModelRenderer> remapParents = new HashMap<>();
+        List<ModelPart> editedParts = new ArrayList<>();
+        Map<ModelPart, ModelPart> remapParents = new HashMap<>();
         INamedModelParts putNamed = inModModel instanceof INamedModelParts ? (INamedModelParts) inModModel : null;
         
-        for (Map.Entry<String, ModelRenderer> entry : source.entrySet()) {
+        for (Map.Entry<String, ModelPart> entry : source.entrySet()) {
             String name = entry.getKey();
-            ModelRenderer blockbenchPart = entry.getValue();
+            ModelPart blockbenchPart = entry.getValue();
             
             Iterator<Field> it = declaredModelParts.iterator();
             boolean foundModelPart = false;
@@ -75,7 +75,7 @@ public class BlockbenchStandModelHelper {
                 if (inModPartField.getName().equals(name)) {
                     boolean xRotJank = false;
                     if (!inModPartField.getType().isAssignableFrom(blockbenchPart.getClass())) {
-                        if (inModPartField.getType() == XRotationModelRenderer.class && blockbenchPart.getClass() == ModelRenderer.class) {
+                        if (inModPartField.getType() == XRotationModelRenderer.class && blockbenchPart.getClass() == ModelPart.class) {
                             xRotJank = true;
                         }
                         else {
@@ -85,7 +85,7 @@ public class BlockbenchStandModelHelper {
                     }
                     
                     if (xRotJank) {
-                        ModelRenderer jank = jankToKeepAddonsWorkingForNow(blockbenchPart);
+                        ModelPart jank = jankToKeepAddonsWorkingForNow(blockbenchPart);
                         remapParents.put(blockbenchPart, jank);
                         blockbenchPart = jank;
                     }
@@ -104,15 +104,15 @@ public class BlockbenchStandModelHelper {
         
         for (Field field : declaredModelParts) {
             field.setAccessible(true);
-            ModelRenderer declaredPartNotInGecko = (ModelRenderer) field.get(inModModel);
+            ModelPart declaredPartNotInGecko = (ModelPart) field.get(inModModel);
             if (declaredPartNotInGecko != null) {
                 declaredPartNotInGecko.cubes.clear();
                 declaredPartNotInGecko.children.clear();
             }
         }
         
-        for (ModelRenderer modelPart : editedParts) {
-            ObjectList<ModelRenderer> children = modelPart.children;
+        for (ModelPart modelPart : editedParts) {
+            ObjectList<ModelPart> children = modelPart.children;
             if (!children.isEmpty()) {
                 remapParents.forEach((oldChild, newChild) -> {
                     Collections.replaceAll(children, oldChild, newChild);
@@ -121,14 +121,14 @@ public class BlockbenchStandModelHelper {
         }
     }
     
-    public static void replaceCubes(Model inModModel, Map<String, ModelRenderer> source) throws IllegalArgumentException, IllegalAccessException {
+    public static void replaceCubes(Model inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {
         List<Field> inModModelParts = FieldUtils.getAllFieldsList(inModModel.getClass()).stream()
-                .filter(field -> ModelRenderer.class.isAssignableFrom(field.getType()))
+                .filter(field -> ModelPart.class.isAssignableFrom(field.getType()))
                 .collect(Collectors.toList());
         
-        for (Map.Entry<String, ModelRenderer> entry : source.entrySet()) {
+        for (Map.Entry<String, ModelPart> entry : source.entrySet()) {
             String name = entry.getKey();
-            ModelRenderer blockbenchPart = entry.getValue();
+            ModelPart blockbenchPart = entry.getValue();
             
             Iterator<Field> it = inModModelParts.iterator();
             while (it.hasNext()) {
@@ -136,7 +136,7 @@ public class BlockbenchStandModelHelper {
                 if (inModPartField.getName().equals(name)) {
                     
                     inModPartField.setAccessible(true);
-                    ModelRenderer inModModelPart = (ModelRenderer) inModPartField.get(inModModel);
+                    ModelPart inModModelPart = (ModelPart) inModPartField.get(inModModel);
                     inModModelPart.cubes.clear();
                     inModModelPart.cubes.addAll(blockbenchPart.cubes);
                     
@@ -146,7 +146,7 @@ public class BlockbenchStandModelHelper {
         }
     }
     
-    private static XRotationModelRenderer jankToKeepAddonsWorkingForNow(ModelRenderer modelPart) {
+    private static XRotationModelRenderer jankToKeepAddonsWorkingForNow(ModelPart modelPart) {
         XRotationModelRenderer deepCopy = new XRotationModelRenderer(256, 256, 0, 0);
         
         deepCopy.x = modelPart.x;

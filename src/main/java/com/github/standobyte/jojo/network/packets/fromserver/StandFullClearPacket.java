@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandFullClearPacket {
     
@@ -18,10 +18,10 @@ public class StandFullClearPacket {
     
     public static class Handler implements IModPacketHandler<StandFullClearPacket> {
     
-        public void encode(StandFullClearPacket msg, PacketBuffer buf) {
+        public void encode(StandFullClearPacket msg, FriendlyByteBuf buf) {
         }
     
-        public StandFullClearPacket decode(PacketBuffer buf) {
+        public StandFullClearPacket decode(FriendlyByteBuf buf) {
             return new StandFullClearPacket();
         }
     

@@ -11,16 +11,16 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.capability.world.WorldUtilCapProvider;
 import com.google.common.collect.Lists;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.HugeMushroomBlock;
-import net.minecraft.block.LeavesBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HugeMushroomBlock;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 
 public class TreeLeavesDecay {
     public Set<BlockPos> logs = new HashSet<>();
@@ -34,7 +34,7 @@ public class TreeLeavesDecay {
     
     
     @Nullable
-    public static TreeLeavesDecay startDecay(World world, BlockPos blockPos, int duration, int leavesPerTick) {
+    public static TreeLeavesDecay startDecay(Level world, BlockPos blockPos, int duration, int leavesPerTick) {
         if (!world.isClientSide()) {
             return world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve().map(cap -> {
                 TreeLeavesDecay tree = TreeLeavesDecay.createFromLogBlock(blockPos, world);
@@ -56,13 +56,13 @@ public class TreeLeavesDecay {
     }
     
     @Nullable
-    public static TreeLeavesDecay createFromLogBlock(BlockPos pos, World world) {
+    public static TreeLeavesDecay createFromLogBlock(BlockPos pos, Level world) {
         Block block = world.getBlockState(pos).getBlock();
         if (isTreeStemBlock(block)) {
             TreeLeavesDecay tree = new TreeLeavesDecay();
             tree.logType = block;
             CubeBoolArrUtil checkedTable = new CubeBoolArrUtil(RANGE * 2 + 1);
-            tree.recAddTreeBlock(pos, new Vector3i(0, 0, 0), world, checkedTable);
+            tree.recAddTreeBlock(pos, new Vec3i(0, 0, 0), world, checkedTable);
             tree.leaves = Lists.reverse(tree.leaves);
             return tree;
         }
@@ -70,7 +70,7 @@ public class TreeLeavesDecay {
         return null;
     }
     
-    private void recAddTreeBlock(BlockPos originalPos, Vector3i offset, World world, CubeBoolArrUtil checkedTable) {
+    private void recAddTreeBlock(BlockPos originalPos, Vec3i offset, Level world, CubeBoolArrUtil checkedTable) {
         int distance = Math.abs(offset.getX()) + Math.abs(offset.getY()) + Math.abs(offset.getZ());
         if (distance > RANGE) {
             return;
@@ -116,13 +116,13 @@ public class TreeLeavesDecay {
         
         if (distance < RANGE) {
             for (Direction direction : Direction.values()) {
-                Vector3i nextOffset = new Vector3i(
+                Vec3i nextOffset = new Vec3i(
                         offset.getX() + direction.getStepX(), 
                         offset.getY() + direction.getStepY(), 
                         offset.getZ() + direction.getStepZ());
                 recAddTreeBlock(originalPos, nextOffset, world, checkedTable);
                 if (direction.getAxis() != Direction.Axis.Y) {
-                    recAddTreeBlock(originalPos, new Vector3i(
+                    recAddTreeBlock(originalPos, new Vec3i(
                             offset.getX() + direction.getStepX(), 
                             offset.getY() + direction.getStepY() - 1, 
                             offset.getZ() + direction.getStepZ()), world, checkedTable);
@@ -144,7 +144,7 @@ public class TreeLeavesDecay {
         this.decayTicks = Math.max(ticks, this.decayTicks);
     }
     
-    public boolean tick(World world) {
+    public boolean tick(Level world) {
         if (decayTicks <= 0) {
             return true;
         }

@@ -29,16 +29,16 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance.StandPart;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class StandEntityMeleeBarrage extends StandEntityAction implements IHasStandPunch {
     protected final Supplier<SoundEvent> hitSound;
@@ -67,7 +67,7 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
     }
 
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         int hitsThisTick = 0;
         int hitsPerSecond = StandStatFormulas.getBarrageHitsPerSecond(standEntity.getAttackSpeed());
         int extraTickSwings = hitsPerSecond / 20;
@@ -105,7 +105,7 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             Phase from, Phase to, StandEntityTask task, int ticks) {
         if (world.isClientSide()) {
             standEntity.getBarrageHitSoundsHandler().setIsBarraging(to == Phase.PERFORM);
@@ -153,12 +153,12 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
         if (!stand.level.isClientSide()) {
             boolean playSound = canPlay && (playAlways || punch.playImpactSound());
             SoundEvent sound = punch.getImpactSound();
-            Vector3d pos = punch.getImpactSoundPos();
+            Vec3 pos = punch.getImpactSoundPos();
             tickBarrageSound(playSound, sound, pos, stand);
         }
     }
     
-    public static void tickBarrageSound(boolean playSound, SoundEvent sound, Vector3d soundPos, StandEntity stand) {
+    public static void tickBarrageSound(boolean playSound, SoundEvent sound, Vec3 soundPos, StandEntity stand) {
         if (!stand.level.isClientSide()) {
             PacketManager.sendToClientsTracking(
                     playSound && sound != null && soundPos != null ? 
@@ -191,7 +191,7 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
     }
     
     @Override
-    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+    protected void onTaskStopped(Level world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         if (!world.isClientSide() && newAction != this) {
             standEntity.barrageClashStopped();
         }
@@ -259,7 +259,7 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
     }
     
     @Override
-    protected void playSoundAtStand(World world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
+    protected void playSoundAtStand(Level world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
         if (world.isClientSide() && sound != null && sound == standCry.get()) {
             LivingEntity user = standPower.getUser();
             if (user != null && user.hasEffect(ModStatusEffects.RESOLVE.get())) {
@@ -336,8 +336,8 @@ public class StandEntityMeleeBarrage extends StandEntityAction implements IHasSt
             
             if (hit && resolve && target instanceof LivingEntity) {
                 ((LivingEntity) target).getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setNoGravityFor(3));
-                if (target instanceof MobEntity) {
-                    MobEntity mob = ((MobEntity) target);
+                if (target instanceof Mob) {
+                    Mob mob = ((Mob) target);
                     mob.getNavigation().stop();
                 }
             }

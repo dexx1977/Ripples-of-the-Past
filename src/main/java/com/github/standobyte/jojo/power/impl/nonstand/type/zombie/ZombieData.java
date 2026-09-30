@@ -5,9 +5,9 @@ import com.github.standobyte.jojo.network.packets.fromserver.TrZombieDataPacket;
 import com.github.standobyte.jojo.power.impl.nonstand.TypeSpecificData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 public class ZombieData extends TypeSpecificData { // TODO remember the vampire that turned the player into zombie (UUID)
     private int lastBloodLevel = -999;
@@ -51,19 +51,19 @@ public class ZombieData extends TypeSpecificData { // TODO remember the vampire 
     }
 
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putBoolean("DisguiseEnabled", disguised);
         return nbt;
     }
     
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         disguised = nbt.getBoolean("DisguiseEnabled");
     }
     
     @Override
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         lastBloodLevel = -999;
     }
     
@@ -74,7 +74,7 @@ public class ZombieData extends TypeSpecificData { // TODO remember the vampire 
     }
     
     @Override
-    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity entity) {
+    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayer entity) {
         PacketManager.sendToClient(new TrZombieDataPacket(user.getId(), this), entity);
     }
 }

@@ -1,9 +1,9 @@
 package com.github.standobyte.jojo.client.render.entity.animnew;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class ModelPartDefaultState {
-    public final ModelRenderer modelPart;
+    public final ModelPart modelPart;
     public final IModelRendererScale modelPartScale;
     public final float x;
     public final float y;
@@ -12,13 +12,13 @@ public class ModelPartDefaultState {
     public final float yRot;
     public final float zRot;
     
-    public static ModelPartDefaultState fromModelPart(ModelRenderer modelPart) {
+    public static ModelPartDefaultState fromModelPart(ModelPart modelPart) {
         return modelPart == null ? null : new ModelPartDefaultState(modelPart, 
                 modelPart.x, modelPart.y, modelPart.z, 
                 modelPart.xRot, modelPart.yRot, modelPart.zRot);
     }
     
-    public ModelPartDefaultState(ModelRenderer modelPart, 
+    public ModelPartDefaultState(ModelPart modelPart, 
             float x, float y, float z, 
             float xRot, float yRot, float zRot) {
         this.modelPart = modelPart;

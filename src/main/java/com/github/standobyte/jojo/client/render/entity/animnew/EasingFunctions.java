@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.entity.animnew;
 
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class EasingFunctions {
     // The MIT license notice below applies to the easing functions below except for
@@ -42,7 +42,7 @@ public class EasingFunctions {
      * http://easings.net/#easeInSine
      */
     static float sin(float t) {
-        return 1 - MathHelper.cos((float) ((t * Math.PI) / 2));
+        return 1 - Mth.cos((float) ((t * Math.PI) / 2));
     }
     
     /**
@@ -83,7 +83,7 @@ public class EasingFunctions {
      * http://easings.net/#easeInCirc
      */
     static float circle(float t) {
-        return 1 - MathHelper.sqrt(1 - t * t);
+        return 1 - Mth.sqrt(1 - t * t);
     }
     
     static Float2FloatFunction step(Float stepArg) {
@@ -113,7 +113,7 @@ public class EasingFunctions {
      */
     static Float2FloatFunction elastic(Float bounciness) {
         float p = (bounciness == null ? 1 : bounciness) * (float) Math.PI;
-        return t -> 1 - (float) Math.pow(MathHelper.cos((t * (float) Math.PI) / 2), 3) * MathHelper.cos(t * p);
+        return t -> 1 - (float) Math.pow(Mth.cos((t * (float) Math.PI) / 2), 3) * Mth.cos(t * p);
     }
     
 

@@ -15,19 +15,18 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -44,8 +43,8 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
     void postTick();
     boolean isActive();
     
-    default ITextComponent getName() {
-        return hasPower() ? getType().getName() : StringTextComponent.EMPTY;
+    default Component getName() {
+        return hasPower() ? getType().getName() : Component.empty();
     }
     
     boolean isActionOnCooldown(Action<?> action);
@@ -56,12 +55,12 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
     void resetCooldowns();
     ActionCooldownTracker getCooldowns();
     
-    boolean clickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable PacketBuffer extraInput);
+    boolean clickAction(Action<P> action, boolean sneak, ActionTarget target, @Nullable FriendlyByteBuf extraInput);
     ActionConditionResult checkRequirements(Action<P> action, ObjectWrapper<ActionTarget> targetContainer, boolean checkTargetType);
     ActionConditionResult checkTarget(Action<P> action, ObjectWrapper<ActionTarget> targetContainer);
     boolean canUsePower();
     
-    default RayTraceResult clientHitResult(Entity cameraEntity, RayTraceResult mcHitResult) {
+    default HitResult clientHitResult(Entity cameraEntity, HitResult mcHitResult) {
         return getType() != null ? getType().clientHitResult((P) this, cameraEntity, mcHitResult) : mcHitResult;
     }
     
@@ -107,30 +106,30 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
         }
     }
     
-    INBT writeNBT();
-    void readNBT(CompoundNBT nbt);
+    Tag writeNBT();
+    void readNBT(CompoundTag nbt);
     void onClone(P oldPower, boolean wasDeath);
     void syncWithUserOnly();
-    void syncWithTrackingOrUser(ServerPlayerEntity player);
+    void syncWithTrackingOrUser(ServerPlayer player);
 
     public static LazyOptional<? extends IPower<?, ?>> getPowerOptional(LivingEntity entity, PowerClassification classification) {
         return classification == PowerClassification.STAND ? IStandPower.getStandPowerOptional(entity) : INonStandPower.getNonStandPowerOptional(entity);
     }
 
-    public static IPower<?, ?> getPlayerPower(PlayerEntity player, PowerClassification classification) {
+    public static IPower<?, ?> getPlayerPower(Player player, PowerClassification classification) {
         return classification == PowerClassification.STAND ? IStandPower.getPlayerStandPower(player) : INonStandPower.getPlayerNonStandPower(player);
     }
     
     public static enum PowerClassification {
         STAND(IStandPower.class) {
             @Override
-            public void writePowerType(IPowerType<?, ?> powerType, PacketBuffer buf) {
+            public void writePowerType(IPowerType<?, ?> powerType, FriendlyByteBuf buf) {
                 buf.writeRegistryId((StandType<?>) powerType);
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            public IPowerType<?, ?> readPowerType(PacketBuffer buf) {
+            public IPowerType<?, ?> readPowerType(FriendlyByteBuf buf) {
                 return buf.readRegistryIdSafe(StandType.class);
             }
 
@@ -145,13 +144,13 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
         },
         NON_STAND(INonStandPower.class) {
             @Override
-            public void writePowerType(IPowerType<?, ?> powerType, PacketBuffer buf) {
+            public void writePowerType(IPowerType<?, ?> powerType, FriendlyByteBuf buf) {
                 buf.writeRegistryId((NonStandPowerType<?>) powerType);
             }
 
             @SuppressWarnings("unchecked")
             @Override
-            public IPowerType<?, ?> readPowerType(PacketBuffer buf) {
+            public IPowerType<?, ?> readPowerType(FriendlyByteBuf buf) {
                 return buf.readRegistryIdSafe(NonStandPowerType.class);
             }
 
@@ -175,8 +174,8 @@ public interface IPower<P extends IPower<P, T>, T extends IPowerType<P, T>> {
             return powerClass;
         }
         
-        public abstract void writePowerType(IPowerType<?, ?> powerType, PacketBuffer buf);
-        public abstract IPowerType<?, ?> readPowerType(PacketBuffer buf);
+        public abstract void writePowerType(IPowerType<?, ?> powerType, FriendlyByteBuf buf);
+        public abstract IPowerType<?, ?> readPowerType(FriendlyByteBuf buf);
         @Nullable public abstract IPowerType<?, ?> getFromRegistryId(ResourceLocation id);
     }
     

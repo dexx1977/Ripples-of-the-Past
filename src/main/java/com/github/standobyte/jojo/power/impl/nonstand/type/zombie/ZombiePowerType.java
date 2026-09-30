@@ -7,11 +7,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class ZombiePowerType extends NonStandPowerType<ZombieData> {
     public static final int COLOR = 0x99BB00;
@@ -31,7 +31,7 @@ public class ZombiePowerType extends NonStandPowerType<ZombieData> {
     
     @Override
     public float getMaxEnergy(INonStandPower power) {
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         return super.getMaxEnergy(power) * GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).maxBloodMultiplier.get(), world.getDifficulty().getId())
                 .floatValue();
@@ -39,7 +39,7 @@ public class ZombiePowerType extends NonStandPowerType<ZombieData> {
     
     @Override
     public float tickEnergy(INonStandPower power) {
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         float inc = -GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).bloodTickDown.get(), world.getDifficulty().getId())
                 .floatValue();
@@ -81,27 +81,27 @@ public class ZombiePowerType extends NonStandPowerType<ZombieData> {
     @Override
     protected void initPassiveEffects() {
         initAllPossibleEffects(
-                () -> Effects.HEALTH_BOOST,
-                () -> Effects.DAMAGE_BOOST,
-                () -> Effects.MOVEMENT_SPEED,
-                () -> Effects.DIG_SPEED,
-                () -> Effects.JUMP,
-                () -> Effects.NIGHT_VISION);
+                () -> MobEffects.HEALTH_BOOST,
+                () -> MobEffects.DAMAGE_BOOST,
+                () -> MobEffects.MOVEMENT_SPEED,
+                () -> MobEffects.DIG_SPEED,
+                () -> MobEffects.JUMP,
+                () -> MobEffects.NIGHT_VISION);
     }
     
     @Override
-    public int getPassiveEffectLevel(Effect effect, INonStandPower power) {
+    public int getPassiveEffectLevel(MobEffect effect, INonStandPower power) {
         LivingEntity entity = power.getUser();
         int difficulty = entity.level.getDifficulty().getId();
         int bloodLevel = bloodLevel(power, difficulty);
         boolean disguiseEnabled = power.getTypeSpecificData(this).get().isDisguiseEnabled();
         
-        if (effect == Effects.HEALTH_BOOST)                                 return difficulty * 2;
-        if (effect == Effects.DAMAGE_BOOST)                                 return disguiseEnabled ? -1 : bloodLevel - 5;
-        if (effect == Effects.MOVEMENT_SPEED)                               return disguiseEnabled ? -1 : bloodLevel - 5;
-        if (effect == Effects.DIG_SPEED)                                    return disguiseEnabled ? -1 : bloodLevel - 5;
-        if (effect == Effects.JUMP)                                         return disguiseEnabled ? -1 : bloodLevel - 5;
-        if (effect == Effects.NIGHT_VISION)                                 return 0;
+        if (effect == MobEffects.HEALTH_BOOST)                                 return difficulty * 2;
+        if (effect == MobEffects.DAMAGE_BOOST)                                 return disguiseEnabled ? -1 : bloodLevel - 5;
+        if (effect == MobEffects.MOVEMENT_SPEED)                               return disguiseEnabled ? -1 : bloodLevel - 5;
+        if (effect == MobEffects.DIG_SPEED)                                    return disguiseEnabled ? -1 : bloodLevel - 5;
+        if (effect == MobEffects.JUMP)                                         return disguiseEnabled ? -1 : bloodLevel - 5;
+        if (effect == MobEffects.NIGHT_VISION)                                 return 0;
         
         return -1;
     }
@@ -112,8 +112,8 @@ public class ZombiePowerType extends NonStandPowerType<ZombieData> {
         ZombieData zombie = power.getTypeSpecificData(this).get();
         zombie.tick();
         if (!entity.level.isClientSide()) {
-            if (entity instanceof PlayerEntity) {
-                ((PlayerEntity) entity).getFoodData().setFoodLevel(17);
+            if (entity instanceof Player) {
+                ((Player) entity).getFoodData().setFoodLevel(17);
             }
             entity.setAirSupply(entity.getMaxAirSupply());
             

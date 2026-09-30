@@ -11,9 +11,9 @@ import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 public class MagiciansRedRedBind extends StandEntityAction {
     public static final StandPose RED_BIND_POSE = new StandPose("redBind");
@@ -23,7 +23,7 @@ public class MagiciansRedRedBind extends StandEntityAction {
     }
 
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             standEntity.addProjectile(new MRRedBindEntity(world, standEntity));
             standEntity.playSound(ModSounds.MAGICIANS_RED_RED_BIND.get(), 1.0F, 1.0F);
@@ -31,7 +31,7 @@ public class MagiciansRedRedBind extends StandEntityAction {
     }
     
     @Override
-    public void stoppedHolding(World world, LivingEntity user, IStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, IStandPower power, int ticksHeld, boolean willFire) {
         invokeForStand(power, stand -> {
             if (stand.getCurrentTaskAction() == this) {
                 if (stand.willHeavyPunchBeFinisher() && getLandedRedBind(stand).isPresent()) {

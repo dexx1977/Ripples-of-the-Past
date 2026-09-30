@@ -14,10 +14,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Mth;
 
 public class HamonScarletOverdrive extends HamonSunlightYellowOverdrive {
 
@@ -33,8 +33,8 @@ public class HamonScarletOverdrive extends HamonSunlightYellowOverdrive {
     @Override
     public Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            getPlayerAnim().setAttackAnim((PlayerEntity) user);
+        if (user.level.isClientSide() && user instanceof Player) {
+            getPlayerAnim().setAttackAnim((Player) user);
         }
         return new HamonScarletOverdrive.Instance(user, userCap, power, this, getSpentEnergy(power));
     }
@@ -55,7 +55,7 @@ public class HamonScarletOverdrive extends HamonSunlightYellowOverdrive {
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 1.0f);
-                    user.swing(Hand.OFF_HAND, true);
+                    user.swing(InteractionHand.OFF_HAND, true);
                 }
                 break;
             case 4:
@@ -77,7 +77,7 @@ public class HamonScarletOverdrive extends HamonSunlightYellowOverdrive {
             float efficiency = userHamon.getActionEfficiency(0, true, getAction().getUnlockingSkill());
             float damage = 2.5F + 5F * energySpentRatio;
             damage *= efficiency;
-            int fireSeconds = MathHelper.floor(2 + 8F * (float) userHamon.getHamonStrengthLevel() / (float) HamonData.MAX_STAT_LEVEL * efficiency);
+            int fireSeconds = Mth.floor(2 + 8F * (float) userHamon.getHamonStrengthLevel() / (float) HamonData.MAX_STAT_LEVEL * efficiency);
             float hamonDamage = damage;
             if (DamageUtil.dealDamageAndSetOnFire(target, 
                     entity -> DamageUtil.dealHamonDamage(entity, hamonDamage, user, null, attack -> attack.hamonParticle(ModParticles.HAMON_SPARK_RED.get())), 

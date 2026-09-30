@@ -11,32 +11,32 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.DispenserBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.dispenser.IPosition;
-import net.minecraft.dispenser.ProjectileDispenseBehavior;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ToolType;
 
 public class KnifeItem extends Item {
@@ -49,11 +49,11 @@ public class KnifeItem extends Item {
         builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", 2.0D, AttributeModifier.Operation.ADDITION));
         this.attributeModifiers = builder.build();
 
-        DispenserBlock.registerBehavior(this, new ProjectileDispenseBehavior() {
+        DispenserBlock.registerBehavior(this, new AbstractProjectileDispenseBehavior() {
             @Override
-            protected ProjectileEntity getProjectile(World world, IPosition position, ItemStack stack) {
+            protected Projectile getProjectile(Level world, Position position, ItemStack stack) {
                 KnifeEntity knife = new KnifeEntity(world, position.x(), position.y(), position.z());
-                knife.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+                knife.pickup = AbstractArrow.PickupStatus.ALLOWED;
                 return knife;
             }
         });
@@ -61,14 +61,14 @@ public class KnifeItem extends Item {
 
     public static final int MAX_KNIVES_THROW = 8;
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack handStack = player.getItemInHand(hand);
         int knivesToThrow = !player.isShiftKeyDown() ? Math.min(handStack.getCount(), MAX_KNIVES_THROW) : 1;
         if (!world.isClientSide()) {
-            ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
+            ItemStack headStack = player.getItemBySlot(EquipmentSlot.HEAD);
             if (handStack.getCount() == 1 && headStack.getItem() instanceof StoneMaskItem && BleedingEffect.applyStoneMask(player, headStack)) {
                 player.hurt(DamageSource.playerAttack(player), 1.0F);
-                return ActionResult.consume(handStack);
+                return InteractionResultHolder.consume(handStack);
             }
             
             for (int i = 0; i < knivesToThrow; i++) {
@@ -89,7 +89,7 @@ public class KnifeItem extends Item {
             
             world.playSound(null, player.getX(), player.getY(), player.getZ(), 
                     knivesToThrow == 1 ? ModSounds.KNIFE_THROW.get() : ModSounds.KNIVES_THROW.get(), 
-                            SoundCategory.PLAYERS, 0 * 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                            SoundSource.PLAYERS, 0 * 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
             
             int cooldown = knivesToThrow * 3;
             player.getCooldowns().addCooldown(this, cooldown);
@@ -103,7 +103,7 @@ public class KnifeItem extends Item {
                 }
             });
         }
-        return ActionResult.success(handStack);
+        return InteractionResultHolder.success(handStack);
     }
 
     @Override
@@ -126,8 +126,8 @@ public class KnifeItem extends Item {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
-        if (slot == EquipmentSlotType.MAINHAND && stack.getCount() == 1) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+        if (slot == EquipmentSlot.MAINHAND && stack.getCount() == 1) {
             return attributeModifiers;
         }
         return super.getAttributeModifiers(slot, stack);
@@ -136,14 +136,14 @@ public class KnifeItem extends Item {
     
     // axes are in shambles rn
     @Override
-    public ActionResultType useOn(ItemUseContext pContext) {
-        World world = pContext.getLevel();
+    public InteractionResult useOn(UseOnContext pContext) {
+        Level world = pContext.getLevel();
         BlockPos blockpos = pContext.getClickedPos();
         BlockState blockstate = world.getBlockState(blockpos);
         BlockState block = blockstate.getToolModifiedState(world, blockpos, pContext.getPlayer(), pContext.getItemInHand(), ToolType.AXE);
         if (block != null) {
-            PlayerEntity playerentity = pContext.getPlayer();
-            world.playSound(playerentity, blockpos, SoundEvents.AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            Player playerentity = pContext.getPlayer();
+            world.playSound(playerentity, blockpos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
             if (!world.isClientSide) {
                 world.setBlock(blockpos, block, 11);
 //                if (playerentity != null) {
@@ -153,9 +153,9 @@ public class KnifeItem extends Item {
 //                }
             }
 
-            return ActionResultType.sidedSuccess(world.isClientSide);
+            return InteractionResult.sidedSuccess(world.isClientSide);
         } else {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
     }
     

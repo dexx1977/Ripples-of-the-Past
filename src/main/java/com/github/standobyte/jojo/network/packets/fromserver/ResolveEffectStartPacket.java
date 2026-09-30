@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.ClientEventHandler;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ResolveEffectStartPacket {
     private final int effectAmplifier;
@@ -20,12 +20,12 @@ public class ResolveEffectStartPacket {
     public static class Handler implements IModPacketHandler<ResolveEffectStartPacket> {
 
         @Override
-        public void encode(ResolveEffectStartPacket msg, PacketBuffer buf) {
+        public void encode(ResolveEffectStartPacket msg, FriendlyByteBuf buf) {
             buf.writeVarInt(msg.effectAmplifier);
         }
 
         @Override
-        public ResolveEffectStartPacket decode(PacketBuffer buf) {
+        public ResolveEffectStartPacket decode(FriendlyByteBuf buf) {
             return new ResolveEffectStartPacket(buf.readVarInt());
         }
 

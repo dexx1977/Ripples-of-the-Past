@@ -33,16 +33,16 @@ import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISoundEventAccessor;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.client.sounds.Weighted;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -122,7 +122,7 @@ public class WalkmanSoundHandler {
             List<Track> tracksThisSide = cassetteTracks.get(currentSide);
             List<Track> tracksOppositeSide = cassetteTracks.get(currentSide.getOpposite());
             
-            int trackNumber = MathHelper.clamp(track.number, 0, tracksThisSide.size() - 1);
+            int trackNumber = Mth.clamp(track.number, 0, tracksThisSide.size() - 1);
 
             if (trackNumber < tracksThisSide.size() - 1) {
                 fastForwardTrack = TrackInfo.of(cassetteTracks, currentSide, trackNumber + 1);
@@ -144,7 +144,7 @@ public class WalkmanSoundHandler {
 
             if (!tracksOppositeSide.isEmpty()) {
                 int flipSideTrackNumber = Math.max(tracksThisSide.size(), tracksOppositeSide.size()) - 1 - trackNumber;
-                flipSideTrack = TrackInfo.of(cassetteTracks, currentSide.getOpposite(), MathHelper.clamp(flipSideTrackNumber, 0, tracksOppositeSide.size() - 1));
+                flipSideTrack = TrackInfo.of(cassetteTracks, currentSide.getOpposite(), Mth.clamp(flipSideTrackNumber, 0, tracksOppositeSide.size() - 1));
             }
             
             if (currentTrack != null) {
@@ -166,7 +166,7 @@ public class WalkmanSoundHandler {
                     playCurrentSoundAfterRewind = true;
                 }
                 else {
-                    WalkmanTrackSound newSound = new WalkmanTrackSound(track.track.getSound(), SoundCategory.RECORDS, null, distortion);
+                    WalkmanTrackSound newSound = new WalkmanTrackSound(track.track.getSound(), SoundSource.RECORDS, null, distortion);
                     currentSound = newSound;
                     newSound.setVolume(volume);
                     Minecraft mc = Minecraft.getInstance();
@@ -251,7 +251,7 @@ public class WalkmanSoundHandler {
                     }
                 }
                 
-                if (mc.options.getSoundSourceVolume(SoundCategory.MASTER) <= 0 ||
+                if (mc.options.getSoundSourceVolume(SoundSource.MASTER) <= 0 ||
                     mc.options.getSoundSourceVolume(currentSound.getSource()) <= 0) {
                     stopPlaying();
                 }
@@ -357,9 +357,9 @@ public class WalkmanSoundHandler {
     
     public static class Track {
         private final Sound sound;
-        private final Function<Boolean, IFormattableTextComponent> name;
+        private final Function<Boolean, MutableComponent> name;
         
-        private Track(Sound sound, Function<Boolean, IFormattableTextComponent> name) {
+        private Track(Sound sound, Function<Boolean, MutableComponent> name) {
             this.sound = sound;
             this.name = name;
         }
@@ -368,11 +368,11 @@ public class WalkmanSoundHandler {
             return sound;
         }
         
-        public IFormattableTextComponent getName() {
+        public MutableComponent getName() {
             return getName(false);
         }
         
-        public IFormattableTextComponent getName(boolean shortened) {
+        public MutableComponent getName(boolean shortened) {
             return name.apply(shortened);
         }
         
@@ -457,19 +457,19 @@ public class WalkmanSoundHandler {
         if (soundEvent == null) {
             return Stream.empty();
         }
-        SoundHandler soundManager = Minecraft.getInstance().getSoundManager();
-        SoundEventAccessor accessor = soundManager.getSoundEvent(soundEvent.getLocation());
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        WeighedSoundEvents accessor = soundManager.getSoundEvent(soundEvent.getLocation());
         if (accessor == null) Stream.empty();
         
         return unpackSoundsRecursive(soundManager, soundEvent, accessor);
     }
     
-    private static Stream<Pair<SoundEvent, Sound>> unpackSoundsRecursive(SoundHandler soundManager, SoundEvent soundEvent, ISoundEventAccessor<Sound> accessor) {
+    private static Stream<Pair<SoundEvent, Sound>> unpackSoundsRecursive(SoundManager soundManager, SoundEvent soundEvent, Weighted<Sound> accessor) {
         if (accessor == null) {
             return Stream.empty();
         }
-        if (accessor instanceof SoundEventAccessor) {
-            List<ISoundEventAccessor<Sound>> list = ClientReflection.getSubAccessorsList((SoundEventAccessor) accessor);
+        if (accessor instanceof WeighedSoundEvents) {
+            List<Weighted<Sound>> list = ClientReflection.getSubAccessorsList((WeighedSoundEvents) accessor);
             return list.stream().flatMap(sound -> unpackSoundsRecursive(soundManager, soundEvent, sound));
         }
         if (accessor instanceof Sound) {
@@ -482,7 +482,7 @@ public class WalkmanSoundHandler {
                     try {
                         field.setAccessible(true);
                         ResourceLocation id = (ResourceLocation) field.get(accessor);
-                        SoundEventAccessor nextAccessor = soundManager.getSoundEvent(id);
+                        WeighedSoundEvents nextAccessor = soundManager.getSoundEvent(id);
                         if (nextAccessor != null) {
                             return unpackSoundsRecursive(soundManager, soundEvent, nextAccessor);
                         }

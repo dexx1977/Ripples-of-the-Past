@@ -12,16 +12,16 @@ import com.github.standobyte.jojo.capability.world.TimeStopHandler;
 import com.github.standobyte.jojo.entity.IPassengerMixinReposition;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
-    @Shadow public World level;
+    @Shadow public Level level;
 
 //    @Shadow private int portalCooldown;
 //    @Shadow protected int portalTime;
@@ -30,7 +30,7 @@ public abstract class EntityMixin {
     private boolean repeatCollide;
     
     @Inject(method = "collide", at = @At("TAIL"), cancellable = true)
-    public void jojoCollideBreakBlocks(Vector3d movementVec, CallbackInfoReturnable<Vector3d> ci) {
+    public void jojoCollideBreakBlocks(Vec3 movementVec, CallbackInfoReturnable<Vec3> ci) {
         if (repeatCollide) {
             repeatCollide = false;
             return;
@@ -41,14 +41,14 @@ public abstract class EntityMixin {
         if (jojoKbCollision != null) {
             if (jojoKbCollision.collideBreakBlocks(movementVec, ci.getReturnValue(), level)) {
                 repeatCollide = true;
-                Vector3d repeatCollide = collide(movementVec);
+                Vec3 repeatCollide = collide(movementVec);
                 ci.setReturnValue(repeatCollide);
             }
         }
     }
     
     @Shadow
-    protected abstract Vector3d collide(Vector3d pVec);
+    protected abstract Vec3 collide(Vec3 pVec);
     
     
     
@@ -58,9 +58,9 @@ public abstract class EntityMixin {
                     + "Lnet/minecraft/world/IBlockReader;"
                     + "Lnet/minecraft/util/math/BlockPos;)"
                     + "Lnet/minecraft/util/math/vector/Vector3d;"))
-    public Vector3d jojoTsCancelFluidPush(FluidState fluidState, IBlockReader world, BlockPos blockPos) {
+    public Vec3 jojoTsCancelFluidPush(FluidState fluidState, BlockGetter world, BlockPos blockPos) {
         if (TimeStopHandler.isTimeStopped(level, blockPos)) {
-            return Vector3d.ZERO;
+            return Vec3.ZERO;
         }
         return fluidState.getFlow(world, blockPos);
     }
@@ -73,7 +73,7 @@ public abstract class EntityMixin {
     public void jojoRepositionPassenger(Entity passenger, Entity.IMoveCallback moveMethod, CallbackInfo ci) {
         Entity thisAsEntity = (Entity) (Object) this;
         if (passenger instanceof IPassengerMixinReposition && thisAsEntity.hasPassenger(passenger)) {
-            Vector3d passengerPosition = ((IPassengerMixinReposition) passenger).repositionPassenger(thisAsEntity);
+            Vec3 passengerPosition = ((IPassengerMixinReposition) passenger).repositionPassenger(thisAsEntity);
             if (passengerPosition != null) {
                 moveMethod.accept(passenger, passengerPosition.x, passengerPosition.y, passengerPosition.z);
             }

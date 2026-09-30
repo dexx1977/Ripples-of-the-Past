@@ -2,11 +2,11 @@ package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.stats.IStatFormatter;
+import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,14 +22,14 @@ public class ModCustomStats {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static final void registerCustomStats(RegistryEvent.Register<StatType<?>> event) {
-        registerCustomStat(VAMPIRE_PEOPLE_DRAINED, IStatFormatter.DEFAULT);
-        registerCustomStat(VAMPIRE_ANIMALS_DRAINED, IStatFormatter.DEFAULT);
-        registerCustomStat(VAMPIRE_ZOMBIES_CREATED, IStatFormatter.DEFAULT);
-        registerCustomStat(VAMPIRE_ZOMBIES_SUMMONED, IStatFormatter.DEFAULT);
-        registerCustomStat(RPS_WON, IStatFormatter.DEFAULT);
+        registerCustomStat(VAMPIRE_PEOPLE_DRAINED, StatFormatter.DEFAULT);
+        registerCustomStat(VAMPIRE_ANIMALS_DRAINED, StatFormatter.DEFAULT);
+        registerCustomStat(VAMPIRE_ZOMBIES_CREATED, StatFormatter.DEFAULT);
+        registerCustomStat(VAMPIRE_ZOMBIES_SUMMONED, StatFormatter.DEFAULT);
+        registerCustomStat(RPS_WON, StatFormatter.DEFAULT);
     }
 
-    private static ResourceLocation registerCustomStat(ResourceLocation resLoc, IStatFormatter statFormatter) {
+    private static ResourceLocation registerCustomStat(ResourceLocation resLoc, StatFormatter statFormatter) {
         Registry.register(Registry.CUSTOM_STAT, resLoc, resLoc);
         Stats.CUSTOM.get(resLoc, statFormatter);
         return resLoc;

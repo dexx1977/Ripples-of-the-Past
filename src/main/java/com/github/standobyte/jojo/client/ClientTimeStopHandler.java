@@ -7,13 +7,13 @@ import com.github.standobyte.jojo.client.render.world.shader.ShaderEffectApplier
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.ISound.AttenuationType;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.Timer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance.Attenuation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.client.Timer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 
 public class ClientTimeStopHandler implements ITicking {
     private static ClientTimeStopHandler instance;
@@ -160,11 +160,11 @@ public class ClientTimeStopHandler implements ITicking {
         return normalPartialTick;
     }
     
-    public boolean shouldCancelSound(ISound sound) {
-        return isTimeStopped && sound != null && sound.getAttenuation() == AttenuationType.LINEAR && (
+    public boolean shouldCancelSound(SoundInstance sound) {
+        return isTimeStopped && sound != null && sound.getAttenuation() == Attenuation.LINEAR && (
                 !canSeeInStoppedTime
-                || sound.getSource() == SoundCategory.WEATHER
-                || sound.getSource() == SoundCategory.BLOCKS);
+                || sound.getSource() == SoundSource.WEATHER
+                || sound.getSource() == SoundSource.BLOCKS);
     }
     
     

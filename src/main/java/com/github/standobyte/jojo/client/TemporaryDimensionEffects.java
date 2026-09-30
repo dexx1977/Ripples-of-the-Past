@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.client.world.DimensionRenderInfo;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ICloudRenderHandler;
 import net.minecraftforge.client.ISkyRenderHandler;
 import net.minecraftforge.client.IWeatherParticleRenderHandler;
@@ -54,7 +54,7 @@ public class TemporaryDimensionEffects {
         }
     }
     
-    public DimensionEffectsStack getEffectsStack(ClientWorld world) {
+    public DimensionEffectsStack getEffectsStack(ClientLevel world) {
         DimensionEffectsStack stack = effectsByDimension.computeIfAbsent(
                 world.dimension().location(), __ -> new DimensionEffectsStack(world));
         return stack;
@@ -66,12 +66,12 @@ public class TemporaryDimensionEffects {
         private DimensionEffect prevOtherEffects;
         private Stack<DimensionEffect> temporaryEffectsStack = new Stack<>();
         
-        private DimensionEffectsStack(ClientWorld world) {
+        private DimensionEffectsStack(ClientLevel world) {
             this.prevOtherEffects = new DimensionEffect();
             this.prevOtherEffects.saveEffects(world.effects());
         }
         
-        public boolean addEffect(ClientWorld world, DimensionEffect effect) {
+        public boolean addEffect(ClientLevel world, DimensionEffect effect) {
             if (temporaryEffectsStack.isEmpty() || temporaryEffectsStack.peek() != effect) {
                 temporaryEffectsStack.add(effect);
                 effect.isActive = true;
@@ -81,7 +81,7 @@ public class TemporaryDimensionEffects {
             return false;
         }
         
-        public boolean addEffectLast(ClientWorld world, DimensionEffect effect) {
+        public boolean addEffectLast(ClientLevel world, DimensionEffect effect) {
             if (temporaryEffectsStack.isEmpty() || temporaryEffectsStack.firstElement() != effect) {
                 temporaryEffectsStack.insertElementAt(effect, 0);
                 effect.isActive = true;
@@ -91,7 +91,7 @@ public class TemporaryDimensionEffects {
             return false;
         }
         
-        private boolean tick(ClientWorld world) {
+        private boolean tick(ClientLevel world) {
             Iterator<DimensionEffect> iter = temporaryEffectsStack.iterator();
             boolean updateEffects = false;
             while (iter.hasNext()) {
@@ -144,7 +144,7 @@ public class TemporaryDimensionEffects {
             return this;
         }
         
-        public void saveEffects(DimensionRenderInfo worldEffects) {
+        public void saveEffects(DimensionSpecialEffects worldEffects) {
             this
             .withWeatherRenderer(worldEffects.getWeatherRenderHandler())
             .withWeatherParticleRenderer(worldEffects.getWeatherParticleRenderHandler())
@@ -152,7 +152,7 @@ public class TemporaryDimensionEffects {
             .withCloudRenderer(worldEffects.getCloudRenderHandler());
         }
         
-        public void setTo(DimensionRenderInfo dimensionEffects) {
+        public void setTo(DimensionSpecialEffects dimensionEffects) {
             dimensionEffects.setWeatherRenderHandler(weatherRenderer);
             dimensionEffects.setWeatherParticleRenderHandler(weatherParticleRenderer);
             dimensionEffects.setSkyRenderHandler(skyRenderer);

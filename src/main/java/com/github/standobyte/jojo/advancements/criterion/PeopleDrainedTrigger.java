@@ -2,16 +2,16 @@ package com.github.standobyte.jojo.advancements.criterion;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate.AndPredicate;
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.resources.ResourceLocation;
 
-public class PeopleDrainedTrigger extends AbstractCriterionTrigger<PeopleDrainedTrigger.Instance> {
+public class PeopleDrainedTrigger extends SimpleCriterionTrigger<PeopleDrainedTrigger.Instance> {
     private final ResourceLocation id;
 
     public PeopleDrainedTrigger(ResourceLocation id) {
@@ -23,31 +23,31 @@ public class PeopleDrainedTrigger extends AbstractCriterionTrigger<PeopleDrained
         return id;
     }
 
-    public void trigger(ServerPlayerEntity player, int peopleDrained, int zombiesCreated) {
+    public void trigger(ServerPlayer player, int peopleDrained, int zombiesCreated) {
         trigger(player, criterion -> criterion.matches(peopleDrained, zombiesCreated));
     }
 
     @Override
-    protected PeopleDrainedTrigger.Instance createInstance(JsonObject json, AndPredicate playerPredicate,
-            ConditionArrayParser conditionArrayParser) {
+    protected PeopleDrainedTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
+            DeserializationContext conditionArrayParser) {
         return new PeopleDrainedTrigger.Instance(id, playerPredicate, 
-                MinMaxBounds.IntBound.fromJson(json.get("people_drained")), 
-                MinMaxBounds.IntBound.fromJson(json.get("zombies_created")));
+                MinMaxBounds.Ints.fromJson(json.get("people_drained")), 
+                MinMaxBounds.Ints.fromJson(json.get("zombies_created")));
     }
 
-    public static class Instance extends CriterionInstance {
-        private MinMaxBounds.IntBound peopleDrained;
-        private MinMaxBounds.IntBound zombiesCreated;
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        private MinMaxBounds.Ints peopleDrained;
+        private MinMaxBounds.Ints zombiesCreated;
 
-        public Instance(ResourceLocation criterion, AndPredicate player, 
-                MinMaxBounds.IntBound peopleDrained, MinMaxBounds.IntBound zombiesCreated) {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player, 
+                MinMaxBounds.Ints peopleDrained, MinMaxBounds.Ints zombiesCreated) {
             super(criterion, player);
             this.peopleDrained = peopleDrained;
             this.zombiesCreated = zombiesCreated;
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("people_drained", peopleDrained.serializeToJson());
             jsonobject.add("zombies_created", zombiesCreated.serializeToJson());

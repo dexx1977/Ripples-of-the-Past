@@ -10,10 +10,10 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData.Mode;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.level.Level;
 
 public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlayerAction<PillarmanErraticBlazeKing.Instance, INonStandPower> {
 
@@ -25,7 +25,7 @@ public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlaye
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -34,8 +34,8 @@ public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlaye
     @Override
     public PillarmanErraticBlazeKing.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.erraticBlazeKing.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.erraticBlazeKing.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -62,7 +62,7 @@ public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlaye
                     user.swing(Hand.MAIN_HAND, true);*/
                 	int n = 5;
                     for (int i = 0; i < n; i++) {
-                        Vector2f rotOffsets = MathUtil.xRotYRotOffsets((double) i / (double) n * Math.PI * 2, 10);
+                        Vec2 rotOffsets = MathUtil.xRotYRotOffsets((double) i / (double) n * Math.PI * 2, 10);
                         //addVeinProjectile(world, power, user, rotOffsets.x, rotOffsets.y, rotOffsets.x, rotOffsets.y - 0.6D);
                         addVeinProjectile(user.level, playerPower, user, rotOffsets.x, rotOffsets.y, -0.4, -0.45, 1);
                         addVeinProjectile(user.level, playerPower, user, rotOffsets.x, rotOffsets.y, 0.425, -0.575, 1);
@@ -83,8 +83,8 @@ public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlaye
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.erraticBlazeKing.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.erraticBlazeKing.setAnimEnabled((Player) user, false);
             }
         }
         
@@ -96,7 +96,7 @@ public class PillarmanErraticBlazeKing extends PillarmanAction implements IPlaye
         
     }
 
-    public static void addVeinProjectile(World world, INonStandPower power, LivingEntity user, float xRotDelta, float yRotDelta, double offsetX, double offsetY, double offsetZ) {
+    public static void addVeinProjectile(Level world, INonStandPower power, LivingEntity user, float xRotDelta, float yRotDelta, double offsetX, double offsetY, double offsetZ) {
         PillarmanVeinEntity string = new PillarmanVeinEntity(world, user, xRotDelta, yRotDelta, offsetX, offsetY, offsetZ);
         string.setLifeSpan(25);
         world.addFreshEntity(string);

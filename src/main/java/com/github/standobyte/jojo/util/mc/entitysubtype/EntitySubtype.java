@@ -13,12 +13,12 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Streams;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class EntitySubtype<T extends Entity> {
@@ -39,7 +39,7 @@ public class EntitySubtype<T extends Entity> {
         return BASE_SUBTYPES.computeIfAbsent(type.getRegistryName(), __ -> new EntitySubtype<>(type, null, null, null));
     }
     
-    public T create(World world) {
+    public T create(Level world) {
         T entity = vanillaType.create(world);
         if (onInstanceInit != null) {
             onInstanceInit.accept(entity);
@@ -55,7 +55,7 @@ public class EntitySubtype<T extends Entity> {
         return id;
     }
 
-    public ITextComponent getDescription() {
+    public Component getDescription() {
         return vanillaType.getDescription();
     }
     
@@ -108,11 +108,11 @@ public class EntitySubtype<T extends Entity> {
     }
     
     
-    public void toBuf(PacketBuffer buf) {
+    public void toBuf(FriendlyByteBuf buf) {
         buf.writeUtf(this.getId().toString());
     }
     
-    public static EntitySubtype<?> fromBuf(PacketBuffer buf) {
+    public static EntitySubtype<?> fromBuf(FriendlyByteBuf buf) {
         return getSubtype(new SubtypeResourceLocation(buf.readUtf()));
     }
 

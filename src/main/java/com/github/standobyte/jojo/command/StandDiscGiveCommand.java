@@ -14,21 +14,20 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
 
 public class StandDiscGiveCommand {
     
-    public static void register(CommandDispatcher<CommandSource> pDispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> pDispatcher) {
         pDispatcher.register(Commands.literal("standdisc").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("give").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("stand", new StandArgument())
                         .executes(ctx -> giveStandDisc(ctx.getSource(), StandArgument.getStandType(ctx, "stand"), EntityArgument.getPlayers(ctx, "targets"))))))
@@ -38,23 +37,23 @@ public class StandDiscGiveCommand {
         JojoCommandsCommand.addCommand("standdisc");
     }
     
-    private static int giveStandDisc(CommandSource source, StandType<?> standType, Collection<ServerPlayerEntity> targets) throws CommandSyntaxException {
+    private static int giveStandDisc(CommandSourceStack source, StandType<?> standType, Collection<ServerPlayer> targets) throws CommandSyntaxException {
         return giveStandDiscItem(source, standType, targets);
     }
     
-    private static int giveRandomStandDiscs(CommandSource source, Collection<ServerPlayerEntity> targets) throws CommandSyntaxException {
+    private static int giveRandomStandDiscs(CommandSourceStack source, Collection<ServerPlayer> targets) throws CommandSyntaxException {
         return giveStandDiscItem(source, null, targets);
     }
     
     /**
      * @param standType - if the argument is null, a random Stand is picked instead
      */
-    private static int giveStandDiscItem(CommandSource source, @Nullable StandType<?> standType, Collection<ServerPlayerEntity> targets) throws CommandSyntaxException {
+    private static int giveStandDiscItem(CommandSourceStack source, @Nullable StandType<?> standType, Collection<ServerPlayer> targets) throws CommandSyntaxException {
         int i = 0;
         boolean random = standType == null;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             if (random) {
-                Either<StandType<?>, ITextComponent> randomStandOrError = StandUtil.randomStandOrError(player, player.getRandom());
+                Either<StandType<?>, Component> randomStandOrError = StandUtil.randomStandOrError(player, player.getRandom());
                 randomStandOrError.ifRight(error -> source.sendFailure(error));
                 standType = randomStandOrError.left().orElse(null);
             }
@@ -71,9 +70,9 @@ public class StandDiscGiveCommand {
                     itemEntity.makeFakeItem();
                 }
 
-                player.level.playSound((PlayerEntity) null, 
+                player.level.playSound((Player) null, 
                         player.getX(), player.getY(), player.getZ(), 
-                        SoundEvents.ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, 
+                        SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, 
                         ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 player.inventoryMenu.broadcastChanges();
             } else {
@@ -89,11 +88,11 @@ public class StandDiscGiveCommand {
         
         if (i > 0) {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent("commands.give.success.single", 1, 
-                        new TranslationTextComponent(ModItems.STAND_DISC.get().getDescriptionId()), targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(Component.translatable("commands.give.success.single", 1, 
+                        Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(new TranslationTextComponent("commands.give.success.single", 1, 
-                        new TranslationTextComponent(ModItems.STAND_DISC.get().getDescriptionId()), i), true);
+                source.sendSuccess(Component.translatable("commands.give.success.single", 1, 
+                        Component.translatable(ModItems.STAND_DISC.get().getDescriptionId()), i), true);
             }
         }
         

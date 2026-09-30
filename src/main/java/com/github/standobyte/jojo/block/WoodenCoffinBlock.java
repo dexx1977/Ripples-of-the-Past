@@ -21,47 +21,47 @@ import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BedPart;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSetSpawnEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
@@ -71,24 +71,24 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-public class WoodenCoffinBlock extends HorizontalBlock {
+public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
     public static final BooleanProperty CLOSED = BooleanProperty.create("coffin_lid_closed");
     private final DyeColor color;
 
-    public WoodenCoffinBlock(DyeColor color, AbstractBlock.Properties properties) {
+    public WoodenCoffinBlock(DyeColor color, BlockBehaviour.Properties properties) {
         super(properties);
         this.color = color;
         this.registerDefaultState(stateDefinition.any().setValue(PART, BedPart.FOOT).setValue(OCCUPIED, false).setValue(CLOSED, false));
     }
 
     @Override
-    public boolean isBed(BlockState state, IBlockReader world, BlockPos pos, @Nullable Entity player) {
+    public boolean isBed(BlockState state, BlockGetter world, BlockPos pos, @Nullable Entity player) {
         return true;
     }
 
     @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos blockPos, 
-            PlayerEntity player, Hand hand, BlockRayTraceResult hitResult) {
+    public InteractionResult use(BlockState blockState, Level world, BlockPos blockPos, 
+            Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (world.isClientSide) {
             if (!BedBlock.canSetSpawn(world)) {
                 Random random = world.random;
@@ -104,13 +104,13 @@ public class WoodenCoffinBlock extends HorizontalBlock {
                     }
                 }
             }
-            return ActionResultType.CONSUME;
+            return InteractionResult.CONSUME;
         } else {
             if (blockState.getValue(PART) != BedPart.HEAD) {
                 blockPos = blockPos.relative(blockState.getValue(FACING));
                 blockState = world.getBlockState(blockPos);
                 if (!blockState.is(this)) {
-                    return ActionResultType.CONSUME;
+                    return InteractionResult.CONSUME;
                 }
             }
             if (!BedBlock.canSetSpawn(world)) {
@@ -120,41 +120,41 @@ public class WoodenCoffinBlock extends HorizontalBlock {
                     world.removeBlock(neighborPos, false);
                 }
 
-                world.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(blockPos).inflate(6), 
-                        EntityPredicates.ENTITY_STILL_ALIVE.and(EntityPredicates.NO_SPECTATORS))
+                world.getEntitiesOfClass(LivingEntity.class, new AABB(blockPos).inflate(6), 
+                        EntitySelector.ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS))
                 .forEach(entity -> {
-                    entity.addEffect(new EffectInstance(Effects.BLINDNESS, 100));
+                    entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
                     entity.clearFire();
                 });
                 world.explode(null, DamageSource.badRespawnPointExplosion(), null, 
-                        blockPos.getX() + 0.5D, blockPos.getY() + 0.5D, blockPos.getZ() + 0.5D, 5.0F, false, Explosion.Mode.DESTROY);
-                GameplayEventHandler.splashBlood(world, Vector3d.atCenterOf(blockPos), 16, 10, Optional.empty());
+                        blockPos.getX() + 0.5D, blockPos.getY() + 0.5D, blockPos.getZ() + 0.5D, 5.0F, false, Explosion.BlockInteraction.DESTROY);
+                GameplayEventHandler.splashBlood(world, Vec3.atCenterOf(blockPos), 16, 10, Optional.empty());
                 
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             } else {
                 sleepInsideCoffin(player, world, blockPos, blockState, false);
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
     }
     
-    private static void sleepInsideCoffin(PlayerEntity player, World world, 
+    private static void sleepInsideCoffin(Player player, Level world, 
             BlockPos blockPos, BlockState blockState, boolean vampireRespawn) {
         boolean occupied = blockState.getValue(OCCUPIED);
         if (player.isShiftKeyDown() || occupied) {
             world.setBlock(blockPos, blockState.setValue(CLOSED, !blockState.getValue(CLOSED)), 3);
             if (!player.isShiftKeyDown() && occupied) {
-                player.displayClientMessage(new TranslationTextComponent("block.minecraft.bed.occupied"), true);
+                player.displayClientMessage(Component.translatable("block.minecraft.bed.occupied"), true);
             }
         } else {
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(
                     playerData -> playerData.onSleepingInCoffin(vampireRespawn));
             BlockPos coffinPos = blockPos;
-            Either<PlayerEntity.SleepResult, Unit> sleepResult = player.startSleepInBed(blockPos);
+            Either<Player.SleepResult, Unit> sleepResult = player.startSleepInBed(blockPos);
             sleepResult.ifLeft(failed -> {
                 if (failed != null) {
-                    if (!world.isClientSide() && failed == PlayerEntity.SleepResult.NOT_SAFE) {
-                        forseSleep((ServerPlayerEntity) player, coffinPos);
+                    if (!world.isClientSide() && failed == Player.SleepResult.NOT_SAFE) {
+                        forseSleep((ServerPlayer) player, coffinPos);
                     }
                     else {
                         player.displayClientMessage(failed.getMessage(), true);
@@ -162,27 +162,27 @@ public class WoodenCoffinBlock extends HorizontalBlock {
                 }
             });
             if (player.isSleeping()) {
-                Vector3d sleepingPos = new Vector3d(
+                Vec3 sleepingPos = new Vec3(
                         blockPos.getX() + 0.5, 
                         blockPos.getY() + 0.1875, 
                         blockPos.getZ() + 0.5);
                 Direction dir = blockState.getBedDirection(world, coffinPos);
-                sleepingPos = sleepingPos.add(Vector3d.atLowerCornerOf(dir.getNormal()).scale(0.085));
+                sleepingPos = sleepingPos.add(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.085));
                 player.teleportTo(sleepingPos.x, sleepingPos.y, sleepingPos.z);
             }
         }
     }
     
-    private static void forseSleep(ServerPlayerEntity player, BlockPos blockPos) {
+    private static void forseSleep(ServerPlayer player, BlockPos blockPos) {
         player.startSleeping(blockPos);
         CommonReflection.setSleepCounter(player, 0);
         player.awardStat(Stats.SLEEP_IN_BED);
         CriteriaTriggers.SLEPT_IN_BED.trigger(player);
-        ((ServerWorld) player.level).updateSleepingPlayerList();
+        ((ServerLevel) player.level).updateSleepingPlayerList();
     }
     
     @Override
-    public void setBedOccupied(BlockState state, World world, BlockPos pos, LivingEntity sleeper, boolean occupied) {
+    public void setBedOccupied(BlockState state, Level world, BlockPos pos, LivingEntity sleeper, boolean occupied) {
         super.setBedOccupied(state, world, pos, sleeper, occupied);
         world.setBlock(pos, state.setValue(OCCUPIED, occupied).setValue(CLOSED, occupied), 3);
     }
@@ -193,7 +193,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     
         @SubscribeEvent
         public static void setRespawnLocation(PlayerSetSpawnEvent event) {
-            if (isBlockCoffin(event.getEntityLiving().level, Optional.ofNullable(event.getNewSpawn()))
+            if (isBlockCoffin(event.getEntity().level, Optional.ofNullable(event.getNewSpawn()))
                     && !isEntityVampire(event.getPlayer())) {
                 event.setCanceled(true);
             }
@@ -201,15 +201,15 @@ public class WoodenCoffinBlock extends HorizontalBlock {
         
         @SubscribeEvent
         public static void canSleepAtTime(SleepingTimeCheckEvent event) {
-            if (isBlockCoffin(event.getEntityLiving().level, event.getSleepingLocation())) {
+            if (isBlockCoffin(event.getEntity().level, event.getSleepingLocation())) {
                 event.setResult(Result.ALLOW);
             }
         }
         
         @SubscribeEvent
         public static void setCoffinTime(SleepFinishedTimeEvent event) {
-            if (event.getWorld() instanceof ServerWorld) {
-                ServerWorld world = (ServerWorld) event.getWorld();
+            if (event.getWorld() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getWorld();
                 int playersCount = world.players().size();
                 if (world.players().stream()
                         .filter(player -> player.isSleeping() && isBlockCoffin(player.level, Optional.of(player.blockPosition())))
@@ -223,8 +223,8 @@ public class WoodenCoffinBlock extends HorizontalBlock {
         
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void skippedToNight(SleepFinishedTimeEvent event) {
-            if (event.getWorld() instanceof ServerWorld) {
-                ServerWorld world = (ServerWorld) event.getWorld();
+            if (event.getWorld() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getWorld();
                 world.players().stream()
                 .filter(player -> player.isSleeping())
                 .forEach(player -> {
@@ -233,7 +233,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
                     if (isCoffin) {
                         if (player.hasEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get())) {
                             player.removeEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
-                            player.removeEffect(Effects.WEAKNESS);
+                            player.removeEffect(MobEffects.WEAKNESS);
                         }
                         long oldTime = event.getWorld().getLevelData().getDayTime();
                         int oldDayTime = (int) (oldTime % 24000L);
@@ -249,11 +249,11 @@ public class WoodenCoffinBlock extends HorizontalBlock {
         
         @SubscribeEvent
         public static void onServerPlayerRespawn(PlayerRespawnEvent event) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            ServerPlayer player = (ServerPlayer) event.getPlayer();
             respawnInsideCoffin(player, player.getRespawnPosition());
         }
         
-        public static void respawnInsideCoffin(PlayerEntity player, BlockPos respawnPos) {
+        public static void respawnInsideCoffin(Player player, BlockPos respawnPos) {
             if (isEntityVampire(player) && respawnPos != null) {
                 BlockState blockState = player.level.getBlockState(respawnPos);
                 if (blockState.getBlock() instanceof WoodenCoffinBlock) {
@@ -269,7 +269,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
         return isBlockCoffin(entity.level, entity.getSleepingPos());
     }
     
-    public static boolean isBlockCoffin(World world, Optional<BlockPos> blockPos) {
+    public static boolean isBlockCoffin(Level world, Optional<BlockPos> blockPos) {
         return blockPos.map(pos -> world.getBlockState(pos).getBlock() instanceof WoodenCoffinBlock).orElse(false);
     }
     
@@ -280,7 +280,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
 
     @SuppressWarnings("deprecation")
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (direction == getNeighbourDirection(state.getValue(PART), state.getValue(FACING))) {
             return neighborState.is(this) && neighborState.getValue(PART) != state.getValue(PART) ? 
                     state.setValue(OCCUPIED, neighborState.getValue(OCCUPIED)).setValue(CLOSED, neighborState.getValue(CLOSED))
@@ -295,7 +295,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     }
 
     @Override
-    public void playerWillDestroy(World p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, PlayerEntity p_176208_4_) {
+    public void playerWillDestroy(Level p_176208_1_, BlockPos p_176208_2_, BlockState p_176208_3_, Player p_176208_4_) {
         if (!p_176208_1_.isClientSide && p_176208_4_.isCreative()) {
             BedPart bedpart = p_176208_3_.getValue(PART);
             if (bedpart == BedPart.FOOT) {
@@ -312,7 +312,7 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext p_196258_1_) {
+    public BlockState getStateForPlacement(BlockPlaceContext p_196258_1_) {
         Direction direction = p_196258_1_.getHorizontalDirection();
         BlockPos blockpos = p_196258_1_.getClickedPos();
         BlockPos blockpos1 = blockpos.relative(direction);
@@ -326,13 +326,13 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     private static final VoxelShape BOTTOM = Block.box(0, 0, 0, 16, 2, 16);
     
     protected static final VoxelShape SHAPE_CLOSED = Block.box(0, 0, 0, 16, 13, 16);
-    protected static final VoxelShape SHAPE_OPEN_W = VoxelShapes.or(BOTTOM, WALL_2, WALL_3, WALL_4);
-    protected static final VoxelShape SHAPE_OPEN_E = VoxelShapes.or(BOTTOM, WALL_1, WALL_3, WALL_4);
-    protected static final VoxelShape SHAPE_OPEN_N = VoxelShapes.or(BOTTOM, WALL_1, WALL_2, WALL_4);
-    protected static final VoxelShape SHAPE_OPEN_S = VoxelShapes.or(BOTTOM, WALL_1, WALL_2, WALL_3);
+    protected static final VoxelShape SHAPE_OPEN_W = Shapes.or(BOTTOM, WALL_2, WALL_3, WALL_4);
+    protected static final VoxelShape SHAPE_OPEN_E = Shapes.or(BOTTOM, WALL_1, WALL_3, WALL_4);
+    protected static final VoxelShape SHAPE_OPEN_N = Shapes.or(BOTTOM, WALL_1, WALL_2, WALL_4);
+    protected static final VoxelShape SHAPE_OPEN_S = Shapes.or(BOTTOM, WALL_1, WALL_2, WALL_3);
     @Deprecated
     @Override
-    public VoxelShape getShape(BlockState blockState, IBlockReader world, BlockPos pos, ISelectionContext p_220053_4_) {
+    public VoxelShape getShape(BlockState blockState, BlockGetter world, BlockPos pos, CollisionContext p_220053_4_) {
         if (blockState.getValue(CLOSED)) {
             return SHAPE_CLOSED;
         }
@@ -365,12 +365,12 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> p_206840_1_) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> p_206840_1_) {
         p_206840_1_.add(FACING, PART, OCCUPIED, CLOSED);
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack item) {
+    public void setPlacedBy(Level world, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity entity, ItemStack item) {
         super.setPlacedBy(world, blockPos, blockState, entity, item);
         if (!world.isClientSide) {
             BlockPos blockpos = blockPos.relative(blockState.getValue(FACING));
@@ -388,21 +388,21 @@ public class WoodenCoffinBlock extends HorizontalBlock {
     @Override
     public long getSeed(BlockState p_209900_1_, BlockPos p_209900_2_) {
         BlockPos blockpos = p_209900_2_.relative(p_209900_1_.getValue(FACING), p_209900_1_.getValue(PART) == BedPart.HEAD ? 0 : 1);
-        return MathHelper.getSeed(blockpos.getX(), p_209900_2_.getY(), blockpos.getZ());
+        return Mth.getSeed(blockpos.getX(), p_209900_2_.getY(), blockpos.getZ());
     }
 
     @Override
-    public boolean isPathfindable(BlockState p_196266_1_, IBlockReader p_196266_2_, BlockPos p_196266_3_, PathType p_196266_4_) {
+    public boolean isPathfindable(BlockState p_196266_1_, BlockGetter p_196266_2_, BlockPos p_196266_3_, PathComputationType p_196266_4_) {
         return false;
     }
     
     @Override
-    public int getFireSpreadSpeed(BlockState state, IBlockReader world, BlockPos pos, Direction face) {
+    public int getFireSpreadSpeed(BlockState state, BlockGetter world, BlockPos pos, Direction face) {
         return 5;
     }
     
     @Override
-    public int getFlammability(BlockState state, IBlockReader world, BlockPos pos, Direction face) {
+    public int getFlammability(BlockState state, BlockGetter world, BlockPos pos, Direction face) {
         return 5;
     }
     

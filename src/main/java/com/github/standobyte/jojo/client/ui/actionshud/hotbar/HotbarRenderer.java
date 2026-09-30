@@ -2,13 +2,13 @@ package com.github.standobyte.jojo.client.ui.actionshud.hotbar;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ui.BlitFloat;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 @SuppressWarnings("deprecation")
 public class HotbarRenderer {
@@ -16,7 +16,7 @@ public class HotbarRenderer {
     
     public static final int EDGE_EXTRA_WIDTH = 15;
     
-    public static void renderHotbar(MatrixStack matrixStack, Minecraft mc, int x, int y, int slots, float alpha) {
+    public static void renderHotbar(PoseStack matrixStack, Minecraft mc, int x, int y, int slots, float alpha) {
         if (slots <= 0) return;
         mc.getTextureManager().bind(HOTBAR_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -30,7 +30,7 @@ public class HotbarRenderer {
         
     }
     
-    public static void renderHotbar(MatrixStack matrixStack, Minecraft mc, float x, float y, int slots, float alpha) {
+    public static void renderHotbar(PoseStack matrixStack, Minecraft mc, float x, float y, int slots, float alpha) {
         mc.getTextureManager().bind(HOTBAR_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
         
@@ -42,7 +42,7 @@ public class HotbarRenderer {
                 512, 512);
     }
     
-    public static void renderFoldingHotbar(MatrixStack matrixStack, Minecraft mc, float x, float y, HotbarFold hotbarFold, float alpha) {
+    public static void renderFoldingHotbar(PoseStack matrixStack, Minecraft mc, float x, float y, HotbarFold hotbarFold, float alpha) {
         int slotsCount = hotbarFold.getSlotsCount();
         if (slotsCount <= 0) return;
         mc.getTextureManager().bind(HOTBAR_LOCATION);
@@ -92,11 +92,11 @@ public class HotbarRenderer {
         
         static HotbarTexPosition getHotbarFromSlotsCount(int slots) {
             HotbarTexPosition[] values = values();
-            return values[MathHelper.clamp(slots - 1, 0, values.length - 1)];
+            return values[Mth.clamp(slots - 1, 0, values.length - 1)];
         }
     }
     
-    public static void renderSlotSelection(MatrixStack matrixStack, Minecraft mc, float slotX, float slotY, float hotbarAlpha, boolean greenSelection) {
+    public static void renderSlotSelection(PoseStack matrixStack, Minecraft mc, float slotX, float slotY, float hotbarAlpha, boolean greenSelection) {
         mc.getTextureManager().bind(HOTBAR_LOCATION);
         if (greenSelection) {
             RenderSystem.color4f(0.0F, 1.0F, 0.0F, hotbarAlpha);

@@ -5,14 +5,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
 
-@Mixin(AbstractBlock.class)
+@Mixin(BlockBehaviour.class)
 public abstract class AbstractBlockMixin {
 
     @Inject(method = "Lnet/minecraft/block/AbstractBlock;getCollisionShape("
@@ -21,5 +21,5 @@ public abstract class AbstractBlockMixin {
             + "Lnet/minecraft/util/math/BlockPos;"
             + "Lnet/minecraft/util/math/shapes/ISelectionContext;"
             + ")Lnet/minecraft/util/math/shapes/VoxelShape;", at = @At("HEAD"), cancellable = true)
-    public void changeCollisionShape(BlockState pState, IBlockReader pLevel, BlockPos pPos, ISelectionContext pContext, CallbackInfoReturnable<VoxelShape> ci) {}
+    public void changeCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext, CallbackInfoReturnable<VoxelShape> ci) {}
 }

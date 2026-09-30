@@ -2,14 +2,13 @@ package com.github.standobyte.jojo.util.mc.damage;
 
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
 public class StandEntityDamageSource extends EntityDamageSource implements IStandDamageSource, IModdedDamageSource {
     protected final IStandPower stand;
@@ -48,7 +47,7 @@ public class StandEntityDamageSource extends EntityDamageSource implements IStan
             } else {
                LivingEntity standUser = stand.getUser();
                return standUser != null && standUser instanceof LivingEntity 
-                       && !(standUser instanceof PlayerEntity);
+                       && !(standUser instanceof Player);
             }
         }
         return false;
@@ -65,7 +64,7 @@ public class StandEntityDamageSource extends EntityDamageSource implements IStan
 
     @Override
     public StandEntityDamageSource setKnockbackReduction(float factor) {
-        this.knockbackFactor = MathHelper.clamp(factor, 0, 1);
+        this.knockbackFactor = Mth.clamp(factor, 0, 1);
         return this;
     }
 
@@ -156,14 +155,14 @@ public class StandEntityDamageSource extends EntityDamageSource implements IStan
     }
 
     @Override
-    public ITextComponent getLocalizedDeathMessage(LivingEntity dead) {
+    public Component getLocalizedDeathMessage(LivingEntity dead) {
         if (showStandUserName && stand != null) {
             LivingEntity standUser = stand.getUser();
             if (standUser != null) {
-                return new TranslationTextComponent("death.attack." + msgId + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), entity.getDisplayName());
+                return Component.translatable("death.attack." + msgId + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), entity.getDisplayName());
             }
         }
-        return new TranslationTextComponent("death.attack." + msgId, dead.getDisplayName(), entity.getDisplayName());
+        return Component.translatable("death.attack." + msgId, dead.getDisplayName(), entity.getDisplayName());
     }
 
     @Override

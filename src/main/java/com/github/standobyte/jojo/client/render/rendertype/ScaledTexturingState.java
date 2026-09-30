@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.client.render.rendertype;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.renderer.RenderStateShard;
 
-public class ScaledTexturingState extends RenderState.TexturingState {
+public class ScaledTexturingState extends RenderStateShard.TexturingState {
     private final float xScale;
     private final float yScale;
 

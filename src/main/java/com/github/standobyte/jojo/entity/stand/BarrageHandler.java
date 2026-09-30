@@ -2,7 +2,7 @@ package com.github.standobyte.jojo.entity.stand;
 
 import java.util.Optional;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public class BarrageHandler {
 //    private final StandEntity stand;

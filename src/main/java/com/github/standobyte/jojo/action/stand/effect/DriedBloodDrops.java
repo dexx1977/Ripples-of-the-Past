@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.action.stand.effect;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
 
 public class DriedBloodDrops extends StandEffectInstance {
     private int disappearTicks = 0;
@@ -50,12 +50,12 @@ public class DriedBloodDrops extends StandEffectInstance {
     }
 
     @Override
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {
+    protected void writeAdditionalSaveData(CompoundTag nbt) {
         nbt.putInt("BloodTicks", disappearTicks);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         disappearTicks = nbt.getInt("BloodTicks");
     }
 

@@ -14,28 +14,28 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Session;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.User;
 
-public class ModSplashes extends ReloadListener<List<String>> {
+public class ModSplashes extends SimplePreparableReloadListener<List<String>> {
     private static final Random RANDOM = new Random();
     private final List<String> splashes = new ArrayList<>();
-    private final Session user;
+    private final User user;
     private final ResourceLocation location;
 
-    public ModSplashes(Session session, ResourceLocation location) {
+    public ModSplashes(User session, ResourceLocation location) {
         this.user = session;
         this.location = location;
     }
 
     @Override
-    protected List<String> prepare(IResourceManager resourceManager, IProfiler profiler) {
+    protected List<String> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         try (
-                IResource resource = resourceManager.getResource(location);
+                Resource resource = resourceManager.getResource(location);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
                 ) {
             return reader.lines()
@@ -48,7 +48,7 @@ public class ModSplashes extends ReloadListener<List<String>> {
     }
 
     @Override
-    protected void apply(List<String> splashes, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(List<String> splashes, ResourceManager resourceManager, ProfilerFiller profiler) {
         this.splashes.clear();
         this.splashes.addAll(splashes);
     }

@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 import com.google.common.collect.ObjectArrays;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class GeneralUtil {

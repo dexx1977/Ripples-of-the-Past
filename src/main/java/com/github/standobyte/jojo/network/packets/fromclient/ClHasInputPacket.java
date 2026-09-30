@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.capability.entity.living.LivingWallClimbing;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHasInputPacket {
     private final boolean hasInput;
@@ -32,19 +32,19 @@ public class ClHasInputPacket {
     public static class Handler implements IModPacketHandler<ClHasInputPacket> {
     
         @Override
-        public void encode(ClHasInputPacket msg, PacketBuffer buf) {
+        public void encode(ClHasInputPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.hasInput);
             buf.writeBoolean(msg.wallClimbing);
         }
 
         @Override
-        public ClHasInputPacket decode(PacketBuffer buf) {
+        public ClHasInputPacket decode(FriendlyByteBuf buf) {
             return new ClHasInputPacket(buf.readBoolean(), buf.readBoolean());
         }
 
         @Override
         public void handle(ClHasInputPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             if (msg.wallClimbing) {
                 LivingWallClimbing.getHandler(player).ifPresent(cap -> cap.wallClimbIsMoving = msg.hasInput);
             }

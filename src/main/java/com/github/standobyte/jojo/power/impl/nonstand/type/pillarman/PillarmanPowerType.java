@@ -11,11 +11,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanDa
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
     public static final int COLOR = 0xFFAA00;
@@ -41,7 +41,7 @@ public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
     
     @Override
     public float getMaxEnergy(INonStandPower power) {
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         return super.getMaxEnergy(power) * GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).maxBloodMultiplier.get(), world.getDifficulty().getId())
                 .floatValue() * power.getTypeSpecificData(this).get().getEvolutionStage();
@@ -49,7 +49,7 @@ public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
     
     @Override
     public float tickEnergy(INonStandPower power) {
-        World world = power.getUser().level;
+        Level world = power.getUser().level;
         float inc = -GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).bloodTickDown.get(), world.getDifficulty().getId())
                 .floatValue();
@@ -76,8 +76,8 @@ public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
         pillarman.tick();
         if (!entity.level.isClientSide()) {
             if (pillarman.getEvolutionStage() > 1) {
-                if (entity instanceof PlayerEntity) {
-                    ((PlayerEntity) entity).getFoodData().setFoodLevel(17);
+                if (entity instanceof Player) {
+                    ((Player) entity).getFoodData().setFoodLevel(17);
                 }
                 entity.setAirSupply(entity.getMaxAirSupply());
             }
@@ -90,16 +90,16 @@ public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
     @Override
     protected void initPassiveEffects() {
         initAllPossibleEffects(
-                () -> Effects.REGENERATION,
-                () -> Effects.NIGHT_VISION);
+                () -> MobEffects.REGENERATION,
+                () -> MobEffects.NIGHT_VISION);
     }
     
     @Override
-    public int getPassiveEffectLevel(Effect effect, INonStandPower power) {
+    public int getPassiveEffectLevel(MobEffect effect, INonStandPower power) {
         PillarmanData pillarman = power.getTypeSpecificData(this).get();
         if (pillarman.getEvolutionStage() == 1) return -1;
         
-        if (effect == Effects.REGENERATION) {
+        if (effect == MobEffects.REGENERATION) {
             float energyRatio = power.getEnergy() / power.getMaxEnergy();
             if (energyRatio >= 0.3f) {
                 return 1;
@@ -109,7 +109,7 @@ public class PillarmanPowerType extends NonStandPowerType<PillarmanData> {
             }
             return -1;
         }
-        if (effect == Effects.NIGHT_VISION) {
+        if (effect == MobEffects.NIGHT_VISION) {
             return 0;
         }
         return -1;

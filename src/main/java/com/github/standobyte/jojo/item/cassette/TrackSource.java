@@ -10,15 +10,15 @@ import com.github.standobyte.jojo.item.StandDiscItem;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.RecordItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 public abstract class TrackSource {
     protected final TrackSourceType type;
@@ -27,20 +27,20 @@ public abstract class TrackSource {
         this.type = type;
     }
     
-    protected CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    protected CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt("Type", type.ordinal() + 1);
         return nbt;
     }
 
     public abstract SoundEvent getSoundEvent();
     
-    public IFormattableTextComponent trackName(ResourceLocation trackId, boolean shortened) {
+    public MutableComponent trackName(ResourceLocation trackId, boolean shortened) {
         String key = getTranslationKey(trackId);
         if (shortened) {
             key = ClientUtil.getShortenedTranslationKey(key);
         }
-        return new TranslationTextComponent(key);
+        return Component.translatable(key);
     }
     
     protected abstract String getTranslationKey(ResourceLocation trackId);
@@ -48,8 +48,8 @@ public abstract class TrackSource {
     
     public static final TrackSource BROKEN_CASSETTE = new TrackSource(null) {
         @Override
-        protected CompoundNBT toNBT() {
-            CompoundNBT nbt = new CompoundNBT();
+        protected CompoundTag toNBT() {
+            CompoundTag nbt = new CompoundTag();
             nbt.putInt("Type", 0);
             return nbt;
         }
@@ -60,7 +60,7 @@ public abstract class TrackSource {
         }
         
         @Override
-        public IFormattableTextComponent trackName(ResourceLocation trackId, boolean shortened) {
+        public MutableComponent trackName(ResourceLocation trackId, boolean shortened) {
             return MCUtil.EMPTY_TEXT;
         }
         
@@ -77,12 +77,12 @@ public abstract class TrackSource {
             
             @Override
             public boolean isItemMusicSource(ItemStack item) {
-                return item.getItem() instanceof MusicDiscItem;
+                return item.getItem() instanceof RecordItem;
             }
             
             @Override
             public TrackSource getMusic(ItemStack item) {
-                return new TrackSourceMusicDisc((MusicDiscItem) item.getItem());
+                return new TrackSourceMusicDisc((RecordItem) item.getItem());
             }
         },
         
@@ -125,8 +125,8 @@ public abstract class TrackSource {
         };
 
         private final boolean spendCraftingItem;
-        private final Function<CompoundNBT, TrackSource> read;
-        private TrackSourceType(boolean spendCraftingItem, Function<CompoundNBT, TrackSource> read) {
+        private final Function<CompoundTag, TrackSource> read;
+        private TrackSourceType(boolean spendCraftingItem, Function<CompoundTag, TrackSource> read) {
             this.spendCraftingItem = spendCraftingItem;
             this.read = read;
         }
@@ -161,7 +161,7 @@ public abstract class TrackSource {
         }
         
         
-        public static TrackSource fromNBT(CompoundNBT nbt) {
+        public static TrackSource fromNBT(CompoundTag nbt) {
             TrackSource source = null;
             int type = nbt.getInt("Type");
             if (type > 0 && type <= values().length) {

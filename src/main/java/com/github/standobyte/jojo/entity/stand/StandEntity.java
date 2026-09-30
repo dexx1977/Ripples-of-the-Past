@@ -66,73 +66,73 @@ import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mc.damage.StandLinkDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.effect.LightningBoltEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.IDataSerializer;
-import net.minecraft.network.play.server.SAnimateHandPacket;
-import net.minecraft.network.play.server.SPlayEntityEffectPacket;
-import net.minecraft.network.play.server.SRemoveEntityEffectPacket;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.scores.Team;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.FMLPlayMessages;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.FMLPlayMessages;
+import net.minecraftforge.network.NetworkHooks;
 
 public class StandEntity extends LivingEntity implements IStandManifestation, IEntityAdditionalSpawnData {
-    protected static final DataParameter<Byte> STAND_FLAGS = EntityDataManager.defineId(StandEntity.class, DataSerializers.BYTE);
+    protected static final EntityDataAccessor<Byte> STAND_FLAGS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
 
     private final StandEntityType<?> type;
     private final double rangeEffective;
@@ -141,9 +141,9 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     private double staminaCondition = 1;
 
     private int summonPoseRandomByte;
-    private static final DataParameter<Byte> ARMS_ONLY_MODE = EntityDataManager.defineId(StandEntity.class, DataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> ARMS_ONLY_MODE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
     
-    private static final DataParameter<Integer> USER_ID = EntityDataManager.defineId(StandEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<Integer> USER_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
     private WeakReference<LivingEntity> userRef = new WeakReference<LivingEntity>(null);
     private IStandPower userPower;
     private StandRelativeOffset offsetDefault = StandRelativeOffset.withYOffset(-0.75, 0.2, -0.75);
@@ -154,32 +154,32 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     protected int offsetLerpMaxTicks;
     private Optional<PlayerClientBroadcastedSettings> playerSettings = Optional.empty();
     
-    private static final DataParameter<Boolean> SWING_OFF_HAND = EntityDataManager.defineId(StandEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> SWING_OFF_HAND = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BOOLEAN);
     private boolean alternateAdditionalSwing;
     private int lastSwingTick = -2;
-    private static final DataParameter<Integer> BARRAGE_CLASH_OPPONENT_ID = EntityDataManager.defineId(StandEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<Integer> BARRAGE_CLASH_OPPONENT_ID = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
     public final BarrageHandler barrageHandler = new BarrageHandler(this);
     
     private float blockDamage = 0;
     private float prevBlockDamage = 0;
     
-    private static final DataParameter<Float> FINISHER_VALUE = EntityDataManager.defineId(StandEntity.class, DataSerializers.FLOAT);
-    private static final DataParameter<Float> LAST_HEAVY_FINISHER_VALUE = EntityDataManager.defineId(StandEntity.class, DataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> LAST_HEAVY_FINISHER_VALUE = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.FLOAT);
     private float lastTickFinisherVal;
     private float finisherVal;
     private int noFinisherDecayTicks;
     public static final int FINISHER_NO_DECAY_TICKS = 40;
     private static final float FINISHER_DECAY = 0.025F;
     
-    private static final DataParameter<Optional<StandEntityTask>> CURRENT_TASK = EntityDataManager.defineId(StandEntity.class, 
-            (IDataSerializer<Optional<StandEntityTask>>) ModDataSerializers.STAND_ENTITY_TASK.get().getSerializer());
+    private static final EntityDataAccessor<Optional<StandEntityTask>> CURRENT_TASK = SynchedEntityData.defineId(StandEntity.class, 
+            (EntityDataSerializer<Optional<StandEntityTask>>) ModDataSerializers.STAND_ENTITY_TASK.get().getSerializer());
     // scheduled stand task
 //    @Nullable
 //    private StandEntityTask scheduledTask;
     private StandEntityAction inputBuffer;
     private Optional<StandEntityTask> lastTask = Optional.empty();
     
-    static final DataParameter<Byte> MANUAL_MOVEMENT_LOCK = EntityDataManager.defineId(StandEntity.class, DataSerializers.BYTE);
+    static final EntityDataAccessor<Byte> MANUAL_MOVEMENT_LOCK = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.BYTE);
     private ManualStandMovementLock manualMovementLocks = new ManualStandMovementLock(this);
     
     protected StandPose standPose = StandPose.SUMMON;
@@ -189,7 +189,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public int unsummonTicks;
     public StandRelativeOffset unsummonOffset = offsetDefault.copy();
     public int summonLockTicks;
-    private static final DataParameter<Integer> NO_BLOCKING_TICKS = EntityDataManager.defineId(StandEntity.class, DataSerializers.INT);
+    private static final EntityDataAccessor<Integer> NO_BLOCKING_TICKS = SynchedEntityData.defineId(StandEntity.class, EntityDataSerializers.INT);
     
     public int overlayTickCount = 0;
     private int alphaTicks;
@@ -208,15 +208,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 //    public double motionDist = 0;
 //    public double prevMotionDist = 0;
     
-    public List<Vector3d> tiltVecQueue = new ArrayList<>();
+    public List<Vec3> tiltVecQueue = new ArrayList<>();
 //    public Vector3d prevTiltVec = Vector3d.ZERO;
 //    public Vector3d tiltVec = Vector3d.ZERO;
     public boolean refreshGlowing = false;
     
-    public static final DataParameter<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = EntityDataManager.defineId(StandEntity.class, 
-            (IDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
+    public static final EntityDataAccessor<Optional<ResourceLocation>> DATA_PARAM_STAND_SKIN = SynchedEntityData.defineId(StandEntity.class, 
+            (EntityDataSerializer<Optional<ResourceLocation>>) ModDataSerializers.OPTIONAL_RES_LOC.get().getSerializer());
     
-    public StandEntity(StandEntityType<? extends StandEntity> type, World world) {
+    public StandEntity(StandEntityType<? extends StandEntity> type, Level world) {
         super(type, world);
         this.type = type;
         setNoGravity(standHasNoGravity());
@@ -270,7 +270,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
         super.onSyncedDataUpdated(dataParameter);
         if (STAND_FLAGS.equals(dataParameter)) {
             noPhysics = getStandFlag(StandFlag.NO_PHYSICS);
@@ -304,7 +304,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             });
         }
         else if (SWING_OFF_HAND.equals(dataParameter)) {
-            swingingArm = entityData.get(SWING_OFF_HAND) ? Hand.OFF_HAND : Hand.MAIN_HAND;
+            swingingArm = entityData.get(SWING_OFF_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         }
         else if (ARMS_ONLY_MODE.equals(dataParameter)) {
             onArmsOnlyModeUpdated();
@@ -337,7 +337,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
 
 
-    public static AttributeModifierMap.MutableAttribute createAttributes() {
+    public static AttributeSupplier.MutableAttribute createAttributes() {
         return LivingEntity.createLivingAttributes()
                 .add(Attributes.ATTACK_DAMAGE)
                 .add(Attributes.ATTACK_KNOCKBACK)
@@ -383,7 +383,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     private void applyAttributeModifier(Attribute attribute, UUID modifierId, String name, double value, Operation operation) {
-        ModifiableAttributeInstance attributeInstance = getAttribute(attribute);
+        AttributeInstance attributeInstance = getAttribute(attribute);
         if (attributeInstance != null) {
             attributeInstance.removeModifier(modifierId);
             attributeInstance.addTransientModifier(new AttributeModifier(modifierId, name, value, operation));
@@ -413,13 +413,13 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         updateModifier(getAttribute(ModEntityAttributes.STAND_PRECISION.get()), PRECISION_ARMS_ONLY, false);
     }
     
-    protected final void addModifier(ModifiableAttributeInstance attribute, AttributeModifier modifier) {
+    protected final void addModifier(AttributeInstance attribute, AttributeModifier modifier) {
         if (!attribute.hasModifier(modifier)) {
             attribute.addPermanentModifier(modifier);
         }
     }
     
-    protected final void updateModifier(ModifiableAttributeInstance attribute, AttributeModifier modifier, boolean setModifier) {
+    protected final void updateModifier(AttributeInstance attribute, AttributeModifier modifier, boolean setModifier) {
         if (attribute.hasModifier(modifier)) {
             attribute.removeModifier(modifier);
         }
@@ -489,7 +489,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         setArmsOnlyMode(true, true);
     }
     
-    public void addToArmsOnly(Hand arm) {
+    public void addToArmsOnly(InteractionHand arm) {
         if (arm != null && !level.isClientSide() && isArmsOnlyMode()) {
             byte b = entityData.get(ARMS_ONLY_MODE);
             switch (arm) {
@@ -527,7 +527,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return (entityData.get(ARMS_ONLY_MODE) & 2) > 0;
     }
     
-    public boolean showArm(Hand hand) {
+    public boolean showArm(InteractionHand hand) {
         switch (hand) {
         case MAIN_HAND:
             return (entityData.get(ARMS_ONLY_MODE) & 4) > 0;
@@ -585,7 +585,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             int ticks = isArmsOnlyMode() ? 7 : 10;
             double staminaDebuff = getStaminaCondition();  // 0.25 ~ 1
             staminaDebuff = (staminaDebuff * 2 + 1) / 3.0; // 0.5  ~ 1
-            if (staminaDebuff < 1) ticks = MathHelper.ceil((double) ticks / staminaDebuff);
+            if (staminaDebuff < 1) ticks = Mth.ceil((double) ticks / staminaDebuff);
             return ticks;
         }
     }
@@ -612,10 +612,10 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public void onStandSummonServerSide() {
         LivingEntity user = getUser();
         if (user != null) {
-            for (Effect effect : SHARED_EFFECTS_FROM_USER) {
-                EffectInstance userEffectInstance = user.getEffect(effect);
+            for (MobEffect effect : SHARED_EFFECTS_FROM_USER) {
+                MobEffectInstance userEffectInstance = user.getEffect(effect);
                 if (userEffectInstance != null) {
-                    addEffect(new EffectInstance(userEffectInstance));
+                    addEffect(new MobEffectInstance(userEffectInstance));
                 }
             }
         }
@@ -625,8 +625,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         userRef = lookupUser(userId);
         LivingEntity user = getUser();
         if (user != null) {
-            if (user instanceof PlayerEntity) {
-                playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((PlayerEntity) user);
+            if (user instanceof Player) {
+                playerSettings = PlayerClientBroadcastedSettings.getPlayerSettings((Player) user);
             }
             if (level.isClientSide()) {
                 IStandPower standPower = IStandPower.getStandPowerOptional(user).resolve().get();
@@ -664,7 +664,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         LivingEntity user = getUser();
         PacketManager.sendToClient(new TrSetStandEntityPacket(user != null ? user.getId() : -1, getId()), player);
     }
@@ -795,7 +795,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     @Override
-    public boolean isInvisibleTo(PlayerEntity player) {
+    public boolean isInvisibleTo(Player player) {
         return !isVisibleForAll() && !StandUtil.clStandEntityVisibleTo(player) 
                 || !JojoModUtil.seesInvisibleAsSpectator(player) && underInvisibilityEffect();
     }
@@ -814,11 +814,11 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         playSound(sound, volume, pitch, null);
     }
     
-    public void playSound(SoundEvent sound, float volume, float pitch, @Nullable PlayerEntity player) {
+    public void playSound(SoundEvent sound, float volume, float pitch, @Nullable Player player) {
         playSound(sound, volume, pitch, player, position());
     }
     
-    public void playSound(SoundEvent sound, float volume, float pitch, @Nullable PlayerEntity player, Vector3d pos) {
+    public void playSound(SoundEvent sound, float volume, float pitch, @Nullable Player player, Vec3 pos) {
         if (!this.isSilent()) {
             if (!isVisibleForAll()) {
                 MCUtil.playSound(level, player, pos.x, pos.y, pos.z, sound, getSoundSource(), volume, pitch, StandUtil::playerCanHearStands);
@@ -877,10 +877,10 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             int punchesIncoming = dmgSource.getBarrageHitsCount();
             if (punchesIncoming > 0) {
                 float parriableProportion = Math.min(StandStatFormulas.getMaxBarrageParryTickDamage(getDurability()) / dmgAmount, 1);
-                int punchesCanParry = MathHelper.floor(parriableProportion * barrageHandler.parryCount);
+                int punchesCanParry = Mth.floor(parriableProportion * barrageHandler.parryCount);
 
                 if (punchesCanParry > 0) {
-                    Vector3d attackPos = this.getEyePosition(1.0F);
+                    Vec3 attackPos = this.getEyePosition(1.0F);
                     Entity attacker = dmgSource.getDirectEntity();
                     if (attacker != null) {
                         attackPos = attackPos.scale(0.5).add(attacker.getEyePosition(1.0F).scale(0.5));
@@ -888,7 +888,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                     else {
                         attackPos = attackPos.add(this.getLookAngle().scale(1.0));
                     }
-                    ((ServerWorld) level).sendParticles(ParticleTypes.CRIT, 
+                    ((ServerLevel) level).sendParticles(ParticleTypes.CRIT, 
                             attackPos.x, attackPos.y, attackPos.z, 1, 0.5D, 0.25D, 0.5D, 0.2D);
                     if (attacker instanceof StandEntity) {
                         ((StandEntity) attacker).playPunchSound = true;
@@ -964,8 +964,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                     float damageAfterAbsorption = Math.max(damageAmount - getAbsorptionAmount(), 0.0F);
                     setAbsorptionAmount(getAbsorptionAmount() - (damageAmount - damageAfterAbsorption));
                     float absorbedDamage = damageAmount - damageAfterAbsorption;
-                    if (absorbedDamage > 0.0F && absorbedDamage < Float.MAX_VALUE / 10F && dmgSource.getEntity() instanceof ServerPlayerEntity) {
-                        ((ServerPlayerEntity) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(absorbedDamage * 10.0F));
+                    if (absorbedDamage > 0.0F && absorbedDamage < Float.MAX_VALUE / 10F && dmgSource.getEntity() instanceof ServerPlayer) {
+                        ((ServerPlayer) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(absorbedDamage * 10.0F));
                     }
                     damageAmount = damageAfterAbsorption;
                     
@@ -993,17 +993,17 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         LivingEntity user = getUser();
         if (user == null || user.is(this)) return dmgAmount;
 
-        if (user.hasEffect(Effects.DAMAGE_RESISTANCE) && dmgSource != DamageSource.OUT_OF_WORLD) {
-            int j = 25 - (user.getEffect(Effects.DAMAGE_RESISTANCE).getAmplifier() + 1) * 5;
+        if (user.hasEffect(MobEffects.DAMAGE_RESISTANCE) && dmgSource != DamageSource.OUT_OF_WORLD) {
+            int j = 25 - (user.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier() + 1) * 5;
             float f = dmgAmount * (float)j;
             float f1 = dmgAmount;
             dmgAmount = Math.max(f / 25.0F, 0.0F);
             float f2 = f1 - dmgAmount;
             if (f2 > 0.0F && f2 < Float.MAX_VALUE) {
-                if (user instanceof ServerPlayerEntity) {
-                    ((ServerPlayerEntity) user).awardStat(Stats.DAMAGE_RESISTED, Math.round(f2 * 10.0F));
-                } else if (dmgSource.getEntity() instanceof ServerPlayerEntity) {
-                    ((ServerPlayerEntity) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_RESISTED, Math.round(f2 * 10.0F));
+                if (user instanceof ServerPlayer) {
+                    ((ServerPlayer) user).awardStat(Stats.DAMAGE_RESISTED, Math.round(f2 * 10.0F));
+                } else if (dmgSource.getEntity() instanceof ServerPlayer) {
+                    ((ServerPlayer) dmgSource.getEntity()).awardStat(Stats.DAMAGE_DEALT_RESISTED, Math.round(f2 * 10.0F));
                 }
             }
         }
@@ -1023,15 +1023,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         xRatio = event.getRatioX();
         zRatio = event.getRatioZ();
         strength *= 1.0F - (float) getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
-        if (isStandBlocking() && canBlockOrParryFromAngle(position().add(new Vector3d(xRatio, 0, zRatio)))) {
+        if (isStandBlocking() && canBlockOrParryFromAngle(position().add(new Vec3(xRatio, 0, zRatio)))) {
             double durabilityStat = getDurability();
             strength *= StandStatFormulas.getBlockingKnockbackMult(durabilityStat);
         }
         
         if (strength > 0) {
             hasImpulse = true;
-            Vector3d motionVec = getDeltaMovement();
-            Vector3d knockbackVec = new Vector3d(xRatio, 0.0D, zRatio).normalize().scale(strength);
+            Vec3 motionVec = getDeltaMovement();
+            Vec3 knockbackVec = new Vec3(xRatio, 0.0D, zRatio).normalize().scale(strength);
             setDeltaMovement(
                     motionVec.x / 2.0D - knockbackVec.x, 
                     onGround ? Math.min(0.4D, motionVec.y / 2.0D + (double) strength) : motionVec.y, 
@@ -1105,15 +1105,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return StandStatFormulas.getPhysicalResistance(getDurability(), getAttackDamage(), blockedRatio, damageDealt);
     }
 
-    public boolean canBlockOrParryFromAngle(Vector3d dmgPosition) {
+    public boolean canBlockOrParryFromAngle(Vec3 dmgPosition) {
         if (!canUpdate()) {
             return false;
         }
         if (dmgPosition == null) {
             return false;
         }
-        Vector3d viewVec = getViewVector(1.0F);
-        Vector3d diffVec = dmgPosition.subtract(position()).normalize();
+        Vec3 viewVec = getViewVector(1.0F);
+        Vec3 diffVec = dmgPosition.subtract(position()).normalize();
         return diffVec.dot(viewVec) > 0.5;
     }
     
@@ -1142,7 +1142,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             return !(damageSrc instanceof IStandDamageSource && ((IStandDamageSource) damageSrc).standCanHitSelf());
         }
         if (
-                getUser() instanceof PlayerEntity && ((PlayerEntity) getUser()).abilities.invulnerable && !damageSrc.isBypassInvul()
+                getUser() instanceof Player && ((Player) getUser()).abilities.invulnerable && !damageSrc.isBypassInvul()
                 || damageSrc.isFire() && !level.getGameRules().getBoolean(GameRules.RULE_FIRE_DAMAGE)) {
             return true;
         }
@@ -1166,7 +1166,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void thunderHit(ServerWorld world, LightningBoltEntity lightningBolt) {}
+    public void thunderHit(ServerLevel world, LightningBolt lightningBolt) {}
 
     @Override
     protected void lavaHurt() {}
@@ -1300,7 +1300,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                 if (prevUserMaxHealth != userMaxHealth) {
                     float maxHealth = this.getMaxHealth();
                     if (maxHealth != userMaxHealth) {
-                        ModifiableAttributeInstance maxHpAttr = getAttribute(Attributes.MAX_HEALTH);
+                        AttributeInstance maxHpAttr = getAttribute(Attributes.MAX_HEALTH);
                         for (AttributeModifier attributemodifier : maxHpAttr.getModifiers()) {
                             maxHpAttr.removeModifier(attributemodifier);
                         }
@@ -1313,7 +1313,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
         else {
             if (user != null && isManuallyControlled() && !noPhysics && isInsideViewBlockingBlock(position())) {
-                Vector3d vecToUser = user.position().subtract(position());
+                Vec3 vecToUser = user.position().subtract(position());
                 if (vecToUser.lengthSqr() > 1) {
                     vecToUser = vecToUser.normalize();
                 }
@@ -1360,8 +1360,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             StandRelativeOffset relativeOffset = getOffsetFromUser();
             if (relativeOffset != null) {
                 Optional<StandEntityTask> currentTask = getCurrentTask();
-                Vector3d offset = taskOffset(user, relativeOffset, currentTask);
-                Vector3d pos = user.position().add(offset);
+                Vec3 offset = taskOffset(user, relativeOffset, currentTask);
+                Vec3 pos = user.position().add(offset);
                 if (!isArmsOnlyMode()) {
                     pos = collideNextPos(pos);
                 }
@@ -1377,21 +1377,21 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                         .normalize().scale(getAttributeValue(Attributes.MOVEMENT_SPEED)));
             }
             else {
-                setDeltaMovement(Vector3d.ZERO);
+                setDeltaMovement(Vec3.ZERO);
                 setStandFlag(StandFlag.BEING_RETRACTED, false);
             }
         }
     }
     
-    public Vector3d collideNextPos(Vector3d pos) {
+    public Vec3 collideNextPos(Vec3 pos) {
         if (noPhysics) {
             return pos;
         }
-        AxisAlignedBB collisionBox = getBoundingBox();
+        AABB collisionBox = getBoundingBox();
         double height = collisionBox.getYsize();
         double width = collisionBox.getXsize();
         if (height > width) {
-            collisionBox = new AxisAlignedBB(
+            collisionBox = new AABB(
                     collisionBox.minX, 
                     collisionBox.maxY - Math.max(height * 0.5, width), 
                     collisionBox.minZ, 
@@ -1442,16 +1442,16 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    private Vector3d taskOffset(LivingEntity user, StandRelativeOffset relativeOffset, Optional<StandEntityTask> currentTask) {
+    private Vec3 taskOffset(LivingEntity user, StandRelativeOffset relativeOffset, Optional<StandEntityTask> currentTask) {
         float yRot;
         float xRot;
         
-        Vector3d targetPos = currentTask.map(task -> {
+        Vec3 targetPos = currentTask.map(task -> {
             return task.getAction().lockOnTargetPosition(getUserPower(), this, task) ? task.getTarget() : ActionTarget.EMPTY;
         }).map(target -> target.getTargetPos(true)).orElse(null);
         
         if (targetPos != null) {
-            Vector3d vecToTarget = targetPos.subtract(user.getEyePosition(1.0F));
+            Vec3 vecToTarget = targetPos.subtract(user.getEyePosition(1.0F));
             yRot = MathUtil.yRotDegFromVec(vecToTarget);
             xRot = MathUtil.xRotDegFromVec(vecToTarget);
         }
@@ -1460,9 +1460,9 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             xRot = user.xRot;
         }
         
-        Vector3d offset = relativeOffset.getAbsoluteVec(yRot, xRot, this, user, getDefaultOffsetFromUser().y, playerSettings);
+        Vec3 offset = relativeOffset.getAbsoluteVec(yRot, xRot, this, user, getDefaultOffsetFromUser().y, playerSettings);
         if (!currentTask.isPresent() && user.isShiftKeyDown()) {
-            offset = new Vector3d(offset.x, 0, offset.z);
+            offset = new Vec3(offset.x, 0, offset.z);
         }
         
         return offset;
@@ -1495,15 +1495,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 //        }
 //    }
 
-    private boolean isInsideViewBlockingBlock(Vector3d pos) {
-        BlockPos.Mutable blockPos$mutable = new BlockPos.Mutable();
+    private boolean isInsideViewBlockingBlock(Vec3 pos) {
+        BlockPos.MutableBlockPos blockPos$mutable = new BlockPos.MutableBlockPos();
         for (int i = 0; i < 8; ++i) {
             double x = pos.x + (double)(((float)((i >> 0) % 2) - 0.5F) * getBbWidth() * 0.8F);
             double y = pos.y + getEyeHeight() + (double)(((float)((i >> 1) % 2) - 0.5F) * 0.1F);
             double z = pos.z + (double)(((float)((i >> 2) % 2) - 0.5F) * getBbWidth() * 0.8F);
             blockPos$mutable.set(x, y, z);
             BlockState blockState = level.getBlockState(blockPos$mutable);
-            if (blockState.getRenderShape() != BlockRenderType.INVISIBLE && blockState.isSuffocating(level, blockPos$mutable)) {
+            if (blockState.getRenderShape() != RenderShape.INVISIBLE && blockState.isSuffocating(level, blockPos$mutable)) {
                 return true;
             }
         }
@@ -1648,15 +1648,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
      * @deprecated use {@link StandEntity#aimWithThisOrUser(double, ActionTarget, boolean)}, which returns an {@link ActionTarget} instance
      */
     @Deprecated
-    public RayTraceResult aimWithStandOrUser(double reachDistance, ActionTarget currentTarget) {
-        RayTraceResult aim;
+    public HitResult aimWithStandOrUser(double reachDistance, ActionTarget currentTarget) {
+        HitResult aim;
         if (!isManuallyControlled()) {
             LivingEntity user = getUser();
             if (user != null && currentTarget.getType() != TargetType.ENTITY) {
                 aim = precisionRayTrace(user, reachDistance);
                 if (JojoModUtil.isAnotherEntityTargeted(aim, this)
-                        || currentTarget.getType() == TargetType.EMPTY && aim.getType() != RayTraceResult.Type.MISS) {
-                    Vector3d targetPos = ActionTarget.fromRayTraceResult(aim).getTargetPos(true);
+                        || currentTarget.getType() == TargetType.EMPTY && aim.getType() != HitResult.Type.MISS) {
+                    Vec3 targetPos = ActionTarget.fromRayTraceResult(aim).getTargetPos(true);
                     if (targetPos != null) {
                         MCUtil.rotateTowards(this, targetPos, (float) getAttackSpeed() / 16F * 18F);
                     }
@@ -1678,14 +1678,14 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             target = currentTarget;
         }
         else {
-            RayTraceResult aim = null;
+            HitResult aim = null;
             if (!isManuallyControlled()) {
                 LivingEntity user = getUser();
                 if (user != null) {
                     aim = precisionRayTrace(user, reachDistance, 0, friendlyFire);
                 }
             }
-            if (aim == null || aim.getType() == RayTraceResult.Type.MISS) {
+            if (aim == null || aim.getType() == HitResult.Type.MISS) {
                 aim = precisionRayTrace(this, reachDistance, 0, friendlyFire);
             }
             
@@ -1693,7 +1693,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
         
         if (target.getEntity() != this) {
-            Vector3d targetPos = target.getTargetPos(true);
+            Vec3 targetPos = target.getTargetPos(true);
             if (targetPos != null) {
                 MCUtil.rotateTowards(this, targetPos, (float) getAttackSpeed() / 16F * 18F);
             }
@@ -1702,7 +1702,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return target;
     }
     
-    public RayTraceResult precisionRayTrace(Entity aimingEntity) {
+    public HitResult precisionRayTrace(Entity aimingEntity) {
         return precisionRayTrace(aimingEntity, getAimDistance(aimingEntity));
     }
     
@@ -1719,26 +1719,26 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
     public Predicate<Entity> canTarget() {
         return entity -> !entity.is(this) && !entity.is(getUser()) && entity.isAlive()
-                && !(entity instanceof ProjectileEntity && this.is(((ProjectileEntity) entity).getOwner()));
+                && !(entity instanceof Projectile && this.is(((Projectile) entity).getOwner()));
     }
     
     @Nonnull
-    public RayTraceResult precisionRayTrace(Entity aimingEntity, double reachDistance) {
+    public HitResult precisionRayTrace(Entity aimingEntity, double reachDistance) {
         return precisionRayTrace(aimingEntity, reachDistance, 0);
     }
 
     @Nonnull
-    public RayTraceResult precisionRayTrace(Entity aimingEntity, double reachDistance, double rayTraceInflate) {
+    public HitResult precisionRayTrace(Entity aimingEntity, double reachDistance, double rayTraceInflate) {
         return precisionRayTrace(aimingEntity, reachDistance, rayTraceInflate, true);
     }
 
     @Nonnull
-    public RayTraceResult precisionRayTrace(Entity aimingEntity, double reachDistance, double rayTraceInflate, boolean friendlyFire) {
+    public HitResult precisionRayTrace(Entity aimingEntity, double reachDistance, double rayTraceInflate, boolean friendlyFire) {
         Predicate<Entity> filter = canTarget();
         if (!friendlyFire) {
             filter = filter.and(this::canHarm);
         }
-        RayTraceResult[] targets = JojoModUtil.rayTraceMultipleEntities(aimingEntity, 
+        HitResult[] targets = JojoModUtil.rayTraceMultipleEntities(aimingEntity, 
                 reachDistance, filter, rayTraceInflate, getPrecision());
         if (targets.length == 1) {
             return targets[0];
@@ -1750,13 +1750,13 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
          *   2 - other entities
          *   3 - blocks
          */
-        RayTraceResult[] closestWithPriority = new RayTraceResult[4];
+        HitResult[] closestWithPriority = new HitResult[4];
         int priority = 3;
-        for (RayTraceResult target : targets) {
-            if (target instanceof EntityRayTraceResult) {
-                Entity targetEntity = ((EntityRayTraceResult) target).getEntity();
+        for (HitResult target : targets) {
+            if (target instanceof EntityHitResult) {
+                Entity targetEntity = ((EntityHitResult) target).getEntity();
                 if (targetEntity instanceof LivingEntity) {
-                    if (targetEntity instanceof PlayerEntity || targetEntity instanceof StandEntity) {
+                    if (targetEntity instanceof Player || targetEntity instanceof StandEntity) {
                         priority = 0;
                     }
                     else if (ResolveCounter.attackingTargetGivesResolve(targetEntity)) {
@@ -1770,7 +1770,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             
             setIfNull(closestWithPriority, priority, target);
         }
-        for (RayTraceResult target : closestWithPriority) {
+        for (HitResult target : closestWithPriority) {
             if (target != null) return target;
         }
         
@@ -1881,7 +1881,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                 LivingEntity user = getUser();
                 if (user != null) {
                     if (user.getType() == EntityType.PLAYER) {
-                        targetLiving.setLastHurtByPlayer((PlayerEntity) user);
+                        targetLiving.setLastHurtByPlayer((Player) user);
                         targetLiving.lastHurtByPlayerTime = 100;
                     }
                     LivingEntity aggroTo = isFollowingUser() || targetLiving.canSee(user) ? user : 
@@ -1935,10 +1935,10 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         LivingEntity user = getUser();
         if (user != null) {
             boolean canHarm = MCUtil.canHarm(user, entity);
-            if (canHarm && entity instanceof AnimalEntity) {
+            if (canHarm && entity instanceof Animal) {
                 canHarm &= !entity.isPassengerOfSameVehicle(user);
-                if (canHarm && entity instanceof TameableEntity) {
-                    LivingEntity tameableOwner = ((TameableEntity) entity).getOwner();
+                if (canHarm && entity instanceof TamableAnimal) {
+                    LivingEntity tameableOwner = ((TamableAnimal) entity).getOwner();
                     canHarm &= !(tameableOwner != null && tameableOwner == user);
                 }
             }
@@ -1953,8 +1953,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             return canAttack((LivingEntity) target);
         }
         LivingEntity user = getUser();
-        if (target instanceof ProjectileEntity) {
-            Entity owner = ((ProjectileEntity) target).getOwner();
+        if (target instanceof Projectile) {
+            Entity owner = ((Projectile) target).getOwner();
             if (owner != null && (owner.is(this) || owner.is(user))) {
                 return target instanceof DamagingEntity && ((DamagingEntity) target).canHitOwner();
             }
@@ -1965,18 +1965,18 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return true;
     }
     
-    public Hand alternateHands() {
-        Hand hand = Hand.MAIN_HAND;
+    public InteractionHand alternateHands() {
+        InteractionHand hand = InteractionHand.MAIN_HAND;
         if (tickCount - lastSwingTick > 1) {
             boolean offHand = entityData.get(SWING_OFF_HAND);
             if (offHand) {
-                hand = Hand.OFF_HAND;
+                hand = InteractionHand.OFF_HAND;
             }
             entityData.set(SWING_OFF_HAND, !offHand);
         }
         else {
             if (alternateAdditionalSwing) {
-                hand = Hand.OFF_HAND;
+                hand = InteractionHand.OFF_HAND;
             }
             alternateAdditionalSwing = !alternateAdditionalSwing;
         }
@@ -1984,16 +1984,16 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public HandSide getMainArm() {
+    public HumanoidArm getMainArm() {
         LivingEntity user = getUser();
-        return user != null ? user.getMainArm() : HandSide.RIGHT;
+        return user != null ? user.getMainArm() : HumanoidArm.RIGHT;
     }
     
-    public HandSide getArm(Hand arm) {
+    public HumanoidArm getArm(InteractionHand arm) {
         return MCUtil.getHandSide(this, arm);
     }
     
-    public HandSide getPunchingHand() {
+    public HumanoidArm getPunchingHand() {
         return getArm(swingingArm);
     }
     
@@ -2008,7 +2008,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         if (userPower != null && !StandUtil.isFinisherMechanicUnlocked(userPower)) {
             return 0;
         }
-        return MathHelper.clamp(partialTick, lastTickFinisherVal, finisherVal);
+        return Mth.clamp(partialTick, lastTickFinisherVal, finisherVal);
     }
     
     public void addFinisherMeter(float value, int noDecayTicks) {
@@ -2021,7 +2021,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
     protected void setFinisherMeter(float value) {
         if (!level.isClientSide()) {
-            entityData.set(FINISHER_VALUE, MathHelper.clamp(value, 0F, 1F));
+            entityData.set(FINISHER_VALUE, Mth.clamp(value, 0F, 1F));
         }
     }
     
@@ -2056,7 +2056,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public void standCrash() {
         if (!level.isClientSide()) {
             stopTask(true);
-            addEffect(new EffectInstance(ModStatusEffects.STUN.get(), 40));
+            addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), 40));
         }
     }
 
@@ -2069,13 +2069,13 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     protected boolean breakBlock(BlockPos blockPos, BlockState blockState, boolean dropLootTableItems, @Nullable List<ItemStack> createdDrops) {
-        if (level.isClientSide() || !JojoModUtil.canEntityDestroy((ServerWorld) level, blockPos, blockState, this) || blockState.isAir(level, blockPos)) {
+        if (level.isClientSide() || !JojoModUtil.canEntityDestroy((ServerLevel) level, blockPos, blockState, this) || blockState.isAir(level, blockPos)) {
             return false;
         }
         
         if (canBreakBlock(blockPos, blockState)) {
             LivingEntity user = getUser();
-            PlayerEntity playerUser = user instanceof PlayerEntity ? (PlayerEntity) user : null;
+            Player playerUser = user instanceof Player ? (Player) user : null;
             boolean dropItem = dropLootTableItems;
             if (playerUser != null) {
                 blockState.getBlock().playerWillDestroy(level, blockPos, blockState, playerUser);
@@ -2085,9 +2085,9 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                 blockState.getBlock().destroy(level, blockPos, blockState);
                 
                 if (createdDrops != null) {
-                    IChunk chunk = level.getChunk(blockPos);
-                    if (chunk instanceof Chunk) {
-                        ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+                    ChunkAccess chunk = level.getChunk(blockPos);
+                    if (chunk instanceof LevelChunk) {
+                        ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                             PrevBlockInfo brokenBlock = cap.getBrokenBlockAt(blockPos);
                             if (brokenBlock != null) {
                             	createdDrops.forEach(droppedItem -> brokenBlock.drops.add(droppedItem.copy()));
@@ -2100,7 +2100,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
         else {
             SoundType soundType = blockState.getSoundType(level, blockPos, this);
-            level.playSound(null, blockPos, soundType.getHitSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
+            level.playSound(null, blockPos, soundType.getHitSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 8.0F, soundType.getPitch() * 0.5F);
         }
         return false;
     }
@@ -2295,8 +2295,8 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     public boolean isControlledByLocalInstance() {
         if (isManuallyControlled()) {
             Entity user = getUser();
-            if (user instanceof PlayerEntity) {
-                return ((PlayerEntity) user).isLocalPlayer();
+            if (user instanceof Player) {
+                return ((Player) user).isLocalPlayer();
             }
         }
         return isManuallyControlled();
@@ -2320,16 +2320,16 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                     forward *= 0.5;
                 }
                 if (!prevTickInput) {
-                    setDeltaMovement(Vector3d.ZERO);
+                    setDeltaMovement(Vec3.ZERO);
                 }
                 else {
-                    Vector3d motion = getAbsoluteMotion(new Vector3d((double)strafe, y, (double)forward), speed, this.yRot)
+                    Vec3 motion = getAbsoluteMotion(new Vec3((double)strafe, y, (double)forward), speed, this.yRot)
                             .scale(getUserWalkSpeed() * manualMovementSpeed);
                     setDeltaMovement(motion);
                 }
             }
             else if (prevTickInput) {
-                setDeltaMovement(Vector3d.ZERO);
+                setDeltaMovement(Vec3.ZERO);
             }
             prevTickInput = input;
         }
@@ -2339,15 +2339,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return prevTickInput;
     }
     
-    private static Vector3d getAbsoluteMotion(Vector3d relative, double speed, float facingYRot) {
+    private static Vec3 getAbsoluteMotion(Vec3 relative, double speed, float facingYRot) {
         double d0 = relative.lengthSqr();
         if (d0 < 1.0E-7D) {
-            return Vector3d.ZERO;
+            return Vec3.ZERO;
         } else {
-            Vector3d vec3d = relative.normalize().scale(speed);
-            float yRotSin = MathHelper.sin(facingYRot * ((float)Math.PI / 180F));
-            float yRotCos = MathHelper.cos(facingYRot * ((float)Math.PI / 180F));
-            return new Vector3d(vec3d.x * (double)yRotCos - vec3d.z * (double)yRotSin, vec3d.y, vec3d.z * (double)yRotCos + vec3d.x * (double)yRotSin);
+            Vec3 vec3d = relative.normalize().scale(speed);
+            float yRotSin = Mth.sin(facingYRot * ((float)Math.PI / 180F));
+            float yRotCos = Mth.cos(facingYRot * ((float)Math.PI / 180F));
+            return new Vec3(vec3d.x * (double)yRotCos - vec3d.z * (double)yRotSin, vec3d.y, vec3d.z * (double)yRotCos + vec3d.x * (double)yRotSin);
         }
     }
     
@@ -2360,7 +2360,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void move(MoverType type, Vector3d vec) {
+    public void move(MoverType type, Vec3 vec) {
         super.move(type, vec);
         LivingEntity user = getUser();
         if (user != null && user.level == this.level) {
@@ -2368,24 +2368,24 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
             double rangeSq = getMaxRange();
             rangeSq *= rangeSq;
             if (distanceSqr > rangeSq) {
-                Vector3d vecToUser = user.position().subtract(position()).scale(1 - Math.sqrt(rangeSq / distanceSqr));
+                Vec3 vecToUser = user.position().subtract(position()).scale(1 - Math.sqrt(rangeSq / distanceSqr));
                 moveWithoutCollision(vecToUser);
             }
-            if (!level.isClientSide() && isManuallyControlled() && distanceSqr > 728 && user instanceof PlayerEntity) {
+            if (!level.isClientSide() && isManuallyControlled() && distanceSqr > 728 && user instanceof Player) {
                 double horizontalDistSqr = distanceSqr - Math.pow(getY() - user.getY(), 2);
-                int warningDistance = ((ServerWorld) level).getServer().getPlayerList().getViewDistance() * 16 - 4;
+                int warningDistance = ((ServerLevel) level).getServer().getPlayerList().getViewDistance() * 16 - 4;
                 if (horizontalDistSqr > warningDistance * warningDistance) {
-                    ((PlayerEntity) user).getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
-                        cap.sendNotification(OneTimeNotification.HIGH_STAND_RANGE, new TranslationTextComponent("jojo.chat.message.view_distance_stand"));
+                    ((Player) user).getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
+                        cap.sendNotification(OneTimeNotification.HIGH_STAND_RANGE, Component.translatable("jojo.chat.message.view_distance_stand"));
                     });
                 }
             }
         }
     }
     
-    public void makeStuckInBlock(BlockState blockState, Vector3d stuckSpeedMultiplier) {}
+    public void makeStuckInBlock(BlockState blockState, Vec3 stuckSpeedMultiplier) {}
     
-    private void moveWithoutCollision(Vector3d vec) {
+    private void moveWithoutCollision(Vec3 vec) {
         setBoundingBox(getBoundingBox().move(vec));
         setLocationFromBoundingbox();
     }
@@ -2455,7 +2455,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 //            alpha *= Math.min(user.getHealth() / 5F, 1F);
 //        }
             
-        return MathHelper.clamp(alpha, 0F, 1F);
+        return Mth.clamp(alpha, 0F, 1F);
     }
     
     @Override
@@ -2470,56 +2470,56 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
     
     
-    private static final List<Effect> SHARED_EFFECTS_FROM_USER = new ArrayList<>();
-    private static final List<Effect> SHARED_EFFECTS_FROM_STAND = new ArrayList<>();
-    public static void addSharedEffectsFromUser(Effect... effects) {
+    private static final List<MobEffect> SHARED_EFFECTS_FROM_USER = new ArrayList<>();
+    private static final List<MobEffect> SHARED_EFFECTS_FROM_STAND = new ArrayList<>();
+    public static void addSharedEffectsFromUser(MobEffect... effects) {
         Collections.addAll(SHARED_EFFECTS_FROM_USER, effects);
     }
     
-    public static void addSharedEffectsFromStand(Effect... effects) {
+    public static void addSharedEffectsFromStand(MobEffect... effects) {
         Collections.addAll(SHARED_EFFECTS_FROM_USER, effects);
     }
     
-    public boolean isEffectSharedFromUser(Effect effect) {
+    public boolean isEffectSharedFromUser(MobEffect effect) {
         return SHARED_EFFECTS_FROM_USER.contains(effect);
     }
     
     @Override
-    protected void onEffectAdded(EffectInstance effectInstance) {
+    protected void onEffectAdded(MobEffectInstance effectInstance) {
         super.onEffectAdded(effectInstance);
         if (!level.isClientSide()) {
             LivingEntity user = getUser();
-            if (user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).connection.send(new SPlayEntityEffectPacket(this.getId(), effectInstance));
+            if (user instanceof ServerPlayer) {
+                ((ServerPlayer) user).connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), effectInstance));
             }
             if (SHARED_EFFECTS_FROM_STAND.contains(effectInstance.getEffect())) {
-                user.addEffect(new EffectInstance(effectInstance));
+                user.addEffect(new MobEffectInstance(effectInstance));
                 stopTask();
             }
         }
     }
 
     @Override
-    protected void onEffectUpdated(EffectInstance effectInstance, boolean reapply) {
+    protected void onEffectUpdated(MobEffectInstance effectInstance, boolean reapply) {
         super.onEffectUpdated(effectInstance, reapply);
         if (!level.isClientSide()) {
             LivingEntity user = getUser();
-            if (user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).connection.send(new SPlayEntityEffectPacket(this.getId(), effectInstance));
+            if (user instanceof ServerPlayer) {
+                ((ServerPlayer) user).connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), effectInstance));
             }
             if (SHARED_EFFECTS_FROM_STAND.contains(effectInstance.getEffect())) {
-                user.addEffect(new EffectInstance(effectInstance));
+                user.addEffect(new MobEffectInstance(effectInstance));
             }
         }
     }
 
     @Override
-    protected void onEffectRemoved(EffectInstance effectInstance) {
+    protected void onEffectRemoved(MobEffectInstance effectInstance) {
         super.onEffectRemoved(effectInstance);
         if (!level.isClientSide()) {
             LivingEntity user = getUser();
-            if (user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).connection.send(new SRemoveEntityEffectPacket(this.getId(), effectInstance.getEffect()));
+            if (user instanceof ServerPlayer) {
+                ((ServerPlayer) user).connection.send(new ClientboundRemoveMobEffectPacket(this.getId(), effectInstance.getEffect()));
             }
         }
     }
@@ -2529,7 +2529,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     private ItemStack mainHandItem = ItemStack.EMPTY;
     private ItemStack offHandItem = ItemStack.EMPTY;
     @Override
-    public ItemStack getItemBySlot(EquipmentSlotType slot) {
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
         switch (slot) {
         case MAINHAND:
             return mainHandItem;
@@ -2541,7 +2541,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void setItemSlot(EquipmentSlotType slot, ItemStack stack) {
+    public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
         switch (slot) {
         case MAINHAND:
             this.mainHandItem = stack;
@@ -2554,7 +2554,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    public void takeItem(EquipmentSlotType slot, ItemStack item, boolean dropPrev, @Nullable LivingEntity dropPrevTo) {
+    public void takeItem(EquipmentSlot slot, ItemStack item, boolean dropPrev, @Nullable LivingEntity dropPrevTo) {
         if (!level.isClientSide() && !item.isEmpty()) {
             ItemStack heldItem = getItemBySlot(slot);
             if (!heldItem.isEmpty()) {
@@ -2579,7 +2579,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    public void dropItemTo(EquipmentSlotType slot, @Nullable LivingEntity entity) {
+    public void dropItemTo(EquipmentSlot slot, @Nullable LivingEntity entity) {
         if (!level.isClientSide()) {
             if (entity == null) {
                 dropItem(slot);
@@ -2594,16 +2594,16 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    public void dropItem(EquipmentSlotType slot) {
+    public void dropItem(EquipmentSlot slot) {
         if (!level.isClientSide()) {
             ItemStack item = getItemBySlot(slot);
             if (!item.isEmpty()) {
-                Vector3d itemPos = position();
-                Hand hand = slot == EquipmentSlotType.MAINHAND ? Hand.MAIN_HAND
-                          : slot == EquipmentSlotType.OFFHAND ? Hand.OFF_HAND
+                Vec3 itemPos = position();
+                InteractionHand hand = slot == EquipmentSlot.MAINHAND ? InteractionHand.MAIN_HAND
+                          : slot == EquipmentSlot.OFFHAND ? InteractionHand.OFF_HAND
                           : null;
                 if (hand != null) {
-                    itemPos = itemPos.add(new Vector3d(getBbWidth() * 0.5 * (getArm(hand) == HandSide.LEFT ? -1 : 1), 
+                    itemPos = itemPos.add(new Vec3(getBbWidth() * 0.5 * (getArm(hand) == HumanoidArm.LEFT ? -1 : 1), 
                             getBbHeight() * 0.4, 0).yRot((180 - yRot) * MathUtil.DEG_TO_RAD));
                 }
                 ItemEntity itemEntity = new ItemEntity(level, itemPos.x, itemPos.y, itemPos.z, item.copy());
@@ -2614,12 +2614,12 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     private void dropHeldItems() {
-        for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
             dropItem(slot);
         }
     }
     
-    public void onKnivesThrow(World world, PlayerEntity playerUser, ItemStack knivesStack, int knivesThrown) {}
+    public void onKnivesThrow(Level world, Player playerUser, ItemStack knivesStack, int knivesThrown) {}
     
     @Override
     public void onRemovedFromWorld() {
@@ -2632,13 +2632,13 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
     }
     
-    public final EquipmentSlotType handItemSlot(Hand hand) {
+    public final EquipmentSlot handItemSlot(InteractionHand hand) {
         if (hand == null) return null;
         switch (hand) {
         case MAIN_HAND:
-            return EquipmentSlotType.MAINHAND;
+            return EquipmentSlot.MAINHAND;
         case OFF_HAND:
-            return EquipmentSlotType.OFFHAND;
+            return EquipmentSlot.OFFHAND;
         }
         return null;
     }
@@ -2664,7 +2664,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
 
     @Override
-    public void startSeenByPlayer(ServerPlayerEntity player) {
+    public void startSeenByPlayer(ServerPlayer player) {
         super.startSeenByPlayer(player);
         if (player.is(getUser()) && player.isAlive()) {
             StandUtil.setManualControl(player, false, false);
@@ -2672,41 +2672,41 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeInt(entityData.get(USER_ID));
         buffer.writeVarInt(summonPoseRandomByte);
         buffer.writeInt(tickCount);
     }
     
-    protected void beforeClientSpawn(FMLPlayMessages.SpawnEntity packet, World world) {
+    protected void beforeClientSpawn(FMLPlayMessages.SpawnEntity packet, Level world) {
         int userId = packet.getAdditionalData().readInt();
         entityData.set(USER_ID, userId);
     }
     
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         summonPoseRandomByte = additionalData.readVarInt();
         tickCount = additionalData.readInt();
     }
 
     // TODO nbt write/read for stands which will have save enabled
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
     }
     
     @Override
-    public boolean saveAsPassenger(CompoundNBT pCompound) {
+    public boolean saveAsPassenger(CompoundTag pCompound) {
         return false;
     }
 //    
@@ -2718,7 +2718,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
 
     @Override
-    public void swing(Hand hand) {
+    public void swing(InteractionHand hand) {
         if (tickCount - lastSwingTick > 1) {
             lastSwingTick = tickCount;
             super.swing(hand);
@@ -2735,14 +2735,14 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
 
     @Override
-    public void swing(Hand hand, boolean sendPacketToSelf) { // copypasted because can't override LivingEntity#getCurrentSwingDuration()
+    public void swing(InteractionHand hand, boolean sendPacketToSelf) { // copypasted because can't override LivingEntity#getCurrentSwingDuration()
         if (!this.swinging || this.swingTime < 0 || this.swingTime >= getCurrentSwingDuration() / 2) {
             this.swingTime = -1;
             this.swinging = true;
             this.swingingArm = hand;
-            if (this.level instanceof ServerWorld) {
-                SAnimateHandPacket sanimatehandpacket = new SAnimateHandPacket(this, hand == Hand.MAIN_HAND ? 0 : 3);
-                ServerChunkProvider serverchunkprovider = ((ServerWorld)this.level).getChunkSource();
+            if (this.level instanceof ServerLevel) {
+                ClientboundAnimatePacket sanimatehandpacket = new ClientboundAnimatePacket(this, hand == InteractionHand.MAIN_HAND ? 0 : 3);
+                ServerChunkCache serverchunkprovider = ((ServerLevel)this.level).getChunkSource();
                 if (sendPacketToSelf) {
                     serverchunkprovider.broadcastAndSend(this, sanimatehandpacket);
                 } else {

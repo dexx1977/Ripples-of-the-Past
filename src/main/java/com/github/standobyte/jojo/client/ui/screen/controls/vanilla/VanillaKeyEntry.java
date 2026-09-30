@@ -6,45 +6,43 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.screen.ControlsScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.list.KeyBindingList;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.controls.KeyBindsList;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
-public class VanillaKeyEntry extends KeyBindingList.Entry {
-    private final KeyBinding key;
-    private final ITextComponent name;
+public class VanillaKeyEntry extends KeyBindsList.Entry {
+    private final KeyMapping key;
+    private final Component name;
     final Button changeButton;
     private final Button resetButton;
     
     private final Minecraft mc;
     private final int maxNameWidth;
     
-    private final Supplier<KeyBinding> getSelectedKey;
+    private final Supplier<KeyMapping> getSelectedKey;
 //    private final Consumer<KeyBinding> setSelectedKey;
     
-    public VanillaKeyEntry(KeyBinding key, 
-            ControlsScreen controlsScreen, KeyBindingList controlsList) {
+    public VanillaKeyEntry(KeyMapping key, 
+            ControlsScreen controlsScreen, KeyBindsList controlsList) {
         this(key, () -> controlsScreen.selectedKey, k -> controlsScreen.selectedKey = k, 
                 ClientReflection.getMaxNameWidth(controlsList));
     }
 
-    public VanillaKeyEntry(KeyBinding key, 
-            Supplier<KeyBinding> getSelectedKey, Consumer<KeyBinding> setSelectedKey, int maxNameWidth) {
-        this(key, new TranslationTextComponent(key.getName()), getSelectedKey, setSelectedKey, maxNameWidth);
+    public VanillaKeyEntry(KeyMapping key, 
+            Supplier<KeyMapping> getSelectedKey, Consumer<KeyMapping> setSelectedKey, int maxNameWidth) {
+        this(key, Component.translatable(key.getName()), getSelectedKey, setSelectedKey, maxNameWidth);
     }
 
-    public VanillaKeyEntry(KeyBinding key, ITextComponent name, 
-            Supplier<KeyBinding> getSelectedKey, Consumer<KeyBinding> setSelectedKey, int maxNameWidth) {
+    public VanillaKeyEntry(KeyMapping key, Component name, 
+            Supplier<KeyMapping> getSelectedKey, Consumer<KeyMapping> setSelectedKey, int maxNameWidth) {
         this.key = key;
         this.name = name;
         this.getSelectedKey = getSelectedKey;
@@ -54,22 +52,22 @@ public class VanillaKeyEntry extends KeyBindingList.Entry {
         this.changeButton = new Button(0, 0, 75 + 20, 20, name, button -> {
             setSelectedKey.accept(key);
         }) {
-            protected IFormattableTextComponent createNarrationMessage() {
-                return key.isUnbound() ? new TranslationTextComponent("narrator.controls.unbound", name) : new TranslationTextComponent("narrator.controls.bound", name, super.createNarrationMessage());
+            protected MutableComponent createNarrationMessage() {
+                return key.isUnbound() ? Component.translatable("narrator.controls.unbound", name) : Component.translatable("narrator.controls.bound", name, super.createNarrationMessage());
             }
         };
-        this.resetButton = new Button(0, 0, 50, 20, new TranslationTextComponent("controls.reset"), (p_214387_2_) -> {
+        this.resetButton = new Button(0, 0, 50, 20, Component.translatable("controls.reset"), (p_214387_2_) -> {
             key.setToDefault();
             mc.options.setKey(key, key.getDefaultKey());
-            KeyBinding.resetMapping();
+            KeyMapping.resetMapping();
         }) {
-            protected IFormattableTextComponent createNarrationMessage() {
-                return new TranslationTextComponent("narrator.controls.reset", name);
+            protected MutableComponent createNarrationMessage() {
+                return Component.translatable("narrator.controls.reset", name);
             }
         };
     }
 
-    public void render(MatrixStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
+    public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         boolean isSelected = getSelectedKey.get() == this.key;
         mc.font.draw(pMatrixStack, name, 
@@ -85,7 +83,7 @@ public class VanillaKeyEntry extends KeyBindingList.Entry {
         boolean isConflicting = false;
         boolean keyCodeModifierConflict = true; // less severe form of conflict, like SHIFT conflicting with SHIFT+G
         if (!this.key.isUnbound()) {
-            for(KeyBinding keybinding : mc.options.keyMappings) {
+            for(KeyMapping keybinding : mc.options.keyMappings) {
                 if (keybinding != this.key && this.key.same(keybinding)) {
                     isConflicting = true;
                     keyCodeModifierConflict &= keybinding.hasKeyCodeModifierConflict(this.key);
@@ -95,19 +93,19 @@ public class VanillaKeyEntry extends KeyBindingList.Entry {
 
         if (isSelected) {
             this.changeButton.setMessage(
-                    new StringTextComponent("> ")
-                    .append(this.changeButton.getMessage().copy().withStyle(TextFormatting.YELLOW))
-                    .append(" <").withStyle(TextFormatting.YELLOW));
+                    Component.literal("> ")
+                    .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.YELLOW))
+                    .append(" <").withStyle(ChatFormatting.YELLOW));
         } else if (isConflicting) {
             this.changeButton.setMessage(
                     this.changeButton.getMessage().copy()
-                    .withStyle(keyCodeModifierConflict ? TextFormatting.GOLD : TextFormatting.RED));
+                    .withStyle(keyCodeModifierConflict ? ChatFormatting.GOLD : ChatFormatting.RED));
         }
 
         this.changeButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
     }
 
-    public List<? extends IGuiEventListener> children() {
+    public List<? extends GuiEventListener> children() {
         return ImmutableList.of(this.changeButton, this.resetButton);
     }
 

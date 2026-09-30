@@ -6,12 +6,12 @@ import com.github.standobyte.jojo.action.stand.StandAction;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.chat.Component;
 
 public class NoSummonStandType<T extends StandStats> extends StandType<T> {
     
-    public NoSummonStandType(int color, ITextComponent partName, 
+    public NoSummonStandType(int color, Component partName, 
             StandAction[] attacks, StandAction[] abilities, 
             Class<T> statsClass, T defaultStats, @Nullable StandTypeOptionals additions) {
         super(color, partName, attacks, abilities, null, statsClass, defaultStats, additions);

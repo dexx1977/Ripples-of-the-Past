@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.LivingEntity;
 
-public class HamonEnergySound extends TickableSound {
+public class HamonEnergySound extends AbstractTickableSoundInstance {
     private final LivingEntity entity;
     private final Action<?> action;
     private Optional<INonStandPower> power = Optional.empty();

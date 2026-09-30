@@ -7,19 +7,19 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.mrpresident.dimension.MrPresidentWorldData.MrPresidentTurtlePos;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.ITeleporter;
 
 public class MrPresidentBackTeleporter implements ITeleporter {
-    public final ServerWorld world;
-    public final Vector3d pos;
+    public final ServerLevel world;
+    public final Vec3 pos;
     @Nullable public final Entity turtle;
     
-    public MrPresidentBackTeleporter(ServerWorld world, Vector3d pos, Entity turtle) {
+    public MrPresidentBackTeleporter(ServerLevel world, Vec3 pos, Entity turtle) {
         this.world = world;
         this.pos = pos;
         this.turtle = turtle;
@@ -27,10 +27,10 @@ public class MrPresidentBackTeleporter implements ITeleporter {
     
     @Nullable
     public static MrPresidentBackTeleporter teleportBackToTurtle(MinecraftServer server, UUID turtleId) {
-        for (ServerWorld world : server.getAllLevels()) {
+        for (ServerLevel world : server.getAllLevels()) {
             Entity turtle = world.getEntity(turtleId);
             if (turtle != null) {
-                Vector3d pos = posToTeleportTo(turtle);
+                Vec3 pos = posToTeleportTo(turtle);
                 return new MrPresidentBackTeleporter(world, pos, turtle);
             }
         }
@@ -39,7 +39,7 @@ public class MrPresidentBackTeleporter implements ITeleporter {
         if (rooms != null) {
             MrPresidentTurtlePos turtleTrackedPos = rooms.getTurtlePosition(turtleId);
             if (turtleTrackedPos != null && turtleTrackedPos.turtleDimension != null && turtleTrackedPos.turtlePos != null) {
-                ServerWorld world = server.getLevel(turtleTrackedPos.turtleDimension);
+                ServerLevel world = server.getLevel(turtleTrackedPos.turtleDimension);
                 if (world != null) {
                     return new MrPresidentBackTeleporter(world, turtleTrackedPos.turtlePos, null);
                 }
@@ -49,12 +49,12 @@ public class MrPresidentBackTeleporter implements ITeleporter {
         return null;
     }
     
-    public static Vector3d posToTeleportTo(Entity turtle) {
-        return new Vector3d(turtle.getX(), turtle.getY(1), turtle.getZ());
+    public static Vec3 posToTeleportTo(Entity turtle) {
+        return new Vec3(turtle.getX(), turtle.getY(1), turtle.getZ());
     }
 
     @Override
-    public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destinationWorld,
+    public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destinationWorld,
                               float yaw, Function<Boolean, Entity> repositionEntity) {
         entity = repositionEntity.apply(false);
         entity.teleportTo(pos.x, pos.y, pos.z);
@@ -62,7 +62,7 @@ public class MrPresidentBackTeleporter implements ITeleporter {
     }
     
     @Override
-    public boolean playTeleportSound(ServerPlayerEntity player, ServerWorld sourceWorld, ServerWorld destWorld) {
+    public boolean playTeleportSound(ServerPlayer player, ServerLevel sourceWorld, ServerLevel destWorld) {
         return false;
     }
 

@@ -7,27 +7,28 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.power.IPowerType;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 import net.minecraftforge.registries.RegistryBuilder;
 
-public class CustomRegistryHolder<V extends IForgeRegistryEntry<V>> {
+public class CustomRegistryHolder<V> {
     private final DeferredRegister<V> deferredRegister;
-    private final String name;
     private Supplier<IForgeRegistry<V>> registrySupplier = null;
     
     public CustomRegistryHolder(DeferredRegister<V> deferredRegister, String name) {
         this.deferredRegister = deferredRegister;
-        this.name = name;
+        if (!deferredRegister.getRegistryName().getPath().equals(name)) {
+            throw new IllegalArgumentException("Mismatched custom registry name: " + name);
+        }
     }
     
     public void initRegistry(IEventBus modEventBus) {
         if (registrySupplier == null) {
-            registrySupplier = deferredRegister.makeRegistry(name, () -> new RegistryBuilder<>());
+            registrySupplier = deferredRegister.makeRegistry(() -> new RegistryBuilder<>());
             deferredRegister.register(modEventBus);
         }
     }

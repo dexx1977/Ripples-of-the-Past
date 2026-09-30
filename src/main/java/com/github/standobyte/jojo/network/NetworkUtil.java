@@ -26,31 +26,31 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ObjectArrays;
 
 import io.netty.handler.codec.DecoderException;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.network.play.IClientPlayNetHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.common.extensions.IForgePacketBuffer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.extensions.IForgeFriendlyByteBuf;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 import net.minecraftforge.registries.RegistryManager;
 
 public class NetworkUtil {
     public static boolean blockPacketsToServer = false;
 
-    public static void broadcastWithCondition(List<ServerPlayerEntity> players, @Nullable PlayerEntity clientHandled, 
-            double x, double y, double z, double radius, World world, 
-            IPacket<IClientPlayNetHandler> packet, Predicate<PlayerEntity> condition) {
-        for (ServerPlayerEntity player : players) {
+    public static void broadcastWithCondition(List<ServerPlayer> players, @Nullable Player clientHandled, 
+            double x, double y, double z, double radius, Level world, 
+            Packet<ClientGamePacketListener> packet, Predicate<Player> condition) {
+        for (ServerPlayer player : players) {
             if (player != clientHandled && player.level.dimension() == world.dimension()
                     && condition.test(player) && player.position().subtract(x, y, z).lengthSqr() < radius * radius) {
                 player.connection.send(packet);
@@ -58,9 +58,9 @@ public class NetworkUtil {
         }
     }
 
-    public static void broadcastWithCondition(List<ServerPlayerEntity> players, 
-            IPacket<IClientPlayNetHandler> packet, Predicate<PlayerEntity> condition) {
-        for (ServerPlayerEntity player : players) {
+    public static void broadcastWithCondition(List<ServerPlayer> players, 
+            Packet<ClientGamePacketListener> packet, Predicate<Player> condition) {
+        for (ServerPlayer player : players) {
             if (condition.test(player)) {
                 player.connection.send(packet);
             }
@@ -69,7 +69,7 @@ public class NetworkUtil {
     
     
     
-    public static <T extends IForgeRegistryEntry<T>> void writeRegistryIds(IForgePacketBuffer buf, @Nonnull List<T> entries) {
+    public static <T extends RegistryEntry<T>> void writeRegistryIds(IForgeFriendlyByteBuf buf, @Nonnull List<T> entries) {
         Objects.requireNonNull(entries, "Cannot write a null registry entries list!");
         buf.getBuffer().writeBoolean(!entries.isEmpty());
         if (entries.isEmpty()) return;
@@ -93,7 +93,7 @@ public class NetworkUtil {
         }
     }
 
-    public static <T extends IForgeRegistryEntry<T>> List<T> readRegistryIds(IForgePacketBuffer buf) {
+    public static <T extends RegistryEntry<T>> List<T> readRegistryIds(IForgeFriendlyByteBuf buf) {
         if (!buf.getBuffer().readBoolean()) return Collections.emptyList();
         ResourceLocation location = buf.getBuffer().readResourceLocation();
         ForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(location);
@@ -105,7 +105,7 @@ public class NetworkUtil {
         return entries;
     }
 
-    public static <T extends IForgeRegistryEntry<T>> List<T> readRegistryIdsSafe(IForgePacketBuffer buf, Class<? super T> registrySuperType) {
+    public static <T extends RegistryEntry<T>> List<T> readRegistryIdsSafe(IForgeFriendlyByteBuf buf, Class<? super T> registrySuperType) {
         List<T> values = readRegistryIds(buf);
         for (T value : values) {
             if (!value.getRegistryType().equals(registrySuperType))
@@ -115,16 +115,16 @@ public class NetworkUtil {
     }
     
     
-    public static void writeBlockState(PacketBuffer buf, BlockState blockState) {
+    public static void writeBlockState(FriendlyByteBuf buf, BlockState blockState) {
         buf.writeVarInt(Block.getId(blockState));
     }
     
-    public static BlockState readBlockState(PacketBuffer buf) {
+    public static BlockState readBlockState(FriendlyByteBuf buf) {
         return GameData.getBlockStateIDMap().byId(buf.readVarInt());
     }
     
     
-    public static PacketBuffer writeFloatArray(PacketBuffer buf, float[] arr) {
+    public static FriendlyByteBuf writeFloatArray(FriendlyByteBuf buf, float[] arr) {
         buf.writeVarInt(arr.length);
         for (float num : arr) {
             buf.writeFloat(num);
@@ -132,11 +132,11 @@ public class NetworkUtil {
         return buf;
     }
     
-    public static float[] readFloatArray(PacketBuffer buf) {
+    public static float[] readFloatArray(FriendlyByteBuf buf) {
         return readFloatArray(buf, buf.readableBytes() / 4);
     }
 
-    public static float[] readFloatArray(PacketBuffer buf, int maxAllowed) {
+    public static float[] readFloatArray(FriendlyByteBuf buf, int maxAllowed) {
         int n = buf.readVarInt();
         if (n > maxAllowed) {
             throw new DecoderException("FloatArray with size " + n + " is bigger than allowed " + maxAllowed);
@@ -149,7 +149,7 @@ public class NetworkUtil {
         }
     }
 
-    public static PacketBuffer writeIntArray(PacketBuffer buf, int[] arr) {
+    public static FriendlyByteBuf writeIntArray(FriendlyByteBuf buf, int[] arr) {
         buf.writeVarInt(arr.length);
 
         for (int i : arr) {
@@ -159,11 +159,11 @@ public class NetworkUtil {
         return buf;
     }
 
-    public static int[] readIntArray(PacketBuffer buf) {
+    public static int[] readIntArray(FriendlyByteBuf buf) {
         return readIntArray(buf, buf.readableBytes());
     }
 
-    public static int[] readIntArray(PacketBuffer buf, int maxAllowed) {
+    public static int[] readIntArray(FriendlyByteBuf buf, int maxAllowed) {
         int n = buf.readVarInt();
         if (n > maxAllowed) {
             throw new DecoderException("IntArray with size " + n + " is bigger than allowed " + maxAllowed);
@@ -181,7 +181,7 @@ public class NetworkUtil {
     /**
      * Supports enums with up to 255 elements
      */
-    public static <T extends Enum<T>> PacketBuffer writeSmallEnumArray(PacketBuffer buf, T[] input) {
+    public static <T extends Enum<T>> FriendlyByteBuf writeSmallEnumArray(FriendlyByteBuf buf, T[] input) {
         int[] ordinals = GeneralUtil.toOrdinals(input);
         buf.writeVarInt(input.length);
         for (int i = 0; i < input.length; i++) {
@@ -196,7 +196,7 @@ public class NetworkUtil {
         return buf;
     }
     
-    public static <T extends Enum<T>> T[] readSmallEnumArray(PacketBuffer buf, Class<T> enumClass) {
+    public static <T extends Enum<T>> T[] readSmallEnumArray(FriendlyByteBuf buf, Class<T> enumClass) {
         int length = buf.readVarInt();
         T[] enumValues = enumClass.getEnumConstants();
         T[] ret = ObjectArrays.newArray(enumClass, length);
@@ -209,53 +209,53 @@ public class NetworkUtil {
         return ret;
     }
     
-    public static void writeVecApproximate(PacketBuffer buf, Vector3d vec) {
+    public static void writeVecApproximate(FriendlyByteBuf buf, Vec3 vec) {
         buf.writeInt((int) (vec.x * 8.0));
         buf.writeInt((int) (vec.y * 8.0));
         buf.writeInt((int) (vec.z * 8.0));
     }
     
-    public static Vector3d readVecApproximate(PacketBuffer buf) {
-        return new Vector3d(
+    public static Vec3 readVecApproximate(FriendlyByteBuf buf) {
+        return new Vec3(
                 buf.readInt() / 8.0, 
                 buf.readInt() / 8.0, 
                 buf.readInt() / 8.0);
     }
     
     
-    public static <T> void writeOptionally(PacketBuffer buf, @Nullable T obj, Consumer<T> write) {
+    public static <T> void writeOptionally(FriendlyByteBuf buf, @Nullable T obj, Consumer<T> write) {
         buf.writeBoolean(obj != null);
         if (obj != null) {
             write.accept(obj);
         }
     }
     
-    public static <T> void writeOptionally(PacketBuffer buf, @Nullable T obj, BiConsumer<T, PacketBuffer> write) {
+    public static <T> void writeOptionally(FriendlyByteBuf buf, @Nullable T obj, BiConsumer<T, FriendlyByteBuf> write) {
         buf.writeBoolean(obj != null);
         if (obj != null) {
             write.accept(obj, buf);
         }
     }
 
-    public static <T> void writeOptional(PacketBuffer buf, @Nonnull Optional<T> objOptional, Consumer<T> write) {
+    public static <T> void writeOptional(FriendlyByteBuf buf, @Nonnull Optional<T> objOptional, Consumer<T> write) {
         buf.writeBoolean(objOptional.isPresent());
         objOptional.ifPresent(obj -> write.accept(obj));
     }
     
-    public static <T> void writeOptional(PacketBuffer buf, @Nonnull Optional<T> objOptional, BiConsumer<T, PacketBuffer> write) {
+    public static <T> void writeOptional(FriendlyByteBuf buf, @Nonnull Optional<T> objOptional, BiConsumer<T, FriendlyByteBuf> write) {
         buf.writeBoolean(objOptional.isPresent());
         objOptional.ifPresent(obj -> write.accept(obj, buf));
     }
 
-    public static <T> Optional<T> readOptional(PacketBuffer buf, Supplier<T> read) {
+    public static <T> Optional<T> readOptional(FriendlyByteBuf buf, Supplier<T> read) {
         return buf.readBoolean() ? Optional.ofNullable(read.get()) : Optional.empty();
     }
     
-    public static <T> Optional<T> readOptional(PacketBuffer buf, Function<PacketBuffer, T> read) {
+    public static <T> Optional<T> readOptional(FriendlyByteBuf buf, Function<FriendlyByteBuf, T> read) {
         return buf.readBoolean() ? Optional.ofNullable(read.apply(buf)) : Optional.empty();
     }
     
-    public static void writeOptionalInt(PacketBuffer buf, OptionalInt optional, boolean varInt) {
+    public static void writeOptionalInt(FriendlyByteBuf buf, OptionalInt optional, boolean varInt) {
         buf.writeBoolean(optional.isPresent());
         optional.ifPresent(value -> {
             if (varInt) {
@@ -267,7 +267,7 @@ public class NetworkUtil {
         });
     }
     
-    public static OptionalInt readOptionalInt(PacketBuffer buf, boolean varInt) {
+    public static OptionalInt readOptionalInt(FriendlyByteBuf buf, boolean varInt) {
         if (!buf.readBoolean()) {
             return OptionalInt.empty();
         }
@@ -276,7 +276,7 @@ public class NetworkUtil {
     }
     
     
-    public static <T> int writeCollection(PacketBuffer buf, Collection<T> collection, Consumer<T> writeElement, 
+    public static <T> int writeCollection(FriendlyByteBuf buf, Collection<T> collection, Consumer<T> writeElement, 
             boolean removeWrittenFromCollection) {
         int i = 0;
         int initialWriterIndex = buf.writerIndex();
@@ -302,7 +302,7 @@ public class NetworkUtil {
         return i;
     }
     
-    public static <T, C extends Collection<T>> C readCollection(Supplier<C> createCollection, PacketBuffer buf, Supplier<T> readElement) {
+    public static <T, C extends Collection<T>> C readCollection(Supplier<C> createCollection, FriendlyByteBuf buf, Supplier<T> readElement) {
         C collection = createCollection.get();
         int size = buf.readInt();
         if (size > 0) {
@@ -313,11 +313,11 @@ public class NetworkUtil {
         return collection;
     }
     
-    public static <T> List<T> readCollection(PacketBuffer buf, Supplier<T> readElement) {
+    public static <T> List<T> readCollection(FriendlyByteBuf buf, Supplier<T> readElement) {
         return readCollection(ArrayList::new, buf, readElement);
     }
     
-    public static <T> int writeCollection(PacketBuffer buf, Collection<T> collection, BiConsumer<T, PacketBuffer> writeElement, 
+    public static <T> int writeCollection(FriendlyByteBuf buf, Collection<T> collection, BiConsumer<T, FriendlyByteBuf> writeElement, 
             boolean removeWrittenFromCollection) {
         int i = 0;
         int initialWriterIndex = buf.writerIndex();
@@ -343,7 +343,7 @@ public class NetworkUtil {
         return i;
     }
     
-    public static <T, C extends Collection<T>> C readCollection(Supplier<C> createCollection, PacketBuffer buf, Function<PacketBuffer, T> readElement) {
+    public static <T, C extends Collection<T>> C readCollection(Supplier<C> createCollection, FriendlyByteBuf buf, Function<FriendlyByteBuf, T> readElement) {
         C collection = createCollection.get();
         int size = buf.readInt();
         if (size > 0) {
@@ -354,12 +354,12 @@ public class NetworkUtil {
         return collection;
     }
     
-    public static <T> List<T> readCollection(PacketBuffer buf, Function<PacketBuffer, T> readElement) {
+    public static <T> List<T> readCollection(FriendlyByteBuf buf, Function<FriendlyByteBuf, T> readElement) {
         return readCollection(ArrayList::new, buf, readElement);
     }
     
     
-    public static void writePowerType(PacketBuffer buf, IPowerType<?, ?> powerType, PowerClassification powerClassification) {
+    public static void writePowerType(FriendlyByteBuf buf, IPowerType<?, ?> powerType, PowerClassification powerClassification) {
         switch (powerClassification) {
         case STAND:
             buf.writeRegistryId((StandType<?>) powerType);
@@ -371,7 +371,7 @@ public class NetworkUtil {
     }
     
     @SuppressWarnings("unchecked")
-    public static IPowerType<?, ?> readPowerType(PacketBuffer buf, PowerClassification powerClassification) {
+    public static IPowerType<?, ?> readPowerType(FriendlyByteBuf buf, PowerClassification powerClassification) {
         switch (powerClassification) {
         case STAND:
             return buf.readRegistryIdSafe(StandType.class);
@@ -383,7 +383,7 @@ public class NetworkUtil {
     }
     
     
-    public static void writeEntity(PacketBuffer buf, @Nullable Entity entity) {
+    public static void writeEntity(FriendlyByteBuf buf, @Nullable Entity entity) {
         buf.writeBoolean(entity != null);
         if (entity != null) {
             buf.writeInt(entity.getId());
@@ -391,7 +391,7 @@ public class NetworkUtil {
     }
     
     @Nullable
-    public static Entity readEntity(PacketBuffer buf, World world) {
+    public static Entity readEntity(FriendlyByteBuf buf, Level world) {
         boolean hasEntity = buf.readBoolean();
         if (hasEntity) {
             int entityId = buf.readInt();

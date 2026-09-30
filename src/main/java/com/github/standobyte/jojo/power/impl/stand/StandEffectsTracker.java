@@ -23,12 +23,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class StandEffectsTracker {
     public static final AtomicInteger EFFECTS_COUNTER = new AtomicInteger();
@@ -52,8 +52,8 @@ public class StandEffectsTracker {
         putEffectInstance(instance);
         if (!user.level.isClientSide()) {
             PacketManager.sendToClientsTracking(TrStandEffectPacket.add(instance, false), user);
-            if (user instanceof ServerPlayerEntity) {
-                PacketManager.sendToClient(TrStandEffectPacket.add(instance, true), (ServerPlayerEntity) user);
+            if (user instanceof ServerPlayer) {
+                PacketManager.sendToClient(TrStandEffectPacket.add(instance, true), (ServerPlayer) user);
             }
         }
     }
@@ -106,7 +106,7 @@ public class StandEffectsTracker {
         }
     }
     
-    public void onStandUserLogout(ServerPlayerEntity user) {
+    public void onStandUserLogout(ServerPlayer user) {
         if (!user.server.isPublished()) return;
         
         ObjectIterator<Entry<StandEffectInstance>> it = effects.int2ObjectEntrySet().iterator();
@@ -208,21 +208,21 @@ public class StandEffectsTracker {
         return effects.values().stream();
     }
     
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         effects.values().forEach(effect -> {
             effect.syncWithUserOnly(user);
         });
     }
     
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         effects.values().forEach(effect -> {
             effect.syncWithTrackingOrUser(player);
         });
     }
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
-        ListNBT effectsList = new ListNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
+        ListTag effectsList = new ListTag();
         effects.forEach((id, effect) -> {
             if (!effect.toBeRemoved()) {
                 effectsList.add(effect.toNBT());
@@ -232,11 +232,11 @@ public class StandEffectsTracker {
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
-        if (nbt.contains("Effects", MCUtil.getNbtId(ListNBT.class))) {
-            World world = standPower.getUser().level;
-            nbt.getList("Effects", MCUtil.getNbtId(CompoundNBT.class)).forEach(effectNBT -> {
-                StandEffectInstance effect = StandEffectInstance.fromNBT((CompoundNBT) effectNBT, world);
+    public void fromNBT(CompoundTag nbt) {
+        if (nbt.contains("Effects", MCUtil.getNbtId(ListTag.class))) {
+            Level world = standPower.getUser().level;
+            nbt.getList("Effects", MCUtil.getNbtId(CompoundTag.class)).forEach(effectNBT -> {
+                StandEffectInstance effect = StandEffectInstance.fromNBT((CompoundTag) effectNBT, world);
                 if (effect != null) {
                     putEffectInstance(effect.withId(EFFECTS_COUNTER.incrementAndGet()));
                 }
@@ -294,8 +294,8 @@ public class StandEffectsTracker {
     }
     
     public static Optional<StandEffectInstance> getTargetLookedAt(Stream<? extends StandEffectInstance> targets, LivingEntity user) {
-        Vector3d lookAngle = user.getLookAngle();
-        Vector3d eyePos = user.getEyePosition(1.0F);
+        Vec3 lookAngle = user.getLookAngle();
+        Vec3 eyePos = user.getEyePosition(1.0F);
         return targets.max(Comparator.comparingDouble(
                 e -> lookAngle.dot(e.getTarget().getBoundingBox().getCenter().subtract(eyePos).normalize())))
                 .map(Function.identity());

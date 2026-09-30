@@ -10,11 +10,11 @@ import com.github.standobyte.jojo.entity.mob.rps.RockPaperScissorsGame;
 import com.github.standobyte.jojo.entity.mob.rps.RockPaperScissorsGame.Pick;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class RPSGameStatePacket {
     private final Type packetType;
@@ -88,7 +88,7 @@ public class RPSGameStatePacket {
     public static class Handler implements IModPacketHandler<RPSGameStatePacket> {
         
         @Override
-        public void encode(RPSGameStatePacket msg, PacketBuffer buf) {
+        public void encode(RPSGameStatePacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.packetType);
             switch (msg.packetType) {
             case UPDATE:
@@ -119,7 +119,7 @@ public class RPSGameStatePacket {
             }
         }
         
-        private void writePickLists(RPSGameStatePacket msg, PacketBuffer buf) {
+        private void writePickLists(RPSGameStatePacket msg, FriendlyByteBuf buf) {
             int size = msg.playerPicks.size();
             buf.writeVarInt(size);
             for (int i = 0; i < size; i++) {
@@ -131,7 +131,7 @@ public class RPSGameStatePacket {
         }
         
         @Override
-        public RPSGameStatePacket decode(PacketBuffer buf) {
+        public RPSGameStatePacket decode(FriendlyByteBuf buf) {
             Type type = buf.readEnum(Type.class);
             List<Pick> playerPicks = new ArrayList<>();
             List<Pick> opponentPicks = new ArrayList<>();
@@ -156,7 +156,7 @@ public class RPSGameStatePacket {
             throw new IllegalStateException();
         }
         
-        private void readPickLists(List<Pick> playerPicks, List<Pick> opponentPicks, PacketBuffer buf) {
+        private void readPickLists(List<Pick> playerPicks, List<Pick> opponentPicks, FriendlyByteBuf buf) {
             int size = buf.readVarInt();
             for (int i = 0; i < size; i++) {
                 playerPicks.add(buf.readEnum(Pick.class));
@@ -168,7 +168,7 @@ public class RPSGameStatePacket {
         
         @Override
         public void handle(RPSGameStatePacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             switch (msg.packetType) {
             case UPDATE:
                 player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {

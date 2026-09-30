@@ -6,15 +6,15 @@ import com.github.standobyte.jojo.capability.entity.player.PlayerClientBroadcast
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrPlayerModSettingsPacket {
     private final int entityId;
     private PlayerClientBroadcastedSettings settings;
-    private PacketBuffer settingsData;
+    private FriendlyByteBuf settingsData;
     
     public TrPlayerModSettingsPacket(int entityId, PlayerClientBroadcastedSettings settings) {
         this.entityId = entityId;
@@ -26,13 +26,13 @@ public class TrPlayerModSettingsPacket {
     public static class Handler implements IModPacketHandler<TrPlayerModSettingsPacket> {
 
         @Override
-        public void encode(TrPlayerModSettingsPacket msg, PacketBuffer buf) {
+        public void encode(TrPlayerModSettingsPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             msg.settings.toBuf(buf);
         }
 
         @Override
-        public TrPlayerModSettingsPacket decode(PacketBuffer buf) {
+        public TrPlayerModSettingsPacket decode(FriendlyByteBuf buf) {
             TrPlayerModSettingsPacket packet = new TrPlayerModSettingsPacket(buf.readInt(), null);
             packet.settingsData = buf;
             return packet;
@@ -41,8 +41,8 @@ public class TrPlayerModSettingsPacket {
         @Override
         public void handle(TrPlayerModSettingsPacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.entityId);
-            if (entity instanceof PlayerEntity) {
-                PlayerClientBroadcastedSettings.getPlayerSettings((PlayerEntity) entity).ifPresent(serverSettings -> {
+            if (entity instanceof Player) {
+                PlayerClientBroadcastedSettings.getPlayerSettings((Player) entity).ifPresent(serverSettings -> {
                     serverSettings.fromBuf(msg.settingsData);
                 });
             }

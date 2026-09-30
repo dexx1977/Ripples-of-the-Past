@@ -10,16 +10,16 @@ import com.github.standobyte.jojo.itemtracking.ITrackedArrowEntity;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.CrossbowItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 @Mixin(CrossbowItem.class)
-public abstract class CrossbowItemMixin extends ShootableItem {
+public abstract class CrossbowItemMixin extends ProjectileWeaponItem {
 
     public CrossbowItemMixin(Properties properties) {
         super(properties);
@@ -28,10 +28,10 @@ public abstract class CrossbowItemMixin extends ShootableItem {
     @Inject(method = "shootProjectile", at = @At(value = "INVOKE", 
                 target = "Lnet/minecraft/entity/projectile/ProjectileEntity;shoot(DDDFF)V"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static void jojoModifyCrossbowArrow(World pLevel, LivingEntity pShooter, Hand arg2, 
+    private static void jojoModifyCrossbowArrow(Level pLevel, LivingEntity pShooter, InteractionHand arg2, 
             ItemStack pCrossbowStack, ItemStack pAmmoStack, float pSoundPitch, boolean pIsCreativeMode, 
             float pVelocity, float pInaccuracy, float pProjectileAngle, CallbackInfo ci, 
-            boolean firework, ProjectileEntity projectileEntity) {
+            boolean firework, Projectile projectileEntity) {
         if (pProjectileAngle == 0) { // in case of multishot
             TrackerItemStack.getItemTracker(pAmmoStack).ifPresent(tracker -> {
                 if (tracker.isTracked()) {

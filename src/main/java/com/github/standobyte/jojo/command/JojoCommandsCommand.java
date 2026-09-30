@@ -6,18 +6,17 @@ import java.util.Set;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 
 public class JojoCommandsCommand {
     private static final Set<String> COMMANDS = new HashSet<>();
-    private static IFormattableTextComponent finalText = new StringTextComponent("");
+    private static MutableComponent finalText = Component.literal("");
 
     public static void addCommand(String literal) {
         COMMANDS.add(literal);
@@ -26,26 +25,26 @@ public class JojoCommandsCommand {
                 .sorted()
                 .map(lit-> {
                     String command = "/" + lit;
-                    return (IFormattableTextComponent) new TranslationTextComponent("jojo.command_description",  
-                            new StringTextComponent(command)
+                    return (MutableComponent) Component.translatable("jojo.command_description",  
+                            Component.literal(command)
                             .withStyle(style -> {
-                                return style.withColor(TextFormatting.GREEN)
+                                return style.withColor(ChatFormatting.GREEN)
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(command)));
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(command)));
                             }), 
-                            new TranslationTextComponent("jojo.command.desc." + lit));
+                            Component.translatable("jojo.command.desc." + lit));
                 })
                 .reduce((line1, line2) -> line1.append("\n").append(line2))
                 .orElse(finalText);
     }
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("jojocommands").executes((ctx -> {
             return writeContents(ctx);
         })));
     }
 
-    private static int writeContents(CommandContext<CommandSource> ctx) {
+    private static int writeContents(CommandContext<CommandSourceStack> ctx) {
         ctx.getSource().sendSuccess(finalText, false);
         return 0;
     }

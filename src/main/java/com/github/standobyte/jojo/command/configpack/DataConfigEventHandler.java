@@ -1,15 +1,15 @@
 package com.github.standobyte.jojo.command.configpack;
 
-import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class DataConfigEventHandler<T extends JsonReloadListener & IDataConfig> {
+public class DataConfigEventHandler<T extends SimpleJsonResourceReloadListener & IDataConfig> {
     private final T dataConfig;
     
-    public static <T extends JsonReloadListener & IDataConfig> void registerEventHandler(T dataConfig, IEventBus forgeEventBus) {
+    public static <T extends SimpleJsonResourceReloadListener & IDataConfig> void registerEventHandler(T dataConfig, IEventBus forgeEventBus) {
         DataConfigEventHandler<T> eventHandler = new DataConfigEventHandler<>(dataConfig);
         forgeEventBus.register(eventHandler);
     }

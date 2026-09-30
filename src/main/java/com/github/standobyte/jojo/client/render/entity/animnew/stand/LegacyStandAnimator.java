@@ -16,11 +16,11 @@ import com.github.standobyte.jojo.client.render.entity.pose.anim.barrage.IBarrag
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
 
 public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimator {
     private StandEntityModel<T> model;
@@ -68,7 +68,7 @@ public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimato
             model.setStandPose(standPose, entity);
         }
         
-        HandSide swingingHand = entity != null ? entity.getPunchingHand() : HandSide.RIGHT;
+        HumanoidArm swingingHand = entity != null ? entity.getPunchingHand() : HumanoidArm.RIGHT;
         if (actionAnim.containsKey(standPose)) {
             idlePose.poseModel(1.0F, entity, ticks, yRotOffsetRad, xRotRad, swingingHand);
             model.onPose(entity, ticks);
@@ -100,7 +100,7 @@ public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimato
     private static final float SUMMON_ANIMATION_POSE_REVERSE_POINT = 0.75F;
     
     private static float summonPoseRotation(float ticks) {
-        return MathHelper.clamp(
+        return Mth.clamp(
                 (ticks - SUMMON_ANIMATION_LENGTH) / (SUMMON_ANIMATION_LENGTH * (1 - SUMMON_ANIMATION_POSE_REVERSE_POINT)) + 1, 
                 0F, 1F);
     }
@@ -109,7 +109,7 @@ public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimato
         poseReset.poseModel(1, entity, 0, 0, 0, entity.getPunchingHand());
     }
     
-    protected void poseSummon(T entity, StandEntityModel<T> model, float ticks, float yRotOffsetRad, float xRotRad, HandSide swingingHand) {
+    protected void poseSummon(T entity, StandEntityModel<T> model, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm swingingHand) {
         resetPose(entity);
         model.onPose(entity, ticks);
         
@@ -119,7 +119,7 @@ public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimato
         idlePose.poseModel(summonPoseRotation(ticks), entity, ticks, yRotOffsetRad, xRotRad, swingingHand);
     }
     
-    public void poseIdleLoop(T entity, StandEntityModel<T> model, float ticks, float yRotOffsetRad, float xRotRad, HandSide swingingHand) {
+    public void poseIdleLoop(T entity, StandEntityModel<T> model, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm swingingHand) {
         idleLoop.poseModel(ticks - model.idleLoopTickStamp, entity, ticks, yRotOffsetRad, xRotRad, swingingHand);
     }
     
@@ -134,7 +134,7 @@ public class LegacyStandAnimator<T extends StandEntity> implements IStandAnimato
     
     @Override
     public <A extends StandEntity> void renderBarrageSwings(A entity, StandEntityModel<A> model, float yRotOffsetDeg, float xRotDeg, 
-            MatrixStack matrixStack, IVertexBuilder buffer, 
+            PoseStack matrixStack, VertexConsumer buffer, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (!model.isLayerModel) {
             BarrageSwingsHolder<T, StandEntityModel<T>> barrageSwings = (BarrageSwingsHolder<T, StandEntityModel<T>>) entity.getBarrageSwingsHolder();

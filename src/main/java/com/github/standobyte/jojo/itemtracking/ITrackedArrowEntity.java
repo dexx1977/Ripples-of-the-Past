@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.itemtracking;
 
-import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.Tag;
 
 public interface ITrackedArrowEntity {
-    void saveItemTrackerNBT(INBT nbt);
+    void saveItemTrackerNBT(Tag nbt);
 }

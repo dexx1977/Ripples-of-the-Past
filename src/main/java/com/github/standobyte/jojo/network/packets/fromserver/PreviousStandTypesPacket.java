@@ -9,8 +9,8 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PreviousStandTypesPacket {
     public final boolean clear;
@@ -41,7 +41,7 @@ public class PreviousStandTypesPacket {
     public static class Handler implements IModPacketHandler<PreviousStandTypesPacket> {
 
         @Override
-        public void encode(PreviousStandTypesPacket msg, PacketBuffer buf) {
+        public void encode(PreviousStandTypesPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.clear);
             if (!msg.clear) {
                 buf.writeBoolean(msg.sendingAll);
@@ -55,7 +55,7 @@ public class PreviousStandTypesPacket {
         }
 
         @Override
-        public PreviousStandTypesPacket decode(PacketBuffer buf) {
+        public PreviousStandTypesPacket decode(FriendlyByteBuf buf) {
             boolean clear = buf.readBoolean();
             if (clear) {
                 return clear();

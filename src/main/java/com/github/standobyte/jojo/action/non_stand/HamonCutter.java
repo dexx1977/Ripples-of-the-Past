@@ -8,14 +8,14 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.PotionItem;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonCutter extends HamonAction {
 
@@ -32,12 +32,12 @@ public class HamonCutter extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             ItemStack potionItem = getUseableItem(user);
             if (potionItem.isEmpty()) return;
             
-            Vector3d shootingPos = null;
+            Vec3 shootingPos = null;
             for (int i = 0; i < 8; i++) {
                 HamonCutterEntity hamonCutterEntity = new HamonCutterEntity(user, world, potionItem);
                 if (potionItem.getItem() instanceof SoapItem) {
@@ -50,9 +50,9 @@ public class HamonCutter extends HamonAction {
             }
             HamonUtil.emitHamonSparkParticles(world, null, shootingPos.x, shootingPos.y, shootingPos.z, 0.75F);
 
-            PlayerEntity player = null;
-            if (user instanceof PlayerEntity) {
-                player = (PlayerEntity) user;
+            Player player = null;
+            if (user instanceof Player) {
+                player = (Player) user;
             }
             if (player == null || !player.abilities.instabuild) {
                 potionItem.shrink(1);
@@ -77,7 +77,7 @@ public class HamonCutter extends HamonAction {
     }
     
     @Override
-    public boolean renderHamonAuraOnItem(ItemStack item, HandSide handSide) {
+    public boolean renderHamonAuraOnItem(ItemStack item, HumanoidArm handSide) {
         return canUse(item);
     }
 }

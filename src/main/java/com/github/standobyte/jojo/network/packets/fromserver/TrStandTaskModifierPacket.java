@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrStandTaskModifierPacket {
     private final int standEntityId;
@@ -26,13 +26,13 @@ public class TrStandTaskModifierPacket {
     public static class Handler implements IModPacketHandler<TrStandTaskModifierPacket> {
 
         @Override
-        public void encode(TrStandTaskModifierPacket msg, PacketBuffer buf) {
+        public void encode(TrStandTaskModifierPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.standEntityId);
             buf.writeRegistryId(msg.action);
         }
 
         @Override
-        public TrStandTaskModifierPacket decode(PacketBuffer buf) {
+        public TrStandTaskModifierPacket decode(FriendlyByteBuf buf) {
             return new TrStandTaskModifierPacket(buf.readInt(), buf.readRegistryIdSafe(Action.class));
         }
 

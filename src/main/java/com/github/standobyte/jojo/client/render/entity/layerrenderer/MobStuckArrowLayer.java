@@ -8,35 +8,35 @@ import com.github.standobyte.jojo.entity.itemprojectile.KnifeEntity;
 import com.github.standobyte.jojo.mixin.Matrix4fAccessor;
 import com.github.standobyte.jojo.mixin.client.LivingRendererInvoker;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.SlimeEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.util.Mth;
 
-public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>> extends LayerRenderer<T, M> {
-    private final LivingRenderer<T, M> renderer;
+public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+    private final LivingEntityRenderer<T, M> renderer;
     private ModelCubeWeightedList modelCubes;
-    private final EntityRendererManager dispatcher;
+    private final EntityRenderDispatcher dispatcher;
     private Entity arrow;
     private boolean slime;
     
-    public MobStuckArrowLayer(LivingRenderer<T, M> renderer) {
+    public MobStuckArrowLayer(LivingEntityRenderer<T, M> renderer) {
         super(renderer);
         this.renderer = renderer;
         this.dispatcher = renderer.getDispatcher();
     }
     
     @Override
-    public void render(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pPackedLight, T pLivingEntity, 
+    public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, T pLivingEntity, 
             float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         boolean init = true;
         float[] scaleBack = DEFAULT_SCALE;
@@ -57,7 +57,7 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
                     ModelCubeWeightedList.ModelCube modelCube = modelCubes.getRandomCube(random);
                     pMatrixStack.pushPose();
                     modelCube.translateAndRotate(pMatrixStack);
-                    ModelRenderer.ModelBox modelBox = modelCube.cube();
+                    ModelPart.ModelBox modelBox = modelCube.cube();
                     float minX = modelBox.minX;
                     float maxX = modelBox.maxX;
                     float minY = modelBox.minY;
@@ -83,9 +83,9 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
                     case 5: f = random.nextFloat(); f1 = random.nextFloat(); f2 = 1;                  break;
                     }
                     
-                    float f3 = MathHelper.lerp(f,  minX, maxX) / 16.0F;
-                    float f4 = MathHelper.lerp(f1, minY, maxY) / 16.0F;
-                    float f5 = MathHelper.lerp(f2, minZ, maxZ) / 16.0F;
+                    float f3 = Mth.lerp(f,  minX, maxX) / 16.0F;
+                    float f4 = Mth.lerp(f1, minY, maxY) / 16.0F;
+                    float f5 = Mth.lerp(f2, minZ, maxZ) / 16.0F;
                     pMatrixStack.translate((double)f3, (double)f4, (double)f5);
                     f = -1.0F * (f * 2.0F - 1.0F);
                     f1 = -1.0F * (f1 * 2.0F - 1.0F);
@@ -109,13 +109,13 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
         }
     }
     
-    protected void renderStuckItem(Type projectileType, MatrixStack matrixStack, IRenderTypeBuffer buffer, 
+    protected void renderStuckItem(Type projectileType, PoseStack matrixStack, MultiBufferSource buffer, 
             int packedLight, T entity, float x, float y, float z, float partialTick, Random random) {
         matrixStack.pushPose();
-        float f = MathHelper.sqrt(x * x + z * z);
+        float f = Mth.sqrt(x * x + z * z);
         switch (projectileType) {
         case ARROW:
-            arrow = new ArrowEntity(entity.level, entity.getX(), entity.getY(), entity.getZ());
+            arrow = new Arrow(entity.level, entity.getX(), entity.getY(), entity.getZ());
             break;
         case KNIFE:
             arrow = new KnifeEntity(entity.level, entity.getX(), entity.getY(), entity.getZ());
@@ -133,7 +133,7 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
     private static final float PLAYER_SCALE = 0.9375F;
     private static final float[] DEFAULT_SCALE = { PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE };
     private float[] scaleBackEntity(T entity, float partialTick) {
-        MatrixStack matrixStack = new MatrixStack();
+        PoseStack matrixStack = new PoseStack();
         ((LivingRendererInvoker<T, M>) renderer).invokeScale(entity, matrixStack, partialTick);
         Matrix4fAccessor scaled = (Matrix4fAccessor) (Object) matrixStack.last().pose();
         float scaleX = MathUtil.getM(scaled, 0, 0);
@@ -152,7 +152,7 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
             M model = getParentModel();
             if (model != null) {
                 this.modelCubes = ModelCubeWeightedList.fromModel(model);
-                this.slime = entityExample instanceof SlimeEntity;
+                this.slime = entityExample instanceof Slime;
             }
             else {
                 this.modelCubes = ModelCubeWeightedList.empty();

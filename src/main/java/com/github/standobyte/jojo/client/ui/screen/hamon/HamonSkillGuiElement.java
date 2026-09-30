@@ -1,13 +1,13 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class HamonSkillGuiElement {
     protected final AbstractHamonSkill skill;
-    protected final IFormattableTextComponent name;
+    protected final MutableComponent name;
     protected int x;
     protected int y;
     protected final int width;
@@ -18,7 +18,7 @@ public class HamonSkillGuiElement {
         this(skill, skill.getNameTranslated(), x, y, width, height);
     }
     
-    public HamonSkillGuiElement(AbstractHamonSkill skill, IFormattableTextComponent name, 
+    public HamonSkillGuiElement(AbstractHamonSkill skill, MutableComponent name, 
             int x, int y, int width, int height) {
         this.skill = skill;
         this.name = name;
@@ -34,7 +34,7 @@ public class HamonSkillGuiElement {
         return mouseX >= realX && mouseX < realX + width && mouseY >= realY && mouseY < realY + height;
     }
     
-    public void renderSkillIcon(MatrixStack matrixStack, int x, int y) {
+    public void renderSkillIcon(PoseStack matrixStack, int x, int y) {
         HamonSkillsTabGui.renderHamonSkillIcon(matrixStack, skill, this.x + x, this.y + y);
     }
     
@@ -50,7 +50,7 @@ public class HamonSkillGuiElement {
         this.y = y;
     }
     
-    void drawTooltip(HamonScreen hamonScreen, MatrixStack matrixStack, int mouseX, int mouseY) {
+    void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
         hamonScreen.renderTooltip(matrixStack, name, mouseX, mouseY);
     }
     

@@ -10,9 +10,9 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandRelativeOffset;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 public final class StandEntityUnsummon extends StandEntityAction {
 
@@ -21,7 +21,7 @@ public final class StandEntityUnsummon extends StandEntityAction {
     }
 
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         LivingEntity user = standEntity.getUser();
         if (user != null && (standEntity.isCloseToUser() || standEntity.isFollowingUser() || standEntity.unsummonTicks > 0)) {
             int maxTicks = standEntity.getUnsummonDuration();
@@ -65,7 +65,7 @@ public final class StandEntityUnsummon extends StandEntityAction {
     }
     
     @Override
-    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+    protected void onTaskStopped(Level world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         standEntity.unsummonTicks = 0;
         standEntity.unsummonOffset = standEntity.getDefaultOffsetFromUser().copy();
     }
@@ -82,7 +82,7 @@ public final class StandEntityUnsummon extends StandEntityAction {
     }
     
     @Override
-    protected void playSoundAtStand(World world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
+    protected void playSoundAtStand(Level world, StandEntity standEntity, SoundEvent sound, IStandPower standPower, Phase phase) {
         if (world.isClientSide()) {
             ClientTickingSoundsHelper.playStandEntityUnsummonSound(standEntity, sound, 1.0F, 1.0F);
         }
@@ -94,7 +94,7 @@ public final class StandEntityUnsummon extends StandEntityAction {
     }
     
     @Override
-    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
+    public void onTaskSet(Level world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
         if (world.isClientSide()) {
             LivingEntity user = standPower.getUser();
             if (user != null && user == ClientUtil.getClientPlayer() && !standEntity.isArmsOnlyMode()) {

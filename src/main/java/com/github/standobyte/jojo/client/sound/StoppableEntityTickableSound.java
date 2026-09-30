@@ -3,12 +3,12 @@ package com.github.standobyte.jojo.client.sound;
 import java.util.function.Predicate;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 
-public class StoppableEntityTickableSound<T extends Entity> extends TickableSound {
+public class StoppableEntityTickableSound<T extends Entity> extends AbstractTickableSoundInstance {
     protected final T entity;
     protected final Predicate<T> playWhile;
     
@@ -16,12 +16,12 @@ public class StoppableEntityTickableSound<T extends Entity> extends TickableSoun
     private boolean isFadingOut = false;
     private float volumeReduction;
     
-    public StoppableEntityTickableSound(SoundEvent sound, SoundCategory category, T entity, 
+    public StoppableEntityTickableSound(SoundEvent sound, SoundSource category, T entity, 
             Predicate<T> playWhile) {
         this(sound, category, 1.0F, 1.0F, false, entity, playWhile);
     }
     
-    public StoppableEntityTickableSound(SoundEvent sound, SoundCategory category, 
+    public StoppableEntityTickableSound(SoundEvent sound, SoundSource category, 
             float volume, float pitch, boolean looping, T entity, Predicate<T> playWhile) {
         super(sound, category);
         this.entity = entity;

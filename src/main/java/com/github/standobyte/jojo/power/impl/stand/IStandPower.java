@@ -13,8 +13,8 @@ import com.github.standobyte.jojo.network.packets.fromserver.StandActionLearning
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.LazyOptional;
 
 public interface IStandPower extends IPower<IStandPower, StandType<?>> {
@@ -93,7 +93,7 @@ public interface IStandPower extends IPower<IStandPower, StandType<?>> {
         return entity.getCapability(StandCapProvider.STAND_CAP);
     }
     
-    public static IStandPower getPlayerStandPower(PlayerEntity player) {
+    public static IStandPower getPlayerStandPower(Player player) {
         return getStandPowerOptional(player).orElseThrow(() -> new IllegalStateException("Player's stand power capability is empty."));
     }
 }

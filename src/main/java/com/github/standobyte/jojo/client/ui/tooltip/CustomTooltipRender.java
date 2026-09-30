@@ -9,20 +9,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.client.ClientUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.Style;
+import net.minecraft.client.gui.Font;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public class CustomTooltipRender {
 
-    public static void renderWrappedToolTip(MatrixStack matrixStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY, FontRenderer font) {
+    public static void renderWrappedToolTip(PoseStack matrixStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY, Font font) {
         Minecraft mc = Minecraft.getInstance();
         int width = mc.getWindow().getGuiScaledWidth();
         int height = mc.getWindow().getGuiScaledHeight();
@@ -33,21 +33,21 @@ public class CustomTooltipRender {
     }
     
     @Deprecated
-    public static void drawHoveringText(MatrixStack mStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY,
+    public static void drawHoveringText(PoseStack mStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY,
                                         int screenWidth, int screenHeight, int maxTextWidth,
-                                        int backgroundColor, int borderColorStart, int borderColorEnd, FontRenderer font) {
+                                        int backgroundColor, int borderColorStart, int borderColorEnd, Font font) {
         drawHoveringText(mStack, tooltipLines, mouseX, mouseY, 
                 screenWidth, screenHeight, maxTextWidth, 
                 backgroundColor, borderColorStart, borderColorEnd, font, true);
     }
     
     @SuppressWarnings("deprecation")
-    public static void drawHoveringText(MatrixStack mStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY,
+    public static void drawHoveringText(PoseStack mStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY,
                                         int screenWidth, int screenHeight, int maxTextWidth,
-                                        int backgroundColor, int borderColorStart, int borderColorEnd, FontRenderer font, boolean firstLineTitle) {
+                                        int backgroundColor, int borderColorStart, int borderColorEnd, Font font, boolean firstLineTitle) {
         if (!tooltipLines.isEmpty())
         {
-            List<? extends ITextProperties> eventTextOnlyLines = tooltipLines.stream().flatMap(ITooltipLine::getTextOnly).collect(Collectors.toList());
+            List<? extends FormattedText> eventTextOnlyLines = tooltipLines.stream().flatMap(ITooltipLine::getTextOnly).collect(Collectors.toList());
             RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(ItemStack.EMPTY, eventTextOnlyLines, mStack, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
             if (MinecraftForge.EVENT_BUS.post(event))
                 return;

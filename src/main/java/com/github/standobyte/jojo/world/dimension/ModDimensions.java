@@ -2,15 +2,15 @@ package com.github.standobyte.jojo.world.dimension;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
 
 public class ModDimensions {
-    public static RegistryKey<World> MR_PRESIDENT;
+    public static ResourceKey<Level> MR_PRESIDENT;
     
     public static void init() {
-        MR_PRESIDENT = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(JojoMod.MOD_ID, "mr_president"));
+        MR_PRESIDENT = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(JojoMod.MOD_ID, "mr_president"));
     }
 }

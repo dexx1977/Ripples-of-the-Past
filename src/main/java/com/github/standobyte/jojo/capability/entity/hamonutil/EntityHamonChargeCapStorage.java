@@ -1,20 +1,20 @@
 package com.github.standobyte.jojo.capability.entity.hamonutil;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 
 public class EntityHamonChargeCapStorage implements IStorage<EntityHamonChargeCap> {
 
     @Override
-    public INBT writeNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side) {
+    public Tag writeNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side) {
         return instance.toNBT();
     }
 
     @Override
-    public void readNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side, INBT nbt) {
-        instance.fromNBT((CompoundNBT) nbt);
+    public void readNBT(Capability<EntityHamonChargeCap> capability, EntityHamonChargeCap instance, Direction side, Tag nbt) {
+        instance.fromNBT((CompoundTag) nbt);
     }
 }

@@ -31,16 +31,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.Hand;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 
-public class CommandsMap extends ReloadListener<JsonObject> {
+public class CommandsMap extends SimplePreparableReloadListener<JsonObject> {
     private final Gson gson;
     public MultiMap<String, VoiceCommand> allCommands = new MultiMap<>();
     
@@ -49,19 +49,19 @@ public class CommandsMap extends ReloadListener<JsonObject> {
     }
 
     @Override
-    protected JsonObject prepare(IResourceManager pResourceManager, IProfiler pProfiler) {
+    protected JsonObject prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         JsonObject json = new JsonObject();
         
         for (String namespace : pResourceManager.getNamespaces()) {
             
             try {
-                for(IResource resource : pResourceManager.getResources(new ResourceLocation(namespace, "rotp_vc.json"))) {
+                for(Resource resource : pResourceManager.getResources(new ResourceLocation(namespace, "rotp_vc.json"))) {
 
                     try (
                             InputStream inputstream = resource.getInputStream();
                             Reader reader = new InputStreamReader(inputstream, StandardCharsets.UTF_8);
                             ) {
-                        JsonObject readJson = JSONUtils.fromJson(this.gson, reader, JsonObject.class);
+                        JsonObject readJson = GsonHelper.fromJson(this.gson, reader, JsonObject.class);
                         if (readJson != null) {
                             JsonModUtil.merge(json, readJson);
                         }
@@ -80,7 +80,7 @@ public class CommandsMap extends ReloadListener<JsonObject> {
     }
 
     @Override
-    protected void apply(JsonObject pObject, IResourceManager pResourceManager, IProfiler pProfiler) {
+    protected void apply(JsonObject pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         allCommands.clear();
         for (Map.Entry<String, JsonElement> powerTypeEntry : pObject.entrySet()) {
             ResourceLocation powerTypeId = new ResourceLocation(powerTypeEntry.getKey());
@@ -117,7 +117,7 @@ public class CommandsMap extends ReloadListener<JsonObject> {
     public boolean onVoiceCommand(String commandRaw, IStandPower stand, INonStandPower power) {
         dontStopHeld = false;
         boolean result = false;
-        PlayerEntity player = ClientUtil.getClientPlayer();
+        Player player = ClientUtil.getClientPlayer();
         if (player != null) {
             String commandStr = commandRaw.replace(" ", "").toLowerCase();
             
@@ -229,7 +229,7 @@ public class CommandsMap extends ReloadListener<JsonObject> {
                     InputHandler.getInstance().mcPlayerAttack();
                 }
                 if (actionWentOff && (InputHandler.actionSwingsHand(action, power) == HudClickResult.Behavior.FORCE)) {
-                    mc.player.swing(Hand.MAIN_HAND);
+                    mc.player.swing(InteractionHand.MAIN_HAND);
                 }
                 if (power.getHeldAction() == ability) {
                     dontStopHeld = true;

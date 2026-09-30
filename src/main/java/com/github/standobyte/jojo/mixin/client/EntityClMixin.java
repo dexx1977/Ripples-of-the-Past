@@ -18,8 +18,8 @@ import com.github.standobyte.jojo.client.IEntityGlowColor;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 @Mixin(Entity.class)
 public class EntityClMixin implements IEntityGlowColor {
@@ -50,7 +50,7 @@ public class EntityClMixin implements IEntityGlowColor {
     
     @Redirect(method = "isInvisibleTo", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;isSpectator()Z"))
-    public boolean jojoSpectatorVisibility(PlayerEntity player) {
+    public boolean jojoSpectatorVisibility(Player player) {
         return JojoModUtil.seesInvisibleAsSpectator(player);
     }
     

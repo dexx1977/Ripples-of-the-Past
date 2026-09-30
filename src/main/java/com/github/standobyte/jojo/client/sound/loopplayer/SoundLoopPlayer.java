@@ -2,17 +2,17 @@ package com.github.standobyte.jojo.client.sound.loopplayer;
 
 import java.util.Random;
 
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 @Deprecated
 public abstract class SoundLoopPlayer {
     protected static final Random RANDOM = new Random();
-    protected final World world;
+    protected final Level world;
     private SoundEvent sound;
-    private SoundCategory soundCategory;
+    private SoundSource soundCategory;
     private float volume;
     private float pitch;
     private int tickCount = 0;
@@ -20,7 +20,7 @@ public abstract class SoundLoopPlayer {
     protected boolean playedSoundThisTick;
     private boolean stopped = false;
     
-    public SoundLoopPlayer(World world, SoundEvent sound, SoundCategory soundCategory, float volume, float pitch) {
+    public SoundLoopPlayer(Level world, SoundEvent sound, SoundSource soundCategory, float volume, float pitch) {
         this.world = world;
         this.sound = sound;
         this.soundCategory = soundCategory;
@@ -35,7 +35,7 @@ public abstract class SoundLoopPlayer {
         }
         
         if (tickCount++ >= nextSoundIn) {
-            Vector3d pos = soundPos();
+            Vec3 pos = soundPos();
             world.playLocalSound(pos.x, pos.y, pos.z, sound, soundCategory, volume, pitch, true);
             nextSoundIn = tickCount + soundDelayTicks();
             playedSoundThisTick = true;
@@ -47,7 +47,7 @@ public abstract class SoundLoopPlayer {
     
     protected abstract int soundDelayTicks();
     protected abstract boolean continuePlaying();
-    protected abstract Vector3d soundPos();
+    protected abstract Vec3 soundPos();
     
     public boolean isStopped() {
         return stopped;

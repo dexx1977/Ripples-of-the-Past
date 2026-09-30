@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.init.power.non_stand.hamon;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 
 import com.github.standobyte.jojo.JojoMod;
@@ -12,16 +14,16 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterTechniqueHamonSkill;
 
-import net.minecraft.util.Util;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.Util;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 public class ModHamonSkills {
     public static final DeferredRegister<AbstractHamonSkill> HAMON_SKILLS = DeferredRegister.create(
-            AbstractHamonSkill.class, JojoMod.MOD_ID);
+            new ResourceLocation(JojoMod.MOD_ID, "hamon_skill"), JojoMod.MOD_ID);
     
     public static final DeferredRegister<CharacterHamonTechnique> HAMON_CHARACTER_TECHNIQUES = DeferredRegister.create(
-            CharacterHamonTechnique.class, JojoMod.MOD_ID);
+            new ResourceLocation(JojoMod.MOD_ID, "hamon_techniques"), JojoMod.MOD_ID);
     
     
     

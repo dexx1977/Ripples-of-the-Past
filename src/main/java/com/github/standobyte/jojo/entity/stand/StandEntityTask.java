@@ -24,11 +24,11 @@ import com.github.standobyte.jojo.network.packets.fromserver.TrStandTaskModifier
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.StacksTHC;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.IDataSerializer;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.DataSerializerEntry;
 
 public class StandEntityTask {
@@ -257,7 +257,7 @@ public class StandEntityTask {
         return target;
     }
     
-    public void resolveEntityTarget(World world) {
+    public void resolveEntityTarget(Level world) {
         if (target.getType() == TargetType.ENTITY) {
             this.target = target.resolveEntityId(world);
         }
@@ -281,10 +281,10 @@ public class StandEntityTask {
     
 
     public static final Supplier<DataSerializerEntry> SERIALIZER = () -> new DataSerializerEntry(
-            new IDataSerializer<Optional<StandEntityTask>>() {
+            new EntityDataSerializer<Optional<StandEntityTask>>() {
 
         @Override
-        public void write(PacketBuffer buf, Optional<StandEntityTask> value) {
+        public void write(FriendlyByteBuf buf, Optional<StandEntityTask> value) {
             boolean taskNotEmplty = value.isPresent();
             buf.writeBoolean(taskNotEmplty);
             if (taskNotEmplty) {
@@ -304,7 +304,7 @@ public class StandEntityTask {
         }
 
         @Override
-        public Optional<StandEntityTask> read(PacketBuffer buf) {
+        public Optional<StandEntityTask> read(FriendlyByteBuf buf) {
             if (!buf.readBoolean()) {
                 return Optional.empty();
             }

@@ -8,8 +8,8 @@ import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.util.Ease;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -21,7 +21,7 @@ public class KosmXTestAnimHandler extends AnimLayerHandler<ModifierLayer<IAnimat
     }
 
     @Override
-    public ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    public ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         ModifierLayer<IAnimation> layer = new ModifierLayer<>(null);
         layer.addModifierLast(animSpeed);
         return layer;
@@ -41,7 +41,7 @@ public class KosmXTestAnimHandler extends AnimLayerHandler<ModifierLayer<IAnimat
     public void onChat(ClientChatEvent event) {
         String[] msg = event.getMessage().split(" ");
         if (msg.length > 0 && "/animtest".equals(msg[0])) {
-            AbstractClientPlayerEntity player = Minecraft.getInstance().player;
+            AbstractClientPlayer player = Minecraft.getInstance().player;
             ResourceLocation animName = null;
             int fadeOutTicks = -1;
             float speedModifier = -1;

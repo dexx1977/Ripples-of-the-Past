@@ -6,14 +6,14 @@ import com.github.standobyte.jojo.network.BatchSender;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.PhotoDataPacket;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class SrvPhotoSender extends BatchSender {
     private final UUID serverId;
     private final long photoId;
-    private final ServerPlayerEntity player;
+    private final ServerPlayer player;
 
-    public SrvPhotoSender(byte[] data, UUID serverId, long photoId, ServerPlayerEntity player) {
+    public SrvPhotoSender(byte[] data, UUID serverId, long photoId, ServerPlayer player) {
         super(data);
         this.serverId = serverId;
         this.photoId = photoId;

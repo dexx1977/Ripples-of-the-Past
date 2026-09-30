@@ -19,28 +19,26 @@ import com.github.standobyte.jojo.item.WalkmanItem;
 import com.github.standobyte.jojo.item.cassette.CassetteCap.TrackSourceList;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromclient.ClWalkmanControlsPacket;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
 
 @SuppressWarnings("deprecation")
-public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
+public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer> {
     static final ResourceLocation WALKMAN_SCREEN_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/container/walkman.png");
     private static final ResourceLocation WALKMAN_CASSETTE_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/container/walkman_cassette.png");
 
@@ -64,8 +62,8 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
     
     private int walkmanId;
     
-    public WalkmanScreen(WalkmanItemContainer container, PlayerInventory playerInventory, ITextComponent name) {
-        super(container, playerInventory, StringTextComponent.EMPTY);
+    public WalkmanScreen(WalkmanItemContainer container, Inventory playerInventory, Component name) {
+        super(container, playerInventory, Component.empty());
         imageWidth = 194;
         imageHeight = 224;
     }
@@ -89,7 +87,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
     }
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         updateCassette();
         updateButtons();
         this.renderBackground(matrixStack);
@@ -128,7 +126,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                     
                     List<Track> tracks = cassetteTracks.get(currentSide);
                     setTrack(tracks.isEmpty() ? null : TrackInfo.of(cassetteTracks, currentSide, 
-                            MathHelper.clamp(cap.getTrackOn(), 0, tracks.size() - 1)));
+                            Mth.clamp(cap.getTrackOn(), 0, tracks.size() - 1)));
                 });
             }
             
@@ -166,10 +164,10 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                 () -> {
                     TrackInfo track = WalkmanSoundHandler.getPlaylist(walkmanId).getRewindTrack();
                     if (track != currentTrack) {
-                        return new TranslationTextComponent("walkman.button.rewind", tooltipTrackName(track));
+                        return Component.translatable("walkman.button.rewind", tooltipTrackName(track));
                     }
                     else {
-                        return new TranslationTextComponent("walkman.button.rewind.start");
+                        return Component.translatable("walkman.button.rewind.start");
                     }
                 }, this, 39));
         
@@ -183,7 +181,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                     playlist.playCurrentTrack();
                 }, 
                 () -> {
-                    return new TranslationTextComponent("walkman.button.play", tooltipTrackName(currentTrack));
+                    return Component.translatable("walkman.button.play", tooltipTrackName(currentTrack));
                 }, this, 58));
         
         flipSideButton = addButton(new WalkmanButton(x + 58, y + 107, 41, 13, 
@@ -195,7 +193,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                     playlist.playCurrentTrack();
                 }, 
                 () -> {
-                    return new TranslationTextComponent("walkman.button.flip", tooltipTrackName(WalkmanSoundHandler.getPlaylist(walkmanId).getFlipSideTrack()));
+                    return Component.translatable("walkman.button.flip", tooltipTrackName(WalkmanSoundHandler.getPlaylist(walkmanId).getFlipSideTrack()));
                 }, this, 58));
         
         fastForwardButton = addButton(new WalkmanButton(x + 104, y + 107, 14, 13, 
@@ -208,10 +206,10 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                 () -> {
                     Playlist playlist = WalkmanSoundHandler.getPlaylist(walkmanId);
                     if (playlist.stopAfterCurrentTrack()) {
-                        return new TranslationTextComponent("walkman.button.fast_forward.end");
+                        return Component.translatable("walkman.button.fast_forward.end");
                     }
                     else {
-                        return new TranslationTextComponent("walkman.button.fast_forward", tooltipTrackName(playlist.getFastForwardTrack()));
+                        return Component.translatable("walkman.button.fast_forward", tooltipTrackName(playlist.getFastForwardTrack()));
                     }
                 }, this, 104));
         
@@ -220,7 +218,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                     WalkmanSoundHandler.getPlaylist(walkmanId).stopPlaying();
                 }, 
                 () -> {
-                    return new TranslationTextComponent("walkman.button.stop");
+                    return Component.translatable("walkman.button.stop");
                 }, this, 131));
         
         playbackModeSwitch = addButton(new WalkmanButton(x + 175, y + 107 + mode.ordinal() * 9, 8, 15, 
@@ -235,11 +233,11 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
                     PacketManager.sendToServer(ClWalkmanControlsPacket.playbackMode(walkmanId, mode));
                 }, 
                 () -> {
-                    return new TranslationTextComponent("walkman.button.playback_mode." + (mode == PlaybackMode.LOOP ? "loop" : "default"));
+                    return Component.translatable("walkman.button.playback_mode." + (mode == PlaybackMode.LOOP ? "loop" : "default"));
                 }, this, -1) {
             
             @Override
-            protected void renderCustomButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
                 minecraft.getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
                 RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -295,15 +293,15 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
         }
     }
     
-    private ITextComponent tooltipTrackName(TrackInfo track) {
-        return track != null ? track.track.getName().withStyle(TextFormatting.DARK_GREEN, TextFormatting.UNDERLINE)
-                : new StringTextComponent("ERROR").withStyle(TextFormatting.RED, TextFormatting.BOLD);
+    private Component tooltipTrackName(TrackInfo track) {
+        return track != null ? track.track.getName().withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.UNDERLINE)
+                : Component.literal("ERROR").withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
     }
     
     
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack matrixStack, float partialTick, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
         minecraft.getTextureManager().bind(WALKMAN_SCREEN_TEXTURE);
@@ -327,7 +325,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
         return (height - imageHeight) / 2;
     }
     
-    private void renderIndicators(MatrixStack matrixStack, float partialTick, int windowX, int windowY) {
+    private void renderIndicators(PoseStack matrixStack, float partialTick, int windowX, int windowY) {
         Playlist playlist = WalkmanSoundHandler.getPlaylist(walkmanId);
         if (playlist != null && playlist.isPlaying()) {
             CassetteSide side = currentSide;
@@ -358,7 +356,7 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
         }
     }
     
-    private void renderCassette(MatrixStack matrixStack, float partialTick, int windowX, int windowY) {
+    private void renderCassette(PoseStack matrixStack, float partialTick, int windowX, int windowY) {
         ItemStack cassetteItem = getCassetteItem();
         if (!cassetteItem.isEmpty()) {
             minecraft.getTextureManager().bind(WALKMAN_CASSETTE_TEXTURE);
@@ -376,28 +374,28 @@ public class WalkmanScreen extends ContainerScreen<WalkmanItemContainer> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack matrixStack, int mouseX, int mouseY) {
         ItemStack cassetteItem = getCassetteItem();
         if (!cassetteItem.isEmpty()) {
             if (cassetteItem.hasCustomHoverName()) {
-                ITextComponent cassetteName = cassetteItem.getHoverName();
-                IReorderingProcessor reorderingProc = cassetteName.getVisualOrderText();
+                Component cassetteName = cassetteItem.getHoverName();
+                FormattedCharSequence reorderingProc = cassetteName.getVisualOrderText();
                 font.draw(matrixStack, reorderingProc, 110 - font.width(reorderingProc) / 2, 66, 0x404040);
             }
             
             if (tracksToShow != null && !tracksToShow.isEmpty()) {
                 int i = 0;
                 for (Track track : tracksToShow) {
-                    IFormattableTextComponent trackName = track.getName(true);
+                    MutableComponent trackName = track.getName(true);
 
                     int width = font.width(trackName);
                     if (width > 136) {
-                        ITextProperties shortenedTrackName = font.getSplitter().splitLines(trackName, 130, Style.EMPTY).get(0);
-                        trackName = new TranslationTextComponent("jojo.textutil.shortened", shortenedTrackName.getString());
+                        FormattedText shortenedTrackName = font.getSplitter().splitLines(trackName, 130, Style.EMPTY).get(0);
+                        trackName = Component.translatable("jojo.textutil.shortened", shortenedTrackName.getString());
                     }
 
                     if (currentTrack != null && currentTrack.track.equals(track)) {
-                        trackName.withStyle(TextFormatting.UNDERLINE);
+                        trackName.withStyle(ChatFormatting.UNDERLINE);
                     }
 
                     font.draw(matrixStack, trackName, 42, 13 + i * 9, 0x404040);

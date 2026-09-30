@@ -16,29 +16,30 @@ import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.settings.GraphicsFanciness;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.GraphicsStatus;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import com.mojang.math.Axis;
 
 public abstract class MarkerRenderer {
     private final ResourceLocation iconTexture;
@@ -82,7 +83,7 @@ public abstract class MarkerRenderer {
         this.mc = mc;
     }
 
-    protected void render(MatrixStack matrixStack, ActiveRenderInfo camera, float partialTick) {
+    protected void render(PoseStack matrixStack, Camera camera, float partialTick) {
         if (shouldRender()) {
             positions.clear();
             updatePositions(positions, partialTick);
@@ -107,9 +108,9 @@ public abstract class MarkerRenderer {
     }
 
     @SuppressWarnings("deprecation")
-    protected void renderAt(MatrixStack matrixStack, MarkerInstance marker, ActiveRenderInfo camera, float partialTick, float[] rgb) {
+    protected void renderAt(PoseStack matrixStack, MarkerInstance marker, Camera camera, float partialTick, float[] rgb) {
         matrixStack.pushPose();
-        Vector3d diff = marker.pos.subtract(camera.getPosition())
+        Vec3 diff = marker.pos.subtract(camera.getPosition())
                 .yRot(camera.getYRot() * MathUtil.DEG_TO_RAD)
                 .xRot(camera.getXRot() * MathUtil.DEG_TO_RAD);
         
@@ -145,7 +146,7 @@ public abstract class MarkerRenderer {
         matrixStack.popPose();
     }
     
-    protected void renderIcon(MatrixStack matrixStack, MarkerInstance marker, float partialTick) {
+    protected void renderIcon(PoseStack matrixStack, MarkerInstance marker, float partialTick) {
         ResourceLocation icon = getIcon();
         if (icon != null) {
             mc.getTextureManager().bind(icon);
@@ -154,12 +155,12 @@ public abstract class MarkerRenderer {
     }
     
     @SuppressWarnings("deprecation")
-    protected void renderItem(MatrixStack matrixStack, ItemStack item, float partialTick) {
+    protected void renderItem(PoseStack matrixStack, ItemStack item, float partialTick) {
         ItemRenderer itemRenderer = mc.getItemRenderer();
         TextureManager textureManager = mc.textureManager;
         
-        textureManager.bind(AtlasTexture.LOCATION_BLOCKS);
-        textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS).setFilter(false, false);
+        textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
+        textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.enableRescaleNormal();
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
@@ -173,15 +174,15 @@ public abstract class MarkerRenderer {
         matrixStack.scale(1, -1, -1);
         
         matrixStack.last().normal().setIdentity(); 
-        matrixStack.last().normal().mul(Vector3f.XP.rotationDegrees(mc.gameRenderer.getMainCamera().getXRot() - 90));
-        matrixStack.last().normal().mul(Vector3f.YP.rotationDegrees(45));
-        matrixStack.last().normal().mul(Vector3f.ZP.rotationDegrees(45));
+        matrixStack.last().normal().mul(Axis.XP.rotationDegrees(mc.gameRenderer.getMainCamera().getXRot() - 90));
+        matrixStack.last().normal().mul(Axis.YP.rotationDegrees(45));
+        matrixStack.last().normal().mul(Axis.ZP.rotationDegrees(45));
 
 //        RenderSystem.disableDepthTest();
 //        RenderSystem.disableCull();
-        IRenderTypeBuffer.Impl buffer = mc.renderBuffers().bufferSource();
+        MultiBufferSource.Impl buffer = mc.renderBuffers().bufferSource();
         // FIXME the item model isn't rendered behind blocks/entities
-        itemRenderer.renderStatic(item, ItemCameraTransforms.TransformType.GUI, 
+        itemRenderer.renderStatic(item, ItemTransforms.ItemDisplayContext.GUI, 
                 ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
 //        RenderSystem.enableDepthTest();
 //        RenderSystem.enableCull();
@@ -193,7 +194,7 @@ public abstract class MarkerRenderer {
         RenderSystem.disableRescaleNormal();
     }
     
-    protected void renderIconOnBorder(MatrixStack matrixStack, MarkerInstance marker, float partialTick) {}
+    protected void renderIconOnBorder(PoseStack matrixStack, MarkerInstance marker, float partialTick) {}
     
     protected abstract boolean shouldRender();
     protected abstract void updatePositions(List<MarkerInstance> list, float partialTick);
@@ -246,11 +247,11 @@ public abstract class MarkerRenderer {
             Minecraft mc = Minecraft.getInstance();
             if (!mc.options.hideGui) {
                 RenderSystem.disableDepthTest();
-                if (mc.options.graphicsMode == GraphicsFanciness.FABULOUS) { // it just works
+                if (mc.options.graphicsMode == GraphicsStatus.FABULOUS) { // it just works
                     RenderSystem.enableTexture();
                 }
 
-                MatrixStack matrixStack = event.getMatrixStack();
+                PoseStack matrixStack = event.getMatrixStack();
                 RENDERERS.forEach(marker -> marker.render(matrixStack, mc.gameRenderer.getMainCamera(), event.getPartialTicks()));
                 
                 RenderSystem.enableDepthTest();
@@ -261,15 +262,15 @@ public abstract class MarkerRenderer {
     
     
     protected static class MarkerInstance {
-        protected Vector3d pos;
+        protected Vec3 pos;
         protected boolean outlined;
         protected final Optional<StandEffectInstance> standEffect;
         
-        public MarkerInstance(Vector3d pos, boolean outlined) {
+        public MarkerInstance(Vec3 pos, boolean outlined) {
             this(pos, outlined, Optional.empty());
         }
         
-        public MarkerInstance(Vector3d pos, boolean outlined, Optional<StandEffectInstance> standEffect) {
+        public MarkerInstance(Vec3 pos, boolean outlined, Optional<StandEffectInstance> standEffect) {
             this.pos = pos;
             this.outlined = outlined;
             this.standEffect = standEffect;

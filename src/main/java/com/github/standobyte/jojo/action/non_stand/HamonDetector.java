@@ -18,11 +18,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.passive.GolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.animal.AbstractGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class HamonDetector extends HamonAction {
 
@@ -40,7 +40,7 @@ public class HamonDetector extends HamonAction {
 
     private static final OptionalInt COLOR = OptionalInt.of(HamonPowerType.COLOR);
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled) {
             if (ticksHeld < 160 || ticksHeld % 20 == 0) {
                 HamonData hamon = power.getTypeSpecificData(ModPowers.HAMON.get()).get();
@@ -51,7 +51,7 @@ public class HamonDetector extends HamonAction {
                 List<LivingEntity> entitiesAround = MCUtil.entitiesAround(LivingEntity.class, 
                         user, Math.min(radius, maxRadius), false, 
                         entity -> StandUtil.getStandUser(entity) != user &&
-                        !(entity instanceof GolemEntity || entity instanceof ArmorStandEntity));
+                        !(entity instanceof AbstractGolem || entity instanceof ArmorStand));
                 
                 if (world.isClientSide()) {
                     if (user == ClientUtil.getClientPlayer()) {
@@ -59,7 +59,7 @@ public class HamonDetector extends HamonAction {
                                 cap -> cap.setClGlowingColor(COLOR, 80)));
                     }
                     HamonSparksLoopSound.playSparkSound(user, user.position(), 1.0F);
-                    CustomParticlesHelper.createHamonSparkParticles(user instanceof PlayerEntity ? (PlayerEntity) user : null, 
+                    CustomParticlesHelper.createHamonSparkParticles(user instanceof Player ? (Player) user : null, 
                             user.getX(), user.getY(0.5), user.getZ(), 1);
                 }
                 else if (!entitiesAround.isEmpty()) {

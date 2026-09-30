@@ -1,58 +1,59 @@
 package com.github.standobyte.jojo.client.particle;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SpriteTexturedParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
+import org.joml.Quaternionf;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import com.mojang.math.Axis;
 
-public class AirStreamParticle extends SpriteTexturedParticle {
+public class AirStreamParticle extends TextureSheetParticle {
     private final float yRot;
     private final float xRot;
 
-    protected AirStreamParticle(ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+    protected AirStreamParticle(ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
         super(world, x, y, z, xSpeed, ySpeed, zSpeed);
         this.xd = xSpeed;
         this.yd = ySpeed;
         this.zd = zSpeed;
         quadSize *= 2;
-        this.yRot = (float) MathHelper.atan2(xSpeed, zSpeed);
-        this.xRot = (float) MathHelper.atan2(ySpeed, MathHelper.sqrt(xSpeed * xSpeed + zSpeed * zSpeed));
+        this.yRot = (float) Mth.atan2(xSpeed, zSpeed);
+        this.xRot = (float) Mth.atan2(ySpeed, Mth.sqrt(xSpeed * xSpeed + zSpeed * zSpeed));
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
-    public void render(IVertexBuilder vertexBuilder, ActiveRenderInfo renderInfo, float partialTick) {
+    public void render(VertexConsumer vertexBuilder, Camera renderInfo, float partialTick) {
         renderFromRotation(vertexBuilder, renderInfo, partialTick, yRot, xRot, true);
         renderFromRotation(vertexBuilder, renderInfo, partialTick, yRot, xRot, false);
     }
     
-    private void renderFromRotation(IVertexBuilder vertexBuilder, ActiveRenderInfo renderInfo, float partialTick, float yRot, float xRot, boolean mirror) {
-        Vector3d pos = renderInfo.getPosition();
-        float f = (float) (MathHelper.lerp(partialTick, xo, x) - pos.x());
-        float f1 = (float) (MathHelper.lerp(partialTick, yo, y) - pos.y());
-        float f2 = (float) (MathHelper.lerp(partialTick, zo, z) - pos.z());
-        Quaternion quaternion = new Quaternion(0.0F, 0.0F, 0.0F, 1.0F);
-        quaternion.mul(Vector3f.YP.rotation(yRot));
-        quaternion.mul(Vector3f.XP.rotation(-xRot));
+    private void renderFromRotation(VertexConsumer vertexBuilder, Camera renderInfo, float partialTick, float yRot, float xRot, boolean mirror) {
+        Vec3 pos = renderInfo.getPosition();
+        float f = (float) (Mth.lerp(partialTick, xo, x) - pos.x());
+        float f1 = (float) (Mth.lerp(partialTick, yo, y) - pos.y());
+        float f2 = (float) (Mth.lerp(partialTick, zo, z) - pos.z());
+        Quaternionf quaternion = new Quaternionf(0.0F, 0.0F, 0.0F, 1.0F);
+        quaternion.mul(Axis.YP.rotation(yRot));
+        quaternion.mul(Axis.XP.rotation(-xRot));
         if (mirror) {
-            quaternion.mul(Vector3f.YP.rotation((float) Math.PI / 2F));
+            quaternion.mul(Axis.YP.rotation((float) Math.PI / 2F));
         }
         else {
-            quaternion.mul(Vector3f.YP.rotation(-(float) Math.PI / 2F));
+            quaternion.mul(Axis.YP.rotation(-(float) Math.PI / 2F));
         }
         
 
@@ -92,15 +93,15 @@ public class AirStreamParticle extends SpriteTexturedParticle {
     }
 
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite spriteSet;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet spriteSet;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.spriteSet = sprite;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             AirStreamParticle particle = new AirStreamParticle(world, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(spriteSet);
             particle.scale(1.5F);

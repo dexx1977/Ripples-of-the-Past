@@ -11,17 +11,17 @@ import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.util.mc.MCUtil.EntityEvents;
 import com.github.standobyte.jojo.util.mc.damage.NoKnockbackOnBlocking;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityClMixin extends Entity {
 
-    public LivingEntityClMixin(EntityType<?> type, World level) {
+    public LivingEntityClMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
     

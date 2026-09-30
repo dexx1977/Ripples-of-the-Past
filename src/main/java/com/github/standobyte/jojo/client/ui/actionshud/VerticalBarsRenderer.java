@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.ui.actionshud;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.Alignment;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.BarsOrientation;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.AbstractGui;
@@ -24,7 +24,7 @@ public class VerticalBarsRenderer extends BarsRenderer {
     }
 
     @Override
-    protected void renderBarWithIcon(MatrixStack matrixStack, BarType barType, 
+    protected void renderBarWithIcon(PoseStack matrixStack, BarType barType, 
             boolean fullSize, int color, float iconFill, 
             float value, float maxValue, 
             float attackCostValue, float abilityCostValue, float costTick, 
@@ -67,14 +67,14 @@ public class VerticalBarsRenderer extends BarsRenderer {
     }
     
     @Override
-    protected void barFill(MatrixStack matrixStack, int x, int y, Alignment alignment, 
+    protected void barFill(PoseStack matrixStack, int x, int y, Alignment alignment, 
             int texX, int texY, int width, int length, int fill) {
         gui.blit(matrixStack, x + 1, y + length - fill + 1, 
                 texX + 1, texY + length - fill + 1, width - 2, fill);
     }
 
     @Override
-    protected void renderCost(MatrixStack matrixStack, 
+    protected void renderCost(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int width, int height, 
             int costFill, int barFill, 
@@ -90,7 +90,7 @@ public class VerticalBarsRenderer extends BarsRenderer {
     }
 
     @Override
-    protected void renderRedHighlight(MatrixStack matrixStack, 
+    protected void renderRedHighlight(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int width, int height, 
             float alpha) {

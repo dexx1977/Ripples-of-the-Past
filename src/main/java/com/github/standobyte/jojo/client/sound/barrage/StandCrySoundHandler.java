@@ -21,37 +21,37 @@ import com.github.standobyte.jojo.client.sound.StoppableEntityTickableSound;
 import com.github.standobyte.jojo.init.ModSounds;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISoundEventAccessor;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.sounds.Weighted;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
 
 public class StandCrySoundHandler<T extends Entity> {
     public SoundEvent[] soundEvents;
     protected Sound sound;
     protected SoundsResolved soundsInfo;
     
-    protected TickableSound currentSoundPlaying;
+    protected AbstractTickableSoundInstance currentSoundPlaying;
     private boolean isStopped = false;
     
     protected List<Sound> notPlayed;
     protected int soundsPlayed = 0;
     
-    private final SoundCategory category;
+    private final SoundSource category;
     private final float volume;
     private final float pitch;
     private final T entity;
     private final Predicate<T> playWhile;
     
     public static <T extends Entity> void create(
-            SoundCategory category, float volume, float pitch, boolean looping,
+            SoundSource category, float volume, float pitch, boolean looping,
             T entity, Predicate<T> playWhile, SoundEvent... sounds) {
         SoundsResolved cachedOrNull = SoundsResolved.getCached(sounds);
         StandCrySoundHandler<T> handler;
@@ -64,7 +64,7 @@ public class StandCrySoundHandler<T extends Entity> {
         TICKING_HANDLERS.add(handler);
     }
     
-    protected StandCrySoundHandler(SoundCategory category, float volume, float pitch, boolean looping,
+    protected StandCrySoundHandler(SoundSource category, float volume, float pitch, boolean looping,
             T entity, Predicate<T> playWhile, @Nullable SoundsResolved soundsResolved, SoundEvent... sounds) {
         this.soundEvents = sounds;
         this.soundsInfo = soundsResolved;
@@ -85,14 +85,14 @@ public class StandCrySoundHandler<T extends Entity> {
         }
         
         if (soundsInfo.allSounds.isEmpty()) {
-            sound = SoundHandler.EMPTY_SOUND;
+            sound = SoundManager.EMPTY_SOUND;
         }
         else {
             notPlayed = new ArrayList<>();
             sound = pickNextSound(notPlayed);
         }
         
-        if (sound == SoundHandler.EMPTY_SOUND) {
+        if (sound == SoundManager.EMPTY_SOUND) {
             stop();
         }
     }
@@ -101,7 +101,7 @@ public class StandCrySoundHandler<T extends Entity> {
         if (isStopped) {
             return;
         }
-        SoundHandler soundHandler = Minecraft.getInstance().getSoundManager();
+        SoundManager soundHandler = Minecraft.getInstance().getSoundManager();
         if (currentSoundPlaying == null) {
             currentSoundPlaying = playNewSound(soundHandler, sound);
         }
@@ -113,7 +113,7 @@ public class StandCrySoundHandler<T extends Entity> {
         if (!soundHandler.isActive(currentSoundPlaying)) {
             sound = pickNextSound(notPlayed);
             
-            if (sound == SoundHandler.EMPTY_SOUND) {
+            if (sound == SoundManager.EMPTY_SOUND) {
                 stop();
                 return;
             }
@@ -122,12 +122,12 @@ public class StandCrySoundHandler<T extends Entity> {
         }
     }
     
-    private TickableSound playNewSound(SoundHandler soundHandler, Sound soundToPlay) {
-        ITextComponent subtitle = soundsInfo.soundSubtitles.get(soundToPlay);
+    private AbstractTickableSoundInstance playNewSound(SoundManager soundHandler, Sound soundToPlay) {
+        Component subtitle = soundsInfo.soundSubtitles.get(soundToPlay);
         
-        TickableSound soundInstance = new StoppableEntityTickableSound<T>(SoundEvents.CAT_AMBIENT, category, volume, pitch, false, entity, playWhile) {
+        AbstractTickableSoundInstance soundInstance = new StoppableEntityTickableSound<T>(SoundEvents.CAT_AMBIENT, category, volume, pitch, false, entity, playWhile) {
             @Override
-            public SoundEventAccessor resolve(SoundHandler soundManager) {
+            public WeighedSoundEvents resolve(SoundManager soundManager) {
                 this.sound = soundToPlay;
                 this.location = sound.getLocation();
                 return new EventlessSoundAccessor(sound.getLocation(), subtitle, sound);
@@ -145,7 +145,7 @@ public class StandCrySoundHandler<T extends Entity> {
         }
         
         int weight = pickFrom.stream()
-                .map(ISoundEventAccessor::getWeight)
+                .map(Weighted::getWeight)
                 .reduce(0, Integer::sum);
         if (weight > 0) {
             int rand = RANDOM.nextInt(weight);
@@ -159,7 +159,7 @@ public class StandCrySoundHandler<T extends Entity> {
             }
         }
         
-        return SoundHandler.EMPTY_SOUND;
+        return SoundManager.EMPTY_SOUND;
     }
     
     public boolean isStopped() {
@@ -175,10 +175,10 @@ public class StandCrySoundHandler<T extends Entity> {
     protected static final class SoundsResolved {
         public Map<SoundEvent, List<Sound>> soundsPerEvent;
         public List<Sound> allSounds;
-        public Map<Sound, ITextComponent> soundSubtitles;
+        public Map<Sound, Component> soundSubtitles;
         
         void resolve(SoundEvent[] soundEvents) {
-            SoundHandler handler = Minecraft.getInstance().getSoundManager();
+            SoundManager handler = Minecraft.getInstance().getSoundManager();
             
             List<Pair<SoundEvent, Sound>> unpacked = 
                     Arrays.stream(soundEvents).flatMap(WalkmanSoundHandler::unpackSoundsEvent)
@@ -196,8 +196,8 @@ public class StandCrySoundHandler<T extends Entity> {
 //            }));
             this.soundSubtitles = new HashMap<>();
             for (Pair<SoundEvent, Sound> entry : unpacked) {
-                SoundEventAccessor accessor = handler.getSoundEvent(entry.getKey().getLocation());
-                ITextComponent subtitle = accessor.getSubtitle();
+                WeighedSoundEvents accessor = handler.getSoundEvent(entry.getKey().getLocation());
+                Component subtitle = accessor.getSubtitle();
                 soundSubtitles.put(entry.getValue(), subtitle);
             }
             

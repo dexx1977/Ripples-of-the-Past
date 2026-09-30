@@ -15,19 +15,19 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.passive.GolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.animal.AbstractGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceHeal extends StandEntityAction {
     
@@ -44,7 +44,7 @@ public class GoldExperienceHeal extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             LivingEntity user = userPower.getUser();
             spendAndHeal(world, user, user, userPower, standEntity);
@@ -55,9 +55,9 @@ public class GoldExperienceHeal extends StandEntityAction {
     public static final int MAX_REGEN_LVL = 3;
     
     public static boolean isLiving(LivingEntity entity) {
-        return !(!(entity instanceof PlayerEntity) && JojoModUtil.isUndead(entity) ||
-                entity instanceof GolemEntity ||
-                entity instanceof ArmorStandEntity);
+        return !(!(entity instanceof Player) && JojoModUtil.isUndead(entity) ||
+                entity instanceof AbstractGolem ||
+                entity instanceof ArmorStand);
     }
     
     public static ActionConditionResult canHeal(LivingEntity entity, LivingEntity userGE, 
@@ -119,14 +119,14 @@ public class GoldExperienceHeal extends StandEntityAction {
         return ActionConditionResult.NEGATIVE;
     }
     
-    private static Effect regenEffectFor(LivingEntity entity) {
-        if (entity instanceof PlayerEntity && JojoModUtil.isPlayerUndead((PlayerEntity) entity)) {
+    private static MobEffect regenEffectFor(LivingEntity entity) {
+        if (entity instanceof Player && JojoModUtil.isPlayerUndead((Player) entity)) {
             return ModStatusEffects.UNDEAD_REGENERATION.get();
         }
-        return Effects.REGENERATION;
+        return MobEffects.REGENERATION;
     }
     
-    public static void spendAndHeal(World world, LivingEntity entity, 
+    public static void spendAndHeal(Level world, LivingEntity entity, 
             LivingEntity user, IStandPower userPower, StandEntity standEntity) {
         if (entity != null && !world.isClientSide()) {
             if (entity.isDeadOrDying() && entity != user) {
@@ -163,9 +163,9 @@ public class GoldExperienceHeal extends StandEntityAction {
                 }
                 else {
                     entity.hurt(DamageSource.GENERIC, 0.0001F);
-                    Effect regen = regenEffectFor(entity);
+                    MobEffect regen = regenEffectFor(entity);
                     int lvl = Math.min(MCUtil.getEffectLevel(entity, regen) + 1, MAX_REGEN_LVL);
-                    entity.addEffect(new EffectInstance(regen, HamonHealing.updateRegenEffect(entity, 105, lvl, regen), lvl));
+                    entity.addEffect(new MobEffectInstance(regen, HamonHealing.updateRegenEffect(entity, 105, lvl, regen), lvl));
                 }
                 playHealSound(entity);
                 return;
@@ -177,7 +177,7 @@ public class GoldExperienceHeal extends StandEntityAction {
                 BucketItem bucketType = (BucketItem) offHandItem.getItem();
                 bucketType.checkExtraContent(world, offHandItem, getControlledEntity(user, userPower).blockPosition());
             }
-            if (!(user instanceof PlayerEntity && ((PlayerEntity) user).abilities.instabuild)) {
+            if (!(user instanceof Player && ((Player) user).abilities.instabuild)) {
                 offHandItem.shrink(1);
             }
             
@@ -195,8 +195,8 @@ public class GoldExperienceHeal extends StandEntityAction {
         }
         
         
-        Effect regenEffect = regenEffectFor(entity);
-        EffectInstance currentRegen = entity.getEffect(regenEffect);
+        MobEffect regenEffect = regenEffectFor(entity);
+        MobEffectInstance currentRegen = entity.getEffect(regenEffect);
         
         int lvl;
         int duration = durationMax;
@@ -215,27 +215,27 @@ public class GoldExperienceHeal extends StandEntityAction {
                 healingTracker.fullHpTicks = 0;
                 healingTracker.regenLevel = lvl;
                 if (healingTracker.tickCount == 0 && currentRegen != null) {
-                    healingTracker.prevEffect = new EffectInstance(currentRegen);
+                    healingTracker.prevEffect = new MobEffectInstance(currentRegen);
                 }
             }
             
-            EffectInstance newRegen = new EffectInstance(regenEffect, duration, lvl, false, true, true, currentRegen);
+            MobEffectInstance newRegen = new MobEffectInstance(regenEffect, duration, lvl, false, true, true, currentRegen);
             entity.addEffect(newRegen);
         }
         entity.hurt(DamageSource.GENERIC, 0.0001F);
         
         
-        EffectInstance bleeding = entity.getEffect(ModStatusEffects.BLEEDING.get());
+        MobEffectInstance bleeding = entity.getEffect(ModStatusEffects.BLEEDING.get());
         if (bleeding != null) {
             int reduceDuration = durationMax / 20;
             MCUtil.reduceEffect(entity, ModStatusEffects.BLEEDING.get(), 
-                    MathHelper.clamp(bleeding.getDuration() - reduceDuration, 0, reduceDuration), 1);
+                    Mth.clamp(bleeding.getDuration() - reduceDuration, 0, reduceDuration), 1);
         }
     }
     
     public static void playHealSound(LivingEntity entity) {
         MCUtil.playSound(entity.level, null, entity, ModSounds.GOLD_EXPERIENCE_HEAL.get(), 
-                SoundCategory.AMBIENT, 1.0F, 0.95F + entity.getRandom().nextFloat() * 0.1F, StandUtil::playerCanHearStands);
+                SoundSource.AMBIENT, 1.0F, 0.95F + entity.getRandom().nextFloat() * 0.1F, StandUtil::playerCanHearStands);
     }
     
     @Override

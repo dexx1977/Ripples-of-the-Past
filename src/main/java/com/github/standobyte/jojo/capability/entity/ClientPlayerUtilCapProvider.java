@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.capability.entity;
 
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -13,8 +13,8 @@ public class ClientPlayerUtilCapProvider implements ICapabilityProvider {
     public static Capability<ClientPlayerUtilCap> CAPABILITY = null;
     private LazyOptional<ClientPlayerUtilCap> instance;
     
-    public ClientPlayerUtilCapProvider(PlayerEntity player) {
-        this.instance = LazyOptional.of(() -> new ClientPlayerUtilCap((AbstractClientPlayerEntity) player));
+    public ClientPlayerUtilCapProvider(Player player) {
+        this.instance = LazyOptional.of(() -> new ClientPlayerUtilCap((AbstractClientPlayer) player));
     }
 
     @Override

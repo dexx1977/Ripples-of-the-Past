@@ -10,41 +10,41 @@ import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownIte
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.HitResult.Type;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class KnifeEntity extends ItemProjectileEntity {
     private boolean timeStop = false;
-    private Vector3d timeStopHitMotion;
+    private Vec3 timeStopHitMotion;
     private int tsFlightTicks = 0;
     private TexVariant knifeTexVariant = TexVariant.KNIFE;
 
-    public KnifeEntity(World world, LivingEntity shooter) {
+    public KnifeEntity(Level world, LivingEntity shooter) {
        super(ModEntityTypes.KNIFE.get(), shooter, world);
     }
 
-    public KnifeEntity(World world, double x, double y, double z) {
+    public KnifeEntity(Level world, double x, double y, double z) {
        super(ModEntityTypes.KNIFE.get(), x, y, z, world);
     }
 
-    public KnifeEntity(EntityType<? extends KnifeEntity> type, World world) {
+    public KnifeEntity(EntityType<? extends KnifeEntity> type, Level world) {
        super(type, world);
     }
     
@@ -87,10 +87,10 @@ public class KnifeEntity extends ItemProjectileEntity {
         }
         
         if (!inGround && !level.isClientSide()) {
-            Vector3d posVec = position();
-            RayTraceResult rayTraceResult = level.clip(new RayTraceContext(posVec, posVec.add(getDeltaMovement()), RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, this));
+            Vec3 posVec = position();
+            HitResult rayTraceResult = level.clip(new ClipContext(posVec, posVec.add(getDeltaMovement()), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this));
             if (rayTraceResult.getType() == Type.BLOCK) {
-                BlockPos blockPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
+                BlockPos blockPos = ((BlockHitResult) rayTraceResult).getBlockPos();
                 Block block = level.getBlockState(blockPos).getBlock();
                 if (block == Blocks.COBWEB) {
                     MCUtil.destroyBlock(level, blockPos, true, null);
@@ -104,11 +104,11 @@ public class KnifeEntity extends ItemProjectileEntity {
     }
 
     @Override
-    protected void onHit(RayTraceResult rayTraceResult) {
-        if (timeStop && rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
+    protected void onHit(HitResult rayTraceResult) {
+        if (timeStop && rayTraceResult.getType() == HitResult.Type.ENTITY) {
             if (!level.isClientSide()) {
                 timeStopHitMotion = getDeltaMovement();
-                setDeltaMovement(Vector3d.ZERO);
+                setDeltaMovement(Vec3.ZERO);
             }
             tsFlightTicks = 0;
             super.canUpdate(false);
@@ -176,7 +176,7 @@ public class KnifeEntity extends ItemProjectileEntity {
     }
     
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         timeStop = nbt.getBoolean("TimeStop");
         tsFlightTicks = nbt.getInt("TimeStopTicks");
@@ -184,7 +184,7 @@ public class KnifeEntity extends ItemProjectileEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putBoolean("TimeStop", timeStop);
         nbt.putInt("TimeStopTicks", tsFlightTicks);
@@ -192,7 +192,7 @@ public class KnifeEntity extends ItemProjectileEntity {
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeBoolean(timeStop);
         buffer.writeVarInt(tsFlightTicks);
@@ -200,7 +200,7 @@ public class KnifeEntity extends ItemProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         timeStop = additionalData.readBoolean();
         tsFlightTicks = additionalData.readVarInt();

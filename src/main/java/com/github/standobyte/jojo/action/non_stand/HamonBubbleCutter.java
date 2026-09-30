@@ -7,11 +7,11 @@ import com.github.standobyte.jojo.init.ModItems;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonBubbleCutter extends HamonAction {
 
@@ -25,13 +25,13 @@ public class HamonBubbleCutter extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             HamonBubbleLauncher.consumeSoap(user, 20);
             
             boolean shift = isShiftVariation();
             int bubbles = shift ? 4 : 8;
-            Vector3d shootingPos = null;
+            Vec3 shootingPos = null;
             for (int i = 0; i < bubbles; i++) {
                 HamonBubbleCutterEntity bubbleCutterEntity = new HamonBubbleCutterEntity(user, world);
                 float velocity = 1.35F + user.getRandom().nextFloat() * 0.3F;
@@ -46,7 +46,7 @@ public class HamonBubbleCutter extends HamonAction {
     }
     
     @Override
-    public boolean renderHamonAuraOnItem(ItemStack item, HandSide handSide) {
+    public boolean renderHamonAuraOnItem(ItemStack item, HumanoidArm handSide) {
         return item.getItem() == ModItems.SOAP.get();
     }
 }

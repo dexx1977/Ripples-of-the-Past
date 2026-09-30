@@ -71,25 +71,25 @@ import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.merchant.IMerchant;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.FlatChunkGenerator;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.trading.Merchant;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -103,7 +103,7 @@ import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID)
@@ -125,7 +125,7 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSource> dispatcher = event.getDispatcher();
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         StandCommand.register(dispatcher);
         StandDiscGiveCommand.register(dispatcher);
         StandLevelCommand.register(dispatcher);
@@ -142,22 +142,22 @@ public class ForgeBusEventSubscriber {
     
     
     @SubscribeEvent
-    public static void onAttachCapabilitiesWorld(AttachCapabilitiesEvent<World> event) {
-        World world = event.getObject();
+    public static void onAttachCapabilitiesWorld(AttachCapabilitiesEvent<Level> event) {
+        Level world = event.getObject();
         event.addCapability(WORLD_UTIL_CAP, new WorldUtilCapProvider(world));
         if (!world.isClientSide()) {
-            if (world.dimension() == World.OVERWORLD) {
-                event.addCapability(SAVE_FILE_UTIL_CAP, new SaveFileUtilCapProvider((ServerWorld) world));
+            if (world.dimension() == Level.OVERWORLD) {
+                event.addCapability(SAVE_FILE_UTIL_CAP, new SaveFileUtilCapProvider((ServerLevel) world));
             }
             else if (ModDimensions.MR_PRESIDENT != null && world.dimension() == ModDimensions.MR_PRESIDENT) {
-                event.addCapability(MR_PRESIDENT_CAP, new MrPresidentWorldDataProvider((ServerWorld) world));
+                event.addCapability(MR_PRESIDENT_CAP, new MrPresidentWorldDataProvider((ServerLevel) world));
             }
         }
     }
     
     @SubscribeEvent
-    public static void onAttachCapabilitiesChunk(AttachCapabilitiesEvent<Chunk> event) {
-        Chunk chunk = event.getObject();
+    public static void onAttachCapabilitiesChunk(AttachCapabilitiesEvent<LevelChunk> event) {
+        LevelChunk chunk = event.getObject();
         event.addCapability(CHUNK_UTIL_CAP, new ChunkCapProvider(chunk));
     }
     
@@ -167,8 +167,8 @@ public class ForgeBusEventSubscriber {
         event.addCapability(ENTITY_UTIL_CAP, new EntityUtilCapProvider(entity));
         if (entity instanceof LivingEntity) {
             LivingEntity living = (LivingEntity) entity;
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) living;
+            if (entity instanceof Player) {
+                Player player = (Player) living;
                 event.addCapability(STAND_CAP, new StandCapProvider(player));
                 event.addCapability(NON_STAND_CAP, new NonStandCapProvider(player));
                 event.addCapability(PLAYER_UTIL_CAP, new PlayerUtilCapProvider(player));
@@ -177,15 +177,15 @@ public class ForgeBusEventSubscriber {
                 }
             }
             event.addCapability(LIVING_UTIL_CAP, new LivingUtilCapProvider(living));
-            if (entity instanceof IMerchant) {
-                event.addCapability(MERCHANT_CAP, new MerchantDataProvider(living, (IMerchant) living));
+            if (entity instanceof Merchant) {
+                event.addCapability(MERCHANT_CAP, new MerchantDataProvider(living, (Merchant) living));
             }
             event.addListener(() -> {
                 IStandPower.getStandPowerOptional(living).ifPresent(
                         stand -> stand.getContinuousEffects().onStandUserRemoved(living));
             });
         }
-        if (entity instanceof ProjectileEntity && (HamonUtil.ProjectileChargeProperties.canBeChargedWithHamon(entity))) {
+        if (entity instanceof Projectile && (HamonUtil.ProjectileChargeProperties.canBeChargedWithHamon(entity))) {
             event.addCapability(PROJECTILE_HAMON_CAP, new ProjectileHamonChargeCapProvider(entity));
         }
         if (entity instanceof LivingEntity || entity instanceof ItemEntity) {
@@ -223,7 +223,7 @@ public class ForgeBusEventSubscriber {
     @SubscribeEvent
     public static void onEntityTracking(PlayerEvent.StartTracking event) {
         Entity entityTracked = event.getTarget();
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        ServerPlayer player = (ServerPlayer) event.getPlayer();
         if (entityTracked instanceof LivingEntity) {
             LivingEntity livingTracked = (LivingEntity) entityTracked;
             INonStandPower.getNonStandPowerOptional(livingTracked).ifPresent(power -> {
@@ -235,7 +235,7 @@ public class ForgeBusEventSubscriber {
             livingTracked.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.onTracking(player);
             });
-            if (livingTracked instanceof PlayerEntity) {
+            if (livingTracked instanceof Player) {
                 livingTracked.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                     cap.onTracking(player);
                 });
@@ -251,8 +251,8 @@ public class ForgeBusEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        PlayerEntity original = event.getOriginal();
-        PlayerEntity player = event.getPlayer();
+        Player original = event.getOriginal();
+        Player player = event.getPlayer();
         
         cloneCap(INonStandPower.getNonStandPowerOptional(original), INonStandPower.getNonStandPowerOptional(player), 
                 event.isWasDeath(), "Stand capability");
@@ -283,7 +283,7 @@ public class ForgeBusEventSubscriber {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        ServerPlayer player = (ServerPlayer) event.getPlayer();
         SaveFileUtilCapProvider.getSaveFileCap(player).onPlayerLogIn(player);
         JojoModConfig.Common.SyncedValues.syncWithClient(player);
         syncPowerData(event.getPlayer());
@@ -304,46 +304,46 @@ public class ForgeBusEventSubscriber {
         syncPowerData(event.getPlayer());
     }
     
-    private static void syncPowerData(PlayerEntity player) {
+    private static void syncPowerData(Player player) {
         INonStandPower.getPlayerNonStandPower(player).syncWithUserOnly();
         IStandPower.getPlayerStandPower(player).syncWithUserOnly();
         player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
             cap.syncWithClient();
         });
         player.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
-            cap.syncWithClient((ServerPlayerEntity) player);
+            cap.syncWithClient((ServerPlayer) player);
         });
-        PacketManager.sendToClient(new UpdateClientCapCachePacket(), (ServerPlayerEntity) player);
+        PacketManager.sendToClient(new UpdateClientCapCachePacket(), (ServerPlayer) player);
     }
     
     
     
     @SubscribeEvent
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayerEntity) event.getPlayer());
+        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayer) event.getPlayer());
     }
     
     
     
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.getWorld() instanceof World) {
-            if (event.getWorld() instanceof ServerWorld) {
-                ServerWorld serverWorld = (ServerWorld) event.getWorld();
+        if (event.getWorld() instanceof Level) {
+            if (event.getWorld() instanceof ServerLevel) {
+                ServerLevel serverWorld = (ServerLevel) event.getWorld();
                 addDimensionalSpacing(serverWorld);
             }
-            EntityTypeToInstance.init((World) event.getWorld());
+            EntityTypeToInstance.init((Level) event.getWorld());
         }
-        EntityTypeToInstance.init((World) event.getWorld());
+        EntityTypeToInstance.init((Level) event.getWorld());
     }
     
-    private static void addDimensionalSpacing(ServerWorld serverWorld) {
+    private static void addDimensionalSpacing(ServerLevel serverWorld) {
         ResourceLocation cgRL = Registry.CHUNK_GENERATOR.getKey(CommonReflection.getCodec(serverWorld.getChunkSource().getGenerator()));
         if (cgRL != null && cgRL.getNamespace().equals("terraforged")) {
             return;
         }
         
-        if (serverWorld.getChunkSource().getGenerator() instanceof FlatChunkGenerator && serverWorld.dimension().equals(World.OVERWORLD)) {
+        if (serverWorld.getChunkSource().getGenerator() instanceof FlatLevelSource && serverWorld.dimension().equals(Level.OVERWORLD)) {
             return;
         }
 

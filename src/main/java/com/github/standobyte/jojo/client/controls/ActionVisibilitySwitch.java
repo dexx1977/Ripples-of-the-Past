@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.controls;
 import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionVisibilitySwitch {
     ActionsHotbar parentHotbar;

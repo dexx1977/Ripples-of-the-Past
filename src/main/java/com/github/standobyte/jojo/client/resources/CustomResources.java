@@ -9,8 +9,8 @@ import com.google.gson.Gson;
 import com.mco.mcrecog.CommandsMap;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.resources.ResourceLocation;
 
 public class CustomResources {
     private static HamonSkillSpriteUploader hamonSkillSprites;
@@ -22,7 +22,7 @@ public class CustomResources {
     private static CommandsMap aprilFools25VoiceCommands;
 
     public static void initCustomResourceManagers(Minecraft mc) {
-        IReloadableResourceManager resourceManager = (IReloadableResourceManager) mc.getResourceManager();
+        ReloadableResourceManager resourceManager = (ReloadableResourceManager) mc.getResourceManager();
         
         resourceManager.registerReloadListener(hamonSkillSprites = new HamonSkillSpriteUploader(mc.textureManager));
         resourceManager.registerReloadListener(resolveShadersListManager = new ResolveShadersListManager());

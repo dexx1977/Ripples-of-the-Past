@@ -4,21 +4,21 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 public class EntityOffsetParticle extends EntityPosParticle {
-    protected Vector3d offset;
+    protected Vec3 offset;
     @Nullable private final LivingEntity entityLiving;
     
-    protected EntityOffsetParticle(ClientWorld world, Entity entity, 
+    protected EntityOffsetParticle(ClientLevel world, Entity entity, 
             double x, double y, double z) {
         super(world, entity, false);
         setPos(x, y, z);
         this.entityLiving = entity instanceof LivingEntity ? ((LivingEntity) entity) : null;
-        this.offset = new Vector3d(x, y, z).subtract(entity.position())
+        this.offset = new Vec3(x, y, z).subtract(entity.position())
                 .yRot(getYRot() * MathUtil.DEG_TO_RAD);
         xo = x;
         yo = y;
@@ -30,7 +30,7 @@ public class EntityOffsetParticle extends EntityPosParticle {
     }
     
     @Override
-    protected Vector3d getNextTickPos(Vector3d entityPos) {
+    protected Vec3 getNextTickPos(Vec3 entityPos) {
         tickSpeed();
         return entity != null ? entityPos.add(offset
                 .yRot(-getYRot() * MathUtil.DEG_TO_RAD)) : null;

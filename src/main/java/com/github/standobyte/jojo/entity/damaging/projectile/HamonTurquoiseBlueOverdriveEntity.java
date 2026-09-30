@@ -12,20 +12,20 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     private float radius;
@@ -35,16 +35,16 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     private boolean gaveHamonPoints;
     private int duration;
 
-    public HamonTurquoiseBlueOverdriveEntity(World world, LivingEntity entity) {
+    public HamonTurquoiseBlueOverdriveEntity(Level world, LivingEntity entity) {
         super(ModEntityTypes.TURQUOISE_BLUE_OVERDRIVE.get(), entity, world);
     }
     
     public HamonTurquoiseBlueOverdriveEntity setRadius(float radius) {
         this.radius = radius;
         this.sparksCount = radius * radius * 3;
-        Vector3d pos = getBoundingBox().getCenter();
+        Vec3 pos = getBoundingBox().getCenter();
         refreshDimensions();
-        setBoundingBox(new AxisAlignedBB(pos, pos).inflate(radius));
+        setBoundingBox(new AABB(pos, pos).inflate(radius));
         return this;
     }
     
@@ -63,7 +63,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
         return this;
     }
 
-    public HamonTurquoiseBlueOverdriveEntity(EntityType<? extends HamonTurquoiseBlueOverdriveEntity> entityType, World world) {
+    public HamonTurquoiseBlueOverdriveEntity(EntityType<? extends HamonTurquoiseBlueOverdriveEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -77,10 +77,10 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     public void tick() {
         super.tick();
         if (level.isClientSide()) {
-            Vector3d center = getBoundingBox().getCenter();
+            Vec3 center = getBoundingBox().getCenter();
             int sparksCount = Math.max((int) (this.sparksCount * damageWearOffMultiplier()), 1);
             for (int i = 0; i < sparksCount; i++) {
-                Vector3d sparkVec = center.add(new Vector3d(
+                Vec3 sparkVec = center.add(new Vec3(
                         (random.nextDouble() - 0.5), 
                         (random.nextDouble() - 0.5),
                         (random.nextDouble() - 0.5))
@@ -90,7 +90,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
                 }
             }
             level.playSound(ClientUtil.getClientPlayer(), center.x, center.y, center.z, ModSounds.HAMON_SPARK.get(), 
-                    SoundCategory.AMBIENT, Math.min(0.1F + radius * 0.15F, 1), 1.0F + (random.nextFloat() - 0.5F) * 0.15F);
+                    SoundSource.AMBIENT, Math.min(0.1F + radius * 0.15F, 1), 1.0F + (random.nextFloat() - 0.5F) * 0.15F);
         }
     }
 
@@ -102,7 +102,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
                 return;
             }
             level.getEntitiesOfClass(LivingEntity.class, getBoundingBox(), entity -> entity.isInWaterOrBubble() && canHitEntity(entity)).forEach(target -> {
-                onHitEntity(new EntityRayTraceResult(target));
+                onHitEntity(new EntityHitResult(target));
             });
         }
     }
@@ -114,7 +114,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             Entity target = entityRayTraceResult.getEntity();
             if (target.isInWaterOrBubble() && target instanceof LivingEntity) {
@@ -132,16 +132,16 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (targetType != TargetType.ENTITY) {
             super.breakProjectile(targetType, hitTarget);
         }
     }
     
     @Override
-    public EntitySize getDimensions(Pose pose) {
-        EntitySize defaultSize = super.getDimensions(pose);
-        return new EntitySize(radius * 2, radius * 2, defaultSize.fixed);
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions defaultSize = super.getDimensions(pose);
+        return new EntityDimensions(radius * 2, radius * 2, defaultSize.fixed);
     }
     
     @Override
@@ -190,7 +190,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Radius", radius);
         nbt.putBoolean("PointsGiven", gaveHamonPoints);
@@ -200,7 +200,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         setRadius(nbt.getFloat("Radius"));
         gaveHamonPoints = nbt.getBoolean("PointsGiven");
@@ -210,14 +210,14 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeFloat(radius);
         buffer.writeVarInt(duration);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         setRadius(additionalData.readFloat());
         setDuration(additionalData.readVarInt());

@@ -4,39 +4,39 @@ import com.github.standobyte.jojo.client.particle.OnomatopoeiaParticle;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EmitterParticle;
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.particle.TrackingEmitter;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.phys.Vec3;
 
-public class MenacingParticleEmitter extends EmitterParticle {
+public class MenacingParticleEmitter extends TrackingEmitter {
     private final Entity entity;
     private int life;
     private final int lifeTime;
-    private final BasicParticleType particleType;
-    private final Vector3d offset1;
-    private final Vector3d offset2;
+    private final SimpleParticleType particleType;
+    private final Vec3 offset1;
+    private final Vec3 offset2;
     private boolean superConstructorTicked;
-    private IParticleFactory<BasicParticleType> particleFactory;
+    private ParticleProvider<SimpleParticleType> particleFactory;
     
-    public MenacingParticleEmitter(ClientWorld level, Entity entity, BasicParticleType particleType, PlayerEntity player) {
+    public MenacingParticleEmitter(ClientLevel level, Entity entity, SimpleParticleType particleType, Player player) {
         super(level, entity, particleType, 40);
         this.entity = entity;
         this.lifeTime = 200;
         this.particleType = particleType;
         
-        Vector3d vecFromPlayer = entity.position().subtract(player.position());
+        Vec3 vecFromPlayer = entity.position().subtract(player.position());
         float yRot = (90 - MathUtil.yRotDegFromVec(vecFromPlayer)) * MathUtil.DEG_TO_RAD;
-        this.offset1 = new Vector3d(0, 0, entity.getBbWidth()).yRot(yRot);
-        this.offset2 = new Vector3d(0, 0, -(entity.getBbWidth())).yRot(yRot);
+        this.offset1 = new Vec3(0, 0, entity.getBbWidth()).yRot(yRot);
+        this.offset2 = new Vec3(0, 0, -(entity.getBbWidth())).yRot(yRot);
         
-        IAnimatedSprite sprites = CustomParticlesHelper.getSavedSpriteSet((ParticleType<?>) particleType);
+        SpriteSet sprites = CustomParticlesHelper.getSavedSpriteSet((ParticleType<?>) particleType);
         if (sprites != null) {
             this.particleFactory = new OnomatopoeiaParticle.GoFactory(sprites);
         }
@@ -63,7 +63,7 @@ public class MenacingParticleEmitter extends EmitterParticle {
 
     }
     
-    protected void addGoParticle(Vector3d pos) {
+    protected void addGoParticle(Vec3 pos) {
         if (particleFactory != null) {
             Particle particle = particleFactory.createParticle(particleType, level, 
                     pos.x, pos.y, pos.z, 0, 0.01, 0);

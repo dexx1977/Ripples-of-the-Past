@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.client.render.entity.pose.anim.barrage;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.Entity;
 
 @Deprecated
 public abstract class AdditionalBarrageSwing<T extends Entity, M extends EntityModel<T>> {
@@ -28,7 +28,7 @@ public abstract class AdditionalBarrageSwing<T extends Entity, M extends EntityM
     
     
     
-    public abstract void poseAndRender(T entity, M model, MatrixStack matrixStack, IVertexBuilder buffer, 
+    public abstract void poseAndRender(T entity, M model, PoseStack matrixStack, VertexConsumer buffer, 
             float yRotOffsetRad, float xRotRad, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 }

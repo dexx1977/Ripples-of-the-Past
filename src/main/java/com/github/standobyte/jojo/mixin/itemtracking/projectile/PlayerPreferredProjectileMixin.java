@@ -8,17 +8,17 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShootableItem;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.Level;
 
-@Mixin(PlayerEntity.class)
+@Mixin(Player.class)
 public abstract class PlayerPreferredProjectileMixin extends LivingEntity {
     
-    protected PlayerPreferredProjectileMixin(EntityType<? extends LivingEntity> type, World world) {
+    protected PlayerPreferredProjectileMixin(EntityType<? extends LivingEntity> type, Level world) {
         super(type, world);
     }
     
@@ -30,8 +30,8 @@ public abstract class PlayerPreferredProjectileMixin extends LivingEntity {
             return offHandAmmo;
         }
         
-        PlayerEntity player = (PlayerEntity) ((LivingEntity) this);
-        Predicate<ItemStack> predicate = ((ShootableItem) pShootable.getItem()).getAllSupportedProjectiles().and(JOJO_PREFER_TRACKED_PROJECTILES);
+        Player player = (Player) ((LivingEntity) this);
+        Predicate<ItemStack> predicate = ((ProjectileWeaponItem) pShootable.getItem()).getAllSupportedProjectiles().and(JOJO_PREFER_TRACKED_PROJECTILES);
         
         for (int i = 0; i < player.inventory.getContainerSize(); ++i) {
             ItemStack invTrackedAmmo = player.inventory.getItem(i);

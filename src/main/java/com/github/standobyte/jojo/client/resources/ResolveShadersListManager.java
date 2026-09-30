@@ -20,14 +20,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 
-public class ResolveShadersListManager extends ReloadListener<Map<ResourceLocation, JsonArray>> {
+public class ResolveShadersListManager extends SimplePreparableReloadListener<Map<ResourceLocation, JsonArray>> {
     private static final ResourceLocation DEFAULT_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "default");
     private static final ResourceLocation NO_STAND_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "no_stand");
     private List<ResourceLocation> shadersDefault;
@@ -35,7 +35,7 @@ public class ResolveShadersListManager extends ReloadListener<Map<ResourceLocati
     private Map<ResourceLocation, List<ResourceLocation>> shadersOverrides = new HashMap<>();
 
     @Override
-    protected Map<ResourceLocation, JsonArray> prepare(IResourceManager resourceManager, IProfiler preparationsProfiler) {
+    protected Map<ResourceLocation, JsonArray> prepare(ResourceManager resourceManager, ProfilerFiller preparationsProfiler) {
         Map<ResourceLocation, JsonArray> map = Maps.newHashMap();
         map.put(DEFAULT_LOCATION, readArray(resourceManager, DEFAULT_LOCATION));
         map.put(NO_STAND_LOCATION, readArray(resourceManager, NO_STAND_LOCATION));
@@ -50,13 +50,13 @@ public class ResolveShadersListManager extends ReloadListener<Map<ResourceLocati
     }
 
     @Nullable
-    private JsonArray readArray(IResourceManager resourceManager, ResourceLocation location) {
+    private JsonArray readArray(ResourceManager resourceManager, ResourceLocation location) {
         location = new ResourceLocation(location.getNamespace(), "shaders/resolve/" + location.getPath() + ".json");
         if (resourceManager.hasResource(location)) {
             try (
-                    IResource resource = resourceManager.getResource(location);
+                    Resource resource = resourceManager.getResource(location);
                     Reader reader = new InputStreamReader(resource.getInputStream(), Charsets.UTF_8);) {
-                return JSONUtils.getAsJsonArray(JSONUtils.parse(reader), "shaders", null);
+                return GsonHelper.getAsJsonArray(GsonHelper.parse(reader), "shaders", null);
             } catch (IOException e) {
                 return null;
             }
@@ -67,8 +67,8 @@ public class ResolveShadersListManager extends ReloadListener<Map<ResourceLocati
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonArray> arrays, IResourceManager resourceManager,
-            IProfiler reloadProfiler) {
+    protected void apply(Map<ResourceLocation, JsonArray> arrays, ResourceManager resourceManager,
+            ProfilerFiller reloadProfiler) {
         shadersDefault = toResourceLocationList(arrays.get(DEFAULT_LOCATION));
         arrays.remove(DEFAULT_LOCATION);
         shadersNoStand = toResourceLocationList(arrays.get(NO_STAND_LOCATION));
@@ -80,7 +80,7 @@ public class ResolveShadersListManager extends ReloadListener<Map<ResourceLocati
 
     private List<ResourceLocation> toResourceLocationList(JsonArray jsonArray) {
         return jsonArray == null ? Collections.emptyList() : Streams.stream(jsonArray)
-                .map(name -> JSONUtils.convertToString(name, "shader") + ".json")
+                .map(name -> GsonHelper.convertToString(name, "shader") + ".json")
                 .map(ResourceLocation::new)
                 .collect(ImmutableList.toImmutableList());
     }

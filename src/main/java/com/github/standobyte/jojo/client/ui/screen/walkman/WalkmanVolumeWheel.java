@@ -1,27 +1,27 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("deprecation")
-public class WalkmanVolumeWheel extends Widget {
+public class WalkmanVolumeWheel extends AbstractWidget {
     private static final float FULL_WHEEL_LENGTH = 100;
     private final WalkmanScreen screen;
     private float value;
 
     public WalkmanVolumeWheel(WalkmanScreen screen, int x, int y, int width, int height) {
-        super(x, y, width, height, new StringTextComponent("walkman.volume"));
+        super(x, y, width, height, Component.literal("walkman.volume"));
         this.screen = screen;
     }
     
     void setValue(float value) {
-        value = MathHelper.clamp(value, 0, 1);
+        value = Mth.clamp(value, 0, 1);
         if (this.value != value) {
             this.value = value;
             screen.onVolumeChanged(value);
@@ -44,7 +44,7 @@ public class WalkmanVolumeWheel extends Widget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft.getInstance().getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -52,6 +52,6 @@ public class WalkmanVolumeWheel extends Widget {
     }
 
     @Override
-    public void playDownSound(SoundHandler soundManager) {}
+    public void playDownSound(SoundManager soundManager) {}
 
 }

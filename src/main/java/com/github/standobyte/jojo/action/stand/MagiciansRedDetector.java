@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.entity.MRDetectorEntity;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class MagiciansRedDetector extends StandAction {
 
@@ -17,7 +17,7 @@ public class MagiciansRedDetector extends StandAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             List<MRDetectorEntity> summonedDetector = world.getEntities(ModEntityTypes.MR_DETECTOR.get(), 
                     user.getBoundingBox().inflate(5), detector -> detector.getOwner() == user);

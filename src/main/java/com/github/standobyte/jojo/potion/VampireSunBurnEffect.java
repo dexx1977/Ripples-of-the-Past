@@ -3,22 +3,22 @@ package com.github.standobyte.jojo.potion;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.EffectType;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class VampireSunBurnEffect extends StatusEffect implements IApplicableEffect {
 
     public VampireSunBurnEffect() {
-        super(EffectType.HARMFUL, Effects.WEAKNESS.getColor());
+        super(MobEffectCategory.HARMFUL, MobEffects.WEAKNESS.getColor());
     }
     
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        World world = entity.level;
+        Level world = entity.level;
         if (world.isClientSide()/* && world.isDay()*/) {
 //            float brightness = entity.getBrightness();
 //            BlockPos blockPos = entity.getVehicle() instanceof BoatEntity ? 
@@ -70,7 +70,7 @@ public class VampireSunBurnEffect extends StatusEffect implements IApplicableEff
     }
     
     public static void giveEffectTo(LivingEntity entity, int duration, int amplifier) {
-        entity.addEffect(new EffectInstance(Effects.WEAKNESS, duration, amplifier, false, false, true));
-        entity.addEffect(new EffectInstance(ModStatusEffects.VAMPIRE_SUN_BURN.get(), duration, amplifier, false, false, false));
+        entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, false, false, true));
+        entity.addEffect(new MobEffectInstance(ModStatusEffects.VAMPIRE_SUN_BURN.get(), duration, amplifier, false, false, false));
     }
 }

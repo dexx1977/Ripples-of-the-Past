@@ -147,21 +147,21 @@ import com.github.standobyte.jojo.network.packets.fromserver.ability_specific.RP
 import com.github.standobyte.jojo.network.packets.fromserver.ability_specific.TrDyingBodyTimerPacket;
 import com.github.standobyte.jojo.network.packets.fromserver.ability_specific.TrSYOBarrageFinisherPacket;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.common.util.LogicalSidedProvider;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor.TargetPoint;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 // FIXME (!) in LAN, client logs get spammed with network exceptions (either the payload is an EmptyByteBuf or "Received invalid discriminator byte" error)
 public class PacketManager {
@@ -339,7 +339,7 @@ public class PacketManager {
         clientChannel.sendToServer(msg);
     }
 
-    public static void sendToClient(Object msg, ServerPlayerEntity player) {
+    public static void sendToClient(Object msg, ServerPlayer player) {
         if (!(player instanceof FakePlayer)) {
             serverChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);
         }
@@ -353,17 +353,17 @@ public class PacketManager {
         serverChannel.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), msg);
     }
 
-    public static void sendToNearby(Object msg, @Nullable ServerPlayerEntity excluded, double x, double y, double z, double radius, RegistryKey<World> dimension) {
+    public static void sendToNearby(Object msg, @Nullable ServerPlayer excluded, double x, double y, double z, double radius, ResourceKey<Level> dimension) {
         serverChannel.send(PacketDistributor.NEAR.with(() -> new TargetPoint(excluded, x, y, z, radius, dimension)), msg);
     }
 
-    public static void sendToTrackingChunk(Object msg, Chunk chunk) {
+    public static void sendToTrackingChunk(Object msg, LevelChunk chunk) {
         if (chunk != null) {
             serverChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
         }
     }
     
-    public static void sendGlobally(Object msg, @Nullable RegistryKey<World> dimension) {
+    public static void sendGlobally(Object msg, @Nullable ResourceKey<Level> dimension) {
         if (dimension != null) {
             serverChannel.send(PacketDistributor.DIMENSION.with(() -> dimension), msg);
         }
@@ -374,9 +374,9 @@ public class PacketManager {
     
     
     
-    public static void sendGloballyWithCondition(Object msg, @Nullable RegistryKey<World> dimension, Predicate<ServerPlayerEntity> condition) {
+    public static void sendGloballyWithCondition(Object msg, @Nullable ResourceKey<Level> dimension, Predicate<ServerPlayer> condition) {
         MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
-        for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if ((dimension == null || player.level.dimension() == dimension) && condition.test(player)) {
                 serverChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);
             }

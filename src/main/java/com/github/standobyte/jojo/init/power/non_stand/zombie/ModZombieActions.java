@@ -10,7 +10,7 @@ import com.github.standobyte.jojo.action.non_stand.ZombieDevour;
 import com.github.standobyte.jojo.action.non_stand.ZombieDisguise;
 import com.github.standobyte.jojo.power.impl.nonstand.type.zombie.ZombiePowerType;
 
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModZombieActions {
     

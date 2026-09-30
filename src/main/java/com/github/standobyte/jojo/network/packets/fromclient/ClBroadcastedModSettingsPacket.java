@@ -5,13 +5,13 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.capability.entity.player.PlayerClientBroadcastedSettings;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClBroadcastedModSettingsPacket {
     private PlayerClientBroadcastedSettings settings;
-    private PacketBuffer settingsData;
+    private FriendlyByteBuf settingsData;
     
     public ClBroadcastedModSettingsPacket(PlayerClientBroadcastedSettings settings) {
         this.settings = settings;
@@ -22,12 +22,12 @@ public class ClBroadcastedModSettingsPacket {
     public static class Handler implements IModPacketHandler<ClBroadcastedModSettingsPacket> {
 
         @Override
-        public void encode(ClBroadcastedModSettingsPacket msg, PacketBuffer buf) {
+        public void encode(ClBroadcastedModSettingsPacket msg, FriendlyByteBuf buf) {
             msg.settings.toBuf(buf);
         }
 
         @Override
-        public ClBroadcastedModSettingsPacket decode(PacketBuffer buf) {
+        public ClBroadcastedModSettingsPacket decode(FriendlyByteBuf buf) {
             ClBroadcastedModSettingsPacket packet = new ClBroadcastedModSettingsPacket(null);
             packet.settingsData = buf;
             return packet;
@@ -35,7 +35,7 @@ public class ClBroadcastedModSettingsPacket {
 
         @Override
         public void handle(ClBroadcastedModSettingsPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             PlayerClientBroadcastedSettings.getPlayerSettings(player).ifPresent(serverSettings -> {
                 serverSettings.fromBuf(msg.settingsData);
                 serverSettings.syncToAll(player);

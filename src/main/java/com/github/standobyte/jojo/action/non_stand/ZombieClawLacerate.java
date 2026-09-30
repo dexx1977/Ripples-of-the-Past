@@ -11,10 +11,10 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<ZombieClawLacerate.Instance, INonStandPower> {
 
@@ -32,7 +32,7 @@ public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<Zo
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -41,8 +41,8 @@ public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<Zo
     @Override
     public ZombieClawLacerate.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.zombieClawSwipe.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.zombieClawSwipe.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -52,7 +52,7 @@ public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<Zo
     public void setCooldownOnUse(INonStandPower power) {}
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {}
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {}
     
     
     public static class Instance extends ContinuousActionInstance<ZombieClawLacerate, INonStandPower> {
@@ -69,7 +69,7 @@ public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<Zo
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.ZOMBIE_SWIPE.get(), user.getSoundSource(), 1.0f, 1.25f);
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                 }
                 break;
             case 5:
@@ -98,8 +98,8 @@ public class ZombieClawLacerate extends ZombieAction implements IPlayerAction<Zo
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.zombieClawSwipe.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.zombieClawSwipe.setAnimEnabled((Player) user, false);
             }
         }
         

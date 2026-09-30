@@ -17,29 +17,29 @@ import com.github.standobyte.jojo.network.packets.fromclient.ClStandManualMoveme
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.IngameGui;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.texture.PotionSpriteUploader;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.client.player.Input;
+import net.minecraft.util.Mth;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.gui.ForgeIngameGui;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -97,7 +97,7 @@ public class ControllerStand {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onInputUpdate(InputUpdateEvent event) {
         if (isControllingStand()) {
-            MovementInput input = event.getMovementInput();
+            Input input = event.getMovementInput();
             stand.moveStandManually(input.leftImpulse, input.forwardImpulse, input.jumping, input.shiftKeyDown);
             // FIXME do not reset deltaMovement in manual control
             PacketManager.sendToServer(new ClStandManualMovementPacket(
@@ -105,7 +105,7 @@ public class ControllerStand {
         }
         else {
             if ((mc.getCameraEntity() == mc.player || mc.getCameraEntity() == null) && ModStatusEffects.isStunned(mc.player)) {
-                MovementInput input = event.getMovementInput();
+                Input input = event.getMovementInput();
                 input.forwardImpulse = 0;
                 input.leftImpulse = 0;
                 input.jumping = false;
@@ -119,7 +119,7 @@ public class ControllerStand {
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onMouseScroll(InputEvent.MouseScrollEvent event) {
         if (isControllingStand()) {
-            stand.manualMovementSpeed = MathHelper.clamp(stand.manualMovementSpeed + 0.025f * (float) event.getScrollDelta(), 0, 1);
+            stand.manualMovementSpeed = Mth.clamp(stand.manualMovementSpeed + 0.025f * (float) event.getScrollDelta(), 0, 1);
         }
     }
     
@@ -129,12 +129,12 @@ public class ControllerStand {
             return;
         }
 
-        ClientPlayerEntity player = mc.player;
+        LocalPlayer player = mc.player;
         if (!stand.isAlive()) {
             ClientUtil.setCameraEntityPreventShaderSwitch(player);
         }
         else {
-            player.connection.send(new CPlayerPacket.PositionRotationPacket(player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.isOnGround()));
+            player.connection.send(new ServerboundMovePlayerPacket.PositionRotationPacket(player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.onGround()));
         }
     }
     
@@ -147,13 +147,13 @@ public class ControllerStand {
             return;
         }
 
-        ClientPlayerEntity player = mc.player;
+        LocalPlayer player = mc.player;
         player.yBobO = player.yBob;
         player.xBobO = player.xBob;
         player.xBob = (float)((double)player.xBob + (double)(player.xRot - player.xBob) * 0.5D);
         player.yBob = (float)((double)player.yBob + (double)(player.yRot - player.yBob) * 0.5D);
-        MatrixStack matrixStack = event.getMatrixStack();
-        IRenderTypeBuffer buffer = event.getBuffers();
+        PoseStack matrixStack = event.getMatrixStack();
+        MultiBufferSource buffer = event.getBuffers();
         float partialTick = event.getPartialTicks();
         int light = mc.getEntityRenderDispatcher().getPackedLightCoords(stand, partialTick);
         StandEntityRenderer renderer = (StandEntityRenderer<?, ?>)mc.getEntityRenderDispatcher().<StandEntity>getRenderer(stand);
@@ -177,9 +177,9 @@ public class ControllerStand {
             return;
         }
         if (event.getType() == POTION_ICONS) {
-            MatrixStack matrixStack = event.getMatrixStack();
+            PoseStack matrixStack = event.getMatrixStack();
             event.setCanceled(true);
-            IngameGui gui = mc.gui;
+            Gui gui = mc.gui;
             int width = mc.getWindow().getGuiScaledWidth();
             int height = mc.getWindow().getGuiScaledHeight();
             renderStandPotionEffects(matrixStack, gui, event, width, height);     
@@ -193,17 +193,17 @@ public class ControllerStand {
             return;
         }
 
-        MatrixStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getMatrixStack();
         if (!mc.options.hideGui) {
             switch (event.getType()) {
             case ALL:
                 if (mc.gameMode.canHurtPlayer()) {
-                    IngameGui gui = mc.gui;
+                    Gui gui = mc.gui;
                     int width = mc.getWindow().getGuiScaledWidth();
                     int height = mc.getWindow().getGuiScaledHeight();
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    if (ForgeIngameGui.renderHealth) renderCameraStandHealth(matrixStack, gui, event, width, height);
-                    if (ForgeIngameGui.renderArmor)  renderCameraStandArmor(matrixStack, gui, event, width, height);
+                    if (ForgeGui.renderHealth) renderCameraStandHealth(matrixStack, gui, event, width, height);
+                    if (ForgeGui.renderArmor)  renderCameraStandArmor(matrixStack, gui, event, width, height);
                 }
                 break;
             default:
@@ -212,17 +212,17 @@ public class ControllerStand {
         }
     }
 
-    private void renderCameraStandHealth(MatrixStack matrixStack, IngameGui gui, RenderGameOverlayEvent event, int width, int height) {
+    private void renderCameraStandHealth(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
         LivingEntity entity = StandUtil.getStandUser(stand);
         ClientEventHandler.getInstance().renderHealthWithBleeding(entity, matrixStack, gui, event, width, height);
     }
 
-    private void renderCameraStandArmor(MatrixStack matrixStack, IngameGui gui, RenderGameOverlayEvent event, int width, int height) {
+    private void renderCameraStandArmor(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
         mc.getProfiler().push("armor");
 
         RenderSystem.enableBlend();
         int left = width / 2 - 91;
-        int top = height - ForgeIngameGui.left_height;
+        int top = height - ForgeGui.left_height;
 
         int level = stand.getArmorValue();
         for (int i = 1; level > 0 && i < 20; i += 2)
@@ -241,28 +241,28 @@ public class ControllerStand {
             }
             left += 8;
         }
-        ForgeIngameGui.left_height += 10;
+        ForgeGui.left_height += 10;
 
         RenderSystem.disableBlend();
         mc.getProfiler().pop();
     }
 
     @SuppressWarnings("deprecation")
-    private void renderStandPotionEffects(MatrixStack matrixStack, IngameGui gui, RenderGameOverlayEvent event, int width, int height) {
-        Collection<EffectInstance> collection = stand.getActiveEffects();
+    private void renderStandPotionEffects(PoseStack matrixStack, Gui gui, RenderGameOverlayEvent event, int width, int height) {
+        Collection<MobEffectInstance> collection = stand.getActiveEffects();
         if (!collection.isEmpty()) {
             RenderSystem.enableBlend();
             int i = 0;
             int j = 0;
-            PotionSpriteUploader potionspriteuploader = mc.getMobEffectTextures();
+            MobEffectTextureManager potionspriteuploader = mc.getMobEffectTextures();
             List<Runnable> list = Lists.newArrayListWithExpectedSize(collection.size());
-            mc.getTextureManager().bind(ContainerScreen.INVENTORY_LOCATION);
+            mc.getTextureManager().bind(AbstractContainerScreen.INVENTORY_LOCATION);
 
-            for(EffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(collection)) {
-                Effect effect = effectinstance.getEffect();
+            for(MobEffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(collection)) {
+                MobEffect effect = effectinstance.getEffect();
                 if (!effectinstance.shouldRenderHUD()) continue;
                 // Rebind in case previous renderHUDEffect changed texture
-                mc.getTextureManager().bind(ContainerScreen.INVENTORY_LOCATION);
+                mc.getTextureManager().bind(AbstractContainerScreen.INVENTORY_LOCATION);
                 if (effectinstance.showIcon()) {
                     int k = width;
                     int l = 1;
@@ -287,7 +287,7 @@ public class ControllerStand {
                         gui.blit(matrixStack, k, l, 141, 166, 24, 24);
                         if (effectinstance.getDuration() <= 200) {
                             int i1 = 10 - effectinstance.getDuration() / 20;
-                            f = MathHelper.clamp((float)effectinstance.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F) + MathHelper.cos((float)effectinstance.getDuration() * (float)Math.PI / 5.0F) * MathHelper.clamp((float)i1 / 10.0F * 0.25F, 0.0F, 0.25F);
+                            f = Mth.clamp((float)effectinstance.getDuration() / 10.0F / 5.0F * 0.5F, 0.0F, 0.5F) + Mth.cos((float)effectinstance.getDuration() * (float)Math.PI / 5.0F) * Mth.clamp((float)i1 / 10.0F * 0.25F, 0.0F, 0.25F);
                         }
                     }
 

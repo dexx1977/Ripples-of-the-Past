@@ -4,18 +4,18 @@ import javax.annotation.Nullable;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.EntityPredicate.AndPredicate;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.resources.ResourceLocation;
 
-public class LastHamonTrigger extends AbstractCriterionTrigger<LastHamonTrigger.Instance> {
+public class LastHamonTrigger extends SimpleCriterionTrigger<LastHamonTrigger.Instance> {
     private final ResourceLocation id;
 
     public LastHamonTrigger(ResourceLocation id) {
@@ -27,29 +27,29 @@ public class LastHamonTrigger extends AbstractCriterionTrigger<LastHamonTrigger.
         return id;
     }
 
-    public void trigger(ServerPlayerEntity player, @Nullable Entity hamonSource) {
+    public void trigger(ServerPlayer player, @Nullable Entity hamonSource) {
         LootContext sourceCtx = EntityPredicate.createContext(player, hamonSource);
         trigger(player, criterion -> criterion.matches(sourceCtx));
     }
 
     @Override
-    protected LastHamonTrigger.Instance createInstance(JsonObject json, AndPredicate playerPredicate,
-            ConditionArrayParser conditionArrayParser) {
-        EntityPredicate.AndPredicate sourcePredicate = EntityPredicate.AndPredicate
+    protected LastHamonTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
+            DeserializationContext conditionArrayParser) {
+        ContextAwarePredicate sourcePredicate = ContextAwarePredicate
                 .fromJson(json, "source", conditionArrayParser);
         return new LastHamonTrigger.Instance(id, playerPredicate, sourcePredicate);
     }
 
-    public static class Instance extends CriterionInstance {
-        private final EntityPredicate.AndPredicate hamonSource;
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        private final ContextAwarePredicate hamonSource;
 
-        public Instance(ResourceLocation criterion, AndPredicate player, EntityPredicate.AndPredicate hamonSource) {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player, ContextAwarePredicate hamonSource) {
             super(criterion, player);
             this.hamonSource = hamonSource;
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("source", hamonSource.toJson(serializer));
             return jsonobject;

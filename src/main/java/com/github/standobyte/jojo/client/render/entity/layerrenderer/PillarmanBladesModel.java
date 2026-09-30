@@ -4,18 +4,18 @@ import java.util.Collections;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
 
 // Made with Blockbench 4.11.2
 // Exported for Minecraft version 1.15 - 1.16 with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
 
-public class PillarmanBladesModel<T extends LivingEntity> extends BipedModel<T> {
-	public final ModelRenderer bladeRight;
-	public final ModelRenderer bladeLeft;
+public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<T> {
+	public final ModelPart bladeRight;
+	public final ModelPart bladeLeft;
 
 	public PillarmanBladesModel(boolean slim) {
 		super(0);
@@ -26,7 +26,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends BipedModel<T> 
 		rightArm.setTexSize(texWidth, texHeight);
 		rightArm.cubes.clear();
 
-		bladeRight = new ModelRenderer(this);
+		bladeRight = new ModelPart(this);
 		bladeRight.setPos(-0.9F, 9.0F, 5.9F);
 		rightArm.addChild(bladeRight);
 		setRotationAngle(bladeRight, 0.0F, 3.1416F, 0.0F);
@@ -39,7 +39,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends BipedModel<T> 
 		leftArm.cubes.clear();
 		
 
-		bladeLeft = new ModelRenderer(this);
+		bladeLeft = new ModelPart(this);
 		bladeLeft.setPos(2.3F, 9.0F, 5.9F);
 		leftArm.addChild(bladeLeft);
 		setRotationAngle(bladeLeft, 0.0F, 3.1416F, 0.0F);
@@ -50,16 +50,16 @@ public class PillarmanBladesModel<T extends LivingEntity> extends BipedModel<T> 
 	}
 	
 	@Override
-	protected Iterable<ModelRenderer> headParts() {
+	protected Iterable<ModelPart> headParts() {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	protected Iterable<ModelRenderer> bodyParts() {
+	protected Iterable<ModelPart> bodyParts() {
 		return ImmutableList.of(this.rightArm, this.leftArm);
 	}
 	
-	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+	public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
 		modelRenderer.xRot = x;
 		modelRenderer.yRot = y;
 		modelRenderer.zRot = z;

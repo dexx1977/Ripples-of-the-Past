@@ -9,12 +9,12 @@ import java.util.function.Function;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterTechniqueHamonSkill;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.HamonTechniqueManager;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
 
 public class HamonTechniqueSlotElement {
     private final int index;
@@ -65,7 +65,7 @@ public class HamonTechniqueSlotElement {
         return slots;
     }
     
-    void renderSlot(MatrixStack matrixStack, int x, int y) {
+    void renderSlot(PoseStack matrixStack, int x, int y) {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
@@ -101,16 +101,16 @@ public class HamonTechniqueSlotElement {
         RenderSystem.disableBlend();
     }
     
-    void drawTooltip(MatrixStack matrixStack, HamonScreen screen, int scrollX, int scrollY, int mouseX, int mouseY) {
+    void drawTooltip(PoseStack matrixStack, HamonScreen screen, int scrollX, int scrollY, int mouseX, int mouseY) {
         if (isMouseOver(scrollX, scrollY, mouseX, mouseY)) {
             switch (state) {
             case LOCKED:
                 screen.renderTooltip(matrixStack, screen.getMinecraft().font.split(
-                        new TranslationTextComponent("hamon.technique_slot.locked", HamonTechniqueManager.techniqueSkillRequirement(index, true)), 
+                        Component.translatable("hamon.technique_slot.locked", HamonTechniqueManager.techniqueSkillRequirement(index, true)), 
                         170), mouseX, mouseY);
                 break;
             case EMPTY_NEXT:
-                screen.renderTooltip(matrixStack, new TranslationTextComponent("hamon.technique_slot.free"), mouseX, mouseY);
+                screen.renderTooltip(matrixStack, Component.translatable("hamon.technique_slot.free"), mouseX, mouseY);
                 break;
             case HAS_SKILL:
                 getSkillElement().ifPresent(skill -> {

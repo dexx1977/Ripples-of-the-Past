@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.entity.SoulEntity;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClRemovePlayerSoulEntityPacket {
     private final int soulEntityId;
@@ -21,12 +21,12 @@ public class ClRemovePlayerSoulEntityPacket {
     public static class Handler implements IModPacketHandler<ClRemovePlayerSoulEntityPacket> {
 
         @Override
-        public void encode(ClRemovePlayerSoulEntityPacket msg, PacketBuffer buf) {
+        public void encode(ClRemovePlayerSoulEntityPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.soulEntityId);
         }
 
         @Override
-        public ClRemovePlayerSoulEntityPacket decode(PacketBuffer buf) {
+        public ClRemovePlayerSoulEntityPacket decode(FriendlyByteBuf buf) {
             return new ClRemovePlayerSoulEntityPacket(buf.readInt());
         }
 

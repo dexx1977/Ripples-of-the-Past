@@ -8,8 +8,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.GsonHelper;
 
 public class StandArrowHitPredicate {
     public static final StandArrowHitPredicate ANY = new StandArrowHitPredicate(null, PowerPredicate.ANY, null);
@@ -26,7 +26,7 @@ public class StandArrowHitPredicate {
         this.shotSelf = shotSelf;
     }
     
-    public boolean matches(ServerPlayerEntity player, boolean gaveStand, IStandPower targetStand, boolean shotSelf) {
+    public boolean matches(ServerPlayer player, boolean gaveStand, IStandPower targetStand, boolean shotSelf) {
         if (this == ANY) {
             return true;
         }
@@ -40,11 +40,11 @@ public class StandArrowHitPredicate {
             return ANY;
         }
         else {
-            JsonObject jsonObject = JSONUtils.convertToJsonObject(json, "Stand arrow hit");
+            JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "Stand arrow hit");
             
-            Boolean gaveStand = jsonObject.has("gave_stand") ? JSONUtils.getAsBoolean(jsonObject, "gave_stand") : null;
+            Boolean gaveStand = jsonObject.has("gave_stand") ? GsonHelper.getAsBoolean(jsonObject, "gave_stand") : null;
             PowerPredicate targetStand = PowerPredicate.fromJson(jsonObject.get("target_stand"), PowerClassification.STAND);
-            Boolean shotSelf = jsonObject.has("shot_self") ? JSONUtils.getAsBoolean(jsonObject, "shot_self") : null;
+            Boolean shotSelf = jsonObject.has("shot_self") ? GsonHelper.getAsBoolean(jsonObject, "shot_self") : null;
             
             return new StandArrowHitPredicate(gaveStand, targetStand, shotSelf);
         }

@@ -11,10 +11,10 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceHeavyPunch extends StandEntityHeavyAttack {
 
@@ -44,7 +44,7 @@ public class GoldExperienceHeavyPunch extends StandEntityHeavyAttack {
     public void rotateStandTowardsTarget(StandEntity standEntity, ActionTarget target, StandEntityTask task) {
         if (task.getTarget().getType() == TargetType.ENTITY) {
             Entity entity = task.getTarget().getEntity();
-            Vector3d pos = new Vector3d(entity.getX(), entity.getY(1.0), entity.getZ());
+            Vec3 pos = new Vec3(entity.getX(), entity.getY(1.0), entity.getZ());
             MCUtil.rotateTowards(standEntity, pos, 360F);
             return;
         }
@@ -62,7 +62,7 @@ public class GoldExperienceHeavyPunch extends StandEntityHeavyAttack {
         protected void afterAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, StandEntityTask task, boolean hurt, boolean killed) {
             super.afterAttack(stand, target, dmgSource, task, hurt, killed);
             double strength = stand.getAttackDamage();
-            World world = stand.level;
+            Level world = stand.level;
             if (!world.isClientSide() && hurt && target instanceof LivingEntity) {
                 LivingEntity targetLiving = (LivingEntity) target;
                 targetLiving = StandUtil.getStandUser(targetLiving);
@@ -74,7 +74,7 @@ public class GoldExperienceHeavyPunch extends StandEntityHeavyAttack {
                     
                     float xRot = -37.5F - 15 * stand.getRandom().nextFloat();
                     float yRot = 90 + 30 * stand.getRandom().nextFloat();
-                    Vector3d toothVec = Vector3d.directionFromRotation(
+                    Vec3 toothVec = Vec3.directionFromRotation(
                             target.xRot + xRot, 
                             target.yRot + yRot);
                     tooth.setDeltaMovement(toothVec.scale(Math.max(strength, 2) * 0.05));

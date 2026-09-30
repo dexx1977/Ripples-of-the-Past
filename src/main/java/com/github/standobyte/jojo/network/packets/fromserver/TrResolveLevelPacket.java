@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrResolveLevelPacket {
     private final int entityId;
@@ -25,13 +25,13 @@ public class TrResolveLevelPacket {
     public static class Handler implements IModPacketHandler<TrResolveLevelPacket> {
 
         @Override
-        public void encode(TrResolveLevelPacket msg, PacketBuffer buf) {
+        public void encode(TrResolveLevelPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeVarInt(msg.level);
         }
 
         @Override
-        public TrResolveLevelPacket decode(PacketBuffer buf) {
+        public TrResolveLevelPacket decode(FriendlyByteBuf buf) {
             return new TrResolveLevelPacket(buf.readInt(), buf.readVarInt());
         }
 

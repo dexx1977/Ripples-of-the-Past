@@ -9,8 +9,8 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PreviousPowerTypesPacket {
     private final Collection<NonStandPowerType<?>> types;
@@ -23,12 +23,12 @@ public class PreviousPowerTypesPacket {
     public static class Handler implements IModPacketHandler<PreviousPowerTypesPacket> {
 
         @Override
-        public void encode(PreviousPowerTypesPacket msg, PacketBuffer buf) {
+        public void encode(PreviousPowerTypesPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.types, buf::writeRegistryId, false);
         }
 
         @Override
-        public PreviousPowerTypesPacket decode(PacketBuffer buf) {
+        public PreviousPowerTypesPacket decode(FriendlyByteBuf buf) {
             return new PreviousPowerTypesPacket(NetworkUtil.readCollection(buf, () -> buf.readRegistryIdSafe(NonStandPowerType.class)));
         }
 

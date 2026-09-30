@@ -15,18 +15,16 @@ import com.github.standobyte.jojo.item.cassette.CassetteCap.TrackSourceList;
 import com.github.standobyte.jojo.item.cassette.TrackSourceDye;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 public class CassetteRecordedItem extends Item {
 
@@ -35,20 +33,20 @@ public class CassetteRecordedItem extends Item {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         CassetteCap cassette = CassetteRecordedItem.getCassetteData(stack).orElse(null);
         TrackSourceList trackSources = cassette != null ? cassette.getTracks() : TrackSourceList.BROKEN_CASSETTE;
         if (trackSources.isBroken()) {
-            tooltip.add(new TranslationTextComponent("jojo.cassette.bad_recording")
-                    .withStyle(TextFormatting.GRAY, TextFormatting.ITALIC));
+            tooltip.add(Component.translatable("jojo.cassette.bad_recording")
+                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
         }
         else {
             WalkmanSoundHandler.CassetteTracksSided.fromSourceList(trackSources).forEach((side, tracks) -> {
                 if (!tracks.isEmpty()) {
-                    tooltip.add(new TranslationTextComponent("jojo.cassette." + side.name().toLowerCase())
-                            .withStyle(TextFormatting.GRAY, TextFormatting.ITALIC));
-                    tracks.forEach(track -> tooltip.add(track.getName().withStyle(TextFormatting.GRAY)));
-                    tooltip.add(new StringTextComponent(" "));
+                    tooltip.add(Component.translatable("jojo.cassette." + side.name().toLowerCase())
+                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+                    tracks.forEach(track -> tooltip.add(track.getName().withStyle(ChatFormatting.GRAY)));
+                    tooltip.add(Component.literal(" "));
                 }
             });
             
@@ -56,24 +54,24 @@ public class CassetteRecordedItem extends Item {
                 DyeColor dye = cassette.getDye();
                 if (dye != null) {
                     Item dyeItem = DyeItem.byColor(dye);
-                    tooltip.add(new TranslationTextComponent("item.jojo.cassette.dye_hint", 
-                            new TranslationTextComponent(ModItems.CASSETTE_BLANK.get().getDescriptionId()),
-                            new TranslationTextComponent(dyeItem.getDescriptionId()))
-                            .withStyle(TextFormatting.GRAY));
+                    tooltip.add(Component.translatable("item.jojo.cassette.dye_hint", 
+                            Component.translatable(ModItems.CASSETTE_BLANK.get().getDescriptionId()),
+                            Component.translatable(dyeItem.getDescriptionId()))
+                            .withStyle(ChatFormatting.GRAY));
                 }
             }
             
             int generation = cassette.getGeneration();
-            tooltip.add(new TranslationTextComponent("jojo.cassette.generation." + Math.min(generation, 2))
-                    .withStyle(TextFormatting.GRAY));
+            tooltip.add(Component.translatable("jojo.cassette.generation." + Math.min(generation, 2))
+                    .withStyle(ChatFormatting.GRAY));
         }
         
         tooltip.add(ClientUtil.donoItemTooltip("Кхъ"));
     }
     
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
-        if (group != ItemGroup.TAB_SEARCH && this.allowdedIn(group)) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
+        if (group != CreativeModeTab.TAB_SEARCH && this.allowdedIn(group)) {
 //            boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT; // nope
             boolean isClientSide = true;
             if (isClientSide) {

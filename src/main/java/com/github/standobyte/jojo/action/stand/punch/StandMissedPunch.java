@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 
 public class StandMissedPunch implements IPunch {
     public final StandEntity stand;
@@ -44,9 +44,9 @@ public class StandMissedPunch implements IPunch {
     }
 
     @Override
-    public Vector3d getImpactSoundPos() {
+    public Vec3 getImpactSoundPos() {
         return stand.position().add(
-                new Vector3d(0, stand.getBbHeight() * 0.75F, stand.getBbWidth())
+                new Vec3(0, stand.getBbHeight() * 0.75F, stand.getBbWidth())
                 .yRot((180 - stand.yRot) * MathUtil.DEG_TO_RAD));
     }
     

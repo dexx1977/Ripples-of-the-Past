@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.mc.damage.NoKnockbackOnBlocking;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class KnockbackResTickPacket {
     private final int entityId;
@@ -23,12 +23,12 @@ public class KnockbackResTickPacket {
     public static class Handler implements IModPacketHandler<KnockbackResTickPacket> {
 
         @Override
-        public void encode(KnockbackResTickPacket msg, PacketBuffer buf) {
+        public void encode(KnockbackResTickPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
         }
 
         @Override
-        public KnockbackResTickPacket decode(PacketBuffer buf) {
+        public KnockbackResTickPacket decode(FriendlyByteBuf buf) {
             return new KnockbackResTickPacket(buf.readInt());
         }
 

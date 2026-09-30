@@ -1,13 +1,12 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 
 public class ItemButton extends Button {
     private final ItemStack item;
@@ -17,7 +16,7 @@ public class ItemButton extends Button {
             Button.IPressable pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
-                pOnPress, NO_TOOLTIP, StringTextComponent.EMPTY);
+                pOnPress, NO_TOOLTIP, Component.empty());
     }
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
@@ -25,12 +24,12 @@ public class ItemButton extends Button {
             Button.IPressable pOnPress, Button.ITooltip pOnTooltip) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
-                pOnPress, pOnTooltip, StringTextComponent.EMPTY);
+                pOnPress, pOnTooltip, Component.empty());
     }
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, ITextComponent pMessage) {
+            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.item = item;
     }
@@ -42,7 +41,7 @@ public class ItemButton extends Button {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);

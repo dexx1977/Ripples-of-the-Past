@@ -10,18 +10,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MobEntityMixin extends LivingEntity {
 
-    protected MobEntityMixin(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
+    protected MobEntityMixin(EntityType<? extends LivingEntity> p_i48577_1_, Level p_i48577_2_) {
         super(p_i48577_1_, p_i48577_2_);
     }
     

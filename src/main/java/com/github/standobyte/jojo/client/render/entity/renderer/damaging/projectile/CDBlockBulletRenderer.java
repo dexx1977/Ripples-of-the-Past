@@ -10,19 +10,19 @@ import com.github.standobyte.jojo.client.render.entity.model.projectile.CDBlockB
 import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRenderer;
 import com.github.standobyte.jojo.entity.damaging.projectile.CDBlockBulletEntity;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
 
 public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEntity, CDBlockBulletModel> {
 
-    public CDBlockBulletRenderer(EntityRendererManager renderManager) {
+    public CDBlockBulletRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, new CDBlockBulletModel(), null);
     }
     
@@ -48,7 +48,7 @@ public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEnt
     
     @Nullable
     public static ResourceLocation getBlockTexture(BlockState blockState) {
-        IBakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
+        BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
         List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, RANDOM, EmptyModelData.INSTANCE);
         if (!quads.isEmpty()) {
             TextureAtlasSprite sprite = quads.get(0).getSprite();

@@ -3,14 +3,14 @@ package com.github.standobyte.jojo.potion;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
 @Deprecated
-public class UncurableEffect extends Effect {
+public class UncurableEffect extends MobEffect {
 
-    public UncurableEffect(EffectType type, int liquidColor) {
+    public UncurableEffect(MobEffectCategory type, int liquidColor) {
         super(type, liquidColor);
     }
 

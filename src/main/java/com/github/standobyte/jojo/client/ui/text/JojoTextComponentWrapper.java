@@ -8,30 +8,29 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.standobyte.jojo.client.ui.BlitFloat;
 import com.github.standobyte.jojo.util.mod.StoryPart;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 
-public class JojoTextComponentWrapper implements IFormattableTextComponent {
-    private static final ITextComponent[] SPRITE_OFFSET = Util.make(new ITextComponent[8], array -> {
+public class JojoTextComponentWrapper implements MutableComponent {
+    private static final Component[] SPRITE_OFFSET = Util.make(new Component[8], array -> {
         for (int i = 0; i < array.length; i++) {
-            array[i] = new StringTextComponent(StringUtils.repeat(" ", (i + 1) * 2));
+            array[i] = Component.literal(StringUtils.repeat(" ", (i + 1) * 2));
         }
     });
     private List<Either<ResourceLocation, TextureAtlasSprite>> sprites = new ArrayList<>();
-    private final IFormattableTextComponent component;
+    private final MutableComponent component;
     
-    public JojoTextComponentWrapper(IFormattableTextComponent component) {
+    public JojoTextComponentWrapper(MutableComponent component) {
         this.component = component;
     }
     
@@ -51,7 +50,7 @@ public class JojoTextComponentWrapper implements IFormattableTextComponent {
     }
     
     // FIXME fix the icon not rendering if any line from the tooltip is wrapped
-    public void tooltipRenderExtra(MatrixStack matrixStack, float x, float y) {
+    public void tooltipRenderExtra(PoseStack matrixStack, float x, float y) {
         for (Either<ResourceLocation, TextureAtlasSprite> sprite : sprites) {
             float spriteX = x - 1;
             sprite
@@ -68,7 +67,7 @@ public class JojoTextComponentWrapper implements IFormattableTextComponent {
     }
     
     @Override
-    public <T> Optional<T> visit(ITextProperties.IStyledTextAcceptor<T> pAcceptor, Style pStyle) {
+    public <T> Optional<T> visit(FormattedText.IStyledTextAcceptor<T> pAcceptor, Style pStyle) {
         if (!sprites.isEmpty()) {
             int index = Math.min(sprites.size(), SPRITE_OFFSET.length) - 1;
             SPRITE_OFFSET[index].visit(pAcceptor, pStyle);
@@ -77,7 +76,7 @@ public class JojoTextComponentWrapper implements IFormattableTextComponent {
     }
 
     @Override
-    public <T> Optional<T> visit(ITextProperties.ITextAcceptor<T> pAcceptor) {
+    public <T> Optional<T> visit(FormattedText.ITextAcceptor<T> pAcceptor) {
         if (!sprites.isEmpty()) {
             int index = Math.min(sprites.size(), SPRITE_OFFSET.length) - 1;
             SPRITE_OFFSET[index].visit(pAcceptor);
@@ -97,34 +96,34 @@ public class JojoTextComponentWrapper implements IFormattableTextComponent {
     }
 
     @Override
-    public List<ITextComponent> getSiblings() {
+    public List<Component> getSiblings() {
         return component.getSiblings();
     }
 
     @Override
-    public IFormattableTextComponent plainCopy() {
+    public MutableComponent plainCopy() {
         return component.plainCopy();
     }
 
     @Override
-    public IFormattableTextComponent copy() {
+    public MutableComponent copy() {
         JojoTextComponentWrapper copy = new JojoTextComponentWrapper(component.copy());
         copy.sprites.addAll(this.sprites);
         return copy;
     }
 
     @Override
-    public IReorderingProcessor getVisualOrderText() {
+    public FormattedCharSequence getVisualOrderText() {
         return component.getVisualOrderText();
     }
 
     @Override
-    public IFormattableTextComponent setStyle(Style pStyle) {
+    public MutableComponent setStyle(Style pStyle) {
         return component.setStyle(pStyle);
     }
 
     @Override
-    public IFormattableTextComponent append(ITextComponent pSibling) {
+    public MutableComponent append(Component pSibling) {
         return component.append(pSibling);
     }
 

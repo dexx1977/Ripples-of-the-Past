@@ -5,18 +5,18 @@ import java.util.Random;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.Heightmap;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.LevelRenderer;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.client.IWeatherParticleRenderHandler;
 import net.minecraftforge.client.IWeatherRenderHandler;
 
@@ -36,7 +36,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
             for(int j = 0; j < 32; ++j) {
                 float f = (float)(j - 16);
                 float f1 = (float)(i - 16);
-                float f2 = MathHelper.sqrt(f * f + f1 * f1);
+                float f2 = Mth.sqrt(f * f + f1 * f1);
                 this.rainSizeX[i << 5 | j] = -f1 / f2;
                 this.rainSizeZ[i << 5 | j] = f / f2;
             }
@@ -56,15 +56,15 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
     }
 
     @Override
-    public void render(int pTicks, float pPartialTick, ClientWorld world, Minecraft mc, LightTexture lightmap,
+    public void render(int pTicks, float pPartialTick, ClientLevel world, Minecraft mc, LightTexture lightmap,
             double x, double y, double z) {
         updateTicks(pTicks, pPartialTick);
         float f = world.getRainLevel(this.frozenPartialTick);
         if (!(f <= 0.0F)) {
-            int i = MathHelper.floor(x);
-            int j = MathHelper.floor(y);
-            int k = MathHelper.floor(z);
-            Tessellator tessellator = Tessellator.getInstance();
+            int i = Mth.floor(x);
+            int j = Mth.floor(y);
+            int k = Mth.floor(z);
+            Tesselator tessellator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuilder();
             RenderSystem.enableAlphaTest();
             RenderSystem.disableCull();
@@ -81,7 +81,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
             RenderSystem.depthMask(Minecraft.useShaderTransparency());
             int i1 = -1;
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
 
             for(int j1 = k - l; j1 <= k + l; ++j1) {
                 for(int k1 = i - l; k1 <= i + l; ++k1) {
@@ -135,17 +135,17 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
                                     i1 = 0;
                                     mc.getTextureManager().bind(RAIN_LOCATION);
-                                    bufferbuilder.begin(7, DefaultVertexFormats.PARTICLE);
+                                    bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 
                                 int i3 = renderTicks + k1 * k1 * 3121 + k1 * 45238971 + j1 * j1 * 418711 + j1 * 13761 & 31;
                                 float f3 = -((float)i3 + renderPartialTick) / 32.0F * (3.0F + random.nextFloat());
                                 double d2 = (double)((float)k1 + 0.5F) - x;
                                 double d4 = (double)((float)j1 + 0.5F) - z;
-                                float f4 = MathHelper.sqrt(d2 * d2 + d4 * d4) / (float)l;
+                                float f4 = Mth.sqrt(d2 * d2 + d4 * d4) / (float)l;
                                 float f5 = ((1.0F - f4 * f4) * 0.5F + 0.5F) * f;
                                 blockpos$mutable.set(k1, l2, j1);
-                                int j3 = WorldRenderer.getLightColor(world, blockpos$mutable);
+                                int j3 = LevelRenderer.getLightColor(world, blockpos$mutable);
                                 bufferbuilder.vertex((double)k1 - x - d0 + 0.5D, (double)k2 - y, (double)j1 - z - d1 + 0.5D).uv(0.0F, (float)j2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).uv2(j3).endVertex();
                                 bufferbuilder.vertex((double)k1 - x + d0 + 0.5D, (double)k2 - y, (double)j1 - z + d1 + 0.5D).uv(1.0F, (float)j2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).uv2(j3).endVertex();
                                 bufferbuilder.vertex((double)k1 - x + d0 + 0.5D, (double)j2 - y, (double)j1 - z + d1 + 0.5D).uv(1.0F, (float)k2 * 0.25F + f3).color(1.0F, 1.0F, 1.0F, f5).uv2(j3).endVertex();
@@ -158,7 +158,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
                                     i1 = 1;
                                     mc.getTextureManager().bind(SNOW_LOCATION);
-                                    bufferbuilder.begin(7, DefaultVertexFormats.PARTICLE);
+                                    bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 
                                 float f1 = renderTicks + renderPartialTick;
@@ -167,10 +167,10 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
                                 float f8 = (float)(random.nextDouble() + (double)(f1 * (float)random.nextGaussian()) * 0.001D);
                                 double d3 = (double)((float)k1 + 0.5F) - x;
                                 double d5 = (double)((float)j1 + 0.5F) - z;
-                                float f9 = MathHelper.sqrt(d3 * d3 + d5 * d5) / (float)l;
+                                float f9 = Mth.sqrt(d3 * d3 + d5 * d5) / (float)l;
                                 float f10 = ((1.0F - f9 * f9) * 0.3F + 0.5F) * f;
                                 blockpos$mutable.set(k1, l2, j1);
-                                int k3 = WorldRenderer.getLightColor(world, blockpos$mutable);
+                                int k3 = LevelRenderer.getLightColor(world, blockpos$mutable);
                                 int l3 = k3 >> 16 & '\uffff';
                                 int i4 = (k3 & '\uffff') * 3;
                                 int j4 = (l3 * 3 + 240) / 4;
@@ -199,7 +199,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
 //    private int rainSoundTime;
     @Override
-    public void render(int ticks, ClientWorld world, Minecraft mc, ActiveRenderInfo activeRenderInfoIn) {
+    public void render(int ticks, ClientLevel world, Minecraft mc, Camera activeRenderInfoIn) {
 //        float f = world.getRainLevel(1.0F) / (Minecraft.useFancyGraphics() ? 1.0F : 2.0F);
 //        if (!(f <= 0.0F)) {
 //            Random random = new Random(ticks * 312987231L);

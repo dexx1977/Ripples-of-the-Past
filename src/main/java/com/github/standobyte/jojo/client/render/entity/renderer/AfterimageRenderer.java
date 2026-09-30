@@ -1,18 +1,18 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
 import com.github.standobyte.jojo.entity.AfterimageEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
 
 public class AfterimageRenderer<T extends AfterimageEntity> extends EntityRenderer<T> {
 
-    public AfterimageRenderer(EntityRendererManager renderManager) {
+    public AfterimageRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
 
@@ -22,7 +22,7 @@ public class AfterimageRenderer<T extends AfterimageEntity> extends EntityRender
     }
 
     @Override
-    public void render(T entity, float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(T entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         Entity originEntity = entity.getOriginEntity();
         if (originEntity != null) {
             Minecraft mc = Minecraft.getInstance();

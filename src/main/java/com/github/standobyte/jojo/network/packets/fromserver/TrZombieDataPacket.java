@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.zombie.ZombieData;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrZombieDataPacket {
     private final int entityId;
@@ -31,13 +31,13 @@ public class TrZombieDataPacket {
     public static class Handler implements IModPacketHandler<TrZombieDataPacket> {
 
         @Override
-        public void encode(TrZombieDataPacket msg, PacketBuffer buf) {
+        public void encode(TrZombieDataPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeBoolean(msg.disguiseEnabled);
         }
 
         @Override
-        public TrZombieDataPacket decode(PacketBuffer buf) {
+        public TrZombieDataPacket decode(FriendlyByteBuf buf) {
             return new TrZombieDataPacket(buf.readInt(), buf.readBoolean());
         }
 

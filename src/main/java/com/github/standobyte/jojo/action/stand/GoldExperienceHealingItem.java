@@ -11,12 +11,12 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceHealingItem extends StandEntityAction {
 
@@ -37,7 +37,7 @@ public class GoldExperienceHealingItem extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             LivingEntity user = userPower.getUser();
             
@@ -46,7 +46,7 @@ public class GoldExperienceHealingItem extends StandEntityAction {
                 BucketItem bucketType = (BucketItem) offHandItem.getItem();
                 bucketType.checkExtraContent(world, offHandItem, getControlledEntity(user, userPower).blockPosition());
             }
-            if (!(user instanceof PlayerEntity && ((PlayerEntity) user).abilities.instabuild)) {
+            if (!(user instanceof Player && ((Player) user).abilities.instabuild)) {
                 offHandItem.shrink(1);
             }
             
@@ -55,7 +55,7 @@ public class GoldExperienceHealingItem extends StandEntityAction {
             MCUtil.giveItemTo(user, tissueItem, false);
             
             MCUtil.playSound(user.level, null, user, ModSounds.GOLD_EXPERIENCE_LIFE_START.get(), 
-                    SoundCategory.AMBIENT, 1.0F, 0.95F + user.getRandom().nextFloat() * 0.1F, StandUtil::playerCanHearStands);
+                    SoundSource.AMBIENT, 1.0F, 0.95F + user.getRandom().nextFloat() * 0.1F, StandUtil::playerCanHearStands);
         }
     }
     

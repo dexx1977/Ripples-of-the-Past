@@ -31,15 +31,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -66,7 +66,7 @@ public class StandStatsConfig extends JsonDataConfig {
     }
     
     @Override
-    public LiteralArgumentBuilder<CommandSource> commandRegister(LiteralArgumentBuilder<CommandSource> builder, String literal) {
+    public LiteralArgumentBuilder<CommandSourceStack> commandRegister(LiteralArgumentBuilder<CommandSourceStack> builder, String literal) {
         return builder.then(Commands.literal(literal)
                 .executes(ctx -> genAllStandsStats(ctx.getSource()))
                 .then(Commands.argument("stand", new StandArgument()).executes(ctx -> genSingleStandStats(ctx.getSource(), StandArgument.getStandType(ctx, "stand"))))
@@ -84,7 +84,7 @@ public class StandStatsConfig extends JsonDataConfig {
     
     
     
-    private int genAllStandsStats(CommandSource source) throws CommandSyntaxException {
+    private int genAllStandsStats(CommandSourceStack source) throws CommandSyntaxException {
         try {
             // generate base datapack
             genDataPackBase(source);
@@ -103,12 +103,12 @@ public class StandStatsConfig extends JsonDataConfig {
             
             return count;
         } catch (Throwable e) {
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
     
-    private int genSingleStandStats(CommandSource source, StandType<?> standType) throws CommandSyntaxException {
+    private int genSingleStandStats(CommandSourceStack source, StandType<?> standType) throws CommandSyntaxException {
         try {
             genDataPackBase(source);
             
@@ -124,7 +124,7 @@ public class StandStatsConfig extends JsonDataConfig {
             
             return count;
         } catch (Throwable e) {
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
@@ -182,7 +182,7 @@ public class StandStatsConfig extends JsonDataConfig {
     
     // parsing the json files, forming the new map of overriden stats
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> resourceList, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> resourceList, ResourceManager resourceManager, ProfilerFiller profiler) {
         Map<StandType<?>, StandStats> stats = new HashMap<>();
         Gson gson = getGson();
         
@@ -192,7 +192,7 @@ public class StandStatsConfig extends JsonDataConfig {
                 StandType<?> stand = registry.getValue(location);
                 if (stand != null) {
                     try {
-                        JsonObject parsedJson = JSONUtils.convertToJsonObject(object, RESOURCE_NAME);
+                        JsonObject parsedJson = GsonHelper.convertToJsonObject(object, RESOURCE_NAME);
                         JsonObject statsJson = gson.toJsonTree(stand.getDefaultStats()).getAsJsonObject();
                         JsonModUtil.replaceValues(statsJson, parsedJson);
                         stats.put(stand, gson.fromJson(statsJson, stand.getStatsClass()));
@@ -213,7 +213,7 @@ public class StandStatsConfig extends JsonDataConfig {
     
     // sending data from server to a player
     @Override
-    public void syncToClient(ServerPlayerEntity player) {
+    public void syncToClient(ServerPlayer player) {
         PacketManager.sendToClient(new StandStatsDataPacket(overridenStats), player);
     }
     

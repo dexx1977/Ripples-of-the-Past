@@ -1,14 +1,14 @@
 package com.github.standobyte.jojo.itemtracking.itemcap;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class TrackerItemStackProvider implements ICapabilitySerializable<INBT>{
+public class TrackerItemStackProvider implements ICapabilitySerializable<Tag>{
     @CapabilityInject(TrackerItemStack.class)
     public static Capability<TrackerItemStack> CAPABILITY = null;
     private LazyOptional<TrackerItemStack> instance;
@@ -23,13 +23,13 @@ public class TrackerItemStackProvider implements ICapabilitySerializable<INBT>{
     }
 
     @Override
-    public INBT serializeNBT() {
+    public Tag serializeNBT() {
         return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Capability LazyOptional is not attached.")), null);
     }
 
     @Override
-    public void deserializeNBT(INBT nbt) {
+    public void deserializeNBT(Tag nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Capability LazyOptional is not attached.")), null, nbt);
     }

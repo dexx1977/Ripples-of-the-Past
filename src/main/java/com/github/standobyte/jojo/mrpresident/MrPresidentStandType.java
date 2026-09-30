@@ -19,13 +19,13 @@ import com.github.standobyte.jojo.power.impl.stand.type.NoSummonStandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.concurrent.TickDelayedTask;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.server.TickTask;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -38,12 +38,12 @@ public class MrPresidentStandType<T extends StandStats> extends NoSummonStandTyp
     @Override
     public void tickUser(LivingEntity user, IStandPower power) {
         if (!user.level.isClientSide()) {
-            LazyOptional<MrPresidentWorldData> mrPresidentTracker = MrPresidentWorldData.get(((ServerWorld) user.level).getServer());
+            LazyOptional<MrPresidentWorldData> mrPresidentTracker = MrPresidentWorldData.get(((ServerLevel) user.level).getServer());
             mrPresidentTracker.ifPresent(tracker -> tracker.rememberTurtlePosition(user));
             if (power.canUsePower()) {
                 if (!roomIsLocked(user)) {
                     List<Entity> entities = findTargets(user, entity -> 
-                               !entity.isOnGround() && entity.getDeltaMovement().y < 0 && entity.getY() > user.getY(1)
+                               !entity.onGround() && entity.getDeltaMovement().y < 0 && entity.getY() > user.getY(1)
                             && !(entity.tickCount < 20 && entity.getType() == EntityType.PLAYER)
                             && !(entity instanceof StandEntity)
                             && !MCUtil.hasIndirectPassenger(entity, user)
@@ -63,7 +63,7 @@ public class MrPresidentStandType<T extends StandStats> extends NoSummonStandTyp
     }
     
     public static List<Entity> findTargets(Entity turtle, @Nullable Predicate<Entity> filter) {
-        Predicate<Entity> predicate = EntityPredicates.NO_SPECTATORS
+        Predicate<Entity> predicate = EntitySelector.NO_SPECTATORS
                 .and(entity -> entity.getBbWidth() < 4 && entity.getBbHeight() < 4);
         if (filter != null) {
             predicate = predicate.and(filter);
@@ -75,8 +75,8 @@ public class MrPresidentStandType<T extends StandStats> extends NoSummonStandTyp
     public static void teleportEntities(Entity turtle, IStandPower power, Collection<Entity> entities) {
         if (entities.isEmpty()) return;
             
-        MinecraftServer server = ((ServerWorld) turtle.level).getServer();
-        ServerWorld mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
+        MinecraftServer server = ((ServerLevel) turtle.level).getServer();
+        ServerLevel mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
         if (mrPresidentWorld != null) {
             for (Entity entity : entities) {
                 UUID turtleId = turtle.getUUID();
@@ -86,12 +86,12 @@ public class MrPresidentStandType<T extends StandStats> extends NoSummonStandTyp
     }
     
     private static void teleportToRoom(Entity entity, UUID roomId, MinecraftServer server, IStandPower turtleStand) {
-        ServerWorld mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
+        ServerLevel mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
         ITeleporter teleporter = new MrPresidentInsideTeleporter(roomId);
         /* can't call changeDimension right away, 
          * because changeDimension immediately removes the entity, 
          * which can't be done while the entities are ticking */
-        server.tell(new TickDelayedTask(server.getTickCount(), () -> {
+        server.tell(new TickTask(server.getTickCount(), () -> {
             entity.changeDimension(mrPresidentWorld, teleporter);
             if (turtleStand != null) {
                 MrPresidentEnteredRoomEffect room = turtleStand.getContinuousEffects()

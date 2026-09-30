@@ -107,77 +107,76 @@ import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.github.standobyte.jojo.world.gen.LoadMeFeature;
 import com.google.common.collect.Iterables;
 
-import net.minecraft.block.AbstractFurnaceBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.PaintingEntity;
-import net.minecraft.entity.item.PaintingType;
-import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.entity.item.minecart.TNTMinecartEntity;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.monster.StrayEntity;
-import net.minecraft.entity.passive.CowEntity;
-import net.minecraft.entity.passive.MooshroomEntity;
-import net.minecraft.entity.player.ChatVisibility;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.Food;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.SuspiciousStewItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SChatPacket;
-import net.minecraft.network.play.server.SPlayEntityEffectPacket;
-import net.minecraft.network.play.server.SPlaySoundEffectPacket;
-import net.minecraft.network.play.server.SRemoveEntityEffectPacket;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.entity.decoration.PaintingVariant;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.vehicle.MinecartTNT;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Stray;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.MushroomCow;
+import net.minecraft.world.entity.player.ChatVisiblity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SuspiciousStewItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.DrinkHelper;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AnvilUpdateEvent;
@@ -190,7 +189,7 @@ import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
@@ -227,7 +226,7 @@ import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -238,7 +237,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingTick(LivingUpdateEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         VampirismUtil.tickSunDamage(entity);
         entity.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
             cap.tick();
@@ -249,7 +248,7 @@ public class GameplayEventHandler {
     private static final int AFK_PARTICLE_SECONDS = 30;
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
-        PlayerEntity player = event.player;
+        Player player = event.player;
         switch (event.phase) {
         case START:
             if (ModStatusEffects.isStunned(player)) {
@@ -259,13 +258,13 @@ public class GameplayEventHandler {
                 cap.tick();
             });
             if (event.side == LogicalSide.SERVER) {
-                if (player.tickCount % 60 == 0 && !player.isInvisible() && player instanceof ServerPlayerEntity) {
-                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+                if (player.tickCount % 60 == 0 && !player.isInvisible() && player instanceof ServerPlayer) {
+                    ServerPlayer serverPlayer = (ServerPlayer) player;
                     long timeNotActive = Util.getMillis() - serverPlayer.getLastActionTime();
                     if (timeNotActive > AFK_PARTICLE_SECONDS * 1000 &&
                             serverPlayer.getCapability(PlayerUtilCapProvider.CAPABILITY).map(cap -> cap.getNoClientInputTimer() > AFK_PARTICLE_SECONDS * 20).orElse(true)) {
-                        MCUtil.sendParticles((ServerWorld) player.level, ModParticles.MENACING.get(), player.getX(), player.getEyeY(), player.getZ(), 
-                                0, MathHelper.cos(player.yRot * MathUtil.DEG_TO_RAD), 0.5F, MathHelper.sin(player.yRot * MathUtil.DEG_TO_RAD), 0.005F, 
+                        MCUtil.sendParticles((ServerLevel) player.level, ModParticles.MENACING.get(), player.getX(), player.getEyeY(), player.getZ(), 
+                                0, Mth.cos(player.yRot * MathUtil.DEG_TO_RAD), 0.5F, Mth.sin(player.yRot * MathUtil.DEG_TO_RAD), 0.005F, 
                                 SpawnParticlePacket.SpecialContext.AFK);
                         ModCriteriaTriggers.AFK.get().trigger(serverPlayer);
                     }
@@ -294,11 +293,11 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void replaceStrayArrow(EntityJoinWorldEvent event) {
         Entity newEntity = event.getEntity();
-        if (newEntity instanceof ArrowEntity) {
-            ArrowEntity arrow = (ArrowEntity) newEntity;
-            if (arrow.getOwner() instanceof StrayEntity) {
+        if (newEntity instanceof Arrow) {
+            Arrow arrow = (Arrow) newEntity;
+            if (arrow.getOwner() instanceof Stray) {
                 arrow.setEffectsFromItem(new ItemStack(Items.ARROW));
-                arrow.addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 300));
+                arrow.addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 300));
             }
         }
     }
@@ -306,7 +305,7 @@ public class GameplayEventHandler {
     @SubscribeEvent
     public static void onWorldTick(WorldTickEvent event) {
         if (event.side == LogicalSide.SERVER /* actually only ticks on server but ok */) {
-            ServerWorld world = (ServerWorld) event.world;
+            ServerLevel world = (ServerLevel) event.world;
             switch (event.phase) {
             case START:
                 break;
@@ -318,7 +317,7 @@ public class GameplayEventHandler {
                 });
 
                 world.getChunkSource().chunkMap.getChunks().forEach(chunkHolder -> {
-                    Chunk chunk = chunkHolder.getTickingChunk();
+                    LevelChunk chunk = chunkHolder.getTickingChunk();
                     if (chunk != null) {
                         chunk.getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> cap.tick());
                     }
@@ -339,7 +338,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onChunkLoad(ChunkWatchEvent.Watch event) {
-        Chunk chunk = event.getWorld().getChunkSource().getChunk(event.getPos().x, event.getPos().z, false);
+        LevelChunk chunk = event.getWorld().getChunkSource().getChunk(event.getPos().x, event.getPos().z, false);
         if (chunk != null) {
             chunk.getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> cap.onChunkLoad(event.getPlayer()));
         }
@@ -347,8 +346,8 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.getWorld() instanceof ServerWorld) {
-            MinecraftServer server = ((ServerWorld) event.getWorld()).getServer();
+        if (event.getWorld() instanceof ServerLevel) {
+            MinecraftServer server = ((ServerLevel) event.getWorld()).getServer();
             for (RegistryObject<? extends Feature<?>> featureSupplier : ModStructures.FEATURES.getEntries()) {
                 Feature<?> feature = (Feature<?>) featureSupplier.get();
                 if (feature instanceof LoadMeFeature) {
@@ -362,7 +361,7 @@ public class GameplayEventHandler {
     public static void cancelStunnedPlayerInteraction(PlayerInteractEvent event) {
         if (event.isCancelable() && ModStatusEffects.isStunned(event.getPlayer())) {
             event.setCanceled(true);
-            event.setCancellationResult(ActionResultType.FAIL);
+            event.setCancellationResult(InteractionResult.FAIL);
         }
     }
 
@@ -377,7 +376,7 @@ public class GameplayEventHandler {
     public static void addEntityDrops(LivingDropsEvent event) {
         Common config = JojoModConfig.getCommonConfigInstance(false);
         if (config.dropStandDisc.get() && !config.keepStandOnDeath.get()) {
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
             IStandPower.getStandPowerOptional(entity).ifPresent(power -> {
                 if (power.hasPower()) {
                     ItemStack disc = StandDiscItem.withStand(new ItemStack(ModItems.STAND_DISC.get()), power.getStandInstance().get());
@@ -390,8 +389,8 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
-        if (!entity.level.isClientSide() && entity instanceof MobEntity) {
-            VampirismUtil.editMobAiGoals((MobEntity) entity);
+        if (!entity.level.isClientSide() && entity instanceof Mob) {
+            VampirismUtil.editMobAiGoals((Mob) entity);
         }
 //        else if (entity.getType() == EntityType.PAINTING) {
 //            cutOutHands((PaintingEntity) event.getEntity());
@@ -411,7 +410,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onBowDrawStart(LivingEntityUseItemEvent.Start event) {
         if (BowChargeEffectInstance.itemFits(event.getItem())) {
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
             for (PowerClassification powerClassification : PowerClassification.values()) {
                 IPower.getPowerOptional(entity, powerClassification).ifPresent(
                         power -> power.onItemUseStart(event.getItem(), event.getDuration()));
@@ -422,7 +421,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onBowDrawStop(LivingEntityUseItemEvent.Stop event) {
         if (BowChargeEffectInstance.itemFits(event.getItem())) {
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
             for (PowerClassification powerClassification : PowerClassification.values()) {
                 IPower.getPowerOptional(entity, powerClassification).ifPresent(
                         power -> power.onItemUseStop(event.getItem(), event.getDuration()));
@@ -432,17 +431,17 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onFoodEaten(LivingEntityUseItemEvent.Finish event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         ItemStack item = event.getItem();
         if (item.getItem() == Items.ENCHANTED_GOLDEN_APPLE) {
-            VampirismUtil.onEnchantedGoldenAppleEaten(event.getEntityLiving());
+            VampirismUtil.onEnchantedGoldenAppleEaten(event.getEntity());
         }
         else if (ModInteractionUtil.isSquidInkPasta(item)) {
             InkPastaItem.onEaten(entity);
         }
         
         if (event.getItem().isEdible()) {
-            Food food = item.getItem().getFoodProperties();
+            FoodProperties food = item.getItem().getFoodProperties();
             INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).ifPresent(pillarman -> {
                     power.addEnergy(food.getNutrition() * 10);
@@ -462,7 +461,7 @@ public class GameplayEventHandler {
         GlovesSpeedEnchantment.addAtrributeModifiersFromEvent(event.getItemStack(), event);
     }
     
-    private static void cutOutHands(PaintingEntity painting) {
+    private static void cutOutHands(Painting painting) {
         if (!painting.level.isClientSide()) {
             boolean monaLisaFull = painting.motive == ModPaintings.MONA_LISA.get();
             boolean monaLisaHands = painting.motive == ModPaintings.MONA_LISA_HANDS.get();
@@ -487,7 +486,7 @@ public class GameplayEventHandler {
                     }
                 }
                 else if (monaLisaHands) {
-                    painting.motive = PaintingType.KEBAB;
+                    painting.motive = PaintingVariant.KEBAB;
                 }
             }
         }
@@ -495,7 +494,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelLivingHeal(LivingHealEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         float amount = event.getAmount();
         if (entity.hasEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get())) {
             amount = VampireSunBurnEffect.reduceUndeadHealing();
@@ -516,7 +515,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent()
     public static void transferStandEffects(LivingConversionEvent.Post event) {
-        LivingEntity original = event.getEntityLiving();
+        LivingEntity original = event.getEntity();
         LivingEntity newEntity = event.getOutcome();
         original.revive(); // bruh
         original.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(oldData -> {
@@ -535,9 +534,9 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void releaseStun(LivingConversionEvent.Post event) {
-        if (event.getOutcome() instanceof MobEntity) {
-            LivingEntity pre = event.getEntityLiving();
-            MobEntity converted = (MobEntity) event.getOutcome();
+        if (event.getOutcome() instanceof Mob) {
+            LivingEntity pre = event.getEntity();
+            Mob converted = (Mob) event.getOutcome();
             if (converted.isNoAi() && ModStatusEffects.isStunned(pre) && !ModStatusEffects.isStunned(converted)) {
                 converted.setNoAi(false);
             }
@@ -547,7 +546,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingHurtStart(LivingAttackEvent event) {
         DamageSource dmgSource = event.getSource();
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         Entity attacker = dmgSource.getEntity();
         
         if (target.level.isClientSide() && JojoModUtil.isDyingBody(target)) {
@@ -642,7 +641,7 @@ public class GameplayEventHandler {
             };
         });
         
-        if (HamonUtil.cancelDamageFromBlock(event.getEntityLiving(), event.getSource(), event.getAmount())) {
+        if (HamonUtil.cancelDamageFromBlock(event.getEntity(), event.getSource(), event.getAmount())) {
             event.setCanceled(true);
         }
         if (VampirismFreeze.onUserAttacked(event)) {
@@ -665,7 +664,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void cancelLivingAttack(LivingAttackEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         DamageSource dmgSource = event.getSource();
         float dmgAmount = event.getAmount();
         if (GeneralUtil.orElseFalse(ContinuousActionInstance.getCurrentAction(entity), 
@@ -677,7 +676,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void reduceDamageFromConfig(LivingHurtEvent event) {
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         if (!target.canUpdate() && target.getCapability(EntityUtilCapProvider.CAPABILITY)
                 .map(cap -> cap.wasStoppedInTime()).orElse(false)) {
             event.setAmount(event.getAmount() * JojoModConfig.getCommonConfigInstance(false)
@@ -696,7 +695,7 @@ public class GameplayEventHandler {
         if (entity == null) {
             return -1;
         }
-        if (entity instanceof ProjectileEntity) {
+        if (entity instanceof Projectile) {
             double velocity = entity.getDeltaMovement().length();
             //
         }
@@ -709,7 +708,7 @@ public class GameplayEventHandler {
                     //
                 }
             }
-            ModifiableAttributeInstance attackSpeedAttribute = entityLiving.getAttribute(Attributes.ATTACK_SPEED);
+            AttributeInstance attackSpeedAttribute = entityLiving.getAttribute(Attributes.ATTACK_SPEED);
             if (attackSpeedAttribute != null) {
                 double attackSpeed = ((LivingEntity) entity).getAttributeValue(Attributes.ATTACK_SPEED);
                 //
@@ -723,7 +722,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void blockDamage(LivingHurtEvent event) {
         DamageSource dmgSource = event.getSource();
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         // block explosion with stand
         if (dmgSource.isExplosion()) {
             target.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
@@ -818,9 +817,9 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void resolveOnTakingDamage(LivingDamageEvent event) {
-        IStandPower.getStandPowerOptional(event.getEntityLiving()).ifPresent(stand -> {
+        IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> {
             if (stand.usesResolve()) {
-                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getEntityLiving());
+                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getEntity());
             }
         });
     }
@@ -830,7 +829,7 @@ public class GameplayEventHandler {
         if (event.getSource() == DamageSource.OUT_OF_WORLD) {
             return;
         }
-        float dmgReduction = IStandPower.getStandPowerOptional(event.getEntityLiving()).map(stand -> {
+        float dmgReduction = IStandPower.getStandPowerOptional(event.getEntity()).map(stand -> {
             return stand.getResolveDmgReduction();
         }).orElse(0F);
         if (dmgReduction > 0F) {
@@ -842,7 +841,7 @@ public class GameplayEventHandler {
     public static void onLivingDamage(LivingDamageEvent event) {
         DamageSource dmgSource = event.getSource();
         float dmgAmount = event.getAmount();
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         
         bleed(dmgSource, dmgAmount, target);
         StandType.onHurtByStand(dmgSource, dmgAmount, target);
@@ -868,7 +867,7 @@ public class GameplayEventHandler {
         float knockbackReduction = DamageUtil.knockbackReduction(event.getSource());
         
         if (knockbackReduction >= 0 && knockbackReduction < 1) {
-            event.getEntityLiving().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
+            event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
                 util.setFutureKnockbackFactor(knockbackReduction);
             });
         }
@@ -876,7 +875,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onEntityKnockback(LivingKnockBackEvent event) {
-        event.getEntityLiving().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
+        event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
             if (util.shouldReduceKnockback()) {
                 float factor = util.getKnockbackFactorOneTime();
                 event.setStrength(event.getStrength() * factor);
@@ -886,7 +885,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void stackKnockbackInstead(LivingKnockBackEvent event) {
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         
         if (!target.canUpdate()) {
             event.setCanceled(true);
@@ -898,7 +897,7 @@ public class GameplayEventHandler {
         if (dmgSource instanceof StandLinkDamageSource) {
             dmgSource = ((StandLinkDamageSource) dmgSource).getOriginalDamageSource();
         }
-        World world = target.level;
+        Level world = target.level;
         if (world.isClientSide()
                 || dmgAmount < 0.98F
                 || dmgSource.isBypassArmor() && dmgSource != DamageSource.FALL
@@ -919,7 +918,7 @@ public class GameplayEventHandler {
     }
     
     @Deprecated
-    public static boolean splashBlood(World world, Vector3d splashPos, double radius, 
+    public static boolean splashBlood(Level world, Vec3 splashPos, double radius, 
             float bleedAmount, Optional<LivingEntity> ownerEntity) {
         return BleedingEffect.splashBlood(world, splashPos, radius, bleedAmount, OptionalInt.empty(), ownerEntity);
     }
@@ -931,18 +930,18 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPotionApply(PotionApplicableEvent event) {
-        LivingEntity entity = event.getEntityLiving();
-        Effect effect = event.getPotionEffect().getEffect();
+        LivingEntity entity = event.getEntity();
+        MobEffect effect = event.getPotionEffect().getEffect();
         if (JojoModUtil.isDyingBody(entity)) {
-            if (effect == Effects.HUNGER || effect == Effects.POISON || effect == Effects.REGENERATION) {
+            if (effect == MobEffects.HUNGER || effect == MobEffects.POISON || effect == MobEffects.REGENERATION) {
                 event.setResult(Result.DENY);
             }
         }
-        if (entity instanceof PlayerEntity && JojoModUtil.isPlayerJojoVampiric((PlayerEntity) entity)) {
-            if (effect == Effects.HUNGER/* || effect == Effects.POISON */) {
+        if (entity instanceof Player && JojoModUtil.isPlayerJojoVampiric((Player) entity)) {
+            if (effect == MobEffects.HUNGER/* || effect == Effects.POISON */) {
                 event.setResult(Result.DENY);
             }
-            else if (effect == Effects.REGENERATION) {
+            else if (effect == MobEffects.REGENERATION) {
                 event.setResult(Result.ALLOW);
             }
         }
@@ -953,9 +952,9 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void changePotionAmplifier(PotionAddedEvent event) {
-        EffectInstance effectInstance = event.getPotionEffect();
+        MobEffectInstance effectInstance = event.getPotionEffect();
         if (effectInstance.getEffect() == ModStatusEffects.BLEEDING.get()) {
-            int amplifier = BleedingEffect.limitAmplifier(event.getEntityLiving(), effectInstance.getAmplifier());
+            int amplifier = BleedingEffect.limitAmplifier(event.getEntity(), effectInstance.getAmplifier());
             if (amplifier != effectInstance.getAmplifier() && amplifier >= 0) {
                 effectInstance.amplifier = amplifier;
             }
@@ -964,19 +963,19 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPotionAdded(PotionAddedEvent event) {
-        LivingEntity entity = event.getEntityLiving();
-        EffectInstance effectInstance = event.getPotionEffect();
+        LivingEntity entity = event.getEntity();
+        MobEffectInstance effectInstance = event.getPotionEffect();
         EntityStandType.giveEffectSharedWithStand(entity, effectInstance);
         
         if (!entity.level.isClientSide()) {
             if (ModStatusEffects.isEffectTracked(effectInstance.getEffect())) {
-                ((ServerChunkProvider) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
-                        new SPlayEntityEffectPacket(entity.getId(), effectInstance));
+                ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
+                        new ClientboundUpdateMobEffectPacket(entity.getId(), effectInstance));
             }
-            if (entity instanceof ServerPlayerEntity) {
-                Effect effect = effectInstance.getEffect();
+            if (entity instanceof ServerPlayer) {
+                MobEffect effect = effectInstance.getEffect();
                 if (effect == ModStatusEffects.RESOLVE.get()) {
-                    PacketManager.sendToClient(new ResolveEffectStartPacket(effectInstance.getAmplifier()), (ServerPlayerEntity) entity);
+                    PacketManager.sendToClient(new ResolveEffectStartPacket(effectInstance.getAmplifier()), (ServerPlayer) entity);
                 }
                 else if (effect == ModStatusEffects.SENSORY_OVERLOAD.get()) {
                     entity.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(PlayerUtilCap::setSendLifeshotNextTick);
@@ -984,7 +983,7 @@ public class GameplayEventHandler {
             }
             if (effectInstance.getEffect() == ModStatusEffects.BLEEDING.get()) {
                 int effectLvl = effectInstance.getAmplifier();
-                EffectInstance prevEffect = entity.getEffect(effectInstance.getEffect());
+                MobEffectInstance prevEffect = entity.getEffect(effectInstance.getEffect());
                 if (prevEffect == null || prevEffect.getAmplifier() < effectLvl) {
                     BleedingEffect.onAddedBleeding(entity, effectLvl);
                 }
@@ -994,13 +993,13 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelPotionRemoval(PotionRemoveEvent event) {
-        EffectInstance effectInstance = event.getPotionEffect();
+        MobEffectInstance effectInstance = event.getPotionEffect();
         if (effectInstance != null) {
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
             INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
                 if (power.hasPower()) {
-                    Iterable<Effect> effects = power.getType().getAllPossibleEffects();
-                    Effect effect = event.getPotion();
+                    Iterable<MobEffect> effects = power.getType().getAllPossibleEffects();
+                    MobEffect effect = event.getPotion();
                     if (Iterables.contains(effects, effect) && 
                             power.getType().getPassiveEffectLevel(effect, power) == effectInstance.getAmplifier() && 
                             !effectInstance.isVisible() && !effectInstance.showIcon()) {
@@ -1013,34 +1012,34 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionRemoved(PotionRemoveEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getEntityLiving(), event.getPotion());
+        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getPotion());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && event.getPotionEffect() != null && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
-            ((ServerChunkProvider) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
-                    new SRemoveEntityEffectPacket(entity.getId(), event.getPotion()));
+            ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
+                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getPotion()));
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionExpired(PotionExpiryEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getEntityLiving(), event.getPotionEffect().getEffect());
+        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getPotionEffect().getEffect());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
-            ((ServerChunkProvider) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
-                    new SRemoveEntityEffectPacket(entity.getId(), event.getPotionEffect().getEffect()));
+            ((ServerChunkCache) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity, 
+                    new ClientboundRemoveMobEffectPacket(entity.getId(), event.getPotionEffect().getEffect()));
         }
     }
     
     @SubscribeEvent
     public static void syncTrackedEffects(PlayerEvent.StartTracking event) {
         if (event.getTarget() instanceof LivingEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            ServerPlayer player = (ServerPlayer) event.getPlayer();
             LivingEntity tracked = (LivingEntity) event.getTarget();
-            for (Map.Entry<Effect, EffectInstance> effectEntry : tracked.getActiveEffectsMap().entrySet()) {
+            for (Map.Entry<MobEffect, MobEffectInstance> effectEntry : tracked.getActiveEffectsMap().entrySet()) {
                 if (ModStatusEffects.isEffectTracked(effectEntry.getKey())) {
-                    player.connection.send(new SPlayEntityEffectPacket(tracked.getId(), effectEntry.getValue()));
+                    player.connection.send(new ClientboundUpdateMobEffectPacket(tracked.getId(), effectEntry.getValue()));
                 }
             }
         }
@@ -1048,26 +1047,26 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        PlayerEntity player = event.getPlayer();
-        if (!player.level.isClientSide() && event.getHand() == Hand.MAIN_HAND) {
-            ServerWorld world = (ServerWorld) player.level;
+        Player player = event.getPlayer();
+        if (!player.level.isClientSide() && event.getHand() == InteractionHand.MAIN_HAND) {
+            ServerLevel world = (ServerLevel) player.level;
             Entity target = event.getTarget();
             
             INonStandPower.getNonStandPowerOptional(player).resolve()
             .flatMap(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()))
             .filter(pillarMan -> pillarMan.getMode() == PillarmanData.Mode.HEAT).ifPresent(acdc -> {
                 int fuse = -1;
-                if (target instanceof TNTEntity) {
-                    TNTEntity tnt = (TNTEntity) target;
+                if (target instanceof PrimedTnt) {
+                    PrimedTnt tnt = (PrimedTnt) target;
                     fuse = tnt.getLife();
                     tnt.remove();
                 }
-                else if (target instanceof TNTMinecartEntity) {
-                    TNTMinecartEntity tntMinecart = (TNTMinecartEntity) target;
+                else if (target instanceof MinecartTNT) {
+                    MinecartTNT tntMinecart = (MinecartTNT) target;
                     if (tntMinecart.isPrimed()) {
                         // mfw the getter is client-only
                         fuse = CommonReflection.getFuse(tntMinecart);
-                        CompoundNBT nbt = new CompoundNBT();
+                        CompoundTag nbt = new CompoundTag();
                         tntMinecart.saveWithoutId(nbt);
                         nbt.putString("id", EntityType.MINECART.getRegistryName().toString());
                         Entity regularMinecart = EntityType.loadEntityRecursive(nbt, world, e -> e);
@@ -1083,10 +1082,10 @@ public class GameplayEventHandler {
                     Random random = world.random;
                     world.playSound(null, 
                             player.getX(), player.getY(), player.getZ(), 
-                            SoundEvents.GENERIC_EAT, SoundCategory.NEUTRAL, 
+                            SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 
                             1.0F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F);
                     acdc.addEatenTntFuse(fuse);
-                    event.setCancellationResult(ActionResultType.SUCCESS);
+                    event.setCancellationResult(InteractionResult.SUCCESS);
                 }
             });
         }
@@ -1094,19 +1093,19 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void cancelChestOpenWhenPossessing(PlayerInteractEvent.RightClickBlock event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         if (MCUtil.getGameMode(player) == GameType.SPECTATOR && IPlayerPossess.getPossessedEntity(player) != null) {
             event.setCanceled(true);
-            event.setCancellationResult(ActionResultType.FAIL);
+            event.setCancellationResult(InteractionResult.FAIL);
         }
     }
     
     @SubscribeEvent(priority = EventPriority.LOW, receiveCanceled = true)
     public static void tripwireInteract(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getHand() == Hand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
-            PlayerEntity player = event.getPlayer();
-            if (!player.isSpectator() && MCUtil.isHandFree(player, Hand.MAIN_HAND)) {
-                World world = player.level;
+        if (event.getHand() == InteractionHand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
+            Player player = event.getPlayer();
+            if (!player.isSpectator() && MCUtil.isHandFree(player, InteractionHand.MAIN_HAND)) {
+                Level world = player.level;
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() == Blocks.TRIPWIRE) {
@@ -1114,7 +1113,7 @@ public class GameplayEventHandler {
                         power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                             if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
                                 event.setCanceled(true);
-                                event.setCancellationResult(ActionResultType.SUCCESS);
+                                event.setCancellationResult(InteractionResult.SUCCESS);
                                 if (!world.isClientSide()) {
                                     HamonRopeTrap.ropeTrap(player, pos, blockState, world, power, hamon);
                                 }
@@ -1129,18 +1128,18 @@ public class GameplayEventHandler {
     private static final int LIT_TICKS = 12000;
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void furnaceInteract(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getHand() == Hand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
-            PlayerEntity player = event.getPlayer();
+        if (event.getHand() == InteractionHand.MAIN_HAND && event.getUseBlock() != Event.Result.DENY) {
+            Player player = event.getPlayer();
             if (!player.isSpectator()) {
-                World world = player.level;
+                Level world = player.level;
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() instanceof AbstractFurnaceBlock) {
                     IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(power -> {
                         if (power.isActive() && power.getType() == ModStands.MAGICIANS_RED.getStandType()) {
-                            TileEntity tileEntity = world.getBlockEntity(pos);
-                            if (tileEntity instanceof AbstractFurnaceTileEntity) {
-                                AbstractFurnaceTileEntity furnace = (AbstractFurnaceTileEntity) tileEntity;
+                            BlockEntity tileEntity = world.getBlockEntity(pos);
+                            if (tileEntity instanceof AbstractFurnaceBlockEntity) {
+                                AbstractFurnaceBlockEntity furnace = (AbstractFurnaceBlockEntity) tileEntity;
                                 int timeLeft = CommonReflection.getFurnaceLitTime(furnace);
                                 if (timeLeft < LIT_TICKS) {
                                     CommonReflection.setFurnaceLitTime(furnace, LIT_TICKS);
@@ -1159,15 +1158,15 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         IStandPower.getStandPowerOptional(player).ifPresent(stand -> {
-            stand.getContinuousEffects().onStandUserLogout((ServerPlayerEntity) player);
+            stand.getContinuousEffects().onStandUserLogout((ServerPlayer) player);
         });
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void handleCheatDeath(LivingDeathEvent event) {
-        LivingEntity dead = event.getEntityLiving();
+        LivingEntity dead = event.getEntity();
         DamageSource damageSource = event.getSource();
         if (!dead.level.isClientSide()) {
             cheatDeath(event);
@@ -1175,7 +1174,7 @@ public class GameplayEventHandler {
             if (!event.isCanceled()) {
                 if (damageSource instanceof IModdedDamageSource && ((IModdedDamageSource) damageSource).isNonLethal()) {
                     event.setCanceled(true);
-                    event.getEntityLiving().setHealth(0.0001f);
+                    event.getEntity().setHealth(0.0001f);
                 }
             }
             
@@ -1183,7 +1182,7 @@ public class GameplayEventHandler {
                 if (StandEffectsTracker.getEffectsTargetedBy(dead, ModStandEffects.TURN_INTO_ANGELO_ROCK.get())
                         .anyMatch(CDTurnIntoAngeloRockEffect::preventTargetDeath)) {
                     event.setCanceled(true);
-                    event.getEntityLiving().setHealth(0.0001f);
+                    event.getEntity().setHealth(0.0001f);
                 }
             }
         }
@@ -1192,7 +1191,7 @@ public class GameplayEventHandler {
     // FIXME (!!!) corpse mod doesn't trigger (WHY)
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void beforeLivingDeath(LivingDeathEvent event) {
-        LivingEntity dead = event.getEntityLiving();
+        LivingEntity dead = event.getEntity();
         if (dead instanceof IPlayerPossess) {
             ((IPlayerPossess) dead).jojoOnPossessingDead();
         }
@@ -1200,7 +1199,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingDeath(LivingDeathEvent event) {
-        LivingEntity dead = event.getEntityLiving();
+        LivingEntity dead = event.getEntity();
         DamageSource dmgSource = event.getSource();
         if (!dead.level.isClientSide()) {
             HamonUtil.hamonPerksOnDeath(dead);
@@ -1212,12 +1211,12 @@ public class GameplayEventHandler {
                 }
             }
             if (!dead.is(killer)) {
-                if (killer instanceof ServerPlayerEntity) {
-                    ModCriteriaTriggers.PLAYER_KILLED_ENTITY.get().trigger((ServerPlayerEntity) killer, dead, dmgSource);
-                    ModCriteriaTriggers.PLAYER_KILLED_PILLAR_MAN.get().trigger((ServerPlayerEntity) killer, dead, dmgSource);
+                if (killer instanceof ServerPlayer) {
+                    ModCriteriaTriggers.PLAYER_KILLED_ENTITY.get().trigger((ServerPlayer) killer, dead, dmgSource);
+                    ModCriteriaTriggers.PLAYER_KILLED_PILLAR_MAN.get().trigger((ServerPlayer) killer, dead, dmgSource);
                 }
-                if (dead instanceof ServerPlayerEntity && killer != null) {
-                    ModCriteriaTriggers.ENTITY_KILLED_PLAYER.get().trigger((ServerPlayerEntity) dead, killer, dmgSource);
+                if (dead instanceof ServerPlayer && killer != null) {
+                    ModCriteriaTriggers.ENTITY_KILLED_PLAYER.get().trigger((ServerPlayer) dead, killer, dmgSource);
                 }
             }
             
@@ -1239,9 +1238,9 @@ public class GameplayEventHandler {
                 }
             }
             
-            EffectInstance freezeEffect = dead.getEffect(ModStatusEffects.FREEZE.get());
-            if (freezeEffect != null && freezeEffect.getAmplifier() >= 3 && !(dead instanceof ServerPlayerEntity)) {
-                ((ServerWorld) dead.level).sendParticles(new BlockParticleData(ParticleTypes.BLOCK, Blocks.ICE.defaultBlockState()), 
+            MobEffectInstance freezeEffect = dead.getEffect(ModStatusEffects.FREEZE.get());
+            if (freezeEffect != null && freezeEffect.getAmplifier() >= 3 && !(dead instanceof ServerPlayer)) {
+                ((ServerLevel) dead.level).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ICE.defaultBlockState()), 
                         dead.getX(), dead.getY(0.5), dead.getZ(), 128, 
                         dead.getBbWidth() / 2, dead.getBbHeight() / 2, dead.getBbWidth() / 2, 0.25);
                 SoundType soundtype = Blocks.ICE.defaultBlockState().getSoundType(dead.level, dead.blockPosition(), null);
@@ -1252,25 +1251,25 @@ public class GameplayEventHandler {
     }
 
     private static void cheatDeath(LivingDeathEvent event) {
-        LivingEntity dead = event.getEntityLiving();
+        LivingEntity dead = event.getEntity();
         if (dead.hasEffect(ModStatusEffects.CHEAT_DEATH.get())) {
             event.setCanceled(true);
             dead.setHealth(dead.getMaxHealth() / 2F);
             dead.removeEffect(ModStatusEffects.CHEAT_DEATH.get());
             dead.clearFire();
-            ((ServerWorld) dead.level).sendParticles(ParticleTypes.POOF, dead.getX(), dead.getY(), dead.getZ(), 
+            ((ServerLevel) dead.level).sendParticles(ParticleTypes.POOF, dead.getX(), dead.getY(), dead.getZ(), 
                     20, (double) dead.getBbWidth() * 2D - 1D, (double) dead.getBbHeight(), (double) dead.getBbWidth() * 2D - 1D, 0.02D);
-            dead.addEffect(new EffectInstance(Effects.INVISIBILITY, 200, 0, false, false, true));
+            dead.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 200, 0, false, false, true));
             chorusFruitTeleport(dead);
-            dead.level.getEntitiesOfClass(MobEntity.class, dead.getBoundingBox().inflate(8), 
+            dead.level.getEntitiesOfClass(Mob.class, dead.getBoundingBox().inflate(8), 
                     mob -> mob.getTarget() == dead).forEach(mob -> MCUtil.loseTarget(mob, dead));
             INonStandPower.getNonStandPowerOptional(dead).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                     if (hamon.characterIs(ModHamonSkills.CHARACTER_JOSEPH.get())) {
-                        if (dead instanceof ServerPlayerEntity) {
-                            ServerPlayerEntity joseph = (ServerPlayerEntity) dead;
+                        if (dead instanceof ServerPlayer) {
+                            ServerPlayer joseph = (ServerPlayer) dead;
                             sendMemeDeathMessage(joseph, event.getSource().getLocalizedDeathMessage(dead));
-                            sendSoundToOnePlayer(joseph, ModSounds.JOSEPH_GIGGLE.get(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            sendSoundToOnePlayer(joseph, ModSounds.JOSEPH_GIGGLE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         }
                     }
                 });
@@ -1285,7 +1284,7 @@ public class GameplayEventHandler {
         double z = entity.getZ();
         for (int i = 0; i < 16; ++i) {
             double xRandom = x + (random.nextDouble() - 0.5D) * 16.0D;
-            double yRandom = MathHelper.clamp(y + (double) (random.nextInt(16) - 8), 0.0D, (double)(entity.level.getHeight() - 1));
+            double yRandom = Mth.clamp(y + (double) (random.nextInt(16) - 8), 0.0D, (double)(entity.level.getHeight() - 1));
             double zRandom = z + (random.nextDouble() - 0.5D) * 16.0D;
             if (entity.isPassenger()) {
                 entity.stopRiding();
@@ -1296,7 +1295,7 @@ public class GameplayEventHandler {
         }
     }
     
-    private static void sendMemeDeathMessage(ServerPlayerEntity player, ITextComponent deathMessage) {
+    private static void sendMemeDeathMessage(ServerPlayer player, Component deathMessage) {
         if (player.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
             Team team = player.getTeam();
             if (team != null && team.getDeathMessageVisibility() != Team.Visible.ALWAYS) {
@@ -1312,25 +1311,25 @@ public class GameplayEventHandler {
         }
     }
 
-    private static void sendSoundToOnePlayer(ServerPlayerEntity player, SoundEvent sound, SoundCategory category, float volume, float pitch) {
-        PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(player, sound, category, volume, pitch);
+    private static void sendSoundToOnePlayer(ServerPlayer player, SoundEvent sound, SoundSource category, float volume, float pitch) {
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(player, sound, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
         category = event.getCategory();
         volume = event.getVolume();
-        player.connection.send(new SPlaySoundEffectPacket(sound, category, player.getX(), player.getY(), player.getZ(), volume, pitch));
+        player.connection.send(new ClientboundSoundPacket(sound, category, player.getX(), player.getY(), player.getZ(), volume, pitch));
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelXpDrop(LivingExperienceDropEvent event) {
-        LivingEntity mob = event.getEntityLiving();
+        LivingEntity mob = event.getEntity();
         if (StandEffectsTracker.isTargetedBy(mob, ModStandEffects.GE_CREATED_LIFEFORM.get())) {
             event.setCanceled(true);
         }
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void cancelHitSound(PlaySoundAtEntityEvent event) {
+    public static void cancelHitSound(PlayLevelSoundEvent event) {
         SoundEvent sound = event.getSound();
         if (AngeloRockEntity.cancelPlayerHitSound && (sound == SoundEvents.PLAYER_ATTACK_STRONG || sound == SoundEvents.PLAYER_ATTACK_WEAK/* || sound == SoundEvents.PLAYER_ATTACK_KNOCKBACK*/ /* is played before AngeloRockEntity#hurt is called so nope */)) {
             AngeloRockEntity.cancelPlayerHitSound = false;
@@ -1341,7 +1340,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void changeLooting(LootingLevelEvent event) {
         LivingEntity usePickaxeFortune = AngeloRockEntity.mobLootFortune;
-        if (usePickaxeFortune != null && event.getEntityLiving() == usePickaxeFortune) {
+        if (usePickaxeFortune != null && event.getEntity() == usePickaxeFortune) {
             Entity killer = event.getDamageSource().getEntity();
             if (killer instanceof LivingEntity) {
                 int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLOCK_FORTUNE, (LivingEntity) killer);
@@ -1363,9 +1362,9 @@ public class GameplayEventHandler {
     @SubscribeEvent
     public static void onExplosionDetonate(ExplosionEvent.Detonate event) {
         Explosion explosion = event.getExplosion();
-        if (explosion.getExploder() instanceof CreeperEntity) {
-            CreeperEntity creeper = (CreeperEntity) explosion.getExploder();
-            Collection<Effect> effects = new ArrayList<>(creeper.getActiveEffectsMap().keySet());
+        if (explosion.getExploder() instanceof Creeper) {
+            Creeper creeper = (Creeper) explosion.getExploder();
+            Collection<MobEffect> effects = new ArrayList<>(creeper.getActiveEffectsMap().keySet());
             effects.forEach(effect -> {
                 if (effect == ModStatusEffects.BLEEDING.get() || effect instanceof StatusEffect && ((StatusEffect) effect).isUncurable()) {
                     creeper.removeEffect(effect);
@@ -1397,7 +1396,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingFall(LivingFallEvent event) {
         if (event.getDistance() > 3) {
-            LivingEntity entity = event.getEntityLiving();
+            LivingEntity entity = event.getEntity();
             float leapStrength = Math.max(
                     IStandPower.getStandPowerOptional(entity).map(power -> 
                     power.hasPower() && power.isLeapUnlocked() ? power.leapStrength() : 0).orElse(0F), 
@@ -1409,12 +1408,12 @@ public class GameplayEventHandler {
         }
     }
     
-    private static ITextComponent getDisplayNameWithUser(StandEntity stand, PlayerEntity user) {
-        return ScorePlayerTeam.formatNameForTeam(stand.getTeam(), stand.getName()).withStyle(style -> {
+    private static Component getDisplayNameWithUser(StandEntity stand, Player user) {
+        return PlayerTeam.formatNameForTeam(stand.getTeam(), stand.getName()).withStyle(style -> {
             return style
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, 
                             new HoverEvent.EntityHover(stand.getType(), stand.getUUID(), 
-                                    new TranslationTextComponent("chat.stand_remote_reveal_name", stand.getName(), user.getName()))))
+                                    Component.translatable("chat.stand_remote_reveal_name", stand.getName(), user.getName()))))
                     .withInsertion(user.getGameProfile().getName());
         });
     }
@@ -1426,17 +1425,17 @@ public class GameplayEventHandler {
             event.setCanceled(true);
         }
         
-        List<ServerPlayerEntity> josephTechniqueUsers = MCUtil.entitiesAround(ServerPlayerEntity.class, event.getPlayer(), 8, false, 
+        List<ServerPlayer> josephTechniqueUsers = MCUtil.entitiesAround(ServerPlayer.class, event.getPlayer(), 8, false, 
                 pl -> (!messageAsStand || StandUtil.playerCanHearStands(pl)) &&
                 INonStandPower.getNonStandPowerOptional(pl).map(power -> 
                 power.getTypeSpecificData(ModPowers.HAMON.get()).map(hamon -> 
                 hamon.characterIs(ModHamonSkills.CHARACTER_JOSEPH.get())).orElse(false)).orElse(false));
-        for (ServerPlayerEntity joseph : josephTechniqueUsers) {
-            if (joseph.getChatVisibility() != ChatVisibility.HIDDEN && joseph.getRandom().nextFloat() < 0.05F) {
+        for (ServerPlayer joseph : josephTechniqueUsers) {
+            if (joseph.getChatVisibility() != ChatVisiblity.HIDDEN && joseph.getRandom().nextFloat() < 0.05F) {
                 String tlKey = "jojo.chat.joseph.next_line." + (joseph.getRandom().nextInt(3) + 1);
-                ITextComponent message = new TranslationTextComponent("chat.type.text", joseph.getDisplayName(), 
-                        new TranslationTextComponent(tlKey, event.getMessage()));
-                LanguageMap map = LanguageMap.getInstance();
+                Component message = Component.translatable("chat.type.text", joseph.getDisplayName(), 
+                        Component.translatable(tlKey, event.getMessage()));
+                Language map = Language.getInstance();
                 if (map != null) {
                     message = ForgeHooks.onServerChatEvent(joseph.connection, String.format(map.getOrDefault(tlKey), event.getMessage()), message);
                 }
@@ -1452,22 +1451,22 @@ public class GameplayEventHandler {
 
     private static final double STAND_MESSAGE_RANGE = 16;
     private static boolean messageAsStand(ServerChatEvent event) {
-        ServerPlayerEntity playerSending = event.getPlayer();
+        ServerPlayer playerSending = event.getPlayer();
         return GeneralUtil.orElseFalse(IStandPower.getStandPowerOptional(playerSending), stand -> {
             if (stand.hasPower() && stand.isActive() && stand.getStandManifestation() instanceof StandEntity) {
                 StandEntity standEntity = (StandEntity) stand.getStandManifestation();
                 if (standEntity.isManuallyControlled()) {
                     MinecraftServer server = playerSending.server;
                     
-                    ITextComponent msg = new TranslationTextComponent("chat.type.text", 
+                    Component msg = Component.translatable("chat.type.text", 
                             standEntity.getDisplayName(), ForgeHooks.newChatWithLinks(event.getMessage()));
-                    ITextComponent msgUserTooltip = new TranslationTextComponent("chat.type.text", 
+                    Component msgUserTooltip = Component.translatable("chat.type.text", 
                             getDisplayNameWithUser(standEntity, playerSending), ForgeHooks.newChatWithLinks(event.getMessage()));
-                    SChatPacket messagePacket = new SChatPacket(msg, ChatType.CHAT, playerSending.getUUID());
-                    SChatPacket messagePacketUser = new SChatPacket(msgUserTooltip, ChatType.CHAT, playerSending.getUUID());
+                    ClientboundSystemChatPacket messagePacket = new ClientboundSystemChatPacket(msg, ChatType.CHAT, playerSending.getUUID());
+                    ClientboundSystemChatPacket messagePacketUser = new ClientboundSystemChatPacket(msgUserTooltip, ChatType.CHAT, playerSending.getUUID());
                     
                     server.sendMessage(event.getComponent() /*sending the message with the original user name*/, playerSending.getUUID());
-                    for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                    for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                         if (player == playerSending || 
                                 player.level.dimension() == playerSending.level.dimension() 
                                 && player.position().subtract(standEntity.position()).lengthSqr() < STAND_MESSAGE_RANGE * STAND_MESSAGE_RANGE
@@ -1488,31 +1487,31 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onMobInteract(PlayerInteractEvent.EntityInteract event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         Entity target = event.getTarget();
-        Hand hand = event.getHand();
+        InteractionHand hand = event.getHand();
         ItemStack item = player.getItemInHand(hand);
         
-        if (target.isAlive() && target instanceof CowEntity && (
+        if (target.isAlive() && target instanceof Cow && (
                 item.getItem() == Items.BUCKET
-                || item.getItem() == Items.BOWL && target instanceof MooshroomEntity)) {
-            CowEntity cow = (CowEntity) target;
+                || item.getItem() == Items.BOWL && target instanceof MushroomCow)) {
+            Cow cow = (Cow) target;
             if (cow.getLeashHolder() != player && !cow.isBaby()) {
-                Optional<List<EffectInstance>> potion = cow.getCapability(LivingUtilCapProvider.CAPABILITY).resolve()
+                Optional<List<MobEffectInstance>> potion = cow.getCapability(LivingUtilCapProvider.CAPABILITY).resolve()
                         .map(cap -> cap.getProductEffects());
                 
                 if (potion.isPresent()) {
                     if (item.getItem() == Items.BUCKET) {
                         player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
-                        ItemStack milkBucketItem = DrinkHelper.createFilledResult(item, player, 
+                        ItemStack milkBucketItem = ItemUtils.createFilledResult(item, player, 
                                 PotionUtils.setCustomEffects(Items.MILK_BUCKET.getDefaultInstance(), potion.get()));
                         milkBucketItem.getOrCreateTag().putBoolean(MOD_ADDS_EFFECTS_TO_ITEM, true);
                         player.setItemInHand(hand, milkBucketItem);
                     }
                     else {
                         ItemStack stewItem;
-                        MooshroomEntity mooshroomEntity = (MooshroomEntity) target;
-                        Effect susEffect = CommonReflection.getEffect(mooshroomEntity);
+                        MushroomCow mooshroomEntity = (MushroomCow) target;
+                        MobEffect susEffect = CommonReflection.getEffect(mooshroomEntity);
                         if (susEffect != null) {
                             stewItem = new ItemStack(Items.SUSPICIOUS_STEW);
                             int duration = CommonReflection.getEffectDuration(mooshroomEntity);
@@ -1523,7 +1522,7 @@ public class GameplayEventHandler {
                         }
                         
                         PotionUtils.setCustomEffects(stewItem, potion.get());
-                        ItemStack stewBowlItem = DrinkHelper.createFilledResult(item, player, stewItem, false);
+                        ItemStack stewBowlItem = ItemUtils.createFilledResult(item, player, stewItem, false);
                         stewItem.getOrCreateTag().putBoolean(MOD_ADDS_EFFECTS_TO_ITEM, true);
                         player.setItemInHand(hand, stewBowlItem);
                         
@@ -1531,7 +1530,7 @@ public class GameplayEventHandler {
                     }
                     
                     event.setCanceled(true);
-                    event.setCancellationResult(ActionResultType.sidedSuccess(player.level.isClientSide()));
+                    event.setCancellationResult(InteractionResult.sidedSuccess(player.level.isClientSide()));
                 }
             }
         }
@@ -1541,9 +1540,9 @@ public class GameplayEventHandler {
     @SubscribeEvent
     public static void usePotionCowProduct(LivingEntityUseItemEvent.Finish event) {
         ItemStack item = event.getItem();
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         if (!item.isEmpty() && item.hasTag() && item.getTag().getBoolean(MOD_ADDS_EFFECTS_TO_ITEM)) {
-            List<EffectInstance> effects = PotionUtils.getMobEffects(item);
+            List<MobEffectInstance> effects = PotionUtils.getMobEffects(item);
             if (!effects.isEmpty()) {
                 effects.forEach(effect -> entity.addEffect(effect));
             }
@@ -1552,24 +1551,24 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onAnimalOffspring(BabyEntitySpawnEvent event) {
-        List<EffectInstance> effectsA = event.getParentA().getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(
+        List<MobEffectInstance> effectsA = event.getParentA().getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(
                 cap -> cap.getProductEffects()).orElse(null);
-        List<EffectInstance> effectsB = event.getParentB().getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(
+        List<MobEffectInstance> effectsB = event.getParentB().getCapability(LivingUtilCapProvider.CAPABILITY).resolve().map(
                 cap -> cap.getProductEffects()).orElse(null);
         boolean hasA = effectsA != null && !effectsA.isEmpty();
         boolean hasB = effectsB != null && !effectsB.isEmpty();
         if (hasA || hasB) {
-            List<EffectInstance> effectsRes = new ArrayList<>();
+            List<MobEffectInstance> effectsRes = new ArrayList<>();
             if (hasA) {
-                Map<Effect, EffectInstance> effectsMap = effectsA.stream()
-                        .collect(Collectors.toMap(EffectInstance::getEffect, Function.identity(), 
+                Map<MobEffect, MobEffectInstance> effectsMap = effectsA.stream()
+                        .collect(Collectors.toMap(MobEffectInstance::getEffect, Function.identity(), 
                                 (u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); }, 
                                 HashMap::new));
-                for (EffectInstance effectB : effectsB) {
-                    Effect effectKey = effectB.getEffect();
-                    EffectInstance effectA = effectsMap.get(effectKey);
+                for (MobEffectInstance effectB : effectsB) {
+                    MobEffect effectKey = effectB.getEffect();
+                    MobEffectInstance effectA = effectsMap.get(effectKey);
                     if (effectA != null) {
-                        EffectInstance effectSum = new EffectInstance(effectKey, 
+                        MobEffectInstance effectSum = new MobEffectInstance(effectKey, 
                                 Math.max(effectA.getDuration(), effectB.getDuration()),
                                 Math.max(effectA.getAmplifier(), effectB.getAmplifier()));
                         effectsMap.put(effectKey, effectSum);
@@ -1592,7 +1591,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWakeUp(PlayerWakeUpEvent event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         
         if (!event.wakeImmediately() && !event.updateWorld()) {
             IStandPower.getStandPowerOptional(player).ifPresent(stand -> {
@@ -1611,14 +1610,14 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (!event.getWorld().isClientSide()) {
-            World world = (World) event.getWorld();
+            Level world = (Level) event.getWorld();
             BlockPos pos = event.getPos();
             
             int xp = event.getExpToDrop();
             if (xp > 0) {
-                IChunk chunk = world.getChunk(pos);
-                if (chunk instanceof Chunk) {
-                    ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+                ChunkAccess chunk = world.getChunk(pos);
+                if (chunk instanceof LevelChunk) {
+                    ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                         cap.setDroppedXp(pos, xp);
                     });
                 }
@@ -1635,7 +1634,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
         if (event.getNewGameMode() == GameType.CREATIVE) {
-            PlayerEntity player = event.getPlayer();
+            Player player = event.getPlayer();
             INonStandPower.getNonStandPowerOptional(event.getPlayer()).ifPresent(power -> power.resetCooldowns());
             IStandPower.getStandPowerOptional(event.getPlayer()).ifPresent(stand -> stand.resetCooldowns());
             player.removeEffect(ModStatusEffects.IMMOBILIZE.get());
@@ -1646,7 +1645,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onMobSpawn(LivingSpawnEvent.CheckSpawn event) {
-        if (event.getResult() != Event.Result.DENY && event.getEntityLiving().getType() == EntityType.TURTLE
+        if (event.getResult() != Event.Result.DENY && event.getEntity().getType() == EntityType.TURTLE
                 && JojoModConfig.getCommonConfigInstance(false).spawnCocoJumboTurtle.get()) {
             CocoJumboTurtleEntity.onRegularTutelSpawn(event);
         }

@@ -18,18 +18,18 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import net.minecraft.command.arguments.ArgumentSerializer;
-import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public class StandArgument implements ArgumentType<StandType<?>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("star_platinum", "jojo:hierophant_green");
-    public static final DynamicCommandExceptionType STAND_UNKNOWN = new DynamicCommandExceptionType((key) -> new TranslationTextComponent("stand.unknown", key));
+    public static final DynamicCommandExceptionType STAND_UNKNOWN = new DynamicCommandExceptionType((key) -> Component.translatable("stand.unknown", key));
     private static Map<String, List<StandType<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypes.register("stand", StandArgument.class, new ArgumentSerializer<>(StandArgument::new));
+        ArgumentTypeInfos.register("stand", StandArgument.class, new ArgumentSerializer<>(StandArgument::new));
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.STANDS.getRegistry());
     }
     
@@ -46,7 +46,7 @@ public class StandArgument implements ArgumentType<StandType<?>> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT;
-        return ArgumentUtil.suggestIterable(StandUtil.availableStands(isClientSide).map(IForgeRegistryEntry::getRegistryName), builder);
+        return ArgumentUtil.suggestIterable(StandUtil.availableStands(isClientSide).map(RegistryEntry::getRegistryName), builder);
     }
 
     @Override

@@ -15,22 +15,23 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mc.entitysubtype.SubtypeResourceLocation;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 public class LifeformsUIState {
-    private final PlayerEntity player;
+    private final Player player;
     
     EntitySubtype<?> chosenType = null;
     Set<ResourceLocation> favoritesMobs = new HashSet<>();
     Set<ResourceLocation> newUnseenMobs = new HashSet<>();
     
-    public LifeformsUIState(PlayerEntity player) {
+    public LifeformsUIState(Player player) {
         this.player = player;
     }
     
@@ -101,44 +102,44 @@ public class LifeformsUIState {
     }
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
 
         if (chosenType != null) {
-            nbt.put("ChosenType", StringNBT.valueOf(chosenType.getId().toString()));
+            nbt.put("ChosenType", StringTag.valueOf(chosenType.getId().toString()));
         }
         if (!favoritesMobs.isEmpty()) {
-            ListNBT list = favoritesMobs.stream()
-                    .map(Object::toString).map(StringNBT::valueOf)
-                    .collect(ListNBT::new, ListNBT::add, ListNBT::addAll);
+            ListTag list = favoritesMobs.stream()
+                    .map(Object::toString).map(StringTag::valueOf)
+                    .collect(ListTag::new, ListTag::add, ListTag::addAll);
             nbt.put("FavoritesMobs", list);
         }
         if (!newUnseenMobs.isEmpty()) {
-            ListNBT list = favoritesMobs.stream()
-                    .map(Object::toString).map(StringNBT::valueOf)
-                    .collect(ListNBT::new, ListNBT::add, ListNBT::addAll);
+            ListTag list = favoritesMobs.stream()
+                    .map(Object::toString).map(StringTag::valueOf)
+                    .collect(ListTag::new, ListTag::add, ListTag::addAll);
             nbt.put("NewMobs", list);
         }
         
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
-        if (nbt.contains("ChosenType", Constants.NBT.TAG_STRING)) {
+    public void fromNBT(CompoundTag nbt) {
+        if (nbt.contains("ChosenType", Tag.TAG_STRING)) {
             SubtypeResourceLocation id = new SubtypeResourceLocation(nbt.getString("ChosenType"));
             chosenType = EntitySubtype.getSubtype(id);
         }
-        MCUtil.nbtGetList(nbt, "FavoritesMobs", StringNBT.class)
+        MCUtil.nbtGetList(nbt, "FavoritesMobs", StringTag.class)
                 .map(listNbt -> listNbt
                         .stream()
-                        .map(elemNbt -> ((StringNBT) elemNbt).getAsString())
+                        .map(elemNbt -> ((StringTag) elemNbt).getAsString())
                         .map(ResourceLocation::new)
                         .collect(Collectors.toList()))
                 .ifPresent(hidden -> favoritesMobs.addAll(hidden));
-        MCUtil.nbtGetList(nbt, "NewMobs", StringNBT.class)
+        MCUtil.nbtGetList(nbt, "NewMobs", StringTag.class)
                 .map(listNbt -> listNbt
                         .stream()
-                        .map(elemNbt -> ((StringNBT) elemNbt).getAsString())
+                        .map(elemNbt -> ((StringTag) elemNbt).getAsString())
                         .map(ResourceLocation::new)
                         .collect(Collectors.toList()))
                 .ifPresent(hidden -> newUnseenMobs.addAll(hidden));

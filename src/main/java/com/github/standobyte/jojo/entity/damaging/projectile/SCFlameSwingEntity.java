@@ -2,20 +2,20 @@ package com.github.standobyte.jojo.entity.damaging.projectile;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class SCFlameSwingEntity extends MRFlameEntity {
     
-    public SCFlameSwingEntity(LivingEntity shooter, World world) {
+    public SCFlameSwingEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.SC_FLAME.get(), shooter, world);
     }
 
-    public SCFlameSwingEntity(EntityType<? extends SCFlameSwingEntity> type, World world) {
+    public SCFlameSwingEntity(EntityType<? extends SCFlameSwingEntity> type, Level world) {
         super(type, world);
     }
     
@@ -29,14 +29,14 @@ public class SCFlameSwingEntity extends MRFlameEntity {
         return 20;
     }
 
-    private static final Vector3d OFFSET = new Vector3d(0.0, -0.3, 0.75);
+    private static final Vec3 OFFSET = new Vec3(0.0, -0.3, 0.75);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
             if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
                 super.afterBlockHit(blockRayTraceResult, blockDestroyed);

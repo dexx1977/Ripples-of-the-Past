@@ -10,23 +10,23 @@ import com.github.standobyte.jojo.network.packets.fromclient.ClBroadcastedModSet
 import com.github.standobyte.jojo.network.packets.fromserver.TrPlayerModSettingsPacket;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class PlayerClientBroadcastedSettings {
-    public HandSide standSide = HandSide.RIGHT;
+    public HumanoidArm standSide = HumanoidArm.RIGHT;
     public boolean vampireGlowingEyes = true;
     
     
-    public void toBuf(PacketBuffer buf) {
+    public void toBuf(FriendlyByteBuf buf) {
         buf.writeEnum(standSide);
         buf.writeBoolean(vampireGlowingEyes);
     }
     
-    public void fromBuf(PacketBuffer buf) {
-        standSide = buf.readEnum(HandSide.class);
+    public void fromBuf(FriendlyByteBuf buf) {
+        standSide = buf.readEnum(HumanoidArm.class);
         vampireGlowingEyes = buf.readBoolean();
     }
     
@@ -37,15 +37,15 @@ public class PlayerClientBroadcastedSettings {
         }
     }
     
-    public void syncToAll(PlayerEntity player) {
+    public void syncToAll(Player player) {
         PacketManager.sendToClientsTracking(new TrPlayerModSettingsPacket(player.getId(), this), player);
     }
     
-    public void syncToTracking(PlayerEntity player, ServerPlayerEntity tracking) {
+    public void syncToTracking(Player player, ServerPlayer tracking) {
         PacketManager.sendToClient(new TrPlayerModSettingsPacket(player.getId(), this), tracking);
     }
     
-    public static Optional<PlayerClientBroadcastedSettings> getPlayerSettings(PlayerEntity player) {
+    public static Optional<PlayerClientBroadcastedSettings> getPlayerSettings(Player player) {
         if (player.isLocalPlayer()) {
             return Optional.of(ClientModSettings.getSettingsReadOnly().broadcasted);
         }

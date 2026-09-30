@@ -7,20 +7,20 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class TrBarrageHitSoundPacket {
     private final int standEntityId;
     private final boolean hit;
     private final SoundEvent sound;
-    private final Vector3d soundPos;
+    private final Vec3 soundPos;
     
-    public TrBarrageHitSoundPacket(int standEntityId, SoundEvent sound, Vector3d soundPos) {
+    public TrBarrageHitSoundPacket(int standEntityId, SoundEvent sound, Vec3 soundPos) {
         this(standEntityId, true, sound, soundPos);
     }
     
@@ -28,7 +28,7 @@ public class TrBarrageHitSoundPacket {
         return new TrBarrageHitSoundPacket(standEntityId, false, null, null);
     }
     
-    private TrBarrageHitSoundPacket(int standEntityId, boolean hit, SoundEvent sound, Vector3d soundPos) {
+    private TrBarrageHitSoundPacket(int standEntityId, boolean hit, SoundEvent sound, Vec3 soundPos) {
         this.standEntityId = standEntityId;
         this.hit = hit;
         this.sound = sound;
@@ -40,7 +40,7 @@ public class TrBarrageHitSoundPacket {
     public static class Handler implements IModPacketHandler<TrBarrageHitSoundPacket> {
 
         @Override
-        public void encode(TrBarrageHitSoundPacket msg, PacketBuffer buf) {
+        public void encode(TrBarrageHitSoundPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.standEntityId);
             buf.writeBoolean(msg.hit);
             if (msg.hit) {
@@ -50,7 +50,7 @@ public class TrBarrageHitSoundPacket {
         }
 
         @Override
-        public TrBarrageHitSoundPacket decode(PacketBuffer buf) {
+        public TrBarrageHitSoundPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readInt();
             boolean hit = buf.readBoolean();
             if (hit) {

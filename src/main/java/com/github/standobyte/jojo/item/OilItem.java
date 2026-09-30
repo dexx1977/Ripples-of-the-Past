@@ -7,19 +7,18 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 public class OilItem extends Item {
 
@@ -31,8 +30,8 @@ public class OilItem extends Item {
      
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        Hand opposite = hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        InteractionHand opposite = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack oilStack = player.getItemInHand(hand);
         ItemStack weaponStack = player.getItemInHand(opposite);
         
@@ -45,20 +44,20 @@ public class OilItem extends Item {
                 }
             }
             world.playSound(player, player.getX(), player.getEyeY(), player.getZ(), SoundEvents.BOTTLE_EMPTY, player.getSoundSource(), 1F, 1F);
-            return ActionResult.consume(oilStack);
+            return InteractionResultHolder.consume(oilStack);
         }
         
-        return ActionResult.fail(oilStack);
+        return InteractionResultHolder.fail(oilStack);
     }
     
      @Override
-     public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-             tooltip.add(new TranslationTextComponent("item.jojo.oil.hint").withStyle(TextFormatting.GRAY)); 
+     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+             tooltip.add(Component.translatable("item.jojo.oil.hint").withStyle(ChatFormatting.GRAY)); 
      }
      
      public static OptionalInt remainingOiledUses(ItemStack stack) {
          if (!stack.isEmpty() && stack.hasTag()) {
-             CompoundNBT nbt = stack.getTag();
+             CompoundTag nbt = stack.getTag();
              if (nbt.contains("HamonOiled")) {
                  int usesLeft = nbt.getInt("HamonOiled");
                  return OptionalInt.of(usesLeft); 

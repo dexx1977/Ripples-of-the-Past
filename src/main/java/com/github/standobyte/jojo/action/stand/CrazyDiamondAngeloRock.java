@@ -14,9 +14,9 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondAngeloRock extends StandEntityActionModifier {
     @ActionConfigField private boolean keepMobsInside = true;
@@ -43,7 +43,7 @@ public class CrazyDiamondAngeloRock extends StandEntityActionModifier {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (world.isClientSide() || task.getTarget().getType() != TargetType.ENTITY) return;
         Entity entity = task.getTarget().getEntity();
         if (entity instanceof LivingEntity) {

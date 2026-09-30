@@ -15,27 +15,27 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.command.arguments.EntityAnchorArgument;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
 public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     private LivingEntity originEntity;
@@ -45,14 +45,14 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     private Entity noResolveEntity;
     private UUID noResolveEntityUUID;
     
-    public SoulEntity(World world, LivingEntity originEntity, int lifeSpan, boolean resolveCanLvlUp) {
+    public SoulEntity(Level world, LivingEntity originEntity, int lifeSpan, boolean resolveCanLvlUp) {
         this(ModEntityTypes.SOUL.get(), world);
         setOriginEntity(originEntity);
         this.lifeSpan = lifeSpan;
         this.resolveCanLvlUp = resolveCanLvlUp;
     }
 
-    public SoulEntity(EntityType<?> type, World world) {
+    public SoulEntity(EntityType<?> type, Level world) {
         super(type, world);
         noPhysics = true;
     }
@@ -95,12 +95,12 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         }
         else {
             if (noResolveEntity == null && noResolveEntityUUID != null) {
-                noResolveEntity = ((ServerWorld) level).getEntity(noResolveEntityUUID);
+                noResolveEntity = ((ServerLevel) level).getEntity(noResolveEntityUUID);
                 noResolveEntityUUID = null;
             }
             
             level.getEntitiesOfClass(LivingEntity.class, 
-                    new AxisAlignedBB(getBoundingBox().getCenter(), getBoundingBox().getCenter()).inflate(24), 
+                    new AABB(getBoundingBox().getCenter(), getBoundingBox().getCenter()).inflate(24), 
                     entity -> !entity.is(originEntity)
                             && originEntity.isAlliedTo(entity) && !(entity instanceof StandEntity))
             .forEach(entity -> {
@@ -110,12 +110,12 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
                     }
                 });
             });
-            RayTraceResult rayTrace = JojoModUtil.rayTrace(this, 32, 
+            HitResult rayTrace = JojoModUtil.rayTrace(this, 32, 
                     entity -> entity instanceof LivingEntity
                             && !StandUtil.getStandUser((LivingEntity) entity).is(originEntity)
                     , 1.0);
-            if (rayTrace.getType() == RayTraceResult.Type.ENTITY) {
-                Entity lookEntity = ((EntityRayTraceResult) rayTrace).getEntity();
+            if (rayTrace.getType() == HitResult.Type.ENTITY) {
+                Entity lookEntity = ((EntityHitResult) rayTrace).getEntity();
                 if (lookEntity instanceof LivingEntity) {
                     LivingEntity entity = StandUtil.getStandUser((LivingEntity) lookEntity);
                     IStandPower.getStandPowerOptional(entity)
@@ -146,7 +146,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     @Override
     public boolean isControlledByLocalInstance() {
         return super.isControlledByLocalInstance() || 
-                level.isClientSide() && originEntity instanceof PlayerEntity && ((PlayerEntity) originEntity).isLocalPlayer();
+                level.isClientSide() && originEntity instanceof Player && ((Player) originEntity).isLocalPlayer();
     }
 
     private void addCloudParticles() {
@@ -176,9 +176,9 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         tickCount = lifeSpan - 1;
     }
     
-    private static final Vector3d UPWARDS_MOVEMENT = new Vector3d(0, 0.04D, 0);
+    private static final Vec3 UPWARDS_MOVEMENT = new Vec3(0, 0.04D, 0);
     @Override
-    public Vector3d getDeltaMovement() {
+    public Vec3 getDeltaMovement() {
         return UPWARDS_MOVEMENT;
     }
 
@@ -195,7 +195,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
     
     @Override
-    public boolean isInvisibleTo(PlayerEntity player) {
+    public boolean isInvisibleTo(Player player) {
         return !player.is(originEntity) && (!StandUtil.clStandEntityVisibleTo(player) 
                 || !JojoModUtil.seesInvisibleAsSpectator(player) && invisibleFlag());
     }
@@ -206,7 +206,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public EntitySize getDimensions(Pose pose) {
+    public EntityDimensions getDimensions(Pose pose) {
         if (originEntity != null) {
             return originEntity.getDimensions(pose);
         }
@@ -214,7 +214,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         this.tickCount = nbt.getInt("Age");
         this.lifeSpan = nbt.getInt("LifeSpan");
         this.resolveCanLvlUp = nbt.getBoolean("Resolve");
@@ -227,7 +227,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putInt("Age", tickCount);
         nbt.putInt("LifeSpan", lifeSpan);
         nbt.putBoolean("Resolve", resolveCanLvlUp);
@@ -240,14 +240,14 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         if (originUuid != null) {
-            Entity entity = ((ServerWorld) level).getEntity(originUuid);
+            Entity entity = ((ServerLevel) level).getEntity(originUuid);
             if (entity instanceof LivingEntity) {
                 setOriginEntity((LivingEntity) entity);
             }
@@ -260,7 +260,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity entity = level.getEntity(additionalData.readInt());
         if (entity instanceof LivingEntity) {
             setOriginEntity((LivingEntity) entity);
@@ -298,8 +298,8 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         float f2 = 0.0F;
         if (horizontalDistSqr > 0.0025F) {
             f2 = (float)Math.sqrt((double)horizontalDistSqr) * 3.0F;
-            float f4 = (float)MathHelper.atan2(d1, d0) * (180F / (float)Math.PI) - 90.0F;
-            float f5 = MathHelper.abs(MathHelper.wrapDegrees(this.yRot) - f4);
+            float f4 = (float)Mth.atan2(d1, d0) * (180F / (float)Math.PI) - 90.0F;
+            float f5 = Mth.abs(Mth.wrapDegrees(this.yRot) - f4);
             if (95.0F < f5 && f5 < 265.0F) {
                 f1 = f4 - 180.0F;
             } else {
@@ -358,9 +358,9 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     protected float tickHeadTurn(float p_110146_1_, float p_110146_2_) {
-        float f = MathHelper.wrapDegrees(p_110146_1_ - this.yBodyRot);
+        float f = Mth.wrapDegrees(p_110146_1_ - this.yBodyRot);
         this.yBodyRot += f * 0.3F;
-        float f1 = MathHelper.wrapDegrees(this.yRot - this.yBodyRot);
+        float f1 = Mth.wrapDegrees(this.yRot - this.yBodyRot);
         boolean flag = f1 < -90.0F || f1 >= 90.0F;
         if (f1 < -75.0F) {
             f1 = -75.0F;
@@ -389,14 +389,14 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         }
 
         if (this.lerpSteps > 0) {
-            this.yRot = (float)((double)this.yRot + MathHelper.wrapDegrees(this.lerpYRot - (double)this.yRot) / (double)this.lerpSteps);
+            this.yRot = (float)((double)this.yRot + Mth.wrapDegrees(this.lerpYRot - (double)this.yRot) / (double)this.lerpSteps);
             this.xRot = (float)((double)this.xRot + (this.lerpXRot - (double)this.xRot) / (double)this.lerpSteps);
             --this.lerpSteps;
             this.setRot(this.yRot, this.xRot);
         }
 
         if (this.lerpHeadSteps > 0) {
-            this.yHeadRot = (float)((double)this.yHeadRot + MathHelper.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (double)this.lerpHeadSteps);
+            this.yHeadRot = (float)((double)this.yHeadRot + Mth.wrapDegrees(this.lyHeadRot - (double)this.yHeadRot) / (double)this.lerpHeadSteps);
             --this.lerpHeadSteps;
         }
 
@@ -430,7 +430,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
 
     @Override
     public float getViewYRot(float p_195046_1_) {
-        return p_195046_1_ == 1.0F ? this.yHeadRot : MathHelper.lerp(p_195046_1_, this.yHeadRotO, this.yHeadRot);
+        return p_195046_1_ == 1.0F ? this.yHeadRot : Mth.lerp(p_195046_1_, this.yHeadRotO, this.yHeadRot);
     }
 
     public float getYHeadRot() {
@@ -445,7 +445,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         this.yBodyRot = p_181013_1_;
     }
 
-    public void lookAt(EntityAnchorArgument.Type p_200602_1_, Vector3d p_200602_2_) {
+    public void lookAt(EntityAnchorArgument.Type p_200602_1_, Vec3 p_200602_2_) {
         super.lookAt(p_200602_1_, p_200602_2_);
         this.yHeadRotO = this.yHeadRot;
         this.yBodyRot = this.yHeadRot;
@@ -471,7 +471,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
     
     public void handleRotationPacket(float msgYRot, float msgXRot) {
         this.yRot = msgYRot % 360.0F;
-        this.xRot = MathHelper.clamp(msgXRot, -90.0F, 90.0F) % 360.0F;
+        this.xRot = Mth.clamp(msgXRot, -90.0F, 90.0F) % 360.0F;
         this.yRotO = this.yRot;
         this.xRotO = this.xRot;
     }

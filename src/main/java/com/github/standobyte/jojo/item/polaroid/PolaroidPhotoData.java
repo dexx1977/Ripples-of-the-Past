@@ -6,11 +6,11 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.network.BatchSender;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.storage.WorldSavedData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.saveddata.SavedData;
 
-public class PolaroidPhotoData extends WorldSavedData {
+public class PolaroidPhotoData extends SavedData {
     private byte[] photoBytes = new byte[0];
     private UUID senderPlayer;
     
@@ -24,19 +24,19 @@ public class PolaroidPhotoData extends WorldSavedData {
         this.senderPlayer = senderPlayer;
     }
     
-    public void sendTo(ServerPlayerEntity player, UUID serverId, long photoId) {
+    public void sendTo(ServerPlayer player, UUID serverId, long photoId) {
         BatchSender sender = new SrvPhotoSender(photoBytes, serverId, photoId, player);
         sender.sendAll();
     }
 
     @Override
-    public void load(CompoundNBT nbt) {
+    public void load(CompoundTag nbt) {
         this.photoBytes = nbt.getByteArray("Photo");
         this.senderPlayer = nbt.hasUUID("Sender") ? nbt.getUUID("Sender") : null;
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt.putByteArray("Photo", photoBytes);
         if (senderPlayer != null) {
             nbt.putUUID("Sender", senderPlayer);

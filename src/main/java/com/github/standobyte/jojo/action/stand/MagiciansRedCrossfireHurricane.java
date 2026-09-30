@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.level.Level;
 
 public class MagiciansRedCrossfireHurricane extends StandEntityAction {
 
@@ -20,7 +20,7 @@ public class MagiciansRedCrossfireHurricane extends StandEntityAction {
     }
     
     @Override
-    public void phaseTransition(World world, StandEntity standEntity, IStandPower standPower, 
+    public void phaseTransition(Level world, StandEntity standEntity, IStandPower standPower, 
             Phase from, Phase to, StandEntityTask task, int ticks) {
         super.phaseTransition(world, standEntity, standPower, from, to, task, ticks);
         if (!world.isClientSide() && to == Phase.BUTTON_HOLD) {
@@ -29,7 +29,7 @@ public class MagiciansRedCrossfireHurricane extends StandEntityAction {
     }
     
     @Override
-    public void standTickButtonHold(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickButtonHold(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             // FIXME consume fire blocks around the stand
             if (false) {
@@ -42,7 +42,7 @@ public class MagiciansRedCrossfireHurricane extends StandEntityAction {
     }
 
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             int chargeTicks = task.getAdditionalData().isEmpty(Integer.class) ? 0 : 
                 task.getAdditionalData().pop(Integer.class);
@@ -51,14 +51,14 @@ public class MagiciansRedCrossfireHurricane extends StandEntityAction {
             float fireConsumed = fireBlocksConsumed > 0 && chargeTicks > 0 ? (float) fireBlocksConsumed / (float) chargeTicks : 0;
             
             boolean special = isShiftVariation();
-            int n = special ? MathHelper.floor(8 * (fireConsumed + 1)) : 1;
+            int n = special ? Mth.floor(8 * (fireConsumed + 1)) : 1;
             ActionTarget target = task.getTarget();
             if (special && target.getType() == TargetType.EMPTY) {
                 target = standEntity.aimWithThisOrUser(64, target, false);
             }
             for (int i = 0; i < n; i++) {
                 MRCrossfireHurricaneEntity ankh = new MRCrossfireHurricaneEntity(special, standEntity, world, userPower);
-                Vector2f rotOffsets = i == 0 ? Vector2f.ZERO
+                Vec2 rotOffsets = i == 0 ? Vec2.ZERO
                         : MathUtil.xRotYRotOffsets(((double) i / (double) n + 0.5) * Math.PI, 1.5);
                 if (special && target.getType() != TargetType.EMPTY) {
                     ankh.setSpecial(target.getTargetPos(true));

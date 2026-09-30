@@ -11,13 +11,13 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkEvent;
 
 public class SpawnParticlePacket {
     private final double x;
@@ -29,10 +29,10 @@ public class SpawnParticlePacket {
     private final float maxSpeed;
     private final int count;
     private final boolean overrideLimiter;
-    private final IParticleData particle;
+    private final ParticleOptions particle;
     @Nullable private final SpecialContext context;
     
-    public <T extends IParticleData> SpawnParticlePacket(T particle, boolean force, 
+    public <T extends ParticleOptions> SpawnParticlePacket(T particle, boolean force, 
             double x, double y, double z, float xDist, float yDist, float zDist, float maxSpeed, int count, 
             @Nullable SpecialContext context) {
         this.particle = particle;
@@ -58,7 +58,7 @@ public class SpawnParticlePacket {
         private final Random random = new Random();
         
         @Override
-        public void encode(SpawnParticlePacket msg, PacketBuffer buf) {
+        public void encode(SpawnParticlePacket msg, FriendlyByteBuf buf) {
             buf.writeInt(Registry.PARTICLE_TYPE.getId(msg.particle.getType()));
             buf.writeBoolean(msg.overrideLimiter);
             buf.writeDouble(msg.x);
@@ -74,7 +74,7 @@ public class SpawnParticlePacket {
         }
         
         @Override
-        public SpawnParticlePacket decode(PacketBuffer buf) {
+        public SpawnParticlePacket decode(FriendlyByteBuf buf) {
             ParticleType<?> particleType = Registry.PARTICLE_TYPE.byId(buf.readInt());
             if (particleType == null) {
                 particleType = ParticleTypes.BARRIER;
@@ -89,13 +89,13 @@ public class SpawnParticlePacket {
             float zDist = buf.readFloat();
             float maxSpeed = buf.readFloat();
             int count = buf.readInt();
-            IParticleData particle = readParticle(buf, particleType);
+            ParticleOptions particle = readParticle(buf, particleType);
             SpecialContext context = NetworkUtil.readOptional(buf, () -> buf.readEnum(SpecialContext.class)).orElse(null);
             
             return new SpawnParticlePacket(particle, overrideLimiter, x, y, z, xDist, yDist, zDist, maxSpeed, count, context);
         }
         
-        private <T extends IParticleData> T readParticle(PacketBuffer buf, ParticleType<T> particleType) {
+        private <T extends ParticleOptions> T readParticle(FriendlyByteBuf buf, ParticleType<T> particleType) {
             return particleType.getDeserializer().fromNetwork(particleType, buf);
         }
         
@@ -105,7 +105,7 @@ public class SpawnParticlePacket {
                 return;
             }
             
-            World world = ClientUtil.getClientWorld();
+            Level world = ClientUtil.getClientWorld();
             if (msg.count == 0) {
                 addParticle(world, msg, 
                         msg.x, 
@@ -129,7 +129,7 @@ public class SpawnParticlePacket {
             }
         }
         
-        private boolean addParticle(World world, SpawnParticlePacket msg, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        private boolean addParticle(Level world, SpawnParticlePacket msg, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             try {
                 world.addParticle(msg.particle, msg.overrideLimiter, x, y, z, xSpeed, ySpeed, zSpeed);
                 return true;

@@ -1,25 +1,25 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.AbstractSlider;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("deprecation")
-public abstract class HeightScaledSlider extends AbstractSlider {
+public abstract class HeightScaledSlider extends AbstractSliderButton {
 
-    public HeightScaledSlider(int pX, int pY, int pWidth, int pHeight, ITextComponent pMessage, double pValue) {
+    public HeightScaledSlider(int pX, int pY, int pWidth, int pHeight, Component pMessage, double pValue) {
         super(pX, pY, pWidth, pHeight, pMessage, pValue);
     }
     
     @Override
-    public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        FontRenderer fontrenderer = minecraft.font;
+        Font fontrenderer = minecraft.font;
         minecraft.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         int texY = 46 + getYImage(isHovered()) * 20;
@@ -44,11 +44,11 @@ public abstract class HeightScaledSlider extends AbstractSlider {
                 width - width / 2, height - height / 2);
         this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
         int j = getFGColor();
-        drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
+        drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
     }
     
     @Override
-    protected void renderBg(MatrixStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY) {
+    protected void renderBg(PoseStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY) {
         pMinecraft.getTextureManager().bind(WIDGETS_LOCATION);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (isHovered() ? 2 : 1) * 20;

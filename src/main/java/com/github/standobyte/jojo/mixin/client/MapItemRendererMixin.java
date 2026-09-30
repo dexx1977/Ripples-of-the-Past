@@ -6,18 +6,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.render.item.CustomIconMapRender;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.MapItemRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.world.storage.MapData;
+import net.minecraft.client.gui.MapRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
-@Mixin(MapItemRenderer.class)
+@Mixin(MapRenderer.class)
 public class MapItemRendererMixin {
 
     @Inject(method = "render", at = @At(value = "HEAD"))
-    public void jojoOnRenderMapIcon(MatrixStack matrixStack, IRenderTypeBuffer buffer, 
-            MapData mapData, boolean active, int packedLight, CallbackInfo ci) {
+    public void jojoOnRenderMapIcon(PoseStack matrixStack, MultiBufferSource buffer, 
+            MapItemSavedData mapData, boolean active, int packedLight, CallbackInfo ci) {
         CustomIconMapRender.clCaptureIconRenderArgs(matrixStack, buffer, active, packedLight);
     }
 }

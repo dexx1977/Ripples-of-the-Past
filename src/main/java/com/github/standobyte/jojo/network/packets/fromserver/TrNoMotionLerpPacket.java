@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.capability.world.TimeStopHandler;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrNoMotionLerpPacket {
     private final int entityId;
@@ -26,13 +26,13 @@ public class TrNoMotionLerpPacket {
     public static class Handler implements IModPacketHandler<TrNoMotionLerpPacket> {
 
         @Override
-        public void encode(TrNoMotionLerpPacket msg, PacketBuffer buf) {
+        public void encode(TrNoMotionLerpPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeVarInt(msg.ticks);
         }
 
         @Override
-        public TrNoMotionLerpPacket decode(PacketBuffer buf) {
+        public TrNoMotionLerpPacket decode(FriendlyByteBuf buf) {
             return new TrNoMotionLerpPacket(buf.readInt(), buf.readVarInt());
         }
 

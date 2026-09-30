@@ -1,31 +1,31 @@
 package com.github.standobyte.jojo.client.particle.custom;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.particle.TexturedParticle;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
-public class StandCrumbleParticle extends TexturedParticle {
+public class StandCrumbleParticle extends SingleQuadParticle {
     private ResourceLocation texture;
     private float u0;
     private float v0;
     private float u1;
     private float v1;
     
-    public StandCrumbleParticle(ClientWorld world, double pX, double pY, double pZ) {
+    public StandCrumbleParticle(ClientLevel world, double pX, double pY, double pZ) {
         super(world, pX, pY, pZ);
     }
     
-    public StandCrumbleParticle(ClientWorld world, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+    public StandCrumbleParticle(ClientLevel world, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         super(world, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
     }
     
@@ -38,15 +38,15 @@ public class StandCrumbleParticle extends TexturedParticle {
     }
 
     @Override
-    public void render(IVertexBuilder pBuffer, ActiveRenderInfo pRenderInfo, float pPartialTicks) {
+    public void render(VertexConsumer pBuffer, Camera pRenderInfo, float pPartialTicks) {
         if (texture != null) {
             pBuffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityCutoutNoCull(texture));
             
             
-            Vector3d pos = pRenderInfo.getPosition();
-            float x = (float)(MathHelper.lerp((double)pPartialTicks, this.xo, this.x) - pos.x());
-            float y = (float)(MathHelper.lerp((double)pPartialTicks, this.yo, this.y) - pos.y());
-            float z = (float)(MathHelper.lerp((double)pPartialTicks, this.zo, this.z) - pos.z());
+            Vec3 pos = pRenderInfo.getPosition();
+            float x = (float)(Mth.lerp((double)pPartialTicks, this.xo, this.x) - pos.x());
+            float y = (float)(Mth.lerp((double)pPartialTicks, this.yo, this.y) - pos.y());
+            float z = (float)(Mth.lerp((double)pPartialTicks, this.zo, this.z) - pos.z());
 //            Quaternion quaternion;
 //            if (this.roll == 0.0F) {
 //                quaternion = pRenderInfo.rotation();
@@ -134,7 +134,7 @@ public class StandCrumbleParticle extends TexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.CUSTOM;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.CUSTOM;
     }
 }

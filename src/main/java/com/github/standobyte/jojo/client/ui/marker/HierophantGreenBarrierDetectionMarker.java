@@ -7,7 +7,7 @@ import com.github.standobyte.jojo.entity.stand.stands.HierophantGreenEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class HierophantGreenBarrierDetectionMarker extends MarkerRenderer {
 

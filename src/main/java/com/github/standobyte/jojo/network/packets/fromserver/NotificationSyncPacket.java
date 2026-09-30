@@ -9,8 +9,8 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class NotificationSyncPacket {
     private final Set<OneTimeNotification> notifSent;
@@ -23,7 +23,7 @@ public class NotificationSyncPacket {
     public static class Handler implements IModPacketHandler<NotificationSyncPacket> {
 
         @Override
-        public void encode(NotificationSyncPacket msg, PacketBuffer buf) {
+        public void encode(NotificationSyncPacket msg, FriendlyByteBuf buf) {
             long encoded = 0;
             long mask = 1 << OneTimeNotification.values().size();
             for (OneTimeNotification flag : OneTimeNotification.values()) {
@@ -36,7 +36,7 @@ public class NotificationSyncPacket {
         }
 
         @Override
-        public NotificationSyncPacket decode(PacketBuffer buf) {
+        public NotificationSyncPacket decode(FriendlyByteBuf buf) {
             long encoded = buf.readVarLong();
             Set<OneTimeNotification> notifSent = new HashSet<>();
             for (OneTimeNotification flag : OneTimeNotification.values()) {

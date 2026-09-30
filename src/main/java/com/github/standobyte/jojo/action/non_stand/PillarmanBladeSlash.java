@@ -14,13 +14,13 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanDa
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.Level;
 
 public class PillarmanBladeSlash extends PillarmanAction implements IPlayerAction<PillarmanBladeSlash.Instance, INonStandPower> {
 
@@ -31,7 +31,7 @@ public class PillarmanBladeSlash extends PillarmanAction implements IPlayerActio
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -40,8 +40,8 @@ public class PillarmanBladeSlash extends PillarmanAction implements IPlayerActio
     @Override
     public PillarmanBladeSlash.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.bladeSlash.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.bladeSlash.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -67,7 +67,7 @@ public class PillarmanBladeSlash extends PillarmanAction implements IPlayerActio
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 1.25f); // TODO separate sound event
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                 }
                 break;
             case 8:
@@ -82,12 +82,12 @@ public class PillarmanBladeSlash extends PillarmanAction implements IPlayerActio
             }
         }
         
-        public void punchPerform(World world, LivingEntity user, INonStandPower power, ActionTarget target, SoundEvent sound, float volume, float pitch) {
+        public void punchPerform(Level world, LivingEntity user, INonStandPower power, ActionTarget target, SoundEvent sound, float volume, float pitch) {
         	if (!world.isClientSide()) {
                 Entity entity = target.getEntity();
                 if (entity instanceof LivingEntity) {
                     LivingEntity targetEntity = (LivingEntity) entity;
-                    PlayerEntity pEntity = (PlayerEntity) user;
+                    Player pEntity = (Player) user;
                     if (entity.hurt(EntityDamageSource.playerAttack(pEntity), DamageUtil.addArmorPiercing(VampirismClawLacerate.getDamage(world, user) + 1F, 15F, targetEntity))) {
                     	PillarmanUtil.sparkEffect(targetEntity, 9);
                     	world.playSound(null, targetEntity.getX(), targetEntity.getEyeY(), targetEntity.getZ(), sound, targetEntity.getSoundSource(), volume, pitch);
@@ -114,9 +114,9 @@ public class PillarmanBladeSlash extends PillarmanAction implements IPlayerActio
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
+            if (user.level.isClientSide() && user instanceof Player) {
             	playerPower.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(false);
-                ModPlayerAnimations.bladeSlash.setAnimEnabled((PlayerEntity) user, false);
+                ModPlayerAnimations.bladeSlash.setAnimEnabled((Player) user, false);
             }
         }
         

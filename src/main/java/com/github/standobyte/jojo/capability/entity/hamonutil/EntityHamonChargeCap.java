@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.TrHamonEntityChargePacket;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonCharge;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 public class EntityHamonChargeCap {
     private final Entity entity;
@@ -64,7 +64,7 @@ public class EntityHamonChargeCap {
         return hasHamonCharge() ? hamonCharge : null;
     }
     
-    public void onTracking(ServerPlayerEntity tracking) {
+    public void onTracking(ServerPlayer tracking) {
         boolean hasCharge = hasHamonCharge();
         if (hasCharge) {
             PacketManager.sendToClient(TrHamonEntityChargePacket.entityCharge(entity.getId(), hasCharge), tracking);
@@ -77,15 +77,15 @@ public class EntityHamonChargeCap {
     
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         if (hamonCharge != null) {
             nbt.put("HamonCharge", hamonCharge.toNBT());
         }
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         if (nbt.contains("HamonCharge", 10)) {
             hamonCharge = HamonCharge.fromNBT(nbt.getCompound("HamonCharge"));
         }

@@ -16,18 +16,18 @@ import com.github.standobyte.jojo.client.resources.CustomResources;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.shader.ShaderGroup;
-import net.minecraft.client.shader.ShaderInstance;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.EffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import net.minecraft.world.phys.Vec3;
 
 public class ShaderEffectApplier {
     private static final ShaderResLocation DUMMY = new ShaderResLocation(new ResourceLocation("dummy", "dummy"), false);
@@ -113,7 +113,7 @@ public class ShaderEffectApplier {
         }
 
         try {
-            ShaderGroup effect = new CustomShaderGroup(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), name);
+            PostChain effect = new CustomShaderGroup(minecraft.getTextureManager(), minecraft.getResourceManager(), minecraft.getMainRenderTarget(), name);
             ClientReflection.setPostEffect(gameRenderer, effect);
             effect.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
             ClientReflection.setEffectActive(gameRenderer, true);
@@ -141,7 +141,7 @@ public class ShaderEffectApplier {
         else {
             try {
                 @SuppressWarnings("unused")
-                ShaderGroup tryLoadShader = new ShaderGroup(mc.getTextureManager(), mc.getResourceManager(), mc.getMainRenderTarget(), resolveShader.resLoc);
+                PostChain tryLoadShader = new PostChain(mc.getTextureManager(), mc.getResourceManager(), mc.getMainRenderTarget(), resolveShader.resLoc);
             } catch (JsonSyntaxException e) {
                 JojoMod.getLogger().warn("Failed to load shader: {}", resolveShader, e);
                 resolveShader = DUMMY;
@@ -160,10 +160,10 @@ public class ShaderEffectApplier {
     }
     
     
-    public void addTsShaderUniforms(ShaderInstance tsShader, float partialSecond, float tsEffectLength) {
+    public void addTsShaderUniforms(EffectInstance tsShader, float partialSecond, float tsEffectLength) {
         if (ClientTimeStopHandler.getInstance().isTimeStopped()) {
             ClientTimeStopHandler tsFields = ClientTimeStopHandler.getInstance();
-            float partialTick = MathHelper.frac(partialSecond * 20F);
+            float partialTick = Mth.frac(partialSecond * 20F);
             float tsTick = tsFields.getTimeStopTicks() + partialTick;
             tsShader.safeGetUniform("TSTicks") .set(tsTick);
             tsShader.safeGetUniform("TSLength").set(tsFields.getTimeStopLength());
@@ -192,13 +192,13 @@ public class ShaderEffectApplier {
         }
     }
     
-    public void updateTimeStopperScreenPos(MatrixStack matrixStack, Matrix4f projection, ActiveRenderInfo camera, float partialTick) {
+    public void updateTimeStopperScreenPos(PoseStack matrixStack, Matrix4f projection, Camera camera, float partialTick) {
         if (ClientTimeStopHandler.getInstance().isTimeStopped()) {
             if (timeStopper == mc.player) {
                 tsPosOnScreen = ClientUtil.PosOnScreen.SCREEN_CENTER;
             }
             else if (timeStopper != null) {
-                Vector3d entityPos = timeStopper.getPosition(partialTick).add(0, timeStopper.getBbHeight() * 0.5f, 0);
+                Vec3 entityPos = timeStopper.getPosition(partialTick).add(0, timeStopper.getBbHeight() * 0.5f, 0);
                 tsPosOnScreen = ClientUtil.posOnScreen(entityPos, camera, matrixStack, projection);
                 if (tsShaderStarted) {
                     if (tsPosOnScreen == null || !tsPosOnScreen.isOnScreen) {

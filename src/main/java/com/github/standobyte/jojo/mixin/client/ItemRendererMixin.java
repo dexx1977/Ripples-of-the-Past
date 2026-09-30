@@ -10,36 +10,36 @@ import com.github.standobyte.jojo.action.stand.GoldExperienceMarkItem;
 import com.github.standobyte.jojo.client.particle.custom.FirstPersonHamonAura;
 import com.github.standobyte.jojo.client.render.item.InventoryItemHighlight;
 import com.github.standobyte.jojo.util.mc.MCUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BreakableBlock;
-import net.minecraft.block.StainedGlassPaneBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
-    public void jojoOnItemRender(ItemStack pItemStack, ItemCameraTransforms.TransformType pTransformType, boolean pLeftHand, 
-            MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, int pCombinedOverlay, IBakedModel pModel, CallbackInfo ci) {
+    public void jojoOnItemRender(ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+            PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel, CallbackInfo ci) {
         switch (pTransformType) {
         case FIRST_PERSON_LEFT_HAND:
-            render1stPersonHamonAura(pMatrixStack, pBuffer, pItemStack, HandSide.LEFT);
+            render1stPersonHamonAura(pMatrixStack, pBuffer, pItemStack, HumanoidArm.LEFT);
             break;
         case FIRST_PERSON_RIGHT_HAND:
-            render1stPersonHamonAura(pMatrixStack, pBuffer, pItemStack, HandSide.RIGHT);
+            render1stPersonHamonAura(pMatrixStack, pBuffer, pItemStack, HumanoidArm.RIGHT);
             break;
         default:
             break;
@@ -47,23 +47,23 @@ public class ItemRendererMixin {
     }
     
     @ModifyVariable(method = "render", at = @At(value = "STORE"))
-    public IVertexBuilder changeVertexBuilder(IVertexBuilder vertexBuilder, 
-            ItemStack pItemStack, ItemCameraTransforms.TransformType pTransformType, boolean pLeftHand, 
-            MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, int pCombinedOverlay, IBakedModel pModel) {
+    public VertexConsumer changeVertexBuilder(VertexConsumer vertexBuilder, 
+            ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+            PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel) {
         boolean flag1;
-        if (pTransformType != ItemCameraTransforms.TransformType.GUI && !pTransformType.firstPerson() && pItemStack.getItem() instanceof BlockItem) {
+        if (pTransformType != ItemTransforms.ItemDisplayContext.GUI && !pTransformType.firstPerson() && pItemStack.getItem() instanceof BlockItem) {
            Block block = ((BlockItem)pItemStack.getItem()).getBlock();
-           flag1 = !(block instanceof BreakableBlock) && !(block instanceof StainedGlassPaneBlock);
+           flag1 = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
         } else {
            flag1 = true;
         }
-        RenderType rendertype = RenderTypeLookup.getRenderType(pItemStack, flag1);
-        MatrixStack.Entry matrixstack$entry = pMatrixStack.last();
+        RenderType rendertype = ItemBlockRenderTypes.getRenderType(pItemStack, flag1);
+        PoseStack.Entry matrixstack$entry = pMatrixStack.last();
         
         return GoldExperienceMarkItem.ClientStuff.qwe(vertexBuilder, pItemStack, flag1, pBuffer, rendertype, matrixstack$entry);
     }
     
-    private static void render1stPersonHamonAura(MatrixStack matrixStack, IRenderTypeBuffer buffer, ItemStack itemStack, HandSide handSide) {
+    private static void render1stPersonHamonAura(PoseStack matrixStack, MultiBufferSource buffer, ItemStack itemStack, HumanoidArm handSide) {
         if (!MCUtil.itemHandFree(itemStack)) {
             matrixStack.pushPose();
             FirstPersonHamonAura.itemMatrixTransform(matrixStack, handSide, itemStack);
@@ -73,8 +73,8 @@ public class ItemRendererMixin {
     }
     
     @ModifyVariable(method = "render", remap = false, at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    public int jojoItemHighlight(int pCombinedOverlay, ItemStack pItemStack, ItemCameraTransforms.TransformType pTransformType, boolean pLeftHand, 
-            MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, int pCombinedOverlayArg, IBakedModel pModel) {
+    public int jojoItemHighlight(int pCombinedOverlay, ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+            PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlayArg, BakedModel pModel) {
         if (!pItemStack.isEmpty()) {
             float partialTick = Minecraft.getInstance().getDeltaFrameTime();
             float overlayAmount = InventoryItemHighlight.getHighlightAmount(pItemStack.getItem(), partialTick);

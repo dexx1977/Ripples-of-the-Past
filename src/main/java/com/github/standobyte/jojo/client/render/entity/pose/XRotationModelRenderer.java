@@ -3,15 +3,15 @@ package com.github.standobyte.jojo.client.render.entity.pose;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityModel;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
 
 @Deprecated
 // This type needs to exist to not break previously made Stand addons
 // TODO: delete in v0.3
-public class XRotationModelRenderer extends ModelRenderer {
+public class XRotationModelRenderer extends ModelPart {
     /** @deprecated use {@link StandEntityModel#setSecondXRot(ModelRenderer, float)} */
     @Deprecated
     public float xRotSecond = 0;
@@ -29,7 +29,7 @@ public class XRotationModelRenderer extends ModelRenderer {
     }
     
     @Override
-    public void translateAndRotate(MatrixStack matrixStack) {
+    public void translateAndRotate(PoseStack matrixStack) {
         if (xRotSecond != 0.0F) {
             ClientUtil.rotateAngles(this, xRotSecond * MathUtil.RAD_TO_DEG);
             xRotSecond = 0;

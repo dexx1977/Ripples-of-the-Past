@@ -8,17 +8,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.util.mod.IPlayerPossess;
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerEntityMixin extends Player {
 
-    public ServerPlayerEntityMixin(World pLevel, BlockPos pPos, float pYRot, GameProfile pGameProfile) {
+    public ServerPlayerEntityMixin(Level pLevel, BlockPos pPos, float pYRot, GameProfile pGameProfile) {
         super(pLevel, pPos, pYRot, pGameProfile);
     }
     
@@ -31,7 +31,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     
     
     @Inject(method = "teleportTo(Lnet/minecraft/world/server/ServerWorld;DDDFF)V", at = @At("HEAD"), cancellable = true)
-    public void jojoCancelTeleport(ServerWorld pNewLevel, double pX, double pY, double pZ, float pYaw, float pPitch, CallbackInfo ci) {
+    public void jojoCancelTeleport(ServerLevel pNewLevel, double pX, double pY, double pZ, float pYaw, float pPitch, CallbackInfo ci) {
         if (this instanceof IPlayerPossess) {
             IPlayerPossess player = (IPlayerPossess) this;
             Entity possessedEntity = player.jojoGetPossessedEntity();

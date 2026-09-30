@@ -3,27 +3,27 @@ package com.github.standobyte.jojo.container;
 import com.github.standobyte.jojo.capability.item.walkman.WalkmanCassetteSlotCap;
 import com.github.standobyte.jojo.init.ModContainers;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.items.SlotItemHandler;
 
-public class WalkmanItemContainer extends Container {
+public class WalkmanItemContainer extends AbstractContainerMenu {
     private final ItemStack walkmanItem;
     private final WalkmanCassetteSlotCap cassetteSlot;
 
-    public WalkmanItemContainer(int id, PlayerInventory inventory, PacketBuffer dataFromServer) {
+    public WalkmanItemContainer(int id, Inventory inventory, FriendlyByteBuf dataFromServer) {
         this(id, inventory, new WalkmanCassetteSlotCap(ItemStack.EMPTY), dataFromServer.readItem());
     }
     
-    public static void writeAdditionalData(PacketBuffer buffer, ItemStack walkmanItem) {
+    public static void writeAdditionalData(FriendlyByteBuf buffer, ItemStack walkmanItem) {
         buffer.writeItem(walkmanItem);
     }
 
-    public WalkmanItemContainer(int id, PlayerInventory inventory, WalkmanCassetteSlotCap itemCap, ItemStack walkmanItem) {
+    public WalkmanItemContainer(int id, Inventory inventory, WalkmanCassetteSlotCap itemCap, ItemStack walkmanItem) {
         super(ModContainers.WALKMAN.get(), id);
         this.walkmanItem = walkmanItem;
         this.cassetteSlot = itemCap;
@@ -40,7 +40,7 @@ public class WalkmanItemContainer extends Container {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return (player.getMainHandItem() == walkmanItem || player.getOffhandItem() == walkmanItem) && !walkmanItem.isEmpty();
     }
     
@@ -53,7 +53,7 @@ public class WalkmanItemContainer extends Container {
     }
     
     @Override
-    public ItemStack quickMoveStack(PlayerEntity player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {

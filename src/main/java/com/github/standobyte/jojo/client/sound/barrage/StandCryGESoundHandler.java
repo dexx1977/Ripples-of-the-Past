@@ -8,15 +8,15 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.github.standobyte.jojo.init.ModSounds;
 
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 
 public class StandCryGESoundHandler<T extends Entity> extends StandCrySoundHandler<T> {
 
-    protected StandCryGESoundHandler(SoundCategory category, float volume, float pitch, boolean looping, 
+    protected StandCryGESoundHandler(SoundSource category, float volume, float pitch, boolean looping, 
             T entity, Predicate<T> playWhile, SoundsResolved soundsResolved, SoundEvent[] sounds) {
         super(category, volume, pitch, looping, entity, playWhile, soundsResolved, ArrayUtils.add(sounds, ModSounds.GOLD_EXPERIENCE_WRY.get()));
     }
@@ -24,7 +24,7 @@ public class StandCryGESoundHandler<T extends Entity> extends StandCrySoundHandl
     @Override
     protected void resolve() {
         super.resolve();
-        if (sound != SoundHandler.EMPTY_SOUND) {
+        if (sound != SoundManager.EMPTY_SOUND) {
             soundsInfo.allSounds = soundsInfo.soundsPerEvent.entrySet().stream()
                     .filter(entry -> entry.getKey() != ModSounds.GOLD_EXPERIENCE_WRY.get())
                     .flatMap(entry -> entry.getValue().stream())

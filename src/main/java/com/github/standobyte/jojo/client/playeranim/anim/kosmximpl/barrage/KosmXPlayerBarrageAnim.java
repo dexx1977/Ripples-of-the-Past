@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -23,15 +23,16 @@ import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.impl.IBendHelper;
 import dev.kosmx.playerAnim.impl.IMutableModel;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
+import com.mojang.math.Axis;
 
-public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractClientPlayerEntity> {
+public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractClientPlayer> {
     private final KeyframeAnimation data;
     private boolean isRunning = true;
     private int currentTick;
@@ -39,11 +40,11 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
 
     private final Map<String, BodyPart> bodyParts;
     
-    private final Map<String, ModelRenderer> modelParts;
+    private final Map<String, ModelPart> modelParts;
     private final Map<String, IBendHelper> sameModelPartsBendable;
-    private final PlayerModel<AbstractClientPlayerEntity> model;
+    private final PlayerModel<AbstractClientPlayer> model;
 
-    public KosmXPlayerBarrageAnim(PlayerModel<AbstractClientPlayerEntity> model) {
+    public KosmXPlayerBarrageAnim(PlayerModel<AbstractClientPlayer> model) {
         KeyframeAnimation emote = PlayerAnimationRegistry.getAnimation(new ResourceLocation(JojoMod.MOD_ID, "punch_barrage"));
         this.data = emote;
         this.bodyParts = new HashMap<>(emote.getBodyParts().size());
@@ -78,7 +79,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
     }
     
     private void addModelPart(String key, 
-            Function<BipedModel<?>, ModelRenderer> part, 
+            Function<HumanoidModel<?>, ModelPart> part, 
             Function<IMutableModel, IBendHelper> partBendable) {
         modelParts.put(key, part.apply(model));
         if (model instanceof IMutableModel) {
@@ -110,28 +111,28 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
         return this.isRunning;
     }
     
-    public void rotateBody(MatrixStack matrixStack, float rotationAmount, HandSide side) {
+    public void rotateBody(PoseStack matrixStack, float rotationAmount, HumanoidArm side) {
         float loopTick = getBarrageEffectLoopingTick(rotationAmount, side);
         int tick = (int) loopTick;
         float partialTick = loopTick - tick;
-        Vec3f rot = get3DTransform("body", TransformType.ROTATION, tick, partialTick, Vec3f.ZERO);
-        matrixStack.mulPose(Vector3f.YP.rotation(-rot.getY()));
+        Vec3f rot = get3DTransform("body", ItemDisplayContext.ROTATION, tick, partialTick, Vec3f.ZERO);
+        matrixStack.mulPose(Axis.YP.rotation(-rot.getY()));
     }
     
-    private float getBarrageEffectLoopingTick(float rotAmount, HandSide side) {
-        if (side == HandSide.RIGHT) {
+    private float getBarrageEffectLoopingTick(float rotAmount, HumanoidArm side) {
+        if (side == HumanoidArm.RIGHT) {
             rotAmount = 1 - rotAmount;
         }
         return data.returnToTick + (data.endTick - data.returnToTick) * rotAmount;
     }
 
     @Override
-    public Vec3f get3DTransform(String modelName, TransformType type, float partialTick, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float partialTick, Vec3f value0) {
         float tick = getPlayerAnimatorLoopTick(partialTick);
         return get3DTransform(modelName, type, (int) tick, tick - (int) tick, value0);
     }
     
-    private Vec3f get3DTransform(String modelName, TransformType type, int tick, float partialTick, Vec3f value0) {
+    private Vec3f get3DTransform(String modelName, ItemDisplayContext type, int tick, float partialTick, Vec3f value0) {
         Vec3f vec;
         BodyPart part = bodyParts.get(modelName);
         if (part == null) return value0;
@@ -152,16 +153,16 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
     }
 
     @Override
-    public void poseModel(float rotationAmount, AbstractClientPlayerEntity entity, 
-            float ticks, float yRotOffsetRad, float xRotRad, HandSide side) {
+    public void poseModel(float rotationAmount, AbstractClientPlayer entity, 
+            float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm side) {
         if (model != null) {
             float loopTick = getBarrageEffectLoopingTick(rotationAmount, side);
             int tick = (int) loopTick;
             float partialTick = loopTick - tick;
             for (String partName : modelParts.keySet()) {
-                ModelRenderer part = modelParts.get(partName);
+                ModelPart part = modelParts.get(partName);
                 if (part != null) {
-                    Vec3f rot = get3DTransform(partName, TransformType.ROTATION, tick, partialTick, new Vec3f(part.xRot, part.yRot, part.zRot));
+                    Vec3f rot = get3DTransform(partName, ItemDisplayContext.ROTATION, tick, partialTick, new Vec3f(part.xRot, part.yRot, part.zRot));
                     
                     float entityXRot = entity.xRot;
                     Vector3f anglesNew = ClientUtil.rotateAngles(rot.getX(), rot.getY(), rot.getZ(), entityXRot * MathUtil.DEG_TO_RAD);
@@ -173,7 +174,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
                     
                     IBendHelper partBendable = sameModelPartsBendable.get(partName);
                     if (partBendable != null) {
-                        Vec3f bend = get3DTransform(partName, TransformType.BEND, tick, partialTick, Vec3f.ZERO);
+                        Vec3f bend = get3DTransform(partName, ItemDisplayContext.BEND, tick, partialTick, Vec3f.ZERO);
                         partBendable.bend(new Pair<>(bend.getX(), bend.getY()));
                     }
                 }
@@ -395,7 +396,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
     
     
     @Override
-    public IModelPose<AbstractClientPlayerEntity> setEasing(UnaryOperator<Float> function) {
+    public IModelPose<AbstractClientPlayer> setEasing(UnaryOperator<Float> function) {
         return this;
     }
 }

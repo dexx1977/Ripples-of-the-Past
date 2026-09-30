@@ -29,26 +29,26 @@ import com.github.standobyte.jojo.util.mc.damage.IModdedDamageSource;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.Constants;
 
@@ -83,7 +83,7 @@ public class LivingUtilCap {
     private int deadBodyTimer = -1;
     private int deadBodyDuration = 1;
     
-    public Vector3d bleedingParticlesPos;
+    public Vec3 bleedingParticlesPos;
     
     private HamonSendoOverdriveEntity hurtFromSendoOverdrive;
     private int sendoOverdriveWaveTicks;
@@ -95,7 +95,7 @@ public class LivingUtilCap {
     private boolean usedZoomPunch = false;
     private boolean gotScarf = false;
 
-    private List<EffectInstance> productPotions;
+    private List<MobEffectInstance> productPotions;
     
     private float lifeShotResist;
     private int lifeShotResistTicks;
@@ -169,7 +169,7 @@ public class LivingUtilCap {
     }
     
     public void setFutureKnockbackFactor(float factor) {
-        this.futureKnockbackFactor = MathHelper.clamp(factor, 0, 1);
+        this.futureKnockbackFactor = Mth.clamp(factor, 0, 1);
         this.reduceKnockback = true;
     }
     
@@ -210,16 +210,16 @@ public class LivingUtilCap {
         boolean addModifier = this.noGravityTicks <= 0;
         this.noGravityTicks = ticks;
         if (addModifier) {
-            Vector3d motion = entity.getDeltaMovement();
+            Vec3 motion = entity.getDeltaMovement();
             entity.setDeltaMovement(motion.x, Math.max(motion.y, 0), motion.z);
-            ModifiableAttributeInstance gravity = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+            AttributeInstance gravity = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             gravity.addTransientModifier(NO_GRAVITY_MODIFIER);
         }
     }
     
     private void tickNoGravityModifier() {
         if (noGravityTicks > 0 && --noGravityTicks == 0) {
-            ModifiableAttributeInstance gravity = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+            AttributeInstance gravity = entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
             gravity.removeModifier(NO_GRAVITY_MODIFIER);
         }
     }
@@ -348,8 +348,8 @@ public class LivingUtilCap {
     private void tickDyingBody() {
         if (isDyingBody()) {
             if (!entity.level.isClientSide()) {
-                if (entity instanceof PlayerEntity) {
-                    ((PlayerEntity) entity).getFoodData().setFoodLevel(17);
+                if (entity instanceof Player) {
+                    ((Player) entity).getFoodData().setFoodLevel(17);
                 }
                 entity.setAirSupply(entity.getMaxAirSupply());
             }
@@ -454,14 +454,14 @@ public class LivingUtilCap {
   
     
     public static HypnosisTargetCheck canBeHypnotized(LivingEntity entity, LivingEntity hypnotizer) {
-        if (hypnotizer instanceof PlayerEntity) {
-            if (entity instanceof TameableEntity) {
-                TameableEntity tameable = (TameableEntity) entity;
+        if (hypnotizer instanceof Player) {
+            if (entity instanceof TamableAnimal) {
+                TamableAnimal tameable = (TamableAnimal) entity;
                 return !hypnotizer.getUUID().equals(tameable.getOwnerUUID()) ? 
                         HypnosisTargetCheck.CORRECT : HypnosisTargetCheck.ALREADY_TAMED_BY_USER;
             }
-            if (entity instanceof AbstractHorseEntity) {
-                AbstractHorseEntity horse = (AbstractHorseEntity) entity;
+            if (entity instanceof AbstractHorse) {
+                AbstractHorse horse = (AbstractHorse) entity;
                 return !hypnotizer.getUUID().equals(horse.getOwnerUUID()) ? 
                         HypnosisTargetCheck.CORRECT : HypnosisTargetCheck.ALREADY_TAMED_BY_USER;
             }
@@ -479,17 +479,17 @@ public class LivingUtilCap {
         if (!entity.level.isClientSide()) {
             boolean giveEffect = false;
             
-            if (hypnotizer instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) hypnotizer;
-                if (entity instanceof TameableEntity) {
-                    TameableEntity tameable = (TameableEntity) entity;
+            if (hypnotizer instanceof Player) {
+                Player player = (Player) hypnotizer;
+                if (entity instanceof TamableAnimal) {
+                    TamableAnimal tameable = (TamableAnimal) entity;
                     preHypnosisOwner = tameable.getOwnerUUID();
                     tameable.tame(player);
                     giveEffect = true;
                 }
                 
-                else if (entity instanceof AbstractHorseEntity) {
-                    AbstractHorseEntity horse = (AbstractHorseEntity) entity;
+                else if (entity instanceof AbstractHorse) {
+                    AbstractHorse horse = (AbstractHorse) entity;
                     preHypnosisOwner = horse.getOwnerUUID();
                     horse.tameWithName(player);
                     giveEffect = true;
@@ -499,22 +499,22 @@ public class LivingUtilCap {
             }
             
             if (giveEffect) {
-                entity.addEffect(new EffectInstance(ModStatusEffects.HYPNOSIS.get(), duration, 0, false, false, true));
+                entity.addEffect(new MobEffectInstance(ModStatusEffects.HYPNOSIS.get(), duration, 0, false, false, true));
             }
         }
     }
     
     public void relieveHypnosis() {
         if (!entity.level.isClientSide()) {
-            if (entity instanceof TameableEntity) {
-                TameableEntity tameable = (TameableEntity) entity;
+            if (entity instanceof TamableAnimal) {
+                TamableAnimal tameable = (TamableAnimal) entity;
                 tameable.setOrderedToSit(false);
                 tameable.setTame(preHypnosisOwner != null);
                 tameable.setOwnerUUID(preHypnosisOwner);
             }
             
-            else if (entity instanceof AbstractHorseEntity) {
-                AbstractHorseEntity horse = (AbstractHorseEntity) entity;
+            else if (entity instanceof AbstractHorse) {
+                AbstractHorse horse = (AbstractHorse) entity;
                 horse.setTamed(preHypnosisOwner != null);
                 horse.setOwnerUUID(preHypnosisOwner);
                 preHypnosisOwner = null;
@@ -528,8 +528,8 @@ public class LivingUtilCap {
     private Goal lookAtHypnotizerGoal;
     private int resetLookGoalTicks = 0;
     public void startedHypnosisProcess(LivingEntity hypnotizer) {
-        if (entity instanceof MobEntity) {
-            MobEntity mob = (MobEntity) entity;
+        if (entity instanceof Mob) {
+            Mob mob = (Mob) entity;
             lookAtHypnotizerGoal = new LookAtEntityWithoutMovingGoal(mob, hypnotizer);
             mob.goalSelector.addGoal(0, lookAtHypnotizerGoal);
             resetLookGoalTicks = 3;
@@ -538,8 +538,8 @@ public class LivingUtilCap {
     
     private void tickHypnosisProcess() {
         if (resetLookGoalTicks > 0 && --resetLookGoalTicks == 0
-                && lookAtHypnotizerGoal != null && entity instanceof MobEntity) {
-            MobEntity mob = (MobEntity) entity;
+                && lookAtHypnotizerGoal != null && entity instanceof Mob) {
+            Mob mob = (Mob) entity;
             mob.goalSelector.removeGoal(lookAtHypnotizerGoal);
             lookAtHypnotizerGoal = null;
         }
@@ -558,13 +558,13 @@ public class LivingUtilCap {
     
     
     
-    public void setProductEffects(List<EffectInstance> effects) {
-        this.productPotions = effects.stream().map(EffectInstance::new) // makes deep copies of effect instances
+    public void setProductEffects(List<MobEffectInstance> effects) {
+        this.productPotions = effects.stream().map(MobEffectInstance::new) // makes deep copies of effect instances
                 .collect(Collectors.toList());
     }
     
     @Nullable
-    public List<EffectInstance> getProductEffects() {
+    public List<MobEffectInstance> getProductEffects() {
         return productPotions;
     }
     
@@ -622,7 +622,7 @@ public class LivingUtilCap {
     
     
     
-    public void onTracking(ServerPlayerEntity tracking) {
+    public void onTracking(ServerPlayer tracking) {
         if (deadBodyTimer >= 0) {
             PacketManager.sendToClient(new TrDyingBodyTimerPacket(
                     entity.getId(), deadBodyTimer, deadBodyDuration), tracking);
@@ -635,14 +635,14 @@ public class LivingUtilCap {
         wallClimb.syncToPlayer(tracking);
     }
     
-    public void syncWithClient(ServerPlayerEntity entityAsPlayer) {
+    public void syncWithClient(ServerPlayer entityAsPlayer) {
         if (deadBodyTimer >= 0) {
             PacketManager.sendToClient(new TrDyingBodyTimerPacket(
                     entity.getId(), deadBodyTimer, deadBodyDuration), entityAsPlayer);
             updateDyingBodyDebuffs();
         }
-        if (entity instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) entity;
+        if (entity instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) entity;
             if (canConsumeBrooch()) {
                 PacketManager.sendToClient(TrCosmeticItemsPacket.ladybugBrooch(entity.getId(), 
                         ladybugBroochesColored), player);
@@ -662,8 +662,8 @@ public class LivingUtilCap {
         }
     }
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putFloat("HamonSpread", receivedHamonDamage);
         nbt.putBoolean("UsedTimeStop", hasUsedTimeStopToday);
         if (preHypnosisOwner != null) {
@@ -673,9 +673,9 @@ public class LivingUtilCap {
         nbt.put("Stuck", stuckObjects.serializeNBT());
         
         if (productPotions != null && !productPotions.isEmpty()) {
-            ListNBT effectsNbt = new ListNBT();
-            for (EffectInstance effect : productPotions) {
-                effectsNbt.add(effect.save(new CompoundNBT()));
+            ListTag effectsNbt = new ListTag();
+            for (MobEffectInstance effect : productPotions) {
+                effectsNbt.add(effect.save(new CompoundTag()));
             }
             nbt.put("ProductPotion", effectsNbt);
         }
@@ -689,7 +689,7 @@ public class LivingUtilCap {
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         receivedHamonDamage = nbt.getFloat("HamonSpread");
         hasUsedTimeStopToday = nbt.getBoolean("UsedTimeStop");
         if (nbt.hasUUID("PreHypnosisOwner")) {
@@ -698,12 +698,12 @@ public class LivingUtilCap {
         gotScarf = nbt.getBoolean("GotScarf");
         MCUtil.nbtGetCompoundOptional(nbt, "Stuck").ifPresent(stuckObjects::deserializeNBT);
         
-        if (nbt.contains("ProductPotion", Constants.NBT.TAG_LIST)) {
-            ListNBT effectsNbt = nbt.getList("ProductPotion", Constants.NBT.TAG_COMPOUND);
+        if (nbt.contains("ProductPotion", Tag.TAG_LIST)) {
+            ListTag effectsNbt = nbt.getList("ProductPotion", Tag.TAG_COMPOUND);
             if (!effectsNbt.isEmpty()) {
                 this.productPotions = new ArrayList<>();
-                for (INBT element : effectsNbt) {
-                    EffectInstance effect = EffectInstance.load((CompoundNBT) element);
+                for (Tag element : effectsNbt) {
+                    MobEffectInstance effect = MobEffectInstance.load((CompoundTag) element);
                     if (effect != null) {
                         this.productPotions.add(effect);
                     }

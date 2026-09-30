@@ -16,11 +16,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractH
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonStatsPacket {
     private final int entityId;
@@ -66,7 +66,7 @@ public class TrHamonStatsPacket {
     public static class Handler implements IModPacketHandler<TrHamonStatsPacket> {
 
         @Override
-        public void encode(TrHamonStatsPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonStatsPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.stat);
             buf.writeInt(msg.entityId);
             buf.writeBoolean(msg.showToasts);
@@ -89,7 +89,7 @@ public class TrHamonStatsPacket {
         }
 
         @Override
-        public TrHamonStatsPacket decode(PacketBuffer buf) {
+        public TrHamonStatsPacket decode(FriendlyByteBuf buf) {
             Stat stat = buf.readEnum(Stat.class);
             switch (stat) {
             case BREATHING:
@@ -128,7 +128,7 @@ public class TrHamonStatsPacket {
                             hamon.setBreathingLevel(msg.breathing, showToasts);
                         }
 
-                        ToastGui toastGui = Minecraft.getInstance().getToasts();
+                        ToastComponent toastGui = Minecraft.getInstance().getToasts();
                         if (showToasts) {
                             for (AbstractHamonSkill skill : JojoCustomRegistries.HAMON_SKILLS.getRegistry().getValues()) {
                                 if (canBeLearned.test(skill) && !oldSkills.contains(skill)) {

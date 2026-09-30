@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandArrowHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ArrowXpLevelsDataPacket {
     public final int levels;
@@ -25,19 +25,19 @@ public class ArrowXpLevelsDataPacket {
     public static class Handler implements IModPacketHandler<ArrowXpLevelsDataPacket> {
 
         @Override
-        public void encode(ArrowXpLevelsDataPacket msg, PacketBuffer buf) {
+        public void encode(ArrowXpLevelsDataPacket msg, FriendlyByteBuf buf) {
             buf.writeVarInt(msg.levels);
             buf.writeVarInt(msg.gotStands);
         }
 
         @Override
-        public ArrowXpLevelsDataPacket decode(PacketBuffer buf) {
+        public ArrowXpLevelsDataPacket decode(FriendlyByteBuf buf) {
             return new ArrowXpLevelsDataPacket(buf.readVarInt(), buf.readVarInt());
         }
 
         @Override
         public void handle(ArrowXpLevelsDataPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                 StandArrowHandler handler = power.getStandArrowHandler();
                 handler.setFromPacket(msg);

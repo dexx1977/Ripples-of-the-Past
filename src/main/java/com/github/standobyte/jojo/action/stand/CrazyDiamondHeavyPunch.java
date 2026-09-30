@@ -8,11 +8,11 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 public class CrazyDiamondHeavyPunch extends StandEntityHeavyAttack {
 
@@ -21,22 +21,22 @@ public class CrazyDiamondHeavyPunch extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
+    public void onTaskSet(Level world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
         super.onTaskSet(world, standEntity, standPower, phase, task, ticks);
         if (!world.isClientSide()) {
             LivingEntity user = standPower.getUser();
             ItemStack item = user.getOffhandItem();
             if (user != null && !item.isEmpty() && CrazyDiamondLeaveObject.canUseItem(item)) {
                 ItemStack itemForStand = item.split(1);
-                standEntity.takeItem(standEntity.handItemSlot(Hand.MAIN_HAND), itemForStand, true, user);
+                standEntity.takeItem(standEntity.handItemSlot(InteractionHand.MAIN_HAND), itemForStand, true, user);
             }
         }
     }
 
     @Override
-    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+    protected void onTaskStopped(Level world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         if (!world.isClientSide()) {
-            standEntity.dropItemTo(standEntity.handItemSlot(Hand.MAIN_HAND), standPower.getUser());
+            standEntity.dropItemTo(standEntity.handItemSlot(InteractionHand.MAIN_HAND), standPower.getUser());
         }
     }
 

@@ -2,11 +2,11 @@ package com.github.standobyte.jojo.world.gen;
 
 import java.util.function.Supplier;
 
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.IFeatureConfig;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
-public class ConfiguredFeatureSupplier<FC extends IFeatureConfig, F extends Feature<FC>> implements Supplier<ConfiguredFeature<FC, ? extends Feature<FC>>> {
+public class ConfiguredFeatureSupplier<FC extends FeatureConfiguration, F extends Feature<FC>> implements Supplier<ConfiguredFeature<FC, ? extends Feature<FC>>> {
     private final Supplier<F> structure;
     private final FC config;
     private ConfiguredFeature<FC, ? extends Feature<FC>> configured = null;

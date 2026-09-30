@@ -8,30 +8,30 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class MRRedBindEntity extends OwnerBoundProjectileEntity {
-    protected static final DataParameter<Boolean> KICK_FINISHER = EntityDataManager.defineId(MRRedBindEntity.class, DataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> KICK_FINISHER = SynchedEntityData.defineId(MRRedBindEntity.class, EntityDataSerializers.BOOLEAN);
     
     private StandEntity ownerStand;
-    private EffectInstance immobilizedEffect = null;
+    private MobEffectInstance immobilizedEffect = null;
     private int ticksTargetClose = 0;
 
-    public MRRedBindEntity(World world, StandEntity entity) {
+    public MRRedBindEntity(Level world, StandEntity entity) {
         super(ModEntityTypes.MR_RED_BIND.get(), entity, world);
         this.ownerStand = entity;
     }
     
-    public MRRedBindEntity(EntityType<? extends MRRedBindEntity> entityType, World world) {
+    public MRRedBindEntity(EntityType<? extends MRRedBindEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -66,7 +66,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
                     }
                     DamageUtil.suffocateTick(bound, isInKickAttack() ? 1 : 0.0025F);
                 }
-                Vector3d vecToOwner = owner.position().subtract(bound.position());
+                Vec3 vecToOwner = owner.position().subtract(bound.position());
                 if (vecToOwner.lengthSqr() > 4) {
                     dragTarget(bound, vecToOwner.normalize().scale(0.2));
                     ticksTargetClose = 0;
@@ -82,7 +82,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
     public void clearFire() {
         super.clearFire();
         if (!level.isClientSide()) {
-            JojoModUtil.extinguishFieryStandEntity(this, (ServerWorld) level);
+            JojoModUtil.extinguishFieryStandEntity(this, (ServerLevel) level);
         }
     }
     
@@ -105,7 +105,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
                     attachToEntity(targetLiving);
                     if (!level.isClientSide()) {
                         boolean thisEffect = immobilizedEffect == targetLiving.getEffect(ModStatusEffects.IMMOBILIZE.get());
-                        targetLiving.addEffect(new EffectInstance(ModStatusEffects.IMMOBILIZE.get(), ticksLifespan() - tickCount));
+                        targetLiving.addEffect(new MobEffectInstance(ModStatusEffects.IMMOBILIZE.get(), ticksLifespan() - tickCount));
                         if (thisEffect) {
                             immobilizedEffect = targetLiving.getEffect(ModStatusEffects.IMMOBILIZE.get());
                         }
@@ -144,7 +144,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
         LivingEntity target = getEntityAttachedTo();
         if (target != null) {
             MCUtil.removeEffectInstance(target, immobilizedEffect);
-            target.addEffect(new EffectInstance(ModStatusEffects.STUN.get(), ticksLifespan() - tickCount));
+            target.addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), ticksLifespan() - tickCount));
             immobilizedEffect = target.getEffect(ModStatusEffects.STUN.get());
         }
     }
@@ -161,9 +161,9 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
         return ownerStand;
     }
 
-    private static final Vector3d OFFSET = new Vector3d(0, -0.25, 0.5);
+    private static final Vec3 OFFSET = new Vec3(0, -0.25, 0.5);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 

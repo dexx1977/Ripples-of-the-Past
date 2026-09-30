@@ -11,11 +11,11 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonCharacterTechniquePacket {
     private final int entityId;
@@ -45,14 +45,14 @@ public class TrHamonCharacterTechniquePacket {
     public static class Handler implements IModPacketHandler<TrHamonCharacterTechniquePacket> {
 
         @Override
-        public void encode(TrHamonCharacterTechniquePacket msg, PacketBuffer buf) {
+        public void encode(TrHamonCharacterTechniquePacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             NetworkUtil.writeOptional(buf, msg.technique, buf::writeRegistryId);
             buf.writeBoolean(msg.playPickSound);
         }
 
         @Override
-        public TrHamonCharacterTechniquePacket decode(PacketBuffer buf) {
+        public TrHamonCharacterTechniquePacket decode(FriendlyByteBuf buf) {
             return new TrHamonCharacterTechniquePacket(
                     buf.readInt(), 
                     NetworkUtil.readOptional(buf, () -> buf.readRegistryIdSafe(CharacterHamonTechnique.class)), 

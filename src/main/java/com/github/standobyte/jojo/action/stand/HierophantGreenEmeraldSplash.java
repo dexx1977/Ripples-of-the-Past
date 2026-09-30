@@ -14,9 +14,9 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
 
 public class HierophantGreenEmeraldSplash extends StandEntityAction {
 
@@ -39,7 +39,7 @@ public class HierophantGreenEmeraldSplash extends StandEntityAction {
 //    }
     
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             boolean shift = isShiftVariation();
             double fireRate = StandStatFormulas.projectileFireRateScaling(standEntity, userPower);
@@ -54,8 +54,8 @@ public class HierophantGreenEmeraldSplash extends StandEntityAction {
             HierophantGreenEntity hierophant = (HierophantGreenEntity) standEntity;
             int barriers = hierophant.getPlacedBarriersCount();
             if (barriers > 0) {
-                RayTraceResult rayTrace = aimForBarriers(hierophant);
-                if (rayTrace.getType() != RayTraceResult.Type.MISS) {
+                HitResult rayTrace = aimForBarriers(hierophant);
+                if (rayTrace.getType() != HitResult.Type.MISS) {
                     hierophant.getBarriersNet().shootEmeraldsFromBarriers(userPower, hierophant, rayTrace.getLocation(), task.getTick(), 
                             Math.min((hierophant.getPlacedBarriersCount() / 5), 9) * hierophant.getStaminaCondition(), 
                             ModStandsInit.HIEROPHANT_GREEN_EMERALD_SPLASH_CONCENTRATED.get().getStaminaCostTicking(userPower) * 0.5F, 8, true);
@@ -64,7 +64,7 @@ public class HierophantGreenEmeraldSplash extends StandEntityAction {
         }
     }
     
-    private RayTraceResult aimForBarriers(HierophantGreenEntity stand) {
+    private HitResult aimForBarriers(HierophantGreenEntity stand) {
         return JojoModUtil.rayTrace(stand.isManuallyControlled() ? stand : stand.getUser(), 
                 stand.getMaxRange(), entity -> entity instanceof LivingEntity && stand.canAttack((LivingEntity) entity));
     }

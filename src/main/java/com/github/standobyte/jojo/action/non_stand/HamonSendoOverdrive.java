@@ -8,16 +8,16 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonSendoOverdrive extends HamonAction {
 
@@ -34,23 +34,23 @@ public class HamonSendoOverdrive extends HamonAction {
 //    }
     
     @Override
-    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, World world, LivingEntity user, INonStandPower power) {
+    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, Level world, LivingEntity user, INonStandPower power) {
         ActionTarget target = targetContainer.get();
         if (target.getType() == TargetType.BLOCK) {
             BlockPos blockPos = target.getBlockPos();
             BlockState blockState = world.getBlockState(blockPos);
             if (blockState.getCollisionShape(world, blockPos).isEmpty()) {
-                Vector3d pos1 = user.getEyePosition(1.0F);
-                Vector3d pos2 = pos1.add(user.getViewVector(1.0F).scale(Math.sqrt(getMaxRangeSqBlockTarget())));
-                RayTraceResult targetCollisionBlocks = user.level.clip(new RayTraceContext(
-                        pos1, pos2, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, user)); // to not target plant blocks like grass
+                Vec3 pos1 = user.getEyePosition(1.0F);
+                Vec3 pos2 = pos1.add(user.getViewVector(1.0F).scale(Math.sqrt(getMaxRangeSqBlockTarget())));
+                HitResult targetCollisionBlocks = user.level.clip(new ClipContext(
+                        pos1, pos2, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, user)); // to not target plant blocks like grass
                 targetContainer.set(ActionTarget.fromRayTraceResult(targetCollisionBlocks));
             }
         }
     }
     
     @Override
-    public void stoppedHolding(World world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
         ActionTarget target = power.getMouseTarget();
         if (target.getType() == TargetType.BLOCK) {
             if (!world.isClientSide()) {
@@ -63,7 +63,7 @@ public class HamonSendoOverdrive extends HamonAction {
                 
                 HamonSendoOverdriveEntity sendoOverdrive = new HamonSendoOverdriveEntity(world, 
                         user, face.getAxis());
-                float heldRatio = MathHelper.clamp((float) (power.getHeldActionTicks() - 1) / this.getHoldDurationToFire(power), 0, 1);
+                float heldRatio = Mth.clamp((float) (power.getHeldActionTicks() - 1) / this.getHoldDurationToFire(power), 0, 1);
                 sendoOverdrive.yRot = user.yRot;
                 sendoOverdrive.xRot = user.xRot;
                 sendoOverdrive.sparksAngle = (float) Math.PI / 4 + heldRatio * (float) Math.PI / 4 * 7;
@@ -72,13 +72,13 @@ public class HamonSendoOverdrive extends HamonAction {
                 sendoOverdrive.setWavesCount(2 + (int) ((2 + Math.min(hamon.getHamonControlLevelRatio() * 3, 2)) * hamonEfficiency));
                 sendoOverdrive.setStatPoints(Math.min(energyCost, power.getEnergy()) * hamonEfficiency);
                         
-                sendoOverdrive.moveTo(Vector3d.atCenterOf(blockPos).subtract(0, sendoOverdrive.getDimensions(null).height * 0.5, 0));
+                sendoOverdrive.moveTo(Vec3.atCenterOf(blockPos).subtract(0, sendoOverdrive.getDimensions(null).height * 0.5, 0));
                 sendoOverdrive.setBlockTarget(target.getBlockPos(), target.getFace());
                 world.addFreshEntity(sendoOverdrive);
                 
                 if (!willFire) power.consumeEnergy(energyCost);
             }
-            user.swing(Hand.MAIN_HAND, false);
+            user.swing(InteractionHand.MAIN_HAND, false);
         }
     }
 }

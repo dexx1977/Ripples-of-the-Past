@@ -20,19 +20,19 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class VampirismData extends TypeSpecificData {
@@ -138,7 +138,7 @@ public class VampirismData extends TypeSpecificData {
     public int getCuringStage() {
         if (isBeingCured()) {
             float curingProgress = getCuringProgress();
-            return (int) MathHelper.clamp(curingProgress * 4, 0, 3) + 1;
+            return (int) Mth.clamp(curingProgress * 4, 0, 3) + 1;
         }
         else {
             return 0;
@@ -157,12 +157,12 @@ public class VampirismData extends TypeSpecificData {
             user.yRot += (float) (Math.cos((double) user.tickCount * 3.25) * Math.PI * 0.4);
             int curingStage = getCuringStage();
             if (curingStage >= 2 && user.getRandom().nextDouble() <= NAUSEA_CHANCE[Math.min(curingStage, NAUSEA_CHANCE.length + 1)]) {
-                user.addEffect(new EffectInstance(Effects.CONFUSION, 200));
+                user.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200));
             }
             
             int curingMaxTicks = getMaxCuringTicks(user);
-            if (!user.level.isClientSide() && curingTicks >= curingMaxTicks && user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).displayClientMessage(new TranslationTextComponent("jojo.vampire.ready_to_cure"), true);
+            if (!user.level.isClientSide() && curingTicks >= curingMaxTicks && user instanceof ServerPlayer) {
+                ((ServerPlayer) user).displayClientMessage(Component.translatable("jojo.vampire.ready_to_cure"), true);
             }
             
             if (curingTicks < curingMaxTicks) {
@@ -191,7 +191,7 @@ public class VampirismData extends TypeSpecificData {
         if (random.nextFloat() < 0.01F) {
             int accelBlocks = 0;
             BlockPos pos = user.blockPosition();
-            BlockPos.Mutable blockPos = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
             for (int x = pos.getX() - 4; x < pos.getX() + 4; ++x) {
                 for (int y = pos.getY() - 4; y < pos.getY() + 4; ++y) {
                     for (int z = pos.getZ() - 4; z < pos.getZ() + 4; ++z) {
@@ -221,16 +221,16 @@ public class VampirismData extends TypeSpecificData {
                                     ModSounds.VAMPIRE_CURE_END.get(), entity.getSoundSource(), 1.0F, 1.0F);
                         }
                         power.clear();
-                        if (entity instanceof ServerPlayerEntity) {
-                            ServerPlayerEntity player = (ServerPlayerEntity) entity;
+                        if (entity instanceof ServerPlayer) {
+                            ServerPlayer player = (ServerPlayer) entity;
                             player.getFoodData().setFoodLevel(1);
                             ModCriteriaTriggers.VAMPIRISM_CURED.get().trigger(player);
                         }
                         entity.removeEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
-                        entity.removeEffect(Effects.WEAKNESS);
-                        entity.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 600, 1));
-                        entity.addEffect(new EffectInstance(Effects.DIG_SLOWDOWN, 600, 1));
-                        entity.addEffect(new EffectInstance(Effects.WEAKNESS, 600, 1));
+                        entity.removeEffect(MobEffects.WEAKNESS);
+                        entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 1));
+                        entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 600, 1));
+                        entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 600, 1));
                     }
                 });
             });
@@ -242,15 +242,15 @@ public class VampirismData extends TypeSpecificData {
     }
     
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putBoolean("VampireFullPower", vampireFullPower);
         nbt.putInt("CuringTicks", curingTicks);
         
         nbt.putBoolean("VampireHamonUser", vampireHamonUser);
         if (vampireHamonUser) {
             nbt.putFloat("HamonStrength", hamonStrengthLevel);
-            if (nbt.contains("CharacterTechnique", MCUtil.getNbtId(StringNBT.class))) {
+            if (nbt.contains("CharacterTechnique", MCUtil.getNbtId(StringTag.class))) {
                 ResourceLocation techniqueId = new ResourceLocation(nbt.getString("CharacterTechnique"));
                 IForgeRegistry<CharacterHamonTechnique> registry = JojoCustomRegistries.HAMON_CHARACTER_TECHNIQUES.getRegistry();
                 if (registry.containsKey(techniqueId)) {
@@ -262,7 +262,7 @@ public class VampirismData extends TypeSpecificData {
     }
     
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         this.vampireFullPower = nbt.getBoolean("VampireFullPower");
         this.curingTicks = nbt.getInt("CuringTicks");
 
@@ -272,7 +272,7 @@ public class VampirismData extends TypeSpecificData {
     }
     
     @Override
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         lastBloodLevel = -999;
     }
     
@@ -283,7 +283,7 @@ public class VampirismData extends TypeSpecificData {
     }
     
     @Override
-    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity entity) {
+    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayer entity) {
         PacketManager.sendToClient(TrVampirismDataPacket.wasHamonUser(
                 user.getId(), vampireHamonUser), entity);
         PacketManager.sendToClient(TrVampirismDataPacket.atFullPower(

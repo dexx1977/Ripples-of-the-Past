@@ -1,22 +1,22 @@
 package com.github.standobyte.jojo.client.render.entity.model.projectile;
 
 import com.github.standobyte.jojo.entity.damaging.projectile.MRFireballEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 // Made with Blockbench 3.9.2
 
 
 public class MRFireballModel extends EntityModel<MRFireballEntity> {
-    private final ModelRenderer emerald;
+    private final ModelPart emerald;
 
     public MRFireballModel() {
         texWidth = 32;
         texHeight = 32;
-        emerald = new ModelRenderer(this);
+        emerald = new ModelPart(this);
         emerald.setPos(0.0F, 0.0F, 0.0F);
         emerald.texOffs(0, 0).addBox(-2.5F, -2.0F, -2.5F, 5.0F, 4.0F, 5.0F, 0.0F, false);
         emerald.texOffs(0, 9).addBox(-2.0F, -1.5F, -3.5F, 4.0F, 3.0F, 7.0F, 0.0F, false);
@@ -30,7 +30,7 @@ public class MRFireballModel extends EntityModel<MRFireballEntity> {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         emerald.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

@@ -7,19 +7,19 @@ import com.github.standobyte.jojo.client.ClientEventHandler;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.NetworkEvent;
 
 public class MultiLineOverlayMsgPacket {
-    private List<ITextComponent> lines;
+    private List<Component> lines;
     private boolean animateColor;
     
-    public MultiLineOverlayMsgPacket(List<ITextComponent> lines) {
+    public MultiLineOverlayMsgPacket(List<Component> lines) {
         this(lines, false);
     }
     
-    public MultiLineOverlayMsgPacket(List<ITextComponent> lines, boolean animateColor) {
+    public MultiLineOverlayMsgPacket(List<Component> lines, boolean animateColor) {
         this.lines = lines;
         this.animateColor = animateColor;
     }
@@ -29,14 +29,14 @@ public class MultiLineOverlayMsgPacket {
     public static class Handler implements IModPacketHandler<MultiLineOverlayMsgPacket> {
 
         @Override
-        public void encode(MultiLineOverlayMsgPacket msg, PacketBuffer buf) {
+        public void encode(MultiLineOverlayMsgPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.lines, buf::writeComponent, false);
             buf.writeBoolean(msg.animateColor);
         }
 
         @Override
-        public MultiLineOverlayMsgPacket decode(PacketBuffer buf) {
-            List<ITextComponent> lines = NetworkUtil.readCollection(buf, PacketBuffer::readComponent);
+        public MultiLineOverlayMsgPacket decode(FriendlyByteBuf buf) {
+            List<Component> lines = NetworkUtil.readCollection(buf, FriendlyByteBuf::readComponent);
             boolean animateColor = buf.readBoolean();
             return new MultiLineOverlayMsgPacket(lines, animateColor);
         }

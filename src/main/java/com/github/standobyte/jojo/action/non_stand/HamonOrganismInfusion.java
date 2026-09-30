@@ -18,26 +18,26 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.google.common.collect.ImmutableSet;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FlowerPotBlock;
-import net.minecraft.block.SnowyDirtBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.SnowyDirtBlock;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.AmbientEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ambient.AmbientCreature;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class HamonOrganismInfusion extends HamonAction {
@@ -72,7 +72,7 @@ public class HamonOrganismInfusion extends HamonAction {
         }
     }
     
-    private ActionConditionResult canChargeBlock(BlockPos blockPos, BlockState blockState, World world) {
+    private ActionConditionResult canChargeBlock(BlockPos blockPos, BlockState blockState, Level world) {
         Block block = blockState.getBlock();
         boolean isLivingBlock;
         if (isBlockLiving(blockState)) {
@@ -106,7 +106,7 @@ public class HamonOrganismInfusion extends HamonAction {
     }
     
     @Override
-    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, World world, LivingEntity user, INonStandPower power) {
+    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, Level world, LivingEntity user, INonStandPower power) {
         if (getTargetRequirement().checkTargetType(TargetType.ENTITY) && targetContainer.get().getType() == TargetType.BLOCK) {
             BlockPos blockPos = targetContainer.get().getBlockPos();
             VoxelShape shape = world.getBlockState(blockPos).getShape(world, blockPos);
@@ -116,7 +116,7 @@ public class HamonOrganismInfusion extends HamonAction {
             }
             Optional<Entity> entityInside = world.getEntities(user, shape.bounds().move(blockPos))
                     .stream()
-                    .filter(entity -> (entity instanceof AnimalEntity || entity instanceof AmbientEntity)
+                    .filter(entity -> (entity instanceof Animal || entity instanceof AmbientCreature)
                             && entity.getCapability(EntityHamonChargeCapProvider.CAPABILITY).map(cap -> !cap.hasHamonCharge()).orElse(false))
                     .findAny();
             if (entityInside.isPresent()) {
@@ -126,12 +126,12 @@ public class HamonOrganismInfusion extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             HamonData hamon = power.getTypeSpecificData(ModPowers.HAMON.get()).get();
             
             float hamonEfficiency = hamon.getActionEfficiency(getEnergyCost(power, target), true, getUnlockingSkill());
-            int chargeTicks = 100 + MathHelper.floor((float) (1100 * hamon.getHamonStrengthLevel())
+            int chargeTicks = 100 + Mth.floor((float) (1100 * hamon.getHamonStrengthLevel())
                     / (float) HamonData.MAX_STAT_LEVEL * hamonEfficiency * hamonEfficiency);
             switch (target.getType()) {
             case BLOCK:
@@ -160,13 +160,13 @@ public class HamonOrganismInfusion extends HamonAction {
         }
     }
     
-    private void addBlockCharge(World world, BlockPos blockPos, INonStandPower power, LivingEntity user, HamonData hamon, float hamonEfficiency, int chargeTicks) {
+    private void addBlockCharge(Level world, BlockPos blockPos, INonStandPower power, LivingEntity user, HamonData hamon, float hamonEfficiency, int chargeTicks) {
         BlockState blockState = world.getBlockState(blockPos);
         if (!canChargeBlock(blockPos, blockState, world).isPositive()) {
             return;
         }
         world.getEntitiesOfClass(HamonBlockChargeEntity.class, 
-                new AxisAlignedBB(Vector3d.atCenterOf(blockPos), Vector3d.atCenterOf(blockPos))).forEach(Entity::remove);
+                new AABB(Vec3.atCenterOf(blockPos), Vec3.atCenterOf(blockPos))).forEach(Entity::remove);
         HamonBlockChargeEntity charge = new HamonBlockChargeEntity(world, blockPos);
         charge.setCharge(hamon.getHamonDamageMultiplier() * hamonEfficiency, chargeTicks, user, getEnergyCost(power, new ActionTarget(blockPos, Direction.UP)));
         world.addFreshEntity(charge);

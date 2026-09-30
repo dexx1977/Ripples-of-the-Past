@@ -5,30 +5,30 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.resources.models.ResourceEntityModels;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BreakableBlock;
-import net.minecraft.block.StainedGlassPaneBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 
-public class CustomModelItemISTER<M extends Model> extends ItemStackTileEntityRenderer implements ISTERWithEntity {
+public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLevelRenderer implements ISTERWithEntity {
     public final ResourceLocation modelResource;
     public final ResourceLocation texture;
     protected final Supplier<? extends Item> item;
@@ -51,8 +51,8 @@ public class CustomModelItemISTER<M extends Model> extends ItemStackTileEntityRe
     }
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-            IRenderTypeBuffer renderTypeBuffer, int light, int overlay) {
+    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+            MultiBufferSource renderTypeBuffer, int light, int overlay) {
         Item item = itemStack.getItem();
         if (item == this.item.get()) {
             if (model != null) {
@@ -64,31 +64,31 @@ public class CustomModelItemISTER<M extends Model> extends ItemStackTileEntityRe
             }
             else {
                 ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-                IBakedModel missingModel = itemRenderer.getItemModelShaper().getModelManager().getMissingModel();
-                IVertexBuilder vertexBuilder = ItemRenderer.getFoilBufferDirect(
-                        renderTypeBuffer, RenderTypeLookup.getRenderType(itemStack, true), 
+                BakedModel missingModel = itemRenderer.getItemModelShaper().getModelManager().getMissingModel();
+                VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
+                        renderTypeBuffer, ItemBlockRenderTypes.getRenderType(itemStack, true), 
                         false, itemStack.hasFoil());
                 itemRenderer.renderModelLists(missingModel, itemStack, light, overlay, matrixStack, vertexBuilder);
             }
         }
     }
     
-    protected void doRender(ItemStack itemStack, ItemCameraTransforms.TransformType transformType, MatrixStack matrixStack, 
-            IRenderTypeBuffer renderTypeBuffer, int light, int overlay) {
-        IVertexBuilder vertexBuilder = ItemRenderer.getFoilBufferDirect(
+    protected void doRender(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+            MultiBufferSource renderTypeBuffer, int light, int overlay) {
+        VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
                 renderTypeBuffer, model.renderType(texture), false, itemStack.hasFoil());
         model.renderToBuffer(matrixStack, vertexBuilder, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
     
     
     
-    public static void renderItemNormally(MatrixStack matrixStack, ItemStack itemStack, TransformType transformType, 
-            IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay, IBakedModel itemModel) {
+    public static void renderItemNormally(PoseStack matrixStack, ItemStack itemStack, ItemDisplayContext transformType, 
+            MultiBufferSource buffer, int combinedLight, int combinedOverlay, BakedModel itemModel) {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         boolean cull;
-        if (transformType != ItemCameraTransforms.TransformType.GUI && !transformType.firstPerson() && itemStack.getItem() instanceof BlockItem) {
+        if (transformType != ItemTransforms.ItemDisplayContext.GUI && !transformType.firstPerson() && itemStack.getItem() instanceof BlockItem) {
             Block block = ((BlockItem)itemStack.getItem()).getBlock();
-            cull = !(block instanceof BreakableBlock) && !(block instanceof StainedGlassPaneBlock);
+            cull = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
         } else {
             cull = true;
         }
@@ -96,8 +96,8 @@ public class CustomModelItemISTER<M extends Model> extends ItemStackTileEntityRe
             ForgeHooksClient.drawItemLayered(itemRenderer, itemModel, itemStack, matrixStack, buffer, combinedLight, combinedOverlay, cull);
         }
         else {
-            RenderType renderType = RenderTypeLookup.getRenderType(itemStack, cull);
-            IVertexBuilder vertexBuilder;
+            RenderType renderType = ItemBlockRenderTypes.getRenderType(itemStack, cull);
+            VertexConsumer vertexBuilder;
             if (cull) {
                 vertexBuilder = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, itemStack.hasFoil());
             } else {

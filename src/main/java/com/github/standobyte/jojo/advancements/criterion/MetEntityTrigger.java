@@ -2,18 +2,19 @@ package com.github.standobyte.jojo.advancements.criterion;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.SummonedEntityTrigger;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.SummonedEntityTrigger;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 
-public class MetEntityTrigger extends AbstractCriterionTrigger<MetEntityTrigger.Instance> {
+public class MetEntityTrigger extends SimpleCriterionTrigger<MetEntityTrigger.Instance> {
     private final ResourceLocation id;
 
     public MetEntityTrigger(ResourceLocation id) {
@@ -25,7 +26,7 @@ public class MetEntityTrigger extends AbstractCriterionTrigger<MetEntityTrigger.
         return this.id;
     }
     
-    public void trigger(ServerPlayerEntity player, Entity pEntity) {
+    public void trigger(ServerPlayer player, Entity pEntity) {
         LootContext lootContext = EntityPredicate.createContext(player, pEntity);
         this.trigger(player, instance -> {
             return instance.matches(lootContext);
@@ -34,21 +35,21 @@ public class MetEntityTrigger extends AbstractCriterionTrigger<MetEntityTrigger.
 
     @Override
     public MetEntityTrigger.Instance createInstance(JsonObject json, 
-            EntityPredicate.AndPredicate playerPredicate, ConditionArrayParser conditionsParser) {
-        EntityPredicate.AndPredicate entityPredicate = EntityPredicate.AndPredicate.fromJson(json, "entity", conditionsParser);
+            ContextAwarePredicate playerPredicate, DeserializationContext conditionsParser) {
+        ContextAwarePredicate entityPredicate = ContextAwarePredicate.fromJson(json, "entity", conditionsParser);
         return new MetEntityTrigger.Instance(id, playerPredicate, entityPredicate);
     }
 
-    public static class Instance extends CriterionInstance {
-        private final EntityPredicate.AndPredicate entity;
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        private final ContextAwarePredicate entity;
 
-        public Instance(ResourceLocation criterion, EntityPredicate.AndPredicate player, EntityPredicate.AndPredicate entity) {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player, ContextAwarePredicate entity) {
             super(criterion, player);
             this.entity = entity;
         }
 
         public static SummonedEntityTrigger.Instance metEntity(EntityPredicate.Builder entityBuilder) {
-            return new SummonedEntityTrigger.Instance(EntityPredicate.AndPredicate.ANY, EntityPredicate.AndPredicate.wrap(entityBuilder.build()));
+            return new SummonedEntityTrigger.Instance(ContextAwarePredicate.ANY, ContextAwarePredicate.wrap(entityBuilder.build()));
         }
         
         public boolean matches(LootContext pLootContext) {
@@ -56,7 +57,7 @@ public class MetEntityTrigger extends AbstractCriterionTrigger<MetEntityTrigger.
         }
         
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer pConditions) {
+        public JsonObject serializeToJson(SerializationContext pConditions) {
             JsonObject jsonobject = super.serializeToJson(pConditions);
             jsonobject.add("entity", this.entity.toJson(pConditions));
             return jsonobject;

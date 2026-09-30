@@ -8,9 +8,9 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
 public class RPSPvpGamesMap {
     private final Map<PlayersPair, RockPaperScissorsGame> pvpGames = new HashMap<>();
@@ -21,27 +21,27 @@ public class RPSPvpGamesMap {
     }
     
     @Nullable
-    public RockPaperScissorsGame getGameBetween(PlayerEntity player1, PlayerEntity player2) {
+    public RockPaperScissorsGame getGameBetween(Player player1, Player player2) {
         return pvpGames.get(new PlayersPair(player1.getUUID(), player2.getUUID()));
     }
     
-    public RockPaperScissorsGame getOrCreateGame(PlayerEntity player1, PlayerEntity player2) {
+    public RockPaperScissorsGame getOrCreateGame(Player player1, Player player2) {
         RockPaperScissorsGame unfinishedGame = getGameBetween(player1, player2);
         return unfinishedGame != null && !unfinishedGame.isGameOver() ? unfinishedGame : addGame(new RockPaperScissorsGame(player1, player2));
     }
     
-    public CompoundNBT save() {
-        CompoundNBT nbt = new CompoundNBT();
-        ListNBT gamesNBT = new ListNBT();
+    public CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
+        ListTag gamesNBT = new ListTag();
         pvpGames.forEach((players, game) -> gamesNBT.add(game.writeNBT()));
         nbt.put("Games", gamesNBT);
         return nbt;
     }
     
-    public void load(CompoundNBT nbt) {
-        if (nbt.contains("Games", MCUtil.getNbtId(ListNBT.class))) {
-            nbt.getList("Games", MCUtil.getNbtId(CompoundNBT.class)).forEach(gameNBT -> {
-                RockPaperScissorsGame game = RockPaperScissorsGame.fromNBT((CompoundNBT) gameNBT);
+    public void load(CompoundTag nbt) {
+        if (nbt.contains("Games", MCUtil.getNbtId(ListTag.class))) {
+            nbt.getList("Games", MCUtil.getNbtId(CompoundTag.class)).forEach(gameNBT -> {
+                RockPaperScissorsGame game = RockPaperScissorsGame.fromNBT((CompoundTag) gameNBT);
                 if (game != null) {
                     addGame(game);
                 }

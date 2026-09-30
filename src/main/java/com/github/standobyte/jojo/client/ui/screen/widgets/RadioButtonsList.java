@@ -7,15 +7,15 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.ui.screen.stand.ge.ChooseLifeformScreen;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.INestedGuiEventHandler;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
 
-public class RadioButtonsList<V> implements INestedGuiEventHandler {
+public class RadioButtonsList<V> implements ContainerEventHandler {
     protected List<Button> radioButtons = new ArrayList<>();
     protected V selectedValue;
     protected Consumer<V> onNewValue;
@@ -31,7 +31,7 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
         this.onNewValue = onNewValue;
     }
     
-    public RadioButtonsList<V> addButton(int x, int y, ITextComponent name, V value) {
+    public RadioButtonsList<V> addButton(int x, int y, Component name, V value) {
         RadioButton button = new RadioButton(x, y, name, b -> {
             this.selectedValue = value;
             onNewValue(value);
@@ -51,7 +51,7 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
     }
     
     
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         for (Button button : radioButtons) {
             button.render(matrixStack, mouseX, mouseY, partialTicks);
         }
@@ -63,7 +63,7 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
         private RadioButtonsList<?> list;
         private Object value;
 
-        public RadioButton(int x, int y, ITextComponent pMessage, IPressable pOnPress, 
+        public RadioButton(int x, int y, Component pMessage, IPressable pOnPress, 
                 RadioButtonsList<?> list, Object value) {
             super(x, y, 13, 13, pMessage, pOnPress);
             this.list = list;
@@ -71,7 +71,7 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
         }
         
         @Override
-        public void renderButton(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+        public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
             Minecraft minecraft = Minecraft.getInstance();
             minecraft.getTextureManager().bind(ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
             int texY = list.getSelectedValue() == value ? 40 : 53;
@@ -85,13 +85,13 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
     }
     
     @Override
-    public List<? extends IGuiEventListener> children() {
+    public List<? extends GuiEventListener> children() {
         return radioButtons;
     }
     
     
     @Nullable
-    private IGuiEventListener focused;
+    private GuiEventListener focused;
     private boolean dragging;
     
     @Override
@@ -105,12 +105,12 @@ public class RadioButtonsList<V> implements INestedGuiEventHandler {
     }
 
     @Override
-    public void setFocused(@Nullable IGuiEventListener pListener) {
+    public void setFocused(@Nullable GuiEventListener pListener) {
         this.focused = pListener;
     }
     
     @Override
-    public IGuiEventListener getFocused() {
+    public GuiEventListener getFocused() {
         return this.focused;
     }
 }

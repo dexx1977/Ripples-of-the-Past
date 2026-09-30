@@ -17,17 +17,17 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import net.minecraft.command.arguments.ArgumentSerializer;
-import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.network.chat.Component;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public class NonStandTypeArgument implements ArgumentType<NonStandPowerType<?>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("hamon", "vampirism");
-    public static final DynamicCommandExceptionType TYPE_UNKNOWN = new DynamicCommandExceptionType((key) -> new TranslationTextComponent("non_stand.unknown", key));
+    public static final DynamicCommandExceptionType TYPE_UNKNOWN = new DynamicCommandExceptionType((key) -> Component.translatable("non_stand.unknown", key));
     private static Map<String, List<NonStandPowerType<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypes.register("non_stand", NonStandTypeArgument.class, new ArgumentSerializer<>(NonStandTypeArgument::new));
+        ArgumentTypeInfos.register("non_stand", NonStandTypeArgument.class, new ArgumentSerializer<>(NonStandTypeArgument::new));
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.NON_STAND_POWERS.getRegistry());
     }
     
@@ -44,7 +44,7 @@ public class NonStandTypeArgument implements ArgumentType<NonStandPowerType<?>> 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         return ArgumentUtil.suggestIterable(JojoCustomRegistries.NON_STAND_POWERS.getRegistry().getValues()
-                .stream().map(IForgeRegistryEntry::getRegistryName), builder);
+                .stream().map(RegistryEntry::getRegistryName), builder);
     }
     
     @Override

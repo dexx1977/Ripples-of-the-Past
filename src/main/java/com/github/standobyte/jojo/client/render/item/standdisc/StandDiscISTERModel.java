@@ -6,20 +6,20 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 @SuppressWarnings("deprecation")
-public class StandDiscISTERModel implements IBakedModel {
-    private IBakedModel existingModel;
-    private ItemOverrideList standOverrides;
+public class StandDiscISTERModel implements BakedModel {
+    private BakedModel existingModel;
+    private ItemOverrides standOverrides;
 
-    public StandDiscISTERModel(IBakedModel existingModel) {
+    public StandDiscISTERModel(BakedModel existingModel) {
         this.existingModel = existingModel;
         this.standOverrides = new StandDiscOverrideList(existingModel.getOverrides());
     }
@@ -55,12 +55,12 @@ public class StandDiscISTERModel implements IBakedModel {
     }
 
     @Override
-    public ItemCameraTransforms getTransforms() {
+    public ItemTransforms getTransforms() {
         return this.existingModel.getTransforms();
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return standOverrides;
     }
 }

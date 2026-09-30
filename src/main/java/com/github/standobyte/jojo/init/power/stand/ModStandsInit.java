@@ -95,9 +95,9 @@ import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType.StandSurvivalGameplayPool;
 import com.github.standobyte.jojo.util.mod.StoryPart;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 /**
@@ -112,16 +112,16 @@ import net.minecraftforge.registries.DeferredRegister;
  *
  */
 public class ModStandsInit {
-    public static final ITextComponent PART_3_NAME = StoryPart.STARDUST_CRUSADERS.getName();
-    public static final ITextComponent PART_4_NAME = StoryPart.DIAMOND_IS_UNBREAKABLE.getName();
-    public static final ITextComponent PART_5_NAME = StoryPart.GOLDEN_WIND.getName();
-    public static final ITextComponent PART_6_NAME = StoryPart.STONE_OCEAN.getName();
-    public static final ITextComponent PART_7_NAME = StoryPart.STEEL_BALL_RUN.getName();
-    public static final ITextComponent PART_8_NAME = StoryPart.JOJOLION.getName();
-    public static final ITextComponent PART_9_NAME = StoryPart.THE_JOJOLANDS.getName();
+    public static final Component PART_3_NAME = StoryPart.STARDUST_CRUSADERS.getName();
+    public static final Component PART_4_NAME = StoryPart.DIAMOND_IS_UNBREAKABLE.getName();
+    public static final Component PART_5_NAME = StoryPart.GOLDEN_WIND.getName();
+    public static final Component PART_6_NAME = StoryPart.STONE_OCEAN.getName();
+    public static final Component PART_7_NAME = StoryPart.STEEL_BALL_RUN.getName();
+    public static final Component PART_8_NAME = StoryPart.JOJOLION.getName();
+    public static final Component PART_9_NAME = StoryPart.THE_JOJOLANDS.getName();
 
     public static final DeferredRegister<StandType<?>> STAND_TYPES = DeferredRegister.create(
-            (Class<StandType<?>>) ((Class<?>) StandType.class), JojoMod.MOD_ID);
+            new ResourceLocation(JojoMod.MOD_ID, "stand_type"), JojoMod.MOD_ID);
     
     public static final RegistryObject<StandEntityAction> UNSUMMON_STAND_ENTITY = ACTIONS.register("stand_entity_unsummon", 
             () -> new StandEntityUnsummon());

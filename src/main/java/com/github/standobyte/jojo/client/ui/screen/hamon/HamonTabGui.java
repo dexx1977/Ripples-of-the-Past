@@ -14,25 +14,24 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.screen.IJojoScreen;
 import com.github.standobyte.jojo.client.ui.screen.TabPositionType;
 import com.github.standobyte.jojo.client.ui.screen.widgets.utils.IExtendedWidget;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 
 public abstract class HamonTabGui extends AbstractGui {
     protected static final ResourceLocation ADV_WIDGETS = new ResourceLocation("textures/gui/advancements/widgets.png");
     protected final Minecraft minecraft;
     protected final HamonScreen screen;
-    private final ITextComponent title;
-    protected final List<IReorderingProcessor> descLines;
+    private final Component title;
+    protected final List<FormattedCharSequence> descLines;
     private final ResourceLocation background;
     
     protected TabPositionType tabPositioning;
@@ -51,7 +50,7 @@ public abstract class HamonTabGui extends AbstractGui {
     HamonTabGui(Minecraft minecraft, HamonScreen screen, String title, int scrollWidth, int scrollHeight) {
         this.minecraft = minecraft;
         this.screen = screen;
-        this.title = new TranslationTextComponent(title);
+        this.title = Component.translatable(title);
         this.descLines = minecraft.font.split(createTabDescription(title + ".desc"), 200);
         this.background = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/advancements/jojo.png");
         this.maxX = scrollWidth;
@@ -63,15 +62,15 @@ public abstract class HamonTabGui extends AbstractGui {
         this.index = index;
     }
     
-    protected ITextComponent createTabDescription(String key) {
-        return new TranslationTextComponent(key);
+    protected Component createTabDescription(String key) {
+        return Component.translatable(key);
     }
 
-    ITextComponent getTitle() {
+    Component getTitle() {
        return title;
     }
 
-    void drawTab(MatrixStack matrixStack, int windowX, int windowY, boolean isSelected, boolean red) {
+    void drawTab(PoseStack matrixStack, int windowX, int windowY, boolean isSelected, boolean red) {
         minecraft.getTextureManager().bind(IJojoScreen.TABS);
         tabPositioning.draw(matrixStack, screen, windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT, 
                 isSelected, index, false);
@@ -83,7 +82,7 @@ public abstract class HamonTabGui extends AbstractGui {
         }
     }
     
-    List<IReorderingProcessor> additionalTabNameTooltipInfo() {
+    List<FormattedCharSequence> additionalTabNameTooltipInfo() {
         return Collections.emptyList();
     }
 
@@ -91,10 +90,10 @@ public abstract class HamonTabGui extends AbstractGui {
         return tabPositioning.isMouseOver(windowX, windowY, index, WINDOW_WIDTH, WINDOW_HEIGHT, mouseX, mouseY);
     }
 
-    void drawIcon(MatrixStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {}
+    void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {}
     
     @SuppressWarnings("deprecation")
-    void drawContents(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTick, float xOffset, float yOffset) {
+    void drawContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick, float xOffset, float yOffset) {
         if (!leftUpperCorner) {
             scrollX = 0;
             scrollY = 0;
@@ -118,8 +117,8 @@ public abstract class HamonTabGui extends AbstractGui {
             minecraft.getTextureManager().bind(TextureManager.INTENTIONAL_MISSING_TEXTURE);
         }
 
-        intScrollX = MathHelper.floor(scrollX);
-        intScrollY = MathHelper.floor(scrollY);
+        intScrollX = Mth.floor(scrollX);
+        intScrollY = Mth.floor(scrollY);
         int k = intScrollX % 16;
         int l = intScrollY % 16;
         for (int i1 = -1; i1 <= 13; ++i1) {
@@ -177,13 +176,13 @@ public abstract class HamonTabGui extends AbstractGui {
         return allWidgets;
     }
 
-    protected void drawOnBackground(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY) {}
+    protected void drawOnBackground(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY) {}
 
-    protected abstract void drawText(MatrixStack matrixStack);
+    protected abstract void drawText(PoseStack matrixStack);
 
-    protected abstract void drawActualContents(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTick);
+    protected abstract void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick);
     
-    protected void drawDesc(MatrixStack matrixStack) {
+    protected void drawDesc(PoseStack matrixStack) {
         ClientUtil.drawLines(matrixStack, minecraft.font, descLines, 
                 (float) scrollX + 6, (float) scrollY + 22, 
                 0, 0xFFFFFF, false, false);
@@ -195,13 +194,13 @@ public abstract class HamonTabGui extends AbstractGui {
         }
     }
     
-    private void updateButtons(MatrixStack matrixStack, int mouseX, int mouseY) {
+    private void updateButtons(PoseStack matrixStack, int mouseX, int mouseY) {
         for (IExtendedWidget button : getWidgets()) {
             button.getWidgetExtension().updateY(intScrollY);
         }
     }
     
-    private void drawButtonNames(MatrixStack matrixStack) {
+    private void drawButtonNames(PoseStack matrixStack) {
         for (IExtendedWidget button : getWidgets()) {
             if (button instanceof HamonScreenButton && button.thisAsWidget().visible) {
                 ((HamonScreenButton) button).drawName(matrixStack);
@@ -209,7 +208,7 @@ public abstract class HamonTabGui extends AbstractGui {
         }
     }
     
-    private void renderButtons(MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    private void renderButtons(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         if (!screen.mouseInsideWindow(mouseX, mouseY)) mouseY = -1;
         for (IExtendedWidget button : getWidgets()) {
             button.thisAsWidget().render(matrixStack, mouseX, mouseY, partialTick);
@@ -220,7 +219,7 @@ public abstract class HamonTabGui extends AbstractGui {
     
     abstract boolean mouseReleased(double mouseX, double mouseY, int mouseButton);
 
-    void drawToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {}
+    void drawToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {}
 
     void mouseScrolled(double mouseX, double mouseY, double scroll) {
         scroll(0, scroll * 16);
@@ -228,10 +227,10 @@ public abstract class HamonTabGui extends AbstractGui {
 
     void scroll(double xMovement, double yMovement) {
         if (maxX - minX > WINDOW_WIDTH - 8) {
-            scrollX = MathHelper.clamp(scrollX + xMovement, (double)(-(maxX - (WINDOW_WIDTH - 18))), 0.0D);
+            scrollX = Mth.clamp(scrollX + xMovement, (double)(-(maxX - (WINDOW_WIDTH - 18))), 0.0D);
         }
         if (maxY - minY > WINDOW_HEIGHT - 8) {
-            scrollY = MathHelper.clamp(scrollY + yMovement, (double)(-(maxY - (WINDOW_HEIGHT - 27))), 0.0D);
+            scrollY = Mth.clamp(scrollY + yMovement, (double)(-(maxY - (WINDOW_HEIGHT - 27))), 0.0D);
         }
     }
     

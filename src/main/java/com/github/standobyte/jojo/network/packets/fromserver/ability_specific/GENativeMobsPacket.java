@@ -7,19 +7,19 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class GENativeMobsPacket {
     private LifeformsMetMobs serverData;
-    private PacketBuffer receivedPacketBuf;
+    private FriendlyByteBuf receivedPacketBuf;
     
     public GENativeMobsPacket(LifeformsMetMobs serverData) {
         this.serverData = serverData;
     }
     
-    private GENativeMobsPacket(PacketBuffer toDecode) {
+    private GENativeMobsPacket(FriendlyByteBuf toDecode) {
         this.receivedPacketBuf = toDecode;
     }
     
@@ -28,18 +28,18 @@ public class GENativeMobsPacket {
     public static class Handler implements IModPacketHandler<GENativeMobsPacket> {
 
         @Override
-        public void encode(GENativeMobsPacket msg, PacketBuffer buf) {
+        public void encode(GENativeMobsPacket msg, FriendlyByteBuf buf) {
             msg.serverData.nativeMobsToBuf(buf);
         }
 
         @Override
-        public GENativeMobsPacket decode(PacketBuffer buf) {
+        public GENativeMobsPacket decode(FriendlyByteBuf buf) {
             return new GENativeMobsPacket(buf);
         }
 
         @Override
         public void handle(GENativeMobsPacket msg, Supplier<Context> ctx) {
-            PlayerEntity player = ClientUtil.getClientPlayer();
+            Player player = ClientUtil.getClientPlayer();
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.getMetMobs().nativeMobsFromBuf(msg.receivedPacketBuf);
             });

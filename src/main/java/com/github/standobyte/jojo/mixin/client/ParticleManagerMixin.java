@@ -13,14 +13,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.ClientTimeStopHandler;
 
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.particle.ParticleEngine;
 
 // TODO tick instances of ItemPickupParticle
-@Mixin(ParticleManager.class)
+@Mixin(ParticleEngine.class)
 public class ParticleManagerMixin {
-    @Shadow @Final private Map<IParticleRenderType, Queue<Particle>> particles;
+    @Shadow @Final private Map<ParticleRenderType, Queue<Particle>> particles;
     @Shadow @Final private Queue<Particle> particlesToAdd;
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)

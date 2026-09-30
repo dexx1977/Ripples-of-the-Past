@@ -22,20 +22,19 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 public class PlayerStandAssignmentConfig extends JsonDataConfig {
@@ -65,7 +64,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     }
     
     @Override
-    public LiteralArgumentBuilder<CommandSource> commandRegister(LiteralArgumentBuilder<CommandSource> builder, String literal) {
+    public LiteralArgumentBuilder<CommandSourceStack> commandRegister(LiteralArgumentBuilder<CommandSourceStack> builder, String literal) {
         return builder.then(Commands.literal(literal)
                 .then(Commands.literal("add")
                         .then(Commands.argument("player", EntityArgument.player())
@@ -95,7 +94,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
      *   the player is blocked from getting any Stand.
      */
     @Nullable
-    public List<StandType<?>> getAssignedStands(PlayerEntity player) {
+    public List<StandType<?>> getAssignedStands(Player player) {
         StandAssignmentEntry entry = getAssignmentEntry(player);
         
         if (entry == null) {
@@ -105,7 +104,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     }
     
     @Nullable
-    private StandAssignmentEntry getAssignmentEntry(PlayerEntity player) {
+    private StandAssignmentEntry getAssignmentEntry(Player player) {
         if (!player.level.isClientSide()) {
             return assignedStands.get(player.getGameProfile());
         }
@@ -114,7 +113,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
         }
     }
     
-    public List<StandType<?>> limitToAssignedStands(PlayerEntity player, List<StandType<?>> availableStands) {
+    public List<StandType<?>> limitToAssignedStands(Player player, List<StandType<?>> availableStands) {
         List<StandType<?>> assignedStands = getAssignedStands(player);
         if (assignedStands == null) {
             return availableStands;
@@ -125,12 +124,12 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     
     
     private static final Dynamic2CommandExceptionType FAILED_ADDING_ENTRY = new Dynamic2CommandExceptionType(
-            (stand, player) -> new TranslationTextComponent("commands.jojoconfigpack.stand_assign.failed.add", stand, player));
-    private int assignStandTo(CommandSource source, ServerPlayerEntity player, StandType<?> standType) throws CommandSyntaxException {
+            (stand, player) -> Component.translatable("commands.jojoconfigpack.stand_assign.failed.add", stand, player));
+    private int assignStandTo(CommandSourceStack source, ServerPlayer player, StandType<?> standType) throws CommandSyntaxException {
         if (assignedStands.addAssignedStand(player.getGameProfile(), standType)) {
             saveStandAssignments(source);
             
-            source.sendSuccess(new TranslationTextComponent("commands.jojoconfigpack.stand_assign.added", 
+            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.added", 
                     standType.getName(), player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -144,12 +143,12 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     }
     
     private static final Dynamic2CommandExceptionType FAILED_REMOVING_ENTRY = new Dynamic2CommandExceptionType(
-            (stand, player) -> new TranslationTextComponent("commands.jojoconfigpack.stand_assign.failed.remove", stand, player));
-    private int removeAssignedStandFrom(CommandSource source, ServerPlayerEntity player, StandType<?> standType) throws CommandSyntaxException {
+            (stand, player) -> Component.translatable("commands.jojoconfigpack.stand_assign.failed.remove", stand, player));
+    private int removeAssignedStandFrom(CommandSourceStack source, ServerPlayer player, StandType<?> standType) throws CommandSyntaxException {
         if (assignedStands.removeAssignedStand(player.getGameProfile(), standType, true)) {
             saveStandAssignments(source);
             
-            source.sendSuccess(new TranslationTextComponent("commands.jojoconfigpack.stand_assign.removed", 
+            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.removed", 
                     standType.getName(), player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -163,12 +162,12 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     }
     
     private static final DynamicCommandExceptionType FAILED_CLEARING_ENTRIES = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.jojoconfigpack.stand_assign.failed.clear", player));
-    private int clearAssignedStandsFrom(CommandSource source, ServerPlayerEntity player) throws CommandSyntaxException {
+            player -> Component.translatable("commands.jojoconfigpack.stand_assign.failed.clear", player));
+    private int clearAssignedStandsFrom(CommandSourceStack source, ServerPlayer player) throws CommandSyntaxException {
         if (assignedStands.remove(player.getGameProfile())) {
             saveStandAssignments(source);
             
-            source.sendSuccess(new TranslationTextComponent("commands.jojoconfigpack.stand_assign.cleared", 
+            source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.cleared", 
                     player.getDisplayName())
                     .withStyle(style -> styleMessageWithLink(source, style)), 
                     true);
@@ -181,17 +180,17 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
         }
     }
     
-    private int fullAssignmentsClear(CommandSource source) throws CommandSyntaxException {
+    private int fullAssignmentsClear(CommandSourceStack source) throws CommandSyntaxException {
         assignedStands.clear();
         
-        source.sendSuccess(new TranslationTextComponent("commands.jojoconfigpack.stand_assign.cleared_all") 
+        source.sendSuccess(Component.translatable("commands.jojoconfigpack.stand_assign.cleared_all") 
                 .withStyle(style -> styleMessageWithLink(source, style)), 
                 true);
         source.getServer().getPlayerList().getPlayers().forEach(player -> syncToClient(player));
         return 1;
     }
     
-    private void saveStandAssignments(CommandSource source) throws CommandSyntaxException {
+    private void saveStandAssignments(CommandSourceStack source) throws CommandSyntaxException {
         try {
             genDataPackBase(source);
             try {
@@ -202,24 +201,24 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
                 throw e.getCause();
             }
         } catch (Throwable e) {
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
     
-    private Style styleMessageWithLink(CommandSource source, Style messageStyle) {
-        return messageStyle.applyFormat(TextFormatting.GRAY)
+    private Style styleMessageWithLink(CommandSourceStack source, Style messageStyle) {
+        return messageStyle.applyFormat(ChatFormatting.GRAY)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, 
                         dataPackPath(source.getServer()).resolve(String.format("data/%s/%s", JojoMod.MOD_ID, RESOURCE_NAME)).normalize().toString()))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-                        new TranslationTextComponent("commands.jojoconfigpack.stand_assign.folder_link", 
-                                new StringTextComponent("datapacks").withStyle(TextFormatting.ITALIC)
+                        Component.translatable("commands.jojoconfigpack.stand_assign.folder_link", 
+                                Component.literal("datapacks").withStyle(ChatFormatting.ITALIC)
                                 )));
     }
     
     
     @Override
-    public void syncToClient(ServerPlayerEntity player) {
+    public void syncToClient(ServerPlayer player) {
         PacketManager.sendToClient(new StandAssignmentDataPacket(getAssignmentEntry(player)), player);
     }
     
@@ -228,7 +227,7 @@ public class PlayerStandAssignmentConfig extends JsonDataConfig {
     }
     
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> resourceList, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> resourceList, ResourceManager resourceManager, ProfilerFiller profiler) {
         JsonElement json = resourceList.get(FILE_PATH);
         assignedStands = getGson().fromJson(json, StandAssignmentList.class);
         if (assignedStands == null) {

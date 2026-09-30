@@ -9,13 +9,13 @@ import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler;
 import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler.BendablePart;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 @Mixin(value = PlayerModel.class, priority = 3000) // and this... is to go even further beyond!
-public abstract class PlayerModelAnimationMixin<T extends LivingEntity> extends BipedModel<T> {
+public abstract class PlayerModelAnimationMixin<T extends LivingEntity> extends HumanoidModel<T> {
     
     public PlayerModelAnimationMixin(float p_i1148_1_) {
         super(p_i1148_1_);

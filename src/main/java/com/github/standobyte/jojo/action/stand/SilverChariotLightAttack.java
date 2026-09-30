@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
 
 public class SilverChariotLightAttack extends StandEntityLightAttack {
     private final Supplier<StandEntityLightAttack> noRapierAttack;

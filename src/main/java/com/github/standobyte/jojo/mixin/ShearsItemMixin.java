@@ -8,13 +8,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.standobyte.jojo.init.power.stand.ModStandEffects;
 import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShearsItem;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
 
 @Mixin(ShearsItem.class)
 public class ShearsItemMixin {
@@ -29,11 +29,11 @@ public class ShearsItemMixin {
                     + "I"
                     + ")Ljava/util/List;"), 
             cancellable = true)
-    public void nuEtoUzheSovsemPizdecKakoiTo(ItemStack stack, PlayerEntity playerIn, LivingEntity entity, Hand hand, CallbackInfoReturnable<ActionResultType> ci) {
+    public void nuEtoUzheSovsemPizdecKakoiTo(ItemStack stack, Player playerIn, LivingEntity entity, InteractionHand hand, CallbackInfoReturnable<InteractionResult> ci) {
         boolean isGELifeform = StandEffectsTracker.getEffectsTargetedBy(entity, ModStandEffects.GE_CREATED_LIFEFORM.get()).findAny().isPresent();
         if (isGELifeform) {
             playerIn.hurt(DamageSource.playerAttack(playerIn), 1);
-            ci.setReturnValue(ActionResultType.SUCCESS);
+            ci.setReturnValue(InteractionResult.SUCCESS);
         }
     }
 }

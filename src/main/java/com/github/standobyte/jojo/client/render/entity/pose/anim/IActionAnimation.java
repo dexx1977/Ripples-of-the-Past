@@ -1,11 +1,11 @@
 package com.github.standobyte.jojo.client.render.entity.pose.anim;
 
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public interface IActionAnimation<T extends Entity> {
     
@@ -13,8 +13,8 @@ public interface IActionAnimation<T extends Entity> {
     default void onAnimStart(T entity, float yRotationOffset, float xRotation) {}
     
     void animate(StandEntityAction.Phase phase, float phaseCompletion, 
-            T entity, float ticks, float yRotOffsetRad, float xRotRad, HandSide side);
+            T entity, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm side);
     
-    default void renderAdditional(T entity, MatrixStack matrixStack, IVertexBuilder buffer, 
+    default void renderAdditional(T entity, PoseStack matrixStack, VertexConsumer buffer, 
             int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {}
 }

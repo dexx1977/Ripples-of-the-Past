@@ -8,18 +8,18 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraftforge.network.NetworkEvent;
 
 // a custom class, because SEntityMetadataPacket does not accept a list of data entries
 // and can only read either all entries, or the ones marked as dirty
 public class TrDirectEntityDataPacket {
     private int entityId;
-    private List<EntityDataManager.DataEntry<?>> packedItems;
+    private List<SynchedEntityData.DataEntry<?>> packedItems;
     
-    public TrDirectEntityDataPacket(int entityId, List<EntityDataManager.DataEntry<?>> packedItems) {
+    public TrDirectEntityDataPacket(int entityId, List<SynchedEntityData.DataEntry<?>> packedItems) {
         this.entityId = entityId;
         this.packedItems = packedItems;
     }
@@ -29,21 +29,21 @@ public class TrDirectEntityDataPacket {
     public static class Handler implements IModPacketHandler<TrDirectEntityDataPacket> {
 
         @Override
-        public void encode(TrDirectEntityDataPacket msg, PacketBuffer buf) {
+        public void encode(TrDirectEntityDataPacket msg, FriendlyByteBuf buf) {
             buf.writeVarInt(msg.entityId);
             try {
-                EntityDataManager.pack(msg.packedItems, buf);
+                SynchedEntityData.pack(msg.packedItems, buf);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
 
         @Override
-        public TrDirectEntityDataPacket decode(PacketBuffer buf) {
+        public TrDirectEntityDataPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readVarInt();
-            List<EntityDataManager.DataEntry<?>> packedItems;
+            List<SynchedEntityData.DataEntry<?>> packedItems;
             try {
-                packedItems = EntityDataManager.unpack(buf);
+                packedItems = SynchedEntityData.unpack(buf);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

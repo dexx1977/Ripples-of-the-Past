@@ -18,23 +18,23 @@ import com.github.standobyte.jojo.util.general.PlaneRectangle;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
 public class HamonProjectileShieldEntity extends Entity implements IEntityAdditionalSpawnData {
     private LivingEntity user;
@@ -45,7 +45,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     private float height;
     private PlaneRectangle shieldPlane;
     
-    public HamonProjectileShieldEntity(World world, @Nonnull LivingEntity hamonUser, float width, float height) {
+    public HamonProjectileShieldEntity(Level world, @Nonnull LivingEntity hamonUser, float width, float height) {
         this(ModEntityTypes.HAMON_PROJECTILE_SHIELD.get(), world);
         this.user = hamonUser;
         this.power = INonStandPower.getNonStandPowerOptional(hamonUser).orElse(null);
@@ -57,7 +57,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
         refreshDimensions();
     }
 
-    public HamonProjectileShieldEntity(EntityType<?> type, World world) {
+    public HamonProjectileShieldEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
     
@@ -72,12 +72,12 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
         }
         updateShieldPos();
         
-        level.getEntitiesOfClass(ProjectileEntity.class, getBoundingBox().inflate(24), 
+        level.getEntitiesOfClass(Projectile.class, getBoundingBox().inflate(24), 
                 entity -> entity.isAlive()).forEach(projectile -> {
-                    RayTraceResult rayTrace = ProjectileHelper.getHitResult(projectile, 
+                    HitResult rayTrace = ProjectileUtil.getHitResult(projectile, 
                             target -> target != this && !target.isSpectator() && target.isAlive() && !target.is(projectile.getOwner()));
-                    if (rayTrace.getType() != RayTraceResult.Type.BLOCK) {
-                        Vector3d intersectionPoint = shieldPlane.projectileIsPassing(projectile);
+                    if (rayTrace.getType() != HitResult.Type.BLOCK) {
+                        Vec3 intersectionPoint = shieldPlane.projectileIsPassing(projectile);
                         if (intersectionPoint != null) {
                             deflectProjectile(projectile, intersectionPoint);
                         }
@@ -88,7 +88,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
         if (level.isClientSide()) {
             int particlesCount = (int) (width * height * 0.1F);
             for (int i = 0; i < particlesCount; i++) {
-                Vector3d pos = shieldPlane.getUniformRandomPos();
+                Vec3 pos = shieldPlane.getUniformRandomPos();
                 level.addParticle(ModParticles.HAMON_SPARK.get(), pos.x, pos.y, pos.z, 0, 0, 0);
             }
             HamonSparksLoopSound.playSparkSound(this, getBoundingBox().getCenter(), 1.0F);
@@ -97,8 +97,8 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     
     
     public void updateShieldPos() {
-        Vector3d shieldPos = new Vector3d(user.getX(), user.getY(0.5F) - height * 0.5F, user.getZ())
-                .add(new Vector3d(0, 0, 2F)
+        Vec3 shieldPos = new Vec3(user.getX(), user.getY(0.5F) - height * 0.5F, user.getZ())
+                .add(new Vec3(0, 0, 2F)
                 .xRot(-xRot * MathUtil.DEG_TO_RAD).yRot(-yRot * MathUtil.DEG_TO_RAD));
         setPos(shieldPos.x, shieldPos.y, shieldPos.z);
     }
@@ -106,21 +106,21 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     @Override
     public void setPos(double pX, double pY, double pZ) {
         this.setPosRaw(pX, pY, pZ);
-        AxisAlignedBB aabb = this.getDimensions(null).makeBoundingBox(pX, pY, pZ);
+        AABB aabb = this.getDimensions(null).makeBoundingBox(pX, pY, pZ);
         this.setBoundingBox(aabb);
     }
     
     @Override
-    public void setBoundingBox(AxisAlignedBB aabb) {
+    public void setBoundingBox(AABB aabb) {
         super.setBoundingBox(aabb);
-        Vector3d center = aabb.getCenter();
+        Vec3 center = aabb.getCenter();
         this.shieldPlane = PlaneRectangle.create(center, xRot, yRot, width, height);
     }
     
     @Override
-    public EntitySize getDimensions(Pose pose) {
-        EntitySize defaultSize = super.getDimensions(pose);
-        return new EntitySize(width, height, defaultSize.fixed);
+    public EntityDimensions getDimensions(Pose pose) {
+        EntityDimensions defaultSize = super.getDimensions(pose);
+        return new EntityDimensions(width, height, defaultSize.fixed);
     }
     
     
@@ -162,7 +162,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
 //        });
 //    }
     
-    private void deflectProjectile(ProjectileEntity projectile, Vector3d intersectionPoint) {
+    private void deflectProjectile(Projectile projectile, Vec3 intersectionPoint) {
         if (projectile == null || projectile instanceof ModdedProjectileEntity && !((ModdedProjectileEntity) projectile).canBeDeflected(this)) return;
         
         float speed = (float) projectile.getDeltaMovement().length();
@@ -191,24 +191,24 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     protected void defineSynchedData() {}
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         width = nbt.getFloat("Width");
         height = nbt.getFloat("Height");
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putFloat("Width", width);
         nbt.putFloat("Height", height);
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeFloat(width);
         buffer.writeFloat(height);
         
@@ -216,7 +216,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         this.width = additionalData.readFloat();
         this.height = additionalData.readFloat();
         absMoveTo(xo, yo, zo, yRot, xRot);

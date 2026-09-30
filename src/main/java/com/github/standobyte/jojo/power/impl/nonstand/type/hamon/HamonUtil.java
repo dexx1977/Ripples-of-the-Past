@@ -49,53 +49,52 @@ import com.github.standobyte.jojo.util.mc.damage.explosion.HamonBlastExplosion;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CactusBlock;
-import net.minecraft.block.SweetBerryBushBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.passive.ChickenEntity;
-import net.minecraft.entity.passive.GolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.EggItem;
-import net.minecraft.item.FishBucketItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.CactusBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.AbstractGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.EggItem;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.Util;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class HamonUtil {
     
     @Deprecated
-    public static void chargeItemEntity(PlayerEntity throwerPlayer, ItemEntity itemEntity) {
+    public static void chargeItemEntity(Player throwerPlayer, ItemEntity itemEntity) {
         HamonPlantItemInfusion.chargeItemEntity(throwerPlayer, itemEntity);
     }
     
@@ -105,7 +104,7 @@ public class HamonUtil {
     }
     
     @Deprecated
-    public static boolean ropeTrap(LivingEntity user, BlockPos pos, BlockState blockState, World world, INonStandPower power, HamonData hamon) {
+    public static boolean ropeTrap(LivingEntity user, BlockPos pos, BlockState blockState, Level world, INonStandPower power, HamonData hamon) {
         return HamonRopeTrap.ropeTrap(user, pos, blockState, world, power, hamon);
     }
     
@@ -116,18 +115,18 @@ public class HamonUtil {
     
     
     
-    public static void chargeNewEntity(Entity entity, World world) {
+    public static void chargeNewEntity(Entity entity, Level world) {
         if (!world.isClientSide()) {
-            if (entity instanceof ProjectileEntity) {
-                ProjectileEntity projectile = (ProjectileEntity) entity;
+            if (entity instanceof Projectile) {
+                Projectile projectile = (Projectile) entity;
                 if (projectile.getOwner() instanceof LivingEntity) {
                     LivingEntity shooter = (LivingEntity) projectile.getOwner();
-                    if (projectile instanceof AbstractArrowEntity) {
+                    if (projectile instanceof AbstractArrow) {
                         // TODO stand effects on arrows
                         IStandPower.getStandPowerOptional(shooter).ifPresent(stand -> {
                             BowChargeEffectInstance<?, ?> bowCharge = stand.getBowChargeEffect();
                             if (bowCharge != null) {
-                                bowCharge.onArrowShot((AbstractArrowEntity) projectile);
+                                bowCharge.onArrowShot((AbstractArrow) projectile);
                             }
                         });
                     }
@@ -140,7 +139,7 @@ public class HamonUtil {
                             INonStandPower.getNonStandPowerOptional(shooter).ifPresent(power -> {
                                 if (power.getEnergy() > 0) {
                                     power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
-                                        AbstractHamonSkill skillRequired = projectile instanceof AbstractArrowEntity
+                                        AbstractHamonSkill skillRequired = projectile instanceof AbstractArrow
                                                 ? ModHamonSkills.ARROW_INFUSION.get() : ModHamonSkills.THROWABLES_INFUSION.get();
                                         if (hamon.isSkillLearned(skillRequired)) {
                                             hamon.consumeHamonEnergyTo(efficiency -> {
@@ -168,7 +167,7 @@ public class HamonUtil {
             }
             
             // charge chicken coming out of a charged egg
-            if (entity instanceof ChickenEntity) {
+            if (entity instanceof Chicken) {
                 world.getCapability(WorldUtilCapProvider.CAPABILITY).resolve()
                 .flatMap(worldCap -> worldCap.eggChargingChicken(entity)).ifPresent(eggEntity -> {
                     eggEntity.getCapability(ProjectileHamonChargeCapProvider.CAPABILITY).ifPresent(eggCharge -> {
@@ -213,7 +212,7 @@ public class HamonUtil {
         
         @Nullable 
         public static ProjectileChargeProperties getChargeProperties(Entity projectile) {
-            if (projectile instanceof AbstractArrowEntity && !isChargedInOtherWay(projectile)) {
+            if (projectile instanceof AbstractArrow && !isChargedInOtherWay(projectile)) {
                 return ABSTRACT_ARROW;
             }
             EntityType<?> type = projectile.getType();
@@ -223,7 +222,7 @@ public class HamonUtil {
             else if (type == EntityType.EGG) {
                 return EGG;
             }
-            else if (type == EntityType.POTION && MCUtil.isPotionWaterBottle((PotionEntity) projectile)) {
+            else if (type == EntityType.POTION && MCUtil.isPotionWaterBottle((ThrownPotion) projectile)) {
                 return WATER_BOTTLE;
             }
             else if (type == ModEntityTypes.MOLOTOV.get()) {
@@ -260,7 +259,7 @@ public class HamonUtil {
                     CrimsonBubbleEntity bubble = new CrimsonBubbleEntity(dead.level);
                     ItemStack heldItem = dead.getMainHandItem();
                     if (!heldItem.isEmpty()) {
-                        dead.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+                        dead.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                         ItemEntity item = new ItemEntity(dead.level, dead.getX(), dead.getEyeY() - 0.3D, dead.getZ(), heldItem);
                         item.setPickUpDelay(2);
                         dead.level.addFreshEntity(item);
@@ -273,7 +272,7 @@ public class HamonUtil {
                     dead.level.addFreshEntity(bubble);
                 }
                 else if (hamon.isSkillLearned(ModHamonSkills.DEEP_PASS.get())) {
-                    PlayerEntity closestHamonUser = MCUtil.entitiesAround(PlayerEntity.class, dead, 8, false, player -> 
+                    Player closestHamonUser = MCUtil.entitiesAround(Player.class, dead, 8, false, player -> 
                     INonStandPower.getNonStandPowerOptional(player).map(pwr -> pwr.getType() == ModPowers.HAMON.get()).orElse(false))
                             .stream()
                             .min(Comparator.comparingDouble(player -> player.distanceToSqr(dead)))
@@ -289,8 +288,8 @@ public class HamonUtil {
                                 receiverHamon.getHamonStrengthPoints() + hamon.getHamonStrengthPoints(), true, false);
                         receiverHamon.setHamonStatPoints(HamonStat.CONTROL, 
                                 receiverHamon.getHamonControlPoints() + hamon.getHamonControlPoints(), true, false);
-                        if (closestHamonUser instanceof ServerPlayerEntity) {
-                            ModCriteriaTriggers.LAST_HAMON.get().trigger((ServerPlayerEntity) closestHamonUser, dead);
+                        if (closestHamonUser instanceof ServerPlayer) {
+                            ModCriteriaTriggers.LAST_HAMON.get().trigger((ServerPlayer) closestHamonUser, dead);
                         }
                         createHamonSparkParticlesEmitter(closestHamonUser, 1.0F);
                     }
@@ -300,14 +299,14 @@ public class HamonUtil {
     }
 
     public static void updateCheatDeathEffect(LivingEntity user) {
-        user.addEffect(new EffectInstance(ModStatusEffects.CHEAT_DEATH.get(), 120000, 0, false, false, true));
+        user.addEffect(new MobEffectInstance(ModStatusEffects.CHEAT_DEATH.get(), 120000, 0, false, false, true));
     }
     
     public static boolean isLiving(LivingEntity entity) {
         // not the best way to determine living mobs in other mods
         return !(JojoModUtil.isUndeadOrVampiric(entity) ||
-                entity instanceof GolemEntity ||
-                entity instanceof ArmorStandEntity || 
+                entity instanceof AbstractGolem ||
+                entity instanceof ArmorStand || 
                 entity instanceof StandEntity);
     }
 
@@ -329,7 +328,7 @@ public class HamonUtil {
         return skills;
     }
     
-    public static boolean interactWithHamonTeacher(World world, PlayerEntity player, Entity targetEntity) {
+    public static boolean interactWithHamonTeacher(Level world, Player player, Entity targetEntity) {
         if (targetEntity instanceof LivingEntity) {
             LivingEntity targetLiving = (LivingEntity) targetEntity;
             Optional<HamonData> targetHamon = INonStandPower.getNonStandPowerOptional(targetLiving).resolve()
@@ -342,11 +341,11 @@ public class HamonUtil {
         return false;
     }
     
-    public static void interactWithHamonTeacher(World world, PlayerEntity player, LivingEntity teacher, HamonData teacherHamon) {
+    public static void interactWithHamonTeacher(Level world, Player player, LivingEntity teacher, HamonData teacherHamon) {
         INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
             Optional<HamonData> hamonOptional = power.getTypeSpecificData(ModPowers.HAMON.get());
             if (!hamonOptional.isPresent() && !world.isClientSide()) {
-                if (teacher instanceof PlayerEntity) {
+                if (teacher instanceof Player) {
                     teacherHamon.addNewPlayerLearner(player);
                 }
                 else {
@@ -369,10 +368,10 @@ public class HamonUtil {
         });
     }
     
-    public static void startLearningHamon(World world, PlayerEntity player, INonStandPower playerPower, LivingEntity teacher, HamonData teacherHamon) {
+    public static void startLearningHamon(Level world, Player player, INonStandPower playerPower, LivingEntity teacher, HamonData teacherHamon) {
         if (playerPower.canGetPower(ModPowers.HAMON.get()) && teacherHamon.characterIs(ModHamonSkills.CHARACTER_ZEPPELI.get())) {
             JojoModUtil.sayVoiceLine(teacher, ModSounds.ZEPPELI_FORCE_BREATH.get());
-            teacher.swing(Hand.MAIN_HAND, true);
+            teacher.swing(InteractionHand.MAIN_HAND, true);
             if (player.getRandom().nextFloat() <= 0.01F) {
                 player.hurt(DamageUtil.SUFFOCATION, Math.min(10.0F, player.getHealth() - 0.0001F));
                 player.setAirSupply(0);
@@ -390,20 +389,20 @@ public class HamonUtil {
                     hamon.setHamonStatPoints(HamonStat.CONTROL, HamonData.MAX_HAMON_POINTS, true, true);
                     hamon.tcsa(false);
                 }
-                player.sendMessage(new TranslationTextComponent("jojo.chat.message.learnt_hamon"), Util.NIL_UUID);
+                player.sendMessage(Component.translatable("jojo.chat.message.learnt_hamon"), Util.NIL_UUID);
                 PlayerUtilCap utilCap = player.getCapability(PlayerUtilCapProvider.CAPABILITY).orElseThrow(() -> new IllegalStateException());
                 utilCap.sendNotification(OneTimeNotification.HAMON_WINDOW, 
-                        new TranslationTextComponent("jojo.chat.message.hamon_window_hint", new KeybindTextComponent("jojo.key.hamon_skills_window")));
+                        Component.translatable("jojo.chat.message.hamon_window_hint", Component.keybind("jojo.key.hamon_skills_window")));
             });
         }
         else {
-            player.displayClientMessage(new TranslationTextComponent("jojo.chat.message.cant_learn_hamon"), true);
+            player.displayClientMessage(Component.translatable("jojo.chat.message.cant_learn_hamon"), true);
         }
         return;
     }
     
-    public static void hamonExplosion(World world, @Nullable Entity source, @Nullable Entity hamonUser, 
-            Vector3d position, float radius, float damage) {
+    public static void hamonExplosion(Level world, @Nullable Entity source, @Nullable Entity hamonUser, 
+            Vec3 position, float radius, float damage) {
         HamonBlastExplosion hamonBlast = new HamonBlastExplosion(world, source, null, 
                 position.x, position.y, position.z, radius);
         hamonBlast.setHamonDamage(damage);
@@ -415,14 +414,14 @@ public class HamonUtil {
     public static boolean cancelDamageFromBlock(LivingEntity entity, DamageSource dmgSource, float dmgAmount) {
         DamagingBlockType type = DamagingBlockType.getType(dmgSource);
         if (type != null) {
-            World world = entity.level;
+            Level world = entity.level;
             boolean protectedFromDamage = true;
             boolean fromBlocks = false;
             
-            AxisAlignedBB hitbox = entity.getBoundingBox();
+            AABB hitbox = entity.getBoundingBox();
             BlockPos posMin = new BlockPos(hitbox.minX + 0.001D, hitbox.minY + 0.001D, hitbox.minZ + 0.001D);
             BlockPos posMax = new BlockPos(hitbox.maxX - 0.001D, hitbox.maxY - 0.001D, hitbox.maxZ - 0.001D);
-            BlockPos.Mutable blockPos = new BlockPos.Mutable();
+            BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
             if (world.hasChunksAt(posMin, posMax)) {
                 for (int x = posMin.getX(); x <= posMax.getX() && protectedFromDamage; ++x) {
                     for (int y = posMin.getY(); y <= posMax.getY() && protectedFromDamage; ++y) {
@@ -473,7 +472,7 @@ public class HamonUtil {
         }
     }
     
-    public static boolean preventBlockDamage(LivingEntity entity, World world, 
+    public static boolean preventBlockDamage(LivingEntity entity, Level world, 
             @Nullable BlockPos blockPos, @Nullable BlockState blockState, DamageSource dmgSource, float dmgAmount) {
         if (world.isClientSide()) {
             return false;
@@ -505,17 +504,17 @@ public class HamonUtil {
         });
         
         if (damagePrevented) {
-            Vector3d sparkPos = null;
+            Vec3 sparkPos = null;
             if (blockPos != null && blockState != null) {
-                AxisAlignedBB entityHitbox = entity.getBoundingBox();
+                AABB entityHitbox = entity.getBoundingBox();
                 VoxelShape blockShape = blockState.getCollisionShape(world, blockPos);
                 if (!blockShape.isEmpty()) {
-                    AxisAlignedBB blockAABB = blockShape.bounds().move(blockPos);
-                    AxisAlignedBB intersection = entityHitbox.intersect(blockAABB);
-                    sparkPos = new Vector3d(
-                            MathHelper.lerp(Math.random(), intersection.minX, intersection.maxX), 
-                            MathHelper.lerp(Math.random(), intersection.minY, intersection.maxY), 
-                            MathHelper.lerp(Math.random(), intersection.minZ, intersection.maxZ));
+                    AABB blockAABB = blockShape.bounds().move(blockPos);
+                    AABB intersection = entityHitbox.intersect(blockAABB);
+                    sparkPos = new Vec3(
+                            Mth.lerp(Math.random(), intersection.minX, intersection.maxX), 
+                            Mth.lerp(Math.random(), intersection.minY, intersection.maxY), 
+                            Mth.lerp(Math.random(), intersection.minZ, intersection.maxZ));
                 }
             }
             
@@ -533,14 +532,14 @@ public class HamonUtil {
         return false;
     }
     
-    public static void onProjectileImpact(Entity entity, RayTraceResult target) {
+    public static void onProjectileImpact(Entity entity, HitResult target) {
         entity.getCapability(ProjectileHamonChargeCapProvider.CAPABILITY).ifPresent(cap -> {
             cap.onTargetHit(target);
         });
     }
     
     
-    public static void hamonChargedCreeperBlast(Explosion explosion, World world) {
+    public static void hamonChargedCreeperBlast(Explosion explosion, Level world) {
         if (!world.isClientSide() && !(explosion instanceof HamonBlastExplosion)) {
             Entity exploder = explosion.getExploder();
             if (exploder != null) {
@@ -549,7 +548,7 @@ public class HamonUtil {
                         HamonCharge hamonCharge = cap.getHamonCharge();
                         float radius = CommonReflection.getRadius(explosion);
                         HamonUtil.hamonExplosion(exploder.level, exploder, 
-                                hamonCharge.getUser((ServerWorld) world), explosion.getPosition(),
+                                hamonCharge.getUser((ServerLevel) world), explosion.getPosition(),
                                 radius, hamonCharge.getDamage());
                     }
                 });
@@ -570,20 +569,20 @@ public class HamonUtil {
         return item == ModItems.GOLD_EXPERIENCE_BODY_TISSUE.get() ||
                 item instanceof EggItem || 
                 ItemTags.getAllTags().getTagOrEmpty(RAW_FISH_TAG).contains(item) || item == Items.COD || item == Items.SALMON || item == Items.TROPICAL_FISH || item == Items.PUFFERFISH ||
-                item instanceof FishBucketItem;
+                item instanceof MobBucketItem;
     }
     private static final ResourceLocation RAW_FISH_TAG = new ResourceLocation("forge", "raw_fishes");
     
     
     
     // one-time particle emit (like crit particles) + 'generic electricity sound'
-    public static void emitHamonSparkParticles(World world, @Nullable PlayerEntity clientHandled, 
+    public static void emitHamonSparkParticles(Level world, @Nullable Player clientHandled, 
             double x, double y, double z, float intensity, float volumeMult, @Nullable SoundEvent hamonSound) {
         if (intensity > 0) {
             intensity = Math.min(intensity, 4F);
             int count = Math.max((int) (intensity * 16.5F), 1);
             if (!world.isClientSide()) {
-                ((ServerWorld) world).sendParticles(ModParticles.HAMON_SPARK.get(), x, y, z, count, 0.05, 0.05, 0.05, 0.25);
+                ((ServerLevel) world).sendParticles(ModParticles.HAMON_SPARK.get(), x, y, z, count, 0.05, 0.05, 0.05, 0.25);
             }
             else if (clientHandled == ClientUtil.getClientPlayer()) {
                 CustomParticlesHelper.createHamonSparkParticles(null, x, y, z, count);
@@ -591,24 +590,24 @@ public class HamonUtil {
             if (hamonSound != null) {
                 float volume = Math.min(intensity * 2, 1.0F) * volumeMult;
                 world.playSound(clientHandled, x, y, z, hamonSound, 
-                        SoundCategory.AMBIENT, volume, 1.0F + (world.random.nextFloat() - 0.5F) * 0.15F);
+                        SoundSource.AMBIENT, volume, 1.0F + (world.random.nextFloat() - 0.5F) * 0.15F);
             }
         }
     }
     
-    public static void emitHamonSparkParticles(World world, @Nullable PlayerEntity clientHandled, double x, double y, double z, float intensity, float volumeMult) {
+    public static void emitHamonSparkParticles(Level world, @Nullable Player clientHandled, double x, double y, double z, float intensity, float volumeMult) {
         emitHamonSparkParticles(world, clientHandled, x, y, z, intensity, volumeMult, ModSounds.HAMON_SPARK.get());
     }
     
-    public static void emitHamonSparkParticles(World world, @Nullable PlayerEntity clientHandled, double x, double y, double z, float intensity) {
+    public static void emitHamonSparkParticles(Level world, @Nullable Player clientHandled, double x, double y, double z, float intensity) {
         emitHamonSparkParticles(world, clientHandled, x, y, z, intensity, 1);
     }
     
-    public static void emitHamonSparkParticles(World world, @Nullable PlayerEntity clientHandled, Vector3d vec, float intensity) {
+    public static void emitHamonSparkParticles(Level world, @Nullable Player clientHandled, Vec3 vec, float intensity) {
         emitHamonSparkParticles(world, clientHandled, vec.x, vec.y, vec.z, intensity);
     }
     
-    public static void emitHamonSparkParticles(World world, @Nullable PlayerEntity clientHandled, Vector3d vec, float intensity, @Nullable SoundEvent hamonSound) {
+    public static void emitHamonSparkParticles(Level world, @Nullable Player clientHandled, Vec3 vec, float intensity, @Nullable SoundEvent hamonSound) {
         emitHamonSparkParticles(world, clientHandled, vec.x, vec.y, vec.z, intensity, 1, hamonSound);
     }
     
@@ -618,10 +617,10 @@ public class HamonUtil {
     }
 
     // particles emitter accompanied by 'generic electricity sound but longer'
-    public static void createHamonSparkParticlesEmitter(Entity entity, float intensity, float soundVolumeMultiplier, IParticleData hamonParticle) {
+    public static void createHamonSparkParticlesEmitter(Entity entity, float intensity, float soundVolumeMultiplier, ParticleOptions hamonParticle) {
         if (intensity > 0) {
             intensity = Math.min(intensity, 4F);
-            World world = entity.level;
+            Level world = entity.level;
             if (!world.isClientSide()) {
                 PacketManager.sendToClientsTrackingAndSelf(TrHamonParticlesPacket.emitter(entity.getId(), intensity, soundVolumeMultiplier, 
                         hamonParticle != ModParticles.HAMON_SPARK.get() ? hamonParticle : null), entity);

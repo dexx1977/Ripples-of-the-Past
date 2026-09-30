@@ -2,25 +2,25 @@ package com.github.standobyte.jojo.client.render.entity.model.ownerbound.repeati
 
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.SnakeMufflerEntity;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
 // Made with Blockbench 3.9.2
 
 
 public class SnakeMufflerModel extends RepeatingModel<SnakeMufflerEntity> {
-    private final ModelRenderer scarfExtending;
+    private final ModelPart scarfExtending;
 
     public SnakeMufflerModel() {
         texWidth = 32;
         texHeight = 32;
 
-        scarfExtending = new ModelRenderer(this);
+        scarfExtending = new ModelPart(this);
         scarfExtending.setPos(0.0F, 0.0F, 0.0F);
         scarfExtending.texOffs(0, 10).addBox(-0.5F, -3.0F, -1.0F, 1.0F, 3.0F, 12.0F, -0.3F, false);
     }
 
     @Override
-    protected ModelRenderer getMainPart() {
+    protected ModelPart getMainPart() {
         return null;
     }
     
@@ -30,7 +30,7 @@ public class SnakeMufflerModel extends RepeatingModel<SnakeMufflerEntity> {
     }
     
     @Override
-    protected ModelRenderer getRepeatingPart() {
+    protected ModelPart getRepeatingPart() {
         return scarfExtending;
     }
     

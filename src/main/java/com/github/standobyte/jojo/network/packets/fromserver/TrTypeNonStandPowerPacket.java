@@ -10,11 +10,11 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrTypeNonStandPowerPacket {
     private final int entityId;
@@ -34,7 +34,7 @@ public class TrTypeNonStandPowerPacket {
     public static class Handler implements IModPacketHandler<TrTypeNonStandPowerPacket> {
 
         @Override
-        public void encode(TrTypeNonStandPowerPacket msg, PacketBuffer buf) {
+        public void encode(TrTypeNonStandPowerPacket msg, FriendlyByteBuf buf) {
             boolean noPowerType = msg.powerType == null;
             buf.writeBoolean(noPowerType);
             buf.writeInt(msg.entityId);
@@ -42,7 +42,7 @@ public class TrTypeNonStandPowerPacket {
         }
 
         @Override
-        public TrTypeNonStandPowerPacket decode(PacketBuffer buf) {
+        public TrTypeNonStandPowerPacket decode(FriendlyByteBuf buf) {
             boolean noPowerType = buf.readBoolean();
             if (noPowerType) {
                 return noPowerType(buf.readInt());
@@ -63,9 +63,9 @@ public class TrTypeNonStandPowerPacket {
                             }
                         }
                         power.clear();
-                        if (entity instanceof PlayerEntity) {
-                            ModPlayerAnimations.meditationPoseAnim.setAnimEnabled((PlayerEntity) entity, false);
-                            ModPlayerAnimations.stoneForm.setAnimEnabled((PlayerEntity) entity, false);
+                        if (entity instanceof Player) {
+                            ModPlayerAnimations.meditationPoseAnim.setAnimEnabled((Player) entity, false);
+                            ModPlayerAnimations.stoneForm.setAnimEnabled((Player) entity, false);
                         }
                     }
                     else {

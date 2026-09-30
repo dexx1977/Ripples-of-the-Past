@@ -4,8 +4,8 @@ import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.PillarmanHornEntity;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class PillarmanHornAttack extends PillarmanAction {
 
@@ -16,7 +16,7 @@ public class PillarmanHornAttack extends PillarmanAction {
     }
 
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             PillarmanHornEntity pillarmanHorn = new PillarmanHornEntity(world, user);
             pillarmanHorn.setLifeSpan(40);

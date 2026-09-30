@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill;
 
+import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +15,20 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraftforge.registries.IForgeRegistry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
-public abstract class AbstractHamonSkill extends ForgeRegistryEntry<AbstractHamonSkill> {
+public abstract class AbstractHamonSkill implements RegistryEntry<AbstractHamonSkill> {
+    @Override
+    public IForgeRegistry<AbstractHamonSkill> getRegistry() {
+        return JojoCustomRegistries.HAMON_SKILLS.getRegistry();
+    }
+
     private final RewardType rewardType;
     private final Object2BooleanMap<Supplier<? extends HamonAction>> rewardActions;
     private final List<Supplier<? extends AbstractHamonSkill>> requiredSkills;
@@ -75,18 +82,18 @@ public abstract class AbstractHamonSkill extends ForgeRegistryEntry<AbstractHamo
         hamon.addHamonSkill(user, this, true, true);
     }
     
-    private List<IFormattableTextComponent> description;
+    private List<MutableComponent> description;
     
-    public IFormattableTextComponent getNameTranslated() {
-        return new TranslationTextComponent("hamonSkill." + getName() + ".name");
+    public MutableComponent getNameTranslated() {
+        return Component.translatable("hamonSkill." + getName() + ".name");
     }
     
-    public List<IFormattableTextComponent> getDescTranslated() {
+    public List<MutableComponent> getDescTranslated() {
         if (description == null) {
             description = new ArrayList<>();
-            description.add(new TranslationTextComponent("hamonSkill." + getName() + ".desc"));
+            description.add(Component.translatable("hamonSkill." + getName() + ".desc"));
             if (this == ModHamonSkills.OVERDRIVE.get()) {
-                description.add(new TranslationTextComponent("hamonSkill.overdrive_strong.desc"));
+                description.add(Component.translatable("hamonSkill.overdrive_strong.desc"));
             }
         }
         return description;
@@ -118,13 +125,13 @@ public abstract class AbstractHamonSkill extends ForgeRegistryEntry<AbstractHamo
         PASSIVE("passive"),
         ITEM("item");
         
-        private final ITextComponent name;
+        private final Component name;
         
         private RewardType(String key) {
-            this.name = new TranslationTextComponent("hamon.skill_type." + key).withStyle(TextFormatting.ITALIC);
+            this.name = Component.translatable("hamon.skill_type." + key).withStyle(ChatFormatting.ITALIC);
         }
         
-        public ITextComponent getName() {
+        public Component getName() {
             return name;
         }
     }

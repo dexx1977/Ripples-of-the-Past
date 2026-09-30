@@ -2,15 +2,15 @@ package com.github.standobyte.jojo.client.render.entity.model.stand;
 
 import com.github.standobyte.jojo.entity.stand.stands.GoldExperienceEntity;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class GoldExperienceModel extends HumanoidStandModel<GoldExperienceEntity> {
-    private ModelRenderer theThing;
-    private ModelRenderer rightString;
-    private ModelRenderer leftString;
-    private ModelRenderer loincloth;
-    private ModelRenderer leftPartLoincloth;
-    private ModelRenderer rightPartLoincloth;
+    private ModelPart theThing;
+    private ModelPart rightString;
+    private ModelPart leftString;
+    private ModelPart loincloth;
+    private ModelPart leftPartLoincloth;
+    private ModelPart rightPartLoincloth;
 
     public GoldExperienceModel() {
         super();

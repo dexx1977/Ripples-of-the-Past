@@ -10,9 +10,9 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.level.Level;
 
 public class HierophantGreenStringAttack extends StandEntityAction {
 
@@ -21,19 +21,19 @@ public class HierophantGreenStringAttack extends StandEntityAction {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             boolean shift = isShiftVariation();
             int n = shift ? 3 : 7;
             for (int i = 0; i < n; i++) {
-                Vector2f rotOffsets = MathUtil.xRotYRotOffsets((double) i / (double) n * Math.PI * 2, 10);
+                Vec2 rotOffsets = MathUtil.xRotYRotOffsets((double) i / (double) n * Math.PI * 2, 10);
                 addProjectile(world, userPower, standEntity, rotOffsets.y, rotOffsets.x, shift);
             }
             addProjectile(world, userPower, standEntity, 0, 0, shift);
         }
     }
 
-    private void addProjectile(World world, IStandPower userPower, StandEntity standEntity, float yRotDelta, float xRotDelta, boolean shift) {
+    private void addProjectile(Level world, IStandPower userPower, StandEntity standEntity, float yRotDelta, float xRotDelta, boolean shift) {
         HGStringEntity string = new HGStringEntity(world, standEntity, yRotDelta, xRotDelta, shift);
         if (!shift) {
             string.addKnockback(standEntity.guardCounter());
@@ -58,6 +58,6 @@ public class HierophantGreenStringAttack extends StandEntityAction {
     @Override
     public int getStandActionTicks(IStandPower standPower, StandEntity standEntity) {
         double speed = standEntity.getAttackSpeed() / 8;
-        return MathHelper.ceil(super.getStandActionTicks(standPower, standEntity) / Math.max(speed, 0.125));
+        return Mth.ceil(super.getStandActionTicks(standPower, standEntity) / Math.max(speed, 0.125));
     }
 }

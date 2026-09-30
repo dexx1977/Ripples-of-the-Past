@@ -2,18 +2,18 @@ package com.github.standobyte.jojo.entity.damaging.projectile.ownerbound;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class SPStarFingerEntity extends OwnerBoundProjectileEntity {
 
-    public SPStarFingerEntity(World world, LivingEntity entity) {
+    public SPStarFingerEntity(Level world, LivingEntity entity) {
         super(ModEntityTypes.SP_STAR_FINGER.get(), entity, world);
     }
     
-    public SPStarFingerEntity(EntityType<? extends SPStarFingerEntity> entityType, World world) {
+    public SPStarFingerEntity(EntityType<? extends SPStarFingerEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -52,9 +52,9 @@ public class SPStarFingerEntity extends OwnerBoundProjectileEntity {
         return true;
     }
 
-    private static final Vector3d OFFSET = new Vector3d(-0.3, -0.2, 0.75);
+    private static final Vec3 OFFSET = new Vec3(-0.3, -0.2, 0.75);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 }

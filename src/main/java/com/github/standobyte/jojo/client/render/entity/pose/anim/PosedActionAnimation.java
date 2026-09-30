@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 import com.github.standobyte.jojo.client.render.entity.pose.ModelPoseTransition;
 import com.github.standobyte.jojo.client.render.entity.pose.RigidModelPose;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class PosedActionAnimation<T extends Entity> implements IActionAnimation<T> {
     private final Map<StandEntityAction.Phase, IModelPose<T>> phasePoses;
@@ -43,7 +43,7 @@ public class PosedActionAnimation<T extends Entity> implements IActionAnimation<
     
     @Override
     public void animate(StandEntityAction.Phase phase, float phaseCompletion, 
-            T entity, float ticks, float yRotOffsetRad, float xRotRad, HandSide side) {
+            T entity, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm side) {
         phasePoses.get(phase).poseModel(phaseCompletion, entity, ticks, yRotOffsetRad, xRotRad, side);
     }
 

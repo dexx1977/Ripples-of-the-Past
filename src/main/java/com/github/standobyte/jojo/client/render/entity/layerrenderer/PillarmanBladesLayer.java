@@ -6,38 +6,38 @@ import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler;
 import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.IHasArm;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
 
-public class PillarmanBladesLayer<T extends LivingEntity, M extends EntityModel<T> & IHasArm> extends LayerRenderer<T, M> implements IFirstPersonHandLayer {
+public class PillarmanBladesLayer<T extends LivingEntity, M extends EntityModel<T> & ArmedModel> extends RenderLayer<T, M> implements IFirstPersonHandLayer {
     private static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/layer/pillarman_blades.png");
     
     private final PillarmanBladesModel<T> bladesModel;
     public final boolean slim;
     
-    public PillarmanBladesLayer(IEntityRenderer<T, M> renderer, boolean slim) {
+    public PillarmanBladesLayer(RenderLayerParent<T, M> renderer, boolean slim) {
         super(renderer);
         this.slim = slim;
         this.bladesModel = new PillarmanBladesModel<>(slim);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T entity, 
+    public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, T entity, 
             float limbSwing, float limbSwingAmount, float partialTick, float ticks, float yRot, float xRot) {
         if (INonStandPower.getNonStandPowerOptional(entity).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()))
@@ -48,20 +48,20 @@ public class PillarmanBladesLayer<T extends LivingEntity, M extends EntityModel<
                 matrixStack.scale(0.5F, 0.5F, 0.5F);
             }
 
-            renderBlade(entity, HandSide.RIGHT, matrixStack, buffer);
-            renderBlade(entity, HandSide.LEFT, matrixStack, buffer);
+            renderBlade(entity, HumanoidArm.RIGHT, matrixStack, buffer);
+            renderBlade(entity, HumanoidArm.LEFT, matrixStack, buffer);
             matrixStack.popPose();
         }
     }
 
-    private void renderBlade(LivingEntity entity, HandSide side, MatrixStack matrixStack, IRenderTypeBuffer buffer) {
+    private void renderBlade(LivingEntity entity, HumanoidArm side, PoseStack matrixStack, MultiBufferSource buffer) {
         matrixStack.pushPose();
         getParentModel().translateToHand(side, matrixStack);
         PlayerAnimationHandler.getPlayerAnimator().onItemLikeLayerRender(matrixStack, entity, side);
         
         boolean enchantGlint = true;
-        IVertexBuilder vertexBuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(TEXTURE), false, enchantGlint);;
-        ModelRenderer blade;
+        VertexConsumer vertexBuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(TEXTURE), false, enchantGlint);;
+        ModelPart blade;
         switch (side) {
         case LEFT:
             blade = bladesModel.bladeLeft;
@@ -78,8 +78,8 @@ public class PillarmanBladesLayer<T extends LivingEntity, M extends EntityModel<
     }
 
     @Override
-    public void renderHandFirstPerson(HandSide side, MatrixStack matrixStack, IRenderTypeBuffer buffer, int light,
-            AbstractClientPlayerEntity player, PlayerRenderer playerRenderer) {
+    public void renderHandFirstPerson(HumanoidArm side, PoseStack matrixStack, MultiBufferSource buffer, int light,
+            AbstractClientPlayer player, PlayerRenderer playerRenderer) {
         // FIXME render blades in 1st person
     }
 }

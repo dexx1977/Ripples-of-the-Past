@@ -10,17 +10,17 @@ import com.github.standobyte.jojo.block.WoodenCoffinBlock;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.mrpresident.CocoJumboTurtleEntity;
 
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
-@Mixin(BipedModel.class)
-public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableModel<T> {
-    @Shadow public ModelRenderer leftArm;
-    @Shadow public ModelRenderer rightArm;
-    @Shadow public ModelRenderer body;
+@Mixin(HumanoidModel.class)
+public abstract class BipedModelMixin<T extends LivingEntity> extends AgeableListModel<T> {
+    @Shadow public ModelPart leftArm;
+    @Shadow public ModelPart rightArm;
+    @Shadow public ModelPart body;
     
     @Inject(method = "setupAnim", at = @At("TAIL"))
     public void jojoBipedModelPose(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {

@@ -9,27 +9,27 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.network.NetworkHooks;
 
 public class RoadRollerEntity extends Entity implements IHasHealth {
-    private static final DataParameter<Float> HEALTH = EntityDataManager.defineId(RoadRollerEntity.class, DataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> HEALTH = SynchedEntityData.defineId(RoadRollerEntity.class, EntityDataSerializers.FLOAT);
     private static final float MAX_HEALTH = 50;
     private int ticksBeforeExplosion = -1;
     private int ticksInAir = 0;
@@ -40,11 +40,11 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     private double tickDamageMotion = 0;
     private boolean punchedFromBelow = false;
 
-    public RoadRollerEntity(World world) {
+    public RoadRollerEntity(Level world) {
         this(ModEntityTypes.ROAD_ROLLER.get(), world);
     }
 
-    public RoadRollerEntity(EntityType<RoadRollerEntity> type, World world) {
+    public RoadRollerEntity(EntityType<RoadRollerEntity> type, Level world) {
         super(type, world);
     }
     
@@ -88,7 +88,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
         if (!super.canUpdate()) {
             tickCount--;
         }
-        Vector3d movement = getDeltaMovement();
+        Vec3 movement = getDeltaMovement();
         if (!isNoGravity() && !punchedFromBelow) {
             setDeltaMovement(movement.add(-movement.x, -0.0467D, -movement.z));
         }
@@ -99,14 +99,14 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
         DamageSource dmgSource = DamageUtil.roadRollerDamage(this);
         float damage = (float) -getDeltaMovement().y * 10F;
         if (damage > 0) {
-            AxisAlignedBB aabb = getBoundingBox().contract(0, getBbHeight() * 0.75, 0).expandTowards(0, -getBbHeight() * 0.25, 0);
+            AABB aabb = getBoundingBox().contract(0, getBbHeight() * 0.75, 0).expandTowards(0, -getBbHeight() * 0.25, 0);
             level.getEntitiesOfClass(LivingEntity.class, aabb, 
-                    EntityPredicates.LIVING_ENTITY_STILL_ALIVE.and(entity -> !this.is(entity.getVehicle()))).forEach(entity -> {
+                    EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(entity -> !this.is(entity.getVehicle()))).forEach(entity -> {
                         if (!entity.isInvulnerableTo(dmgSource)) {
                             if (!level.isClientSide()) {
                                 entity.hurt(dmgSource, damage);
                             }
-                            entity.setDeltaMovement(Vector3d.ZERO);
+                            entity.setDeltaMovement(Vec3.ZERO);
                         }
                     });
         }
@@ -146,13 +146,13 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     
     private Entity getOwner() {
         if (!level.isClientSide() && owner == null && ownerId != null) {
-            owner = ((ServerWorld) level).getEntity(ownerId);
+            owner = ((ServerLevel) level).getEntity(ownerId);
         }
         return owner;
     }
 
     private void explode() {
-        level.explode(this, getX(), getY(0.0625D), getZ(), 4.0F, Explosion.Mode.NONE);
+        level.explode(this, getX(), getY(0.0625D), getZ(), 4.0F, Explosion.BlockInteraction.NONE);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
         return true;
     }
 
-    private static final Vector3d UPWARDS_VECTOR = new Vector3d(0.0D, 1.0D, 0.0D);
+    private static final Vec3 UPWARDS_VECTOR = new Vec3(0.0D, 1.0D, 0.0D);
     @Override
     public boolean hurt(DamageSource dmgSource, float amount) {
         if (isInvulnerableTo(dmgSource)) {
@@ -179,8 +179,8 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
             if (!level.isClientSide()) {
                 double cos = -1;
                 if (dmgSource.getDirectEntity() != null) {
-                    Vector3d dmgPos = dmgSource.getDirectEntity().getEyePosition(1.0F);
-                    Vector3d dmgVec = dmgPos.vectorTo(position()).normalize();
+                    Vec3 dmgPos = dmgSource.getDirectEntity().getEyePosition(1.0F);
+                    Vec3 dmgVec = dmgPos.vectorTo(position()).normalize();
                     cos = dmgVec.dot(UPWARDS_VECTOR);
                     double damageMotion = cos * amount * 0.08D;
                     if (damageMotion > 0) {
@@ -208,7 +208,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
 
     @Override
     public void setHealth(float health) {
-        entityData.set(HEALTH, MathHelper.clamp(health, 0.0F, getMaxHealth()));
+        entityData.set(HEALTH, Mth.clamp(health, 0.0F, getMaxHealth()));
     }
 
     @Override
@@ -217,7 +217,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
         super.onSyncedDataUpdated(dataParameter);
         if (HEALTH.equals(dataParameter)) {
             if (getHealth() <= 0.0F) {
@@ -242,7 +242,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         if (nbt.contains("Health")) {
             setHealth(nbt.getFloat("Health"));
         }
@@ -256,7 +256,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         nbt.putFloat("Health", getHealth());
         nbt.putInt("Age", tickCount);
         nbt.putInt("ExplosionTime", ticksBeforeExplosion);
@@ -266,7 +266,7 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

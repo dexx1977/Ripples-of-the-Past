@@ -12,20 +12,20 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
 public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     private int barrierTicks;
@@ -34,14 +34,14 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     private boolean shot;
     private INonStandPower power;
     
-    public HamonBubbleBarrierEntity(World world, LivingEntity shooter, INonStandPower power) {
+    public HamonBubbleBarrierEntity(Level world, LivingEntity shooter, INonStandPower power) {
         super(ModEntityTypes.HAMON_BUBBLE_BARRIER.get(), shooter, world);
         this.power = power;
         barrierMaxTicks = (int) (100F * power.getTypeSpecificData(ModPowers.HAMON.get())
                 .map(hamon -> hamon.getActionEfficiency(0, true, ModHamonSkills.BUBBLE_BARRIER.get())).orElse(1F));
     }
 
-    public HamonBubbleBarrierEntity(EntityType<? extends HamonBubbleBarrierEntity> type, World world) {
+    public HamonBubbleBarrierEntity(EntityType<? extends HamonBubbleBarrierEntity> type, Level world) {
         super(type, world);
     }
     
@@ -67,7 +67,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
             }
         }
         else {
-            Vector3d sparkVec = Vector3d.directionFromRotation(random.nextFloat() * 360F, random.nextFloat() * 360F)
+            Vec3 sparkVec = Vec3.directionFromRotation(random.nextFloat() * 360F, random.nextFloat() * 360F)
                     .scale(getBbWidth() / 2).add(getX(), getY(0.5), getZ());
             // FIXME ! (hamon 2) sfx
             HamonUtil.emitHamonSparkParticles(level, ClientUtil.getClientPlayer(), sparkVec, 0.1F);
@@ -92,13 +92,13 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             Entity target = entityRayTraceResult.getEntity();
             if (target instanceof LivingEntity && target.startRiding(this)) {
                 barrier = true;
-                ((LivingEntity) target).addEffect(new EffectInstance(ModStatusEffects.STUN.get(), barrierMaxTicks));
-                setDeltaMovement(new Vector3d(0, 0.05D, 0));
+                ((LivingEntity) target).addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), barrierMaxTicks));
+                setDeltaMovement(new Vec3(0, 0.05D, 0));
             }
             LivingEntity owner = getOwner();
             if (owner != null) {
@@ -112,7 +112,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         super.onHitBlock(blockRayTraceResult);
         if (blockRayTraceResult.getDirection().getAxis() == Axis.Y) {
             setDeltaMovement(getDeltaMovement().subtract(0, getDeltaMovement().y, 0));
@@ -123,7 +123,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (targetType != TargetType.ENTITY && !isVehicle()) {
             super.breakProjectile(targetType, hitTarget);
         }
@@ -166,7 +166,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         if (barrier) {
             nbt.putBoolean("Barrier", barrier);
@@ -177,7 +177,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         this.barrier = nbt.getBoolean("Barrier");
         this.barrierTicks = nbt.getInt("BarrierTicks");
@@ -186,7 +186,7 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -196,13 +196,13 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeVarInt(barrierMaxTicks);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.barrierMaxTicks = additionalData.readVarInt();
     }

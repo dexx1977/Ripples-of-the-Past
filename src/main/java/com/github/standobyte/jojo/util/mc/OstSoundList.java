@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
 public class OstSoundList {
@@ -31,7 +31,7 @@ public class OstSoundList {
     }
     
     public SoundEvent get(int index) {
-        return soundEvents.get(MathHelper.clamp(index, 0, soundEvents.size() - 1)).get();
+        return soundEvents.get(Mth.clamp(index, 0, soundEvents.size() - 1)).get();
     }
 
     public SoundEvent getFull() {

@@ -10,22 +10,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.standobyte.jojo.action.stand.GoldExperienceCreateLifeform;
 
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
-@Mixin(AbstractFurnaceTileEntity.class)
-public abstract class AbstractFurnaceTEMixin extends TileEntity {
+@Mixin(AbstractFurnaceBlockEntity.class)
+public abstract class AbstractFurnaceTEMixin extends BlockEntity {
     
-    public AbstractFurnaceTEMixin(TileEntityType<?> type) {
+    public AbstractFurnaceTEMixin(BlockEntityType<?> type) {
         super(type);
     }
     
     @Inject(method = "getRecipesToAwardAndPopExperience", at = @At("HEAD"), cancellable = true)
-    public void jojoKeepXpOnTEBreak(World world, Vector3d pos, CallbackInfoReturnable<List<IRecipe<?>>> ci) {
+    public void jojoKeepXpOnTEBreak(Level world, Vec3 pos, CallbackInfoReturnable<List<Recipe<?>>> ci) {
         if (GoldExperienceCreateLifeform.KEEP_ITEMS.contains(this)) {
             ci.setReturnValue(Collections.emptyList());
         }

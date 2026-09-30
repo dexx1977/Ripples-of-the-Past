@@ -2,15 +2,15 @@ package com.github.standobyte.jojo.client.sound;
 
 import com.github.standobyte.jojo.init.ModSounds;
 
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.sounds.SoundSource;
 
-public class HamonSparksSound extends TickableSound {
+public class HamonSparksSound extends AbstractTickableSoundInstance {
     private final Entity entity;
 
     public HamonSparksSound(Entity entity, float volume, float pitch) {
-        super(ModSounds.HAMON_SPARKS_LONG.get(), SoundCategory.AMBIENT);
+        super(ModSounds.HAMON_SPARKS_LONG.get(), SoundSource.AMBIENT);
         this.volume = volume;
         this.pitch = pitch;
         this.entity = entity;

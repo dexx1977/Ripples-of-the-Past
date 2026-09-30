@@ -6,14 +6,14 @@ import java.util.List;
 import com.github.standobyte.jojo.client.render.entity.bb.MeshVerticesHelper;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.renderer.model.ModelRenderer.PositionTextureVertex;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelPart.Vertex;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import org.joml.Vector3f;
 
-public class MeshModelBox extends ModelRenderer.ModelBox {
+public class MeshModelBox extends ModelPart.ModelBox {
     
     private MeshModelBox(Builder builder) {
         super(0, 0, 
@@ -26,12 +26,12 @@ public class MeshModelBox extends ModelRenderer.ModelBox {
                 0, 0, 0, 
                 false, 1, 1);
         
-        ModelRenderer.TexturedQuad[] quads = builder.quads.toArray(new ModelRenderer.TexturedQuad[0]);
+        ModelPart.TexturedQuad[] quads = builder.quads.toArray(new ModelPart.TexturedQuad[0]);
         this.polygons = quads;
     }
     
     // a convenience method for chainable calls
-    public void addCube(ModelRenderer modelRenderer) {
+    public void addCube(ModelPart modelRenderer) {
         modelRenderer.cubes.add(this);
     }
     
@@ -46,7 +46,7 @@ public class MeshModelBox extends ModelRenderer.ModelBox {
         private float maxX;
         private float maxY;
         private float maxZ;
-        private final List<ModelRenderer.TexturedQuad> quads = new ArrayList<>();
+        private final List<ModelPart.TexturedQuad> quads = new ArrayList<>();
         
         public Builder(boolean livingEntityRenderHacks, float texWidth, float texHeight) {
             this.livingEntityRenderHacks = livingEntityRenderHacks;
@@ -93,7 +93,7 @@ public class MeshModelBox extends ModelRenderer.ModelBox {
             private boolean calcNormalFromVertices;
             private boolean invertCalcNormal;
             
-            private List<ModelRenderer.PositionTextureVertex> vertices = new ArrayList<>();
+            private List<ModelPart.Vertex> vertices = new ArrayList<>();
             
             private MeshFaceBuilder(MeshModelBox.Builder boxBuilder, float texWidth, float texHeight) {
                 this.boxBuilder = boxBuilder;
@@ -116,7 +116,7 @@ public class MeshModelBox extends ModelRenderer.ModelBox {
                 boxBuilder.maxY = Math.max(boxBuilder.maxY, yF);
                 boxBuilder.maxZ = Math.max(boxBuilder.maxZ, zF);
                 
-                ModelRenderer.PositionTextureVertex vertex = new ModelRenderer.PositionTextureVertex(
+                ModelPart.Vertex vertex = new ModelPart.Vertex(
                         xF, yF, zF, (float) texU / texWidth, (float) texV / texHeight);
                 vertices.add(vertex);
                 return this;
@@ -134,18 +134,18 @@ public class MeshModelBox extends ModelRenderer.ModelBox {
             private static final int MAX_VERTICES = 4;
             public MeshModelBox.Builder createFace() {
                 if (vertices.size() > 2) {
-                    ModelRenderer.PositionTextureVertex[] verticesDummy = new ModelRenderer.PositionTextureVertex[] {
-                            new ModelRenderer.PositionTextureVertex(0, 0, 0, 0, 0),
-                            new ModelRenderer.PositionTextureVertex(0, 0, 0, 0, 0),
-                            new ModelRenderer.PositionTextureVertex(0, 0, 0, 0, 0),
-                            new ModelRenderer.PositionTextureVertex(0, 0, 0, 0, 0)
+                    ModelPart.Vertex[] verticesDummy = new ModelPart.Vertex[] {
+                            new ModelPart.Vertex(0, 0, 0, 0, 0),
+                            new ModelPart.Vertex(0, 0, 0, 0, 0),
+                            new ModelPart.Vertex(0, 0, 0, 0, 0),
+                            new ModelPart.Vertex(0, 0, 0, 0, 0)
                     };
-                    ModelRenderer.TexturedQuad quad = new ModelRenderer.TexturedQuad(verticesDummy, 
+                    ModelPart.TexturedQuad quad = new ModelPart.TexturedQuad(verticesDummy, 
                             0, 0, 0, 0, 1, 1, false, direction != null ? direction : Direction.UP);
                     
-                    ModelRenderer.PositionTextureVertex[] verticesArr = vertices.toArray(new ModelRenderer.PositionTextureVertex[MAX_VERTICES]);
+                    ModelPart.Vertex[] verticesArr = vertices.toArray(new ModelPart.Vertex[MAX_VERTICES]);
                     if (this.vertices.size() < MAX_VERTICES) {
-                        PositionTextureVertex lastVertex = verticesArr[this.vertices.size() - 1];
+                        Vertex lastVertex = verticesArr[this.vertices.size() - 1];
                         for (int i = this.vertices.size(); i < verticesArr.length; i++) {
                             verticesArr[i] = lastVertex;
                         }

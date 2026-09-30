@@ -48,104 +48,104 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.TNTBlock;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.command.CommandSource;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ReportedException;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.PrioritizedGoal;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.entity.projectile.ProjectileItemEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.TieredItem;
-import net.minecraft.nbt.ByteArrayNBT;
-import net.minecraft.nbt.ByteNBT;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.DoubleNBT;
-import net.minecraft.nbt.EndNBT;
-import net.minecraft.nbt.FloatNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.INBTType;
-import net.minecraft.nbt.IntArrayNBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.LongArrayNBT;
-import net.minecraft.nbt.LongNBT;
-import net.minecraft.nbt.NBTTypes;
-import net.minecraft.nbt.ShortNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.play.server.SPlaySoundEffectPacket;
-import net.minecraft.network.play.server.SSpawnMovingSoundEffectPacket;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.core.BlockSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.EndTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagType;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.TagTypes;
+import net.minecraft.nbt.ShortTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.scores.Team;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.GameType;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ChunkManager;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 import net.minecraftforge.registries.RegistryManager;
 
 public class MCUtil {
-    public static final IFormattableTextComponent EMPTY_TEXT = new StringTextComponent("");
-    public static final IFormattableTextComponent NEW_LINE = new StringTextComponent("\n");
+    public static final MutableComponent EMPTY_TEXT = Component.literal("");
+    public static final MutableComponent NEW_LINE = Component.literal("\n");
     
     /**
      * Runs a command for the user entity, but with the permissions of the server.
@@ -156,33 +156,33 @@ public class MCUtil {
         if (user.level.isClientSide()) {
             throw new IllegalLogicalSideException("Tried to run a command on client side!");
         }
-        MinecraftServer server = ((ServerWorld) user.level).getServer();
-        CommandSource src = user.createCommandSourceStack()
+        MinecraftServer server = ((ServerLevel) user.level).getServer();
+        CommandSourceStack src = user.createCommandSourceStack()
                 .withMaximumPermission(4)
                 .withSuppressedOutput();
         return server.getCommands().performCommand(src, command);
     }
     
     // NBT helper functions
-    private static final ImmutableMap<Class<? extends INBT>, Integer> NBT_ID = new ImmutableMap.Builder<Class<? extends INBT>, Integer>()
-            .put(EndNBT.class, 0)           .put(ByteNBT.class, 1)      .put(ShortNBT.class, 2)         .put(IntNBT.class, 3)
-            .put(LongNBT.class, 4)          .put(FloatNBT.class, 5)     .put(DoubleNBT.class, 6)        .put(ByteArrayNBT.class, 7)
-            .put(StringNBT.class, 8)        .put(ListNBT.class, 9)      .put(CompoundNBT.class, 10)     .put(IntArrayNBT.class, 11)
-            .put(LongArrayNBT.class, 12)
+    private static final ImmutableMap<Class<? extends Tag>, Integer> NBT_ID = new ImmutableMap.Builder<Class<? extends Tag>, Integer>()
+            .put(EndTag.class, 0)           .put(ByteTag.class, 1)      .put(ShortTag.class, 2)         .put(IntTag.class, 3)
+            .put(LongTag.class, 4)          .put(FloatTag.class, 5)     .put(DoubleTag.class, 6)        .put(ByteArrayTag.class, 7)
+            .put(StringTag.class, 8)        .put(ListTag.class, 9)      .put(CompoundTag.class, 10)     .put(IntArrayTag.class, 11)
+            .put(LongArrayTag.class, 12)
             .build();
     
-    public static int getNbtId(Class<? extends INBT> clazz) {
+    public static int getNbtId(Class<? extends Tag> clazz) {
         return NBT_ID.getOrDefault(clazz, -1);
     }
     
-    public static <T extends INBT> Optional<T> getNbtElement(CompoundNBT nbt, String key, Class<T> clazz) {
+    public static <T extends Tag> Optional<T> getNbtElement(CompoundTag nbt, String key, Class<T> clazz) {
         int id = getNbtId(clazz);
         if (nbt.contains(key, id)) {
             try {
                 return Optional.of((T) nbt.get(key));
             }
             catch (ClassCastException e) {
-                INBTType<?> nbtType = NBTTypes.getType(id);
+                TagType<?> nbtType = TagTypes.getType(id);
                 CrashReport crashreport = CrashReport.forThrowable(e, "Reading NBT data");
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Corrupt NBT tag", 1);
                 crashreportcategory.setDetail("Tag type found", () -> {
@@ -196,16 +196,16 @@ public class MCUtil {
         return Optional.empty();
     }
     
-    public static CompoundNBT replaceNbtValues(CompoundNBT original, CompoundNBT replacedEntries, CompoundNBT replacingEntries) {
-        int compoundId = getNbtId(CompoundNBT.class);
+    public static CompoundTag replaceNbtValues(CompoundTag original, CompoundTag replacedEntries, CompoundTag replacingEntries) {
+        int compoundId = getNbtId(CompoundTag.class);
         for (String key : replacedEntries.getAllKeys()) {
             if (replacedEntries.contains(key) && original.contains(key) && replacedEntries.contains(key)) {
-                INBT originalValue = original.get(key);
-                INBT replacedValue = replacedEntries.get(key);
-                INBT replacingValue = replacingEntries.get(key);
+                Tag originalValue = original.get(key);
+                Tag replacedValue = replacedEntries.get(key);
+                Tag replacingValue = replacingEntries.get(key);
                 if (originalValue.getId() == compoundId) {
                     if (replacedValue.getId() == compoundId && replacingValue.getId() == compoundId) {
-                        replaceNbtValues((CompoundNBT) originalValue, (CompoundNBT) replacedValue, (CompoundNBT) replacingValue);
+                        replaceNbtValues((CompoundTag) originalValue, (CompoundTag) replacedValue, (CompoundTag) replacingValue);
                     }
                 }
                 else if (originalValue.equals(replacedValue)) {
@@ -216,13 +216,13 @@ public class MCUtil {
         return original;
     }
     
-    public static <T extends Enum<T>> void nbtPutEnum(CompoundNBT nbt, String key, T enumVal) {
+    public static <T extends Enum<T>> void nbtPutEnum(CompoundTag nbt, String key, T enumVal) {
         nbt.putInt(key, enumVal.ordinal());
     }
     
     @Nullable
-    public static <T extends Enum<T>> T nbtGetEnum(CompoundNBT nbt, String key, Class<T> enumClass) {
-        if (!nbt.contains(key, getNbtId(IntNBT.class))) {
+    public static <T extends Enum<T>> T nbtGetEnum(CompoundTag nbt, String key, Class<T> enumClass) {
+        if (!nbt.contains(key, getNbtId(IntTag.class))) {
             return null;
         }
         
@@ -234,12 +234,12 @@ public class MCUtil {
         return null;
     }
     
-    public static <T extends IForgeRegistryEntry<T>> void nbtPutRegistryEntry(CompoundNBT nbt, String key, T entry) {
-        nbt.put(key, StringNBT.valueOf(entry.getRegistryName().toString()));
+    public static <T extends RegistryEntry<T>> void nbtPutRegistryEntry(CompoundTag nbt, String key, T entry) {
+        nbt.put(key, StringTag.valueOf(entry.getRegistryName().toString()));
     }
     
-    public static <T extends IForgeRegistryEntry<T>> Optional<T> nbtGetRegistryEntry(CompoundNBT nbt, String key, IForgeRegistry<T> registry) {
-        if (nbt.contains(key, getNbtId(StringNBT.class))) {
+    public static <T> Optional<T> nbtGetRegistryEntry(CompoundTag nbt, String key, IForgeRegistry<T> registry) {
+        if (nbt.contains(key, getNbtId(StringTag.class))) {
             String idString = nbt.getString(key);
             return registryEntryFromId(idString, registry);
         }
@@ -247,24 +247,24 @@ public class MCUtil {
         return Optional.empty();
     }
     
-    public static Optional<CompoundNBT> nbtGetCompoundOptional(CompoundNBT nbt, String key) {
-        if (nbt.contains(key, getNbtId(CompoundNBT.class))) {
+    public static Optional<CompoundTag> nbtGetCompoundOptional(CompoundTag nbt, String key) {
+        if (nbt.contains(key, getNbtId(CompoundTag.class))) {
             return Optional.of(nbt.getCompound(key));
         }
         return Optional.empty();
     }
     
-    public static CompoundNBT nbtGetOrCreateCompound(CompoundNBT nbt, String key) {
-        if (nbt.contains(key, getNbtId(CompoundNBT.class))) {
+    public static CompoundTag nbtGetOrCreateCompound(CompoundTag nbt, String key) {
+        if (nbt.contains(key, getNbtId(CompoundTag.class))) {
             return nbt.getCompound(key);
         }
-        CompoundNBT element = new CompoundNBT();
+        CompoundTag element = new CompoundTag();
         nbt.put(key, element);
         return element;
     }
     
-    public static Optional<ListNBT> nbtGetList(CompoundNBT nbt, String key, Class<? extends INBT> nbtClass) {
-        if (nbt.contains(key, getNbtId(ListNBT.class))) {
+    public static Optional<ListTag> nbtGetList(CompoundTag nbt, String key, Class<? extends Tag> nbtClass) {
+        if (nbt.contains(key, getNbtId(ListTag.class))) {
             return Optional.of(nbt.getList(key, getNbtId(nbtClass)));
         }
         return Optional.empty();
@@ -272,7 +272,7 @@ public class MCUtil {
     
     
     
-    public static <T extends IForgeRegistryEntry<T>> Optional<T> registryEntryFromId(String idString, IForgeRegistry<T> registry) {
+    public static <T> Optional<T> registryEntryFromId(String idString, IForgeRegistry<T> registry) {
         if (!idString.isEmpty()) {
             ResourceLocation id = new ResourceLocation(idString);
             if (registry.containsKey(id)) {
@@ -283,17 +283,17 @@ public class MCUtil {
         return Optional.empty();
     }
     
-    public static void nbtPutVec3d(CompoundNBT nbt, String key, Vector3d vec) {
+    public static void nbtPutVec3d(CompoundTag nbt, String key, Vec3 vec) {
         if (vec != null) {
-            ListNBT list = new ListNBT();
-            list.add(DoubleNBT.valueOf(vec.x));
-            list.add(DoubleNBT.valueOf(vec.y));
-            list.add(DoubleNBT.valueOf(vec.z));
+            ListTag list = new ListTag();
+            list.add(DoubleTag.valueOf(vec.x));
+            list.add(DoubleTag.valueOf(vec.y));
+            list.add(DoubleTag.valueOf(vec.z));
             nbt.put(key, list);
         }
     }
     
-    public static void nbtPutOptionalIntArr(CompoundNBT nbt, String key, OptionalInt[] array, int emptyVal) {
+    public static void nbtPutOptionalIntArr(CompoundTag nbt, String key, OptionalInt[] array, int emptyVal) {
         int[] value = new int[array.length];
         for (int i = 0; i < array.length; i++) {
             value[i] = array[i].orElse(emptyVal);
@@ -301,7 +301,7 @@ public class MCUtil {
         nbt.putIntArray(key, value);
     }
     
-    public static OptionalInt[] nbtGetOptionalIntArr(CompoundNBT nbt, String key, int emptyVal) {
+    public static OptionalInt[] nbtGetOptionalIntArr(CompoundTag nbt, String key, int emptyVal) {
         int[] value = nbt.getIntArray(key);
         OptionalInt[] array = new OptionalInt[value.length];
         for (int i = 0; i < array.length; i++) {
@@ -311,39 +311,39 @@ public class MCUtil {
         return array;
     }
     
-    public static <T extends Enum<T>> void nbtPutEnumArray(CompoundNBT nbt, String key, T[] array) {
+    public static <T extends Enum<T>> void nbtPutEnumArray(CompoundTag nbt, String key, T[] array) {
         nbt.putIntArray(key, GeneralUtil.toOrdinals(array));
     }
     
-    public static <T extends Enum<T>> T[] nbtGetEnumArray(CompoundNBT nbt, String key, Class<T> enumClass) {
+    public static <T extends Enum<T>> T[] nbtGetEnumArray(CompoundTag nbt, String key, Class<T> enumClass) {
         int[] nbtArray = nbt.getIntArray(key);
         return GeneralUtil.fromOrdinals(nbtArray, enumClass);
     }
     
     @Nullable
-    public static Vector3d nbtGetVec3d(CompoundNBT nbt, String key) {
-        return getNbtElement(nbt, key, ListNBT.class).map(list -> {
+    public static Vec3 nbtGetVec3d(CompoundTag nbt, String key) {
+        return getNbtElement(nbt, key, ListTag.class).map(list -> {
             if (list.size() == 3) {
                 double[] nums = new double[3];
                 for (int i = 0; i < 3; i++) {
-                    INBT nbtElem = list.get(i);
+                    Tag nbtElem = list.get(i);
                     if (nbtElem.getId() == 6) {
-                        nums[i] = ((DoubleNBT) nbtElem).getAsDouble();
+                        nums[i] = ((DoubleTag) nbtElem).getAsDouble();
                     }
                     else {
                         return null;
                     }
                 }
-                return new Vector3d(nums[0], nums[1], nums[2]);
+                return new Vec3(nums[0], nums[1], nums[2]);
             }
             
             return null;
         }).orElse(null);
     }
     
-    public static CompoundNBT getOrCreateCompound(CompoundNBT mainNbt, String key) {
+    public static CompoundTag getOrCreateCompound(CompoundTag mainNbt, String key) {
         return nbtGetCompoundOptional(mainNbt, key).orElseGet(() -> {
-            CompoundNBT nbt = new CompoundNBT();
+            CompoundTag nbt = new CompoundTag();
             mainNbt.put(key, nbt);
             return nbt;
         });
@@ -370,17 +370,17 @@ public class MCUtil {
     
     
     public static boolean isLocalServer(MinecraftServer server, Entity serverPlayer) {
-        if (server.isDedicatedServer() || !(serverPlayer instanceof ServerPlayerEntity)) {
+        if (server.isDedicatedServer() || !(serverPlayer instanceof ServerPlayer)) {
             return false;
         }
-        ServerPlayerEntity player = (ServerPlayerEntity) serverPlayer;
-        PlayerEntity clientPlayer = ClientUtil.getClientPlayer();
+        ServerPlayer player = (ServerPlayer) serverPlayer;
+        Player clientPlayer = ClientUtil.getClientPlayer();
         return clientPlayer != null && player.getUUID().equals(clientPlayer.getUUID());
     }
     
     
     
-    public static Collection<BlockPos> explosionBlocks(BlockPos center, float radius, World world) {
+    public static Collection<BlockPos> explosionBlocks(BlockPos center, float radius, Level world) {
         Set<BlockPos> set = new HashSet<>();
         for(int j = 0; j < 16; ++j) {
             for (int k = 0; k < 16; ++k) {
@@ -438,22 +438,22 @@ public class MCUtil {
     
     
     
-    public static Set<ServerPlayerEntity> getTrackingPlayers(Entity entity) {
+    public static Set<ServerPlayer> getTrackingPlayers(Entity entity) {
         if (entity.level.isClientSide()) {
             throw new IllegalStateException();
         }
         
-        ChunkManager chunkMap = ((ServerWorld) entity.level).getChunkSource().chunkMap;
-        Int2ObjectMap<ChunkManager.EntityTracker> entityMap = chunkMap.entityMap;
-        ChunkManager.EntityTracker tracker = entityMap.get(entity.getId());
+        ChunkMap chunkMap = ((ServerLevel) entity.level).getChunkSource().chunkMap;
+        Int2ObjectMap<ChunkMap.EntityTracker> entityMap = chunkMap.entityMap;
+        ChunkMap.EntityTracker tracker = entityMap.get(entity.getId());
         return tracker != null ? tracker.seenBy : Collections.emptySet();
     }
     
     
     
-    public static GameType getGameMode(PlayerEntity player) {
+    public static GameType getGameMode(Player player) {
         if (!player.level.isClientSide()) {
-            return ((ServerPlayerEntity) player).gameMode.getGameModeForPlayer();
+            return ((ServerPlayer) player).gameMode.getGameModeForPlayer();
         }
         else {
             return ClientUtil.getPlayerGameMode(player);
@@ -463,7 +463,7 @@ public class MCUtil {
     
     
     @Nonnull
-    public static ItemStack findInInventory(IInventory inventory, Predicate<ItemStack> itemMatches) {
+    public static ItemStack findInInventory(Container inventory, Predicate<ItemStack> itemMatches) {
         int size = inventory.getContainerSize();
         for (int i = 0; i < size; i++) {
             ItemStack item = inventory.getItem(i);
@@ -475,9 +475,9 @@ public class MCUtil {
         return ItemStack.EMPTY;
     }
 
-    public static boolean dispenseOnNearbyEntity(IBlockSource blockSource, ItemStack itemStack, Predicate<LivingEntity> action, boolean shrinkStack) {
+    public static boolean dispenseOnNearbyEntity(BlockSource blockSource, ItemStack itemStack, Predicate<LivingEntity> action, boolean shrinkStack) {
         BlockPos blockPos = blockSource.getPos().relative(blockSource.getBlockState().getValue(DispenserBlock.FACING));
-        List<LivingEntity> entities = blockSource.getLevel().getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(blockPos), EntityPredicates.NO_SPECTATORS);
+        List<LivingEntity> entities = blockSource.getLevel().getEntitiesOfClass(LivingEntity.class, new AABB(blockPos), EntitySelector.NO_SPECTATORS);
         for (LivingEntity entity : entities) {
             if (action.test(entity)) {
                 if (shrinkStack) {
@@ -491,8 +491,8 @@ public class MCUtil {
     
     public static void giveItemTo(LivingEntity entity, ItemStack item, boolean drop) {
         if (!entity.level.isClientSide() && !item.isEmpty()) {
-            if (entity instanceof PlayerEntity) {
-                drop = !(((PlayerEntity) entity).inventory.add(item) && item.isEmpty());
+            if (entity instanceof Player) {
+                drop = !(((Player) entity).inventory.add(item) && item.isEmpty());
             }
             if (drop) {
                 entity.level.addFreshEntity(dropAt(entity, item));
@@ -515,39 +515,39 @@ public class MCUtil {
     
     
     // i ain't using access transformers for this, this is ridiculous
-    public static boolean itemAllowedIn(Item item, ItemGroup creativeTab) {
+    public static boolean itemAllowedIn(Item item, CreativeModeTab creativeTab) {
         if (item.getCreativeTabs().stream().anyMatch(tab -> tab == creativeTab)) return true;
-        ItemGroup itemCategory = item.getItemCategory();
-        return itemCategory != null && (creativeTab == ItemGroup.TAB_SEARCH || creativeTab == itemCategory);
+        CreativeModeTab itemCategory = item.getItemCategory();
+        return itemCategory != null && (creativeTab == CreativeModeTab.TAB_SEARCH || creativeTab == itemCategory);
     }
     
 
     
     public static Optional<Entity> cloneEntity(Entity entity) {
-        CompoundNBT entityNbt = entity.serializeNBT();
+        CompoundTag entityNbt = entity.serializeNBT();
         return EntityType.create(entityNbt, entity.level);
     }
     
     
     
     @Deprecated
-    public static Vector3d collide(Entity entity, Vector3d offsetVec) {
+    public static Vec3 collide(Entity entity, Vec3 offsetVec) {
         return CollisionUtil.collide(entity, offsetVec);
     }
     
     @Deprecated
-    public static Vector3d collide(Entity entity, AxisAlignedBB collisionBox, Vector3d offsetVec) {
+    public static Vec3 collide(Entity entity, AABB collisionBox, Vec3 offsetVec) {
         return CollisionUtil.collide(entity, collisionBox, offsetVec);
     }
 
-    public static void rotateTowards(Entity entity, Vector3d targetPos, float maxAngle) {
-        Vector3d targetVec = targetPos.subtract(entity.getEyePosition(1.0F));
+    public static void rotateTowards(Entity entity, Vec3 targetPos, float maxAngle) {
+        Vec3 targetVec = targetPos.subtract(entity.getEyePosition(1.0F));
 
         float yRot = MathUtil.yRotDegFromVec(targetVec);
         float xRot = MathUtil.xRotDegFromVec(targetVec);
 
-        yRot = entity.yRot + MathHelper.clamp(MathHelper.degreesDifference(entity.yRot, yRot), -maxAngle, maxAngle);
-        xRot = entity.xRot + MathHelper.clamp(MathHelper.degreesDifference(entity.xRot, xRot), -maxAngle, maxAngle);
+        yRot = entity.yRot + Mth.clamp(Mth.degreesDifference(entity.yRot, yRot), -maxAngle, maxAngle);
+        xRot = entity.xRot + Mth.clamp(Mth.degreesDifference(entity.xRot, xRot), -maxAngle, maxAngle);
 
         entity.yRot = yRot % 360.0F;
         entity.xRot = xRot % 360.0F;
@@ -555,16 +555,16 @@ public class MCUtil {
     }
     
     public static <T extends Entity> List<T> entitiesAround(Class<? extends T> clazz, Entity centerEntity, double radius, boolean includeSelf, @Nullable Predicate<? super T> filter) {
-        Vector3d centerPos = centerEntity.getBoundingBox().getCenter();
-        AxisAlignedBB aabb = new AxisAlignedBB(centerPos.subtract(radius, radius, radius), centerPos.add(radius, radius, radius));
+        Vec3 centerPos = centerEntity.getBoundingBox().getCenter();
+        AABB aabb = new AABB(centerPos.subtract(radius, radius, radius), centerPos.add(radius, radius, radius));
         return centerEntity.level.getEntitiesOfClass(clazz, aabb, entity -> (includeSelf || entity != centerEntity) && (filter == null || filter.test(entity)));
     }
 
-    public static Iterable<Entity> getAllEntities(World world) {
-        return world.isClientSide() ? ((ClientWorld) world).entitiesForRendering() : ((ServerWorld) world).getAllEntities();
+    public static Iterable<Entity> getAllEntities(Level world) {
+        return world.isClientSide() ? ((ClientLevel) world).entitiesForRendering() : ((ServerLevel) world).getAllEntities();
     }
     
-    public static Vector3d getEntityPosition(Entity entity, float partialTick) {
+    public static Vec3 getEntityPosition(Entity entity, float partialTick) {
         return partialTick == 1.0F ? entity.position() : entity.getPosition(partialTick);
     }
     
@@ -584,7 +584,7 @@ public class MCUtil {
     }
     
     
-    public static void trySpawnMob(IServerWorld world, EntityType<?> type, SpawnReason spawnReason, Random random) {
+    public static void trySpawnMob(ServerLevelAccessor world, EntityType<?> type, MobSpawnType spawnReason, Random random) {
 //        boolean spawned = false;
 //
 //        for (int tryNum = 0; !spawned && tryNum < 4; ++tryNum) {
@@ -628,7 +628,7 @@ public class MCUtil {
     
     
     
-    public static boolean rayTraceTargetEquals(RayTraceResult r1, RayTraceResult r2) {
+    public static boolean rayTraceTargetEquals(HitResult r1, HitResult r2) {
         if (r1 == null || r2 == null) return r1 == null && r2 == null;
         if (r1.getType() != r2.getType()) return false;
         
@@ -636,12 +636,12 @@ public class MCUtil {
         case MISS:
             return true;
         case BLOCK:
-            BlockRayTraceResult br1 = (BlockRayTraceResult) r1;
-            BlockRayTraceResult br2 = (BlockRayTraceResult) r2;
+            BlockHitResult br1 = (BlockHitResult) r1;
+            BlockHitResult br2 = (BlockHitResult) r2;
             return br1.getBlockPos().equals(br2.getBlockPos()) && br1.getDirection() == br2.getDirection();
         case ENTITY:
-            EntityRayTraceResult er1 = (EntityRayTraceResult) r1;
-            EntityRayTraceResult er2 = (EntityRayTraceResult) r2;
+            EntityHitResult er1 = (EntityHitResult) r1;
+            EntityHitResult er2 = (EntityHitResult) r2;
             return er1.getEntity() == er2.getEntity();
         default:
             throw new IllegalArgumentException("Unknown RayTraceResult type (it's an enum wtf)");
@@ -649,9 +649,9 @@ public class MCUtil {
     }
     
     public static double getPickRange(LivingEntity entity) {
-        ModifiableAttributeInstance reachDist = entity.getAttribute(ForgeMod.REACH_DISTANCE.get());
+        AttributeInstance reachDist = entity.getAttribute(ForgeMod.REACH_DISTANCE.get());
         double value = reachDist != null ? reachDist.getValue() : 5;
-        if (entity instanceof PlayerEntity && !((PlayerEntity) entity).isCreative()) {
+        if (entity instanceof Player && !((Player) entity).isCreative()) {
             value -= 0.5;
         }
         return value;
@@ -659,21 +659,21 @@ public class MCUtil {
     
     
     
-    public static AxisAlignedBB scale(AxisAlignedBB aabb, double scale) {
+    public static AABB scale(AABB aabb, double scale) {
         return scale(aabb, scale, scale, scale);
     }
     
-    public static AxisAlignedBB scale(AxisAlignedBB aabb, double scaleX, double scaleY, double scaleZ) {
-        Vector3d center = aabb.getCenter();
+    public static AABB scale(AABB aabb, double scaleX, double scaleY, double scaleZ) {
+        Vec3 center = aabb.getCenter();
         double inflX = aabb.getXsize() * scaleX / 2;
         double inflY = aabb.getYsize() * scaleY / 2;
         double inflZ = aabb.getZsize() * scaleZ / 2;
-        return new AxisAlignedBB(
+        return new AABB(
                 center.x - inflX, center.y - inflY, center.z - inflZ,
                 center.x + inflX, center.y + inflY, center.z + inflZ);
     }
     
-    public static double getManhattanDist(AxisAlignedBB aabb1, AxisAlignedBB aabb2) {
+    public static double getManhattanDist(AABB aabb1, AABB aabb2) {
         double xDist = 0;
         double yDist = 0;
         double zDist = 0;
@@ -712,8 +712,8 @@ public class MCUtil {
     
     
     public static boolean isControlledThisSide(Entity entity) {
-        if (entity instanceof PlayerEntity) {
-            return ((PlayerEntity) entity).isLocalPlayer();
+        if (entity instanceof Player) {
+            return ((Player) entity).isLocalPlayer();
         }
         return !entity.level.isClientSide() || entity.isControlledByLocalInstance();
     }
@@ -737,7 +737,7 @@ public class MCUtil {
     /**
      *  Limits the amount of particles and break sounds that the blocks produce, sending it all in one packet
      */
-    public static int destroyBlocksInBulk(Collection<BlockPos> blocks, ServerWorld world, @Nullable LivingEntity entity, boolean dropItems) {
+    public static int destroyBlocksInBulk(Collection<BlockPos> blocks, ServerLevel world, @Nullable LivingEntity entity, boolean dropItems) {
         if (!world.isClientSide() && world.isDebug()) {
             return -1;
         }
@@ -746,7 +746,7 @@ public class MCUtil {
         while (iter.hasNext()) {
             BlockPos blockPos = iter.next();
             BlockState blockState = world.getBlockState(blockPos);
-            if (World.isOutsideBuildHeight(blockPos) || blockState.isAir(world, blockPos)
+            if (Level.isOutsideBuildHeight(blockPos) || blockState.isAir(world, blockPos)
                     || !JojoModUtil.canEntityDestroy(world, blockPos, blockState, entity)) {
                 iter.remove();
             }
@@ -770,7 +770,7 @@ public class MCUtil {
             
             BlockState oldState = world.getBlockState(blockPos);
 
-            if (!(oldState.getBlock() instanceof AbstractFireBlock)) {
+            if (!(oldState.getBlock() instanceof BaseFireBlock)) {
                 minX = Math.min(minX, blockPos.getX());
                 minY = Math.min(minY, blockPos.getY());
                 minZ = Math.min(minZ, blockPos.getZ());
@@ -780,7 +780,7 @@ public class MCUtil {
                 packet.addBlock(blockPos, oldState);
             }
             if (dropItems) {
-                TileEntity tileentity = oldState.hasTileEntity() ? world.getBlockEntity(blockPos) : null;
+                BlockEntity tileentity = oldState.hasTileEntity() ? world.getBlockEntity(blockPos) : null;
 
                 Block.getDrops(oldState, world, blockPos, tileentity, entity, ItemStack.EMPTY).forEach(itemStack -> {
                     CustomExplosion.addBlockDrops(dropPositions, itemStack, blockPos);
@@ -806,16 +806,16 @@ public class MCUtil {
         return blocksBroken;
     }
     
-    public static void blockCatchFire(World world, BlockPos blockPos, BlockState blockState, @Nullable Direction face, @Nullable LivingEntity igniter) {
+    public static void blockCatchFire(Level world, BlockPos blockPos, BlockState blockState, @Nullable Direction face, @Nullable LivingEntity igniter) {
         blockState.catchFire(world, blockPos, face, igniter);
-        if (blockState.getBlock() instanceof TNTBlock) {
+        if (blockState.getBlock() instanceof TntBlock) {
             CrazyDiamondRestoreTerrain.rememberBrokenBlock(world, blockPos, blockState, 
                     Optional.ofNullable(world.getBlockEntity(blockPos)), Collections.emptyList());
             world.removeBlock(blockPos, false);
         }
     }
     
-    public static boolean destroyBlock(World world, BlockPos blockPos, boolean dropBlock, @Nullable Entity entity) {
+    public static boolean destroyBlock(Level world, BlockPos blockPos, boolean dropBlock, @Nullable Entity entity) {
         BlockState oldState = dropBlock ? null /*no need to call it in this case*/ : world.getBlockState(blockPos);
         boolean res = world.destroyBlock(blockPos, dropBlock, entity);
         if (!dropBlock) {
@@ -827,54 +827,54 @@ public class MCUtil {
     }
     
     public static boolean dropBrokenBlock(LivingEntity entity) {
-        return !(entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild);
+        return !(entity instanceof Player && ((Player) entity).abilities.instabuild);
     }
     
     
     
     
-    public static void playSound(World world, @Nullable PlayerEntity clientHandled, BlockPos blockPos, 
-            SoundEvent sound, SoundCategory category, float volume, float pitch, Predicate<PlayerEntity> condition) {
+    public static void playSound(Level world, @Nullable Player clientHandled, BlockPos blockPos, 
+            SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         playSound(world, clientHandled, (double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D, 
                 sound, category, volume, pitch, condition);
     }
 
-    public static void playSound(World world, @Nullable PlayerEntity clientHandled, double x, double y, double z, 
-            SoundEvent sound, SoundCategory category, float volume, float pitch, Predicate<PlayerEntity> condition) {
+    public static void playSound(Level world, @Nullable Player clientHandled, double x, double y, double z, 
+            SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         if (!world.isClientSide()) {
-            PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
+            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
             category = event.getCategory();
             volume = event.getVolume();
             pitch = event.getPitch();
-            NetworkUtil.broadcastWithCondition(((ServerWorld) world).getServer().getPlayerList().getPlayers(), clientHandled, 
+            NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
-                            new SPlaySoundEffectPacket(sound, category, x, y, z, volume, pitch), condition);
+                            new ClientboundSoundPacket(sound, category, x, y, z, volume, pitch), condition);
         }
         else if (clientHandled != null && condition.test(clientHandled)) {
             world.playSound(clientHandled, x, y, z, sound, category, volume, pitch);
         }
     }
 
-    public static void playEitherSound(World world, @Nullable PlayerEntity clientHandled, double x, double y, double z, 
-            Predicate<PlayerEntity> predicate, SoundEvent soundTrue, SoundEvent soundFalse, SoundCategory category, float volume, float pitch) {
+    public static void playEitherSound(Level world, @Nullable Player clientHandled, double x, double y, double z, 
+            Predicate<Player> predicate, SoundEvent soundTrue, SoundEvent soundFalse, SoundSource category, float volume, float pitch) {
         if (soundTrue != null) playSound(world, clientHandled, x, y, z, soundTrue, category, volume, pitch, predicate);
         if (soundFalse != null) playSound(world, clientHandled, x, y, z, soundFalse, category, volume, pitch, predicate.negate());
     }
 
-    public static void playSound(World world, @Nullable PlayerEntity clientHandled, Entity entity, 
-            SoundEvent sound, SoundCategory category, float volume, float pitch, Predicate<PlayerEntity> condition) {
+    public static void playSound(Level world, @Nullable Player clientHandled, Entity entity, 
+            SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         if (!world.isClientSide()) {
-            PlaySoundAtEntityEvent event = ForgeEventFactory.onPlaySoundAtEntity(entity, sound, category, volume, pitch);
+            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(entity, sound, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
             category = event.getCategory();
             volume = event.getVolume();
             pitch = event.getPitch();
-            NetworkUtil.broadcastWithCondition(((ServerWorld) world).getServer().getPlayerList().getPlayers(), clientHandled, 
+            NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     entity.getX(), entity.getY(), entity.getZ(), volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
-                            new SSpawnMovingSoundEffectPacket(sound, category, entity, volume, pitch), condition);
+                            new ClientboundSoundEntityPacket(sound, category, entity, volume, pitch), condition);
         }
         else if (clientHandled != null && condition.test(clientHandled)) {
             world.playSound(clientHandled, entity, sound, category, volume, pitch);
@@ -894,7 +894,7 @@ public class MCUtil {
         
         // other items dealing extra damage (trident, knife, potentially unique modded weapons)
         Collection<AttributeModifier> damageModifiers = itemStack
-                .getItem().getAttributeModifiers(EquipmentSlotType.MAINHAND, itemStack).get(Attributes.ATTACK_DAMAGE);
+                .getItem().getAttributeModifiers(EquipmentSlot.MAINHAND, itemStack).get(Attributes.ATTACK_DAMAGE);
         if (damageModifiers != null) {
             return damageModifiers.stream().anyMatch(modifier -> modifier.getOperation() == AttributeModifier.Operation.ADDITION && modifier.getAmount() > 0);
         }
@@ -905,7 +905,7 @@ public class MCUtil {
     }
     
     public static void multipliedAttrModifier(LivingEntity entity, Attribute attribute, AttributeModifier modifier, float mult) {
-        ModifiableAttributeInstance attributeInstance = entity.getAttribute(attribute);
+        AttributeInstance attributeInstance = entity.getAttribute(attribute);
         if (attributeInstance != null) {
             attributeInstance.removeModifier(modifier);
             if (mult != 0) {
@@ -915,11 +915,11 @@ public class MCUtil {
         }
     }
     
-    public static double calcValueWithoutModifiers(ModifiableAttributeInstance entityAttribute, UUID... modifierIds) {
+    public static double calcValueWithoutModifiers(AttributeInstance entityAttribute, UUID... modifierIds) {
         return calcValueWithoutModifiers(entityAttribute, Arrays.stream(modifierIds));
     }
     
-    public static double calcValueWithoutModifiers(ModifiableAttributeInstance entityAttribute, Stream<UUID> modifierIds) {
+    public static double calcValueWithoutModifiers(AttributeInstance entityAttribute, Stream<UUID> modifierIds) {
         Collection<UUID> exclude = modifierIds.collect(Collectors.toCollection(HashSet::new));
         if (exclude.isEmpty()) return entityAttribute.getValue();
         
@@ -942,7 +942,7 @@ public class MCUtil {
     }
     
     public static void applyAttributeModifier(LivingEntity entity, Attribute attribute, AttributeModifier modifier) {
-        ModifiableAttributeInstance attributeInstance = entity.getAttribute(attribute);
+        AttributeInstance attributeInstance = entity.getAttribute(attribute);
         if (attributeInstance != null) {
             attributeInstance.removeModifier(modifier);
             attributeInstance.addTransientModifier(modifier);
@@ -950,14 +950,14 @@ public class MCUtil {
     }
     
     public static void removeAttributeModifier(LivingEntity entity, Attribute attribute, AttributeModifier modifier) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null && instance.hasModifier(modifier)) {
             instance.removeModifier(modifier);
         }
     }
     
     public static void applyAttributeModifierMultiplied(LivingEntity entity, Attribute attribute, AttributeModifier modifier, double multiplier) {
-        ModifiableAttributeInstance attributeInstance = entity.getAttribute(attribute);
+        AttributeInstance attributeInstance = entity.getAttribute(attribute);
         if (attributeInstance != null) {
             attributeInstance.removeModifier(modifier);
             attributeInstance.addTransientModifier(new AttributeModifier(modifier.getId(), 
@@ -966,33 +966,33 @@ public class MCUtil {
     }
     
     public static double getValueIfPresent(LivingEntity entity, Attribute attribute, double or) {
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
         return instance != null ? instance.getValue() : or;
     }
     
     
     
     
-    public static boolean removeEffectInstance(LivingEntity entity, EffectInstance effectInstance) {
+    public static boolean removeEffectInstance(LivingEntity entity, MobEffectInstance effectInstance) {
         if (entity.getActiveEffectsMap().get(effectInstance.getEffect()) == effectInstance) {
             return entity.removeEffect(effectInstance.getEffect());
         }
         return false;
     }
     
-    public static int getEffectLevel(LivingEntity entity, Effect effect) {
-        EffectInstance effInstance = entity.getEffect(effect);
+    public static int getEffectLevel(LivingEntity entity, MobEffect effect) {
+        MobEffectInstance effInstance = entity.getEffect(effect);
         return effInstance != null ? effInstance.getAmplifier() : -1;
     }
 
-    public static boolean reduceEffect(LivingEntity entity, Effect effect, int reduceDuration, int reduceAmplifier) {
-        EffectInstance mainEffectInstance = entity.getEffect(effect);
+    public static boolean reduceEffect(LivingEntity entity, MobEffect effect, int reduceDuration, int reduceAmplifier) {
+        MobEffectInstance mainEffectInstance = entity.getEffect(effect);
         if (mainEffectInstance == null) {
             return false;
         }
         
-        EffectInstance effectInstance = mainEffectInstance;
-        EffectInstance prevInstance = null;
+        MobEffectInstance effectInstance = mainEffectInstance;
+        MobEffectInstance prevInstance = null;
         
         while (effectInstance != null) {
             if (effectInstance.getAmplifier() < reduceAmplifier || effectInstance.getDuration() <= reduceDuration) {
@@ -1020,13 +1020,13 @@ public class MCUtil {
     
     
     
-    public static <T extends IParticleData> int sendParticles(ServerWorld world, T particleType, 
+    public static <T extends ParticleOptions> int sendParticles(ServerLevel world, T particleType, 
             double x, double y, double z, int count, float xDist, float yDist, float zDist, float maxSpeed, 
             SpawnParticlePacket.SpecialContext context) {
         SpawnParticlePacket packet = new SpawnParticlePacket(particleType, false, x, y, z, xDist, yDist, zDist, maxSpeed, count, context);
         int i = 0;
 
-        for (ServerPlayerEntity player : world.players()) {
+        for (ServerPlayer player : world.players()) {
             if (sendParticles(world, player, false, x, y, z, packet)) {
                 ++i;
             }
@@ -1035,12 +1035,12 @@ public class MCUtil {
         return i;
     }
 
-    private static boolean sendParticles(ServerWorld world, ServerPlayerEntity player, boolean force, double x, double y, double z, Object packet) {
+    private static boolean sendParticles(ServerLevel world, ServerPlayer player, boolean force, double x, double y, double z, Object packet) {
         if (player.getLevel() != world) {
             return false;
         } else {
             BlockPos blockpos = player.blockPosition();
-            if (blockpos.closerThan(new Vector3d(x, y, z), force ? 512.0D : 32.0D)) {
+            if (blockpos.closerThan(new Vec3(x, y, z), force ? 512.0D : 32.0D)) {
                 PacketManager.sendToClient(packet, player);
                 return true;
             } else {
@@ -1053,20 +1053,20 @@ public class MCUtil {
     public static void spawnItemParticles(LivingEntity entity, ItemStack item, int particlesCount) {
         Random random = entity.getRandom();
         for (int i = 0; i < particlesCount; ++i) {
-            Vector3d motion = new Vector3d((random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0);
+            Vec3 motion = new Vec3((random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0);
             motion = motion.xRot(-entity.xRot * ((float) Math.PI / 180F));
             motion = motion.yRot(-entity.yRot * ((float) Math.PI / 180F));
             double d0 = -random.nextFloat() * 0.6 - 0.3;
-            Vector3d pos = new Vector3d(((random.nextFloat() - 0.5)) * 0.3, d0, 0.6);
+            Vec3 pos = new Vec3(((random.nextFloat() - 0.5)) * 0.3, d0, 0.6);
             pos = pos.xRot(-entity.xRot * ((float) Math.PI / 180F));
             pos = pos.yRot(-entity.yRot * ((float) Math.PI / 180F));
             pos = pos.add(entity.getX(), entity.getEyeY(), entity.getZ());
-            if (entity.level instanceof ServerWorld) { //Forge: Fix MC-2518 spawnParticle is nooped on server, need to use server specific variant
-                ((ServerWorld)entity.level).sendParticles(new ItemParticleData(ParticleTypes.ITEM, item), 
+            if (entity.level instanceof ServerLevel) { //Forge: Fix MC-2518 spawnParticle is nooped on server, need to use server specific variant
+                ((ServerLevel)entity.level).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, item), 
                         pos.x, pos.y, pos.z, 1, motion.x, motion.y + 0.05D, motion.z, 0.0D);
             }
             else {
-                entity.level.addParticle(new ItemParticleData(ParticleTypes.ITEM, item), 
+                entity.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, item), 
                         pos.x, pos.y, pos.z, motion.x, motion.y + 0.05D, motion.z);
             }
         }
@@ -1078,7 +1078,7 @@ public class MCUtil {
     
 
     
-    public static boolean hasAdvancement(ServerPlayerEntity player, ResourceLocation advancementPath) {
+    public static boolean hasAdvancement(ServerPlayer player, ResourceLocation advancementPath) {
         Advancement advancement = player.server.getAdvancements().getAdvancement(advancementPath);
         if (advancement != null) {
             return player.getAdvancements().getOrStartProgress(advancement).isDone();
@@ -1088,21 +1088,21 @@ public class MCUtil {
     
     
     
-    public static boolean isHandFree(LivingEntity entity, Hand hand) {
+    public static boolean isHandFree(LivingEntity entity, InteractionHand hand) {
         return areHandsFree(entity, hand);
     }
     
     public static boolean areBothHandsFree(LivingEntity entity) {
-        return areHandsFree(entity, Hand.MAIN_HAND, Hand.OFF_HAND);
+        return areHandsFree(entity, InteractionHand.MAIN_HAND, InteractionHand.OFF_HAND);
     }
     
-    public static boolean areHandsFree(LivingEntity entity, Hand... hands) {
+    public static boolean areHandsFree(LivingEntity entity, InteractionHand... hands) {
         if (entity.level.isClientSide() && entity.is(ClientUtil.getClientPlayer()) && ClientUtil.arePlayerHandsBusy()) {
             return false;
         }
-        for (Hand hand : hands) {
+        for (InteractionHand hand : hands) {
             if (!itemHandFree(entity.getItemInHand(hand))
-                    || hand == Hand.OFF_HAND && entity.getPassengers().stream().anyMatch(passenger -> CocoJumboTurtleEntity.isCarriedTurtle(passenger, entity))) {
+                    || hand == InteractionHand.OFF_HAND && entity.getPassengers().stream().anyMatch(passenger -> CocoJumboTurtleEntity.isCarriedTurtle(passenger, entity))) {
                 return false;
             }
         }
@@ -1119,21 +1119,21 @@ public class MCUtil {
         return false;
     }
     
-    public static HandSide getHandSide(LivingEntity entity, Hand hand) {
-        return hand == Hand.MAIN_HAND ? entity.getMainArm() : getOppositeSide(entity.getMainArm());
+    public static HumanoidArm getHandSide(LivingEntity entity, InteractionHand hand) {
+        return hand == InteractionHand.MAIN_HAND ? entity.getMainArm() : getOppositeSide(entity.getMainArm());
     }
     
-    public static Hand getHand(LivingEntity entity, HandSide handSide) {
-        return entity.getMainArm() == handSide ? Hand.MAIN_HAND : Hand.OFF_HAND;
+    public static InteractionHand getHand(LivingEntity entity, HumanoidArm handSide) {
+        return entity.getMainArm() == handSide ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
     
-    public static HandSide getOppositeSide(HandSide side) {
-        return side == HandSide.LEFT ? HandSide.RIGHT : HandSide.LEFT;
+    public static HumanoidArm getOppositeSide(HumanoidArm side) {
+        return side == HumanoidArm.LEFT ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
     }
     
     
     
-    public static void loseTarget(MobEntity attackingMob, LivingEntity target) {
+    public static void loseTarget(Mob attackingMob, LivingEntity target) {
         if (attackingMob.getTarget() == target) {
             attackingMob.setTarget(null);
             attackingMob.targetSelector.getRunningGoals()
@@ -1141,22 +1141,22 @@ public class MCUtil {
         }
     }
     
-    public static void makeMobNeutralTo(MobEntity mob, LivingEntity neutralTo) {
+    public static void makeMobNeutralTo(Mob mob, LivingEntity neutralTo) {
         Class<? extends LivingEntity> clazz = neutralTo.getClass();
         UUID userUuid = neutralTo.getUUID();
-        Set<PrioritizedGoal> goals = CommonReflection.getGoalsSet(mob.targetSelector);
-        for (PrioritizedGoal prGoal : goals) {
+        Set<WrappedGoal> goals = CommonReflection.getGoalsSet(mob.targetSelector);
+        for (WrappedGoal prGoal : goals) {
             Goal goal = prGoal.getGoal();
             if (goal instanceof NearestAttackableTargetGoal) {
                 NearestAttackableTargetGoal<?> targetGoal = (NearestAttackableTargetGoal<?>) goal;
                 Class<? extends LivingEntity> targetClass = CommonReflection.getTargetClass(targetGoal);
                 
                 if (targetClass == null || targetClass.isAssignableFrom(clazz)) {
-                    EntityPredicate selector = CommonReflection.getTargetConditions(targetGoal);
+                    TargetingConditions selector = CommonReflection.getTargetConditions(targetGoal);
                     if (selector != null) {
                         Predicate<LivingEntity> oldPredicate = CommonReflection.getTargetSelector(selector);
                         Predicate<LivingEntity> geUserPredicate = target -> !userUuid.equals(target.getUUID());
-                        CommonReflection.setTargetConditions(targetGoal, new EntityPredicate().range(CommonReflection.getTargetDistance(targetGoal)).selector(
+                        CommonReflection.setTargetConditions(targetGoal, new TargetingConditions().range(CommonReflection.getTargetDistance(targetGoal)).selector(
                                 oldPredicate != null ? oldPredicate.and(geUserPredicate) : geUserPredicate));
                     }
                 }
@@ -1170,8 +1170,8 @@ public class MCUtil {
         entity.deathTime = 0;
         if (!entity.level.isClientSide()) {
             PacketManager.sendToClientsTrackingAndSelf(new TrResetDeathTimePacket(entity.getId()), entity);
-            if (entity instanceof ServerPlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) entity;
+            if (entity instanceof ServerPlayer) {
+                ServerPlayer player = (ServerPlayer) entity;
                 if (!player.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && !player.isSpectator()) {
                     player.setExperienceLevels(0);
                     player.setExperiencePoints(0);
@@ -1182,12 +1182,12 @@ public class MCUtil {
     
     
     
-    public static boolean isPotionWaterBottle(PotionEntity entity) {
+    public static boolean isPotionWaterBottle(ThrownPotion entity) {
         ItemStack potionItem = entity.getItem();
         return PotionUtils.getPotion(potionItem) == Potions.WATER && PotionUtils.getMobEffects(potionItem).isEmpty();
     }
     
-    public static ItemStack getItemOnServer(ProjectileItemEntity entity) {
+    public static ItemStack getItemOnServer(ThrowableItemProjectile entity) {
         ItemStack item = CommonReflection.getItemRaw(entity);
         return item.isEmpty() ? new ItemStack(CommonReflection.getDefaultItem(entity)) : item;
     }
@@ -1200,7 +1200,7 @@ public class MCUtil {
         if (entity instanceof LivingEntity) {
             ((LivingEntity) entity).setJumping(true);
         }
-        Vector3d leap = Vector3d.directionFromRotation(Math.min(entity.xRot, -30F), entity.yRot).scale(leapStrength);
+        Vec3 leap = Vec3.directionFromRotation(Math.min(entity.xRot, -30F), entity.yRot).scale(leapStrength);
         entity.setDeltaMovement(leap.x, leap.y * 0.5, leap.z);
     }
     
@@ -1211,15 +1211,15 @@ public class MCUtil {
     }
     
     
-    public static <V extends IForgeRegistryEntry<V>> IForgeRegistry<V> getRegistry(IForgeRegistryEntry<?> regEntry) {
-        return RegistryManager.ACTIVE.getRegistry(((IForgeRegistryEntry<V>) regEntry).getRegistryType());
+    public static <V extends RegistryEntry<V>> IForgeRegistry<V> getRegistry(RegistryEntry<?> regEntry) {
+        return ((RegistryEntry<V>) regEntry).getRegistry();
     }
     
     
     @Nullable
-    public static <T> RegistryKey<T> getRegistryKeyIfPresent(RegistryKey<? extends Registry<T>> parent, ResourceLocation location) {
+    public static <T> ResourceKey<T> getRegistryKeyIfPresent(ResourceKey<? extends Registry<T>> parent, ResourceLocation location) {
         String s = (parent.location() + ":" + location).intern();
-        return (RegistryKey<T>) CommonReflection.registryKeyValues().get(s);
+        return (ResourceKey<T>) CommonReflection.registryKeyValues().get(s);
     }
     
     

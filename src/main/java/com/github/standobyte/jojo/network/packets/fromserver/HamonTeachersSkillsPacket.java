@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonTeachersSkillsPacket {
     private final boolean teacherNearby;
@@ -29,7 +29,7 @@ public class HamonTeachersSkillsPacket {
     public static class Handler implements IModPacketHandler<HamonTeachersSkillsPacket> {
 
         @Override
-        public void encode(HamonTeachersSkillsPacket msg, PacketBuffer buf) {
+        public void encode(HamonTeachersSkillsPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.teacherNearby);
             if (msg.teacherNearby) {
                 NetworkUtil.writeCollection(buf, msg.skills, buf::writeRegistryId, false);
@@ -37,7 +37,7 @@ public class HamonTeachersSkillsPacket {
         }
 
         @Override
-        public HamonTeachersSkillsPacket decode(PacketBuffer buf) {
+        public HamonTeachersSkillsPacket decode(FriendlyByteBuf buf) {
             return buf.readBoolean() ? new HamonTeachersSkillsPacket(NetworkUtil.readCollection(buf, 
                     () -> buf.readRegistryIdSafe(AbstractHamonSkill.class))) : new HamonTeachersSkillsPacket();
         }

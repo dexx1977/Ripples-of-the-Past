@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.modcompat;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IVampirismModIntegration {
     

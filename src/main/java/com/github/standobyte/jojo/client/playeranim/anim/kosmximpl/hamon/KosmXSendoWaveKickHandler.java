@@ -11,11 +11,11 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXSendoWaveKickHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
 
@@ -24,20 +24,20 @@ public class KosmXSendoWaveKickHandler extends AnimLayerHandler<ModifierLayer<IA
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, new KosmXHeadRotationModifier());
     }
     
     
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         enabled &= PlayerAnimationHandler.canAnimate(player);
         if (enabled) {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(4, Ease.OUTCUBIC), 
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(4, Ease.OUTCUBIC), 
                     getAnimFromName(getAnimPath(player)));
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
         }
     }
     
@@ -51,9 +51,9 @@ public class KosmXSendoWaveKickHandler extends AnimLayerHandler<ModifierLayer<IA
             ITEM_RIGHT,
             ITEMS_BOTH
     };
-    private ResourceLocation getAnimPath(PlayerEntity player) {
-        Hand rightHand = MCUtil.getHand(player, HandSide.RIGHT);
-        Hand leftHand = MCUtil.getHand(player, HandSide.LEFT);
+    private ResourceLocation getAnimPath(Player player) {
+        InteractionHand rightHand = MCUtil.getHand(player, HumanoidArm.RIGHT);
+        InteractionHand leftHand = MCUtil.getHand(player, HumanoidArm.LEFT);
         int index = (player.getItemInHand(leftHand).isEmpty() ? 0 : 1) + (player.getItemInHand(rightHand).isEmpty() ? 0 : 2);
         return ANIMS[index];
     }

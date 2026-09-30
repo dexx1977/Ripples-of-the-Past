@@ -31,49 +31,49 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.AxisRotation;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.AxisCycle;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ReuseableStream;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
+public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
     private final Entity entity;
     private final LivingEntity asLiving;
 
     private LivingEntity attacker;
     private LivingEntity attackerStandUser;
     private boolean attackerIsStand;
-    private Vector3d knockbackVec = null;
+    private Vec3 knockbackVec = null;
     private double knockbackImpactStrength;
     private double minCos;
     private boolean hadImpactWithBlock = false;
-    private Vector3d prevTickPos;
+    private Vec3 prevTickPos;
     
     private float explosionRadius = 0;
     private DamageSource explosionDmgSource;
@@ -82,7 +82,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
     
     private float syoPunchBaseDamage = 0;
     private int scarletOverdriveFireTicks = 0;
-    private IParticleData hamonParticles;
+    private ParticleOptions hamonParticles;
     
     public KnockbackCollisionImpact(Entity entity) {
         this.entity = entity;
@@ -93,7 +93,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
     /**
      * @return true if the block collision needs to be recalculated
      */
-    public boolean collideBreakBlocks(Vector3d movementVec, Vector3d collidedVec, World world) {
+    public boolean collideBreakBlocks(Vec3 movementVec, Vec3 collidedVec, Level world) {
         if (!isActive() || movementVec.lengthSqr() < 1E-07) {
             return false;
         }
@@ -104,7 +104,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
         return canBreakBlocks && collidedWithBlocks;
     }
     
-    public KnockbackCollisionImpact onPunchSetKnockbackImpact(Vector3d knockbackVec, LivingEntity attacker) {
+    public KnockbackCollisionImpact onPunchSetKnockbackImpact(Vec3 knockbackVec, LivingEntity attacker) {
         double kbMultiplier = 1 - (asLiving != null ? MCUtil.getValueIfPresent(asLiving, Attributes.KNOCKBACK_RESISTANCE, 0) : 0);
         if (kbMultiplier <= 0) return this;
         
@@ -130,7 +130,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
         return this;
     }
     
-    public KnockbackCollisionImpact hamonDamage(float punchBaseDamage, int fireTicks, IParticleData sparkParticles) {
+    public KnockbackCollisionImpact hamonDamage(float punchBaseDamage, int fireTicks, ParticleOptions sparkParticles) {
         if (this.knockbackVec == null) return this;
         
         this.syoPunchBaseDamage = punchBaseDamage;
@@ -166,14 +166,14 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
                 return;
             }
             
-            Vector3d deltaMovement = entity.getDeltaMovement();
+            Vec3 deltaMovement = entity.getDeltaMovement();
             if (Math.abs(deltaMovement.x) < 1E-7 && Math.abs(deltaMovement.z) < 1E-7) {
                 reset();
                 return;
             }
             
             double deltaMovementLen = deltaMovement.length();
-            Vector3d deltaMovementNormalized = deltaMovement.scale(1 / deltaMovementLen);
+            Vec3 deltaMovementNormalized = deltaMovement.scale(1 / deltaMovementLen);
             double cos = deltaMovementNormalized.dot(knockbackVec);
             if (cos <= 0) {
                 reset();
@@ -184,7 +184,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
             knockbackImpactStrength = Math.min(knockbackImpactStrength, deltaMovementLen);
             
             // spiders get stuck in cave corners not triggering the impact, so we try to manually trigger it here
-            Vector3d entityPos = entity.position();
+            Vec3 entityPos = entity.position();
             if (prevTickPos != null && Math.abs(prevTickPos.x - entityPos.x) < 1E-7 && Math.abs(prevTickPos.z - entityPos.z) < 1E-7) {
                 collideBreakBlocks(deltaMovement, deltaMovement, entity.level);
             }
@@ -208,8 +208,8 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
         return knockbackVec != null;
     }
     
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         if (isActive()) {
             MCUtil.nbtPutVec3d(nbt, "Vec", knockbackVec);
             nbt.putDouble("Power", knockbackImpactStrength);
@@ -226,7 +226,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
         return nbt;
     }
     
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         knockbackVec = MCUtil.nbtGetVec3d(nbt, "Vec");
         if (knockbackVec != null) {
             knockbackImpactStrength = nbt.getDouble("Power");
@@ -236,13 +236,13 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
             explosionDamage = nbt.getFloat("ExplosionDamage");
             syoPunchBaseDamage = nbt.getFloat("HamonPunchDmg");
             scarletOverdriveFireTicks = nbt.getInt("HamonFireTicks");
-            hamonParticles = MCUtil.getNbtElement(nbt, "HamonSparks", StringNBT.class)
-                    .map(StringNBT::getAsString).map(ResourceLocation::new)
+            hamonParticles = MCUtil.getNbtElement(nbt, "HamonSparks", StringTag.class)
+                    .map(StringTag::getAsString).map(ResourceLocation::new)
                     .map(particleId -> {
                         if (ForgeRegistries.PARTICLE_TYPES.containsKey(particleId)) {
                             ParticleType<?> type = ForgeRegistries.PARTICLE_TYPES.getValue(particleId);
-                            if (type instanceof BasicParticleType) {
-                                return (BasicParticleType) type;
+                            if (type instanceof SimpleParticleType) {
+                                return (SimpleParticleType) type;
                             }
                         }
                         return null;
@@ -252,20 +252,20 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
     
     
     
-    private void collideBoundingBox(Entity entity, Vector3d movementVec, boolean collideBlocks, boolean breakBlocks) {
-        World world = entity.level;
+    private void collideBoundingBox(Entity entity, Vec3 movementVec, boolean collideBlocks, boolean breakBlocks) {
+        Level world = entity.level;
         if (world.isClientSide()) return;
         
-        AxisAlignedBB aabb = entity.getBoundingBox().inflate(0.25);
-        ISelectionContext selectionContext = ISelectionContext.of(entity);
-        ServerWorld serverWorld = (ServerWorld) world;
+        AABB aabb = entity.getBoundingBox().inflate(0.25);
+        CollisionContext selectionContext = CollisionContext.of(entity);
+        ServerLevel serverWorld = (ServerLevel) world;
         
         VoxelShape worldBorder = world.getWorldBorder().getCollisionShape();
         ReuseableStream<VoxelShape> worldBorderCollision = new ReuseableStream<>(
-                VoxelShapes.joinIsNotEmpty(worldBorder, VoxelShapes.create(aabb.deflate(1.0E-7D)), IBooleanFunction.AND) ? Stream.empty() : Stream.of(worldBorder));
+                Shapes.joinIsNotEmpty(worldBorder, Shapes.create(aabb.deflate(1.0E-7D)), BooleanOp.AND) ? Stream.empty() : Stream.of(worldBorder));
         
         ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions = new ReuseableStream<>(getEntityCollisions(world, entity, aabb.expandTowards(movementVec), 
-                EntityPredicates.NO_CREATIVE_OR_SPECTATOR.and(
+                EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(
                         e -> e.isPickable()
                         && (attackerStandUser == null || MCUtil.canHarm(attackerStandUser, e))
                         && !(entity instanceof LivingEntity && !MCUtil.canHarm((LivingEntity) entity, e))
@@ -276,7 +276,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
                 selectionContext, entitiesCollided);
 
         if (!entitiesCollided.isEmpty()) {
-            Vector3d vec = entity.getDeltaMovement();
+            Vec3 vec = entity.getDeltaMovement();
 
             entitiesCollided.forEach(targetEntity -> {
                 LivingEntity asLiving = targetEntity instanceof LivingEntity ? (LivingEntity) targetEntity : null;
@@ -317,7 +317,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
                 collision.blocks.stream()
                 .distinct()
                 .sorted(Comparator.comparingDouble(block -> {
-                    AxisAlignedBB blockBB = block.getRight().bounds();
+                    AABB blockBB = block.getRight().bounds();
                     return MCUtil.getManhattanDist(blockBB, entity.getBoundingBox());
                 }))
                 .map(Pair::getLeft)
@@ -363,22 +363,22 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
 					return impactStrengthNew.floatValue() > 0;
                 });
                 
-                Vector3d collisionDir = new Vector3d(collision.movementX - collision.x, collision.movementY - collision.y, collision.movementZ - collision.z);
+                Vec3 collisionDir = new Vec3(collision.movementX - collision.x, collision.movementY - collision.y, collision.movementZ - collision.z);
                 Direction faceHit = Direction.getNearest(collisionDir.x, collisionDir.y, collisionDir.z);
                 if (faceHit != Direction.DOWN) {
                     if (breakBlocks) {
                         if (explosionRadius > 0) {
-                            AxisAlignedBB entityBB = entity.getBoundingBox();
-                            Vector3d hitPos = new Vector3d(
-                                    MathHelper.lerp(faceHit.getStepX() * 0.5 + 0.5, entityBB.minX, entityBB.maxX), 
-                                    MathHelper.lerp(faceHit.getStepY() * 0.5 + 0.5, entityBB.minY, entityBB.maxY), 
-                                    MathHelper.lerp(faceHit.getStepZ() * 0.5 + 0.5, entityBB.minZ, entityBB.maxZ));
-                            BlockPos hitBlockPos = new BlockPos(hitPos.add(Vector3d.atBottomCenterOf(faceHit.getNormal()).scale(0.5)));
+                            AABB entityBB = entity.getBoundingBox();
+                            Vec3 hitPos = new Vec3(
+                                    Mth.lerp(faceHit.getStepX() * 0.5 + 0.5, entityBB.minX, entityBB.maxX), 
+                                    Mth.lerp(faceHit.getStepY() * 0.5 + 0.5, entityBB.minY, entityBB.maxY), 
+                                    Mth.lerp(faceHit.getStepZ() * 0.5 + 0.5, entityBB.minZ, entityBB.maxZ));
+                            BlockPos hitBlockPos = new BlockPos(hitPos.add(Vec3.atBottomCenterOf(faceHit.getNormal()).scale(0.5)));
                             
                             HeavyPunchExplosion explosion = new HeavyPunchExplosion(world, attacker, new ActionTarget(hitBlockPos, faceHit.getOpposite()), 
                                     movementVec, explosionDmgSource, null, 
                                     hitPos.x, hitPos.y, hitPos.z, 
-                                    explosionRadius, false, Explosion.Mode.BREAK)
+                                    explosionRadius, false, Explosion.BlockInteraction.BREAK)
                                     .aoeDamage(explosionDamage)
                                     .entityNoDamage(entity);
                             if (CustomExplosion.explode(explosion)) {
@@ -412,20 +412,20 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
     }
     
     
-    private static Stream<Pair<Entity, VoxelShape>> getEntityCollisions(World world, @Nullable Entity pEntity, AxisAlignedBB pArea, Predicate<Entity> pFilter) {
+    private static Stream<Pair<Entity, VoxelShape>> getEntityCollisions(Level world, @Nullable Entity pEntity, AABB pArea, Predicate<Entity> pFilter) {
         if (pArea.getSize() < 1.0E-7D) {
             return Stream.empty();
         } else {
-            AxisAlignedBB axisalignedbb = pArea.inflate(1.0E-7D);
+            AABB axisalignedbb = pArea.inflate(1.0E-7D);
             return world.getEntities(pEntity, axisalignedbb, pFilter.and(target -> {
                 return target.isPickable();
-            })).stream().map(entity -> Pair.of(entity, VoxelShapes.create(entity.getBoundingBox())));
+            })).stream().map(entity -> Pair.of(entity, Shapes.create(entity.getBoundingBox())));
         }
     }
     
-    private static void collideEntities(AxisAlignedBB aabb, Vector3d movementVec, World world, 
+    private static void collideEntities(AABB aabb, Vec3 movementVec, Level world, 
             ReuseableStream<VoxelShape> worldBorderCollision, ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
-            ISelectionContext selectionContext, Collection<Entity> entityCollision) {
+            CollisionContext selectionContext, Collection<Entity> entityCollision) {
         double x = movementVec.x;
         double y = movementVec.y;
         double z = movementVec.z;
@@ -465,15 +465,15 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundNBT> {
         }
     }
     
-    private static double collideEntitiesAxis(Direction.Axis movementAxis, AxisAlignedBB collisionBox, World world, double desiredOffset, 
+    private static double collideEntitiesAxis(Direction.Axis movementAxis, AABB collisionBox, Level world, double desiredOffset, 
             ReuseableStream<VoxelShape> worldBorderCollision, ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
-            ISelectionContext pSelectionContext, Collection<Entity> entityCollision) {
+            CollisionContext pSelectionContext, Collection<Entity> entityCollision) {
         if (!(collisionBox.getXsize() < 1.0E-6D) && !(collisionBox.getYsize() < 1.0E-6D) && !(collisionBox.getZsize() < 1.0E-6D)) {
             if (Math.abs(desiredOffset) < 1.0E-7D) {
                 return 0;
             } else {
-                AxisRotation pRotationAxis = AxisRotation.between(movementAxis, Direction.Axis.Z);
-                AxisRotation axisrotation = pRotationAxis.inverse();
+                AxisCycle pRotationAxis = AxisCycle.between(movementAxis, Direction.Axis.Z);
+                AxisCycle axisrotation = pRotationAxis.inverse();
                 Direction.Axis direction$axis2 = axisrotation.cycle(Direction.Axis.Z);
 
                 MutableDouble worldBorderCollideOffset = new MutableDouble(desiredOffset);

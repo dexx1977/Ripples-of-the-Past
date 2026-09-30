@@ -12,30 +12,30 @@ import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.ItemModelShaper;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 
-public class StandDiscOverrideList extends ItemOverrideList {
-    private final Map<ResourceLocation, IBakedModel> cache = new HashMap<>();
-    private final ItemOverrideList wrappedOverrides;
+public class StandDiscOverrideList extends ItemOverrides {
+    private final Map<ResourceLocation, BakedModel> cache = new HashMap<>();
+    private final ItemOverrides wrappedOverrides;
     
-    public StandDiscOverrideList(ItemOverrideList wrappedOverrides) {
+    public StandDiscOverrideList(ItemOverrides wrappedOverrides) {
         this.wrappedOverrides = wrappedOverrides;
     }
     
     @Override
-    public IBakedModel resolve(IBakedModel model, ItemStack item, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
+    public BakedModel resolve(BakedModel model, ItemStack item, @Nullable ClientLevel world, @Nullable LivingEntity entity) {
         StandInstance discStand = StandDiscItem.getStandFromStack(item);
         if (discStand != null) {
             StandType<?> standType = discStand.getType();
-            ItemModelMesher itemModelShaper = Minecraft.getInstance().getItemRenderer().getItemModelShaper();
-            IBakedModel standSpecificModel = cache.computeIfAbsent(standType.getRegistryName(), standId -> itemModelShaper.getModelManager().getModel(makeStandSpecificModelPath(standType)));
+            ItemModelShaper itemModelShaper = Minecraft.getInstance().getItemRenderer().getItemModelShaper();
+            BakedModel standSpecificModel = cache.computeIfAbsent(standType.getRegistryName(), standId -> itemModelShaper.getModelManager().getModel(makeStandSpecificModelPath(standType)));
             if (standSpecificModel != null && !ClientUtil.isMissingModel(standSpecificModel, itemModelShaper)) {
                 model = standSpecificModel;
             }

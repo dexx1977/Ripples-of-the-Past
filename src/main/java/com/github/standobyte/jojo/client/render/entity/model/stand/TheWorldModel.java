@@ -4,72 +4,72 @@ import com.github.standobyte.jojo.client.render.MeshModelBox;
 import com.github.standobyte.jojo.client.render.entity.pose.XRotationModelRenderer;
 import com.github.standobyte.jojo.entity.stand.stands.TheWorldEntity;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 //Made with Blockbench 4.8.3
 
 
 public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
-    ModelRenderer heartLargeAbdomen;
+    ModelPart heartLargeAbdomen;
 
     public TheWorldModel() {
         super();
 
-        ModelRenderer headpieceNew;
-        ModelRenderer slopeNew;
-        ModelRenderer faceRightNew;
-        ModelRenderer faceLeftNew;
-        ModelRenderer leftCable;
-        ModelRenderer rightCable;
-        ModelRenderer heartSmallHead;
-        ModelRenderer smallHeartCube4;
-        ModelRenderer smallHeartCube5;
-        ModelRenderer smallHeartCube6;
-        ModelRenderer beltLeft;
-        ModelRenderer beltRight;
-        ModelRenderer strapLeft;
-        ModelRenderer strapRight;
-        ModelRenderer largeHeartCube1;
-        ModelRenderer largeHeartCube2;
-        ModelRenderer largeHeartCube3;
-        ModelRenderer heartSmallAbdomen;
-        ModelRenderer smallHeartCube1;
-        ModelRenderer smallHeartCube2;
-        ModelRenderer smallHeartCube3;
-        ModelRenderer heartLeftArm;
-        ModelRenderer heartCube4;
-        ModelRenderer heartCube5;
-        ModelRenderer heartCube6;
-        ModelRenderer heartRightArm;
-        ModelRenderer heartCube1;
-        ModelRenderer heartCube2;
-        ModelRenderer heartCube3;
-        ModelRenderer heartRightLeg;
-        ModelRenderer heartCube10;
-        ModelRenderer heartCube11;
-        ModelRenderer heartCube12;
-        ModelRenderer heartLeftLeg;
-        ModelRenderer heartCube7;
-        ModelRenderer heartCube8;
-        ModelRenderer heartCube9;
+        ModelPart headpieceNew;
+        ModelPart slopeNew;
+        ModelPart faceRightNew;
+        ModelPart faceLeftNew;
+        ModelPart leftCable;
+        ModelPart rightCable;
+        ModelPart heartSmallHead;
+        ModelPart smallHeartCube4;
+        ModelPart smallHeartCube5;
+        ModelPart smallHeartCube6;
+        ModelPart beltLeft;
+        ModelPart beltRight;
+        ModelPart strapLeft;
+        ModelPart strapRight;
+        ModelPart largeHeartCube1;
+        ModelPart largeHeartCube2;
+        ModelPart largeHeartCube3;
+        ModelPart heartSmallAbdomen;
+        ModelPart smallHeartCube1;
+        ModelPart smallHeartCube2;
+        ModelPart smallHeartCube3;
+        ModelPart heartLeftArm;
+        ModelPart heartCube4;
+        ModelPart heartCube5;
+        ModelPart heartCube6;
+        ModelPart heartRightArm;
+        ModelPart heartCube1;
+        ModelPart heartCube2;
+        ModelPart heartCube3;
+        ModelPart heartRightLeg;
+        ModelPart heartCube10;
+        ModelPart heartCube11;
+        ModelPart heartCube12;
+        ModelPart heartLeftLeg;
+        ModelPart heartCube7;
+        ModelPart heartCube8;
+        ModelPart heartCube9;
 
-        root = new ModelRenderer(this);
+        root = new ModelPart(this);
         root.setPos(0.0F, 0.0F, 0.0F);
         
 
-        head = new ModelRenderer(this);
+        head = new ModelPart(this);
         head.setPos(0.0F, 0.0F, 0.0F);
         root.addChild(head);
         head.texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F, false);
 
-        headpieceNew = new ModelRenderer(this);
+        headpieceNew = new ModelPart(this);
         headpieceNew.setPos(0.0F, -2.0F, -5.3F);
         head.addChild(headpieceNew);
         
 
-        slopeNew = new ModelRenderer(this);
+        slopeNew = new ModelPart(this);
         slopeNew.setPos(0.0F, -6.4F, 1.3F);
         headpieceNew.addChild(slopeNew);
         
@@ -107,7 +107,7 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         .buildCube().addCube(slopeNew);
         
         
-        faceRightNew = new ModelRenderer(this);
+        faceRightNew = new ModelPart(this);
         faceRightNew.setPos(-4.2F, -6.4F, 1.3F);
         headpieceNew.addChild(faceRightNew);
         
@@ -138,7 +138,7 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         .buildCube().addCube(faceRightNew);
         
 
-        faceLeftNew = new ModelRenderer(this);
+        faceLeftNew = new ModelPart(this);
         faceLeftNew.setPos(4.2F, -6.4F, 1.3F);
         headpieceNew.addChild(faceLeftNew);
         
@@ -169,54 +169,54 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         .buildCube().addCube(faceLeftNew);
         
 
-        leftCable = new ModelRenderer(this);
+        leftCable = new ModelPart(this);
         leftCable.setPos(1.25F, -3.3F, 0.25F);
         head.addChild(leftCable);
         setRotationAngle(leftCable, 0.0873F, 0.1309F, -1.2217F);
         leftCable.texOffs(13, 16).addBox(-0.5F, 0.0F, 0.0F, 1.0F, 4.0F, 5.0F, 0.0F, true);
         leftCable.texOffs(13, 25).addBox(-0.5F, 1.0F, 1.0F, 1.0F, 2.0F, 3.0F, 0.0F, true);
 
-        rightCable = new ModelRenderer(this);
+        rightCable = new ModelPart(this);
         rightCable.setPos(-1.25F, -3.3F, 0.25F);
         head.addChild(rightCable);
         setRotationAngle(rightCable, 0.0873F, -0.1309F, 1.2217F);
         rightCable.texOffs(0, 16).addBox(-0.5F, 0.0F, 0.0F, 1.0F, 4.0F, 5.0F, 0.0F, false);
         rightCable.texOffs(0, 25).addBox(-0.5F, 1.0F, 1.0F, 1.0F, 2.0F, 3.0F, 0.0F, false);
 
-        heartSmallHead = new ModelRenderer(this);
+        heartSmallHead = new ModelPart(this);
         heartSmallHead.setPos(0.0F, 0.55F, -4.0F);
         head.addChild(heartSmallHead);
         
 
-        smallHeartCube4 = new ModelRenderer(this);
+        smallHeartCube4 = new ModelPart(this);
         smallHeartCube4.setPos(0.0F, 0.0F, 0.0F);
         heartSmallHead.addChild(smallHeartCube4);
         setRotationAngle(smallHeartCube4, 0.0F, 0.0F, -0.7854F);
         smallHeartCube4.texOffs(4, 4).addBox(0.0F, -1.0F, -0.5F, 1.0F, 1.0F, 1.0F, -0.2F, false);
 
-        smallHeartCube5 = new ModelRenderer(this);
+        smallHeartCube5 = new ModelPart(this);
         smallHeartCube5.setPos(0.3F, -0.3F, 0.0F);
         heartSmallHead.addChild(smallHeartCube5);
         setRotationAngle(smallHeartCube5, 0.0F, 0.0F, -0.7854F);
         smallHeartCube5.texOffs(4, 6).addBox(0.175F, -1.0F, -0.5F, 0.925F, 1.0F, 1.0F, -0.2F, false);
 
-        smallHeartCube6 = new ModelRenderer(this);
+        smallHeartCube6 = new ModelPart(this);
         smallHeartCube6.setPos(-0.3F, -0.3F, 0.0F);
         heartSmallHead.addChild(smallHeartCube6);
         setRotationAngle(smallHeartCube6, 0.0F, 0.0F, -0.7854F);
         smallHeartCube6.texOffs(0, 6).addBox(0.0F, -1.1F, -0.5F, 1.0F, 0.925F, 1.0F, -0.2F, false);
 
-        body = new ModelRenderer(this);
+        body = new ModelPart(this);
         body.setPos(0.0F, 0.0F, 0.0F);
         root.addChild(body);
         
 
-        upperPart = new ModelRenderer(this);
+        upperPart = new ModelPart(this);
         upperPart.setPos(0.0F, 12.0F, 0.0F);
         body.addChild(upperPart);
         
 
-        torso = new ModelRenderer(this);
+        torso = new ModelPart(this);
         torso.setPos(0.0F, -12.0F, 0.0F);
         upperPart.addChild(torso);
         torso.texOffs(0, 64).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.0F, false);
@@ -226,77 +226,77 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         torso.texOffs(9, 80).addBox(0.6F, 1.0F, 2.0F, 2.0F, 5.0F, 2.0F, 0.1F, true);
         torso.texOffs(0, 80).addBox(-2.6F, 1.0F, 2.0F, 2.0F, 5.0F, 2.0F, 0.1F, false);
 
-        beltRight = new ModelRenderer(this);
+        beltRight = new ModelPart(this);
         beltRight.setPos(-2.0F, 10.35F, 0.0F);
         torso.addChild(beltRight);
         setRotationAngle(beltRight, 0.0F, 0.0F, 0.1309F);
         beltRight.texOffs(64, 74).addBox(-2.0F, -0.5F, -2.0F, 4.0F, 1.0F, 4.0F, 0.13F, false);
 
-        beltLeft = new ModelRenderer(this);
+        beltLeft = new ModelPart(this);
         beltLeft.setPos(2.0F, 10.35F, 0.0F);
         torso.addChild(beltLeft);
         setRotationAngle(beltLeft, 0.0F, 0.0F, -0.1309F);
         beltLeft.texOffs(80, 74).addBox(-2.0F, -0.5F, -2.0F, 4.0F, 1.0F, 4.0F, 0.13F, false);
 
-        strapLeft = new ModelRenderer(this);
+        strapLeft = new ModelPart(this);
         strapLeft.setPos(2.65F, 10.0F, 0.0F);
         torso.addChild(strapLeft);
         setRotationAngle(strapLeft, 0.0F, 0.0F, 0.0611F);
         strapLeft.texOffs(50, 65).addBox(-1.35F, -10.1F, -2.5F, 2.0F, 10.0F, 5.0F, 0.0F, true);
 
-        strapRight = new ModelRenderer(this);
+        strapRight = new ModelPart(this);
         strapRight.setPos(-2.3F, 10.0F, 0.0F);
         torso.addChild(strapRight);
         setRotationAngle(strapRight, 0.0F, 0.0F, -0.0611F);
         strapRight.texOffs(36, 65).addBox(-1.0F, -10.1F, -2.5F, 2.0F, 10.0F, 5.0F, 0.0F, false);
 
-        heartLargeAbdomen = new ModelRenderer(this);
+        heartLargeAbdomen = new ModelPart(this);
         heartLargeAbdomen.setPos(0.0F, 11.5F, -2.0F);
         torso.addChild(heartLargeAbdomen);
         
 
-        largeHeartCube1 = new ModelRenderer(this);
+        largeHeartCube1 = new ModelPart(this);
         largeHeartCube1.setPos(0.0F, 2.0F, 0.25F);
         heartLargeAbdomen.addChild(largeHeartCube1);
         setRotationAngle(largeHeartCube1, 0.0F, 0.0F, 0.7854F);
         largeHeartCube1.texOffs(28, 81).addBox(-1.0F, -2.0F, -0.5F, 1.0F, 0.5F, 0.0F, 0.25F, false);
 
-        largeHeartCube2 = new ModelRenderer(this);
+        largeHeartCube2 = new ModelPart(this);
         largeHeartCube2.setPos(0.0F, 2.0F, 0.25F);
         heartLargeAbdomen.addChild(largeHeartCube2);
         setRotationAngle(largeHeartCube2, 0.0F, 0.0F, -0.7854F);
         largeHeartCube2.texOffs(25, 81).addBox(0.0F, -2.0F, -0.5F, 1.0F, 0.5F, 0.0F, 0.25F, false);
 
-        largeHeartCube3 = new ModelRenderer(this);
+        largeHeartCube3 = new ModelPart(this);
         largeHeartCube3.setPos(0.0F, 2.0F, 0.25F);
         heartLargeAbdomen.addChild(largeHeartCube3);
         setRotationAngle(largeHeartCube3, 0.0F, 0.0F, -0.7854F);
         largeHeartCube3.texOffs(22, 81).addBox(0.0F, -1.0F, -0.5F, 1.0F, 1.0F, 0.0F, 0.25F, false);
 
-        heartSmallAbdomen = new ModelRenderer(this);
+        heartSmallAbdomen = new ModelPart(this);
         heartSmallAbdomen.setPos(0.0F, 11.3F, -2.05F);
         torso.addChild(heartSmallAbdomen);
         
 
-        smallHeartCube1 = new ModelRenderer(this);
+        smallHeartCube1 = new ModelPart(this);
         smallHeartCube1.setPos(0.0F, 0.0F, 0.0F);
         heartSmallAbdomen.addChild(smallHeartCube1);
         setRotationAngle(smallHeartCube1, 0.0F, 0.0F, -0.7854F);
         smallHeartCube1.texOffs(17, 82).addBox(0.0F, -1.0F, -0.5F, 1.0F, 1.0F, 1.0F, -0.2F, false);
 
-        smallHeartCube2 = new ModelRenderer(this);
+        smallHeartCube2 = new ModelPart(this);
         smallHeartCube2.setPos(0.3F, -0.3F, 0.0F);
         heartSmallAbdomen.addChild(smallHeartCube2);
         setRotationAngle(smallHeartCube2, 0.0F, 0.0F, -0.7854F);
         smallHeartCube2.texOffs(17, 80).addBox(0.175F, -1.0F, -0.5F, 0.825F, 1.0F, 1.0F, -0.2F, false);
 
-        smallHeartCube3 = new ModelRenderer(this);
+        smallHeartCube3 = new ModelPart(this);
         smallHeartCube3.setPos(-0.3F, -0.3F, 0.0F);
         heartSmallAbdomen.addChild(smallHeartCube3);
         setRotationAngle(smallHeartCube3, 0.0F, 0.0F, -0.7854F);
         smallHeartCube3.texOffs(17, 85).addBox(0.0F, -1.0F, -0.5F, 1.0F, 0.825F, 1.0F, -0.2F, false);
 
-        leftArmXRot = new ModelRenderer(this);
+        leftArmXRot = new ModelPart(this);
         leftArmXRot.setPos(6.0F, -10.0F, 0.0F);
         upperPart.addChild(leftArmXRot);
         
@@ -309,35 +309,35 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         leftArm.texOffs(48, 110).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 3.0F, 4.0F, 0.25F, true);
         leftArm.texOffs(48, 105).addBox(-2.0F, 3.0F, -2.0F, 4.0F, 1.0F, 4.0F, 0.075F, true);
 
-        heartLeftArm = new ModelRenderer(this);
+        heartLeftArm = new ModelPart(this);
         heartLeftArm.setPos(0.0F, 3.8F, 1.8F);
         leftArm.addChild(heartLeftArm);
         
 
-        heartCube4 = new ModelRenderer(this);
+        heartCube4 = new ModelPart(this);
         heartCube4.setPos(0.0F, 0.0F, 0.0F);
         heartLeftArm.addChild(heartCube4);
         setRotationAngle(heartCube4, 0.0F, 0.0F, -0.7854F);
         heartCube4.texOffs(48, 119).addBox(0.0F, -1.0F, -0.5F, 1.0F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube5 = new ModelRenderer(this);
+        heartCube5 = new ModelPart(this);
         heartCube5.setPos(0.5F, -0.5F, 0.0F);
         heartLeftArm.addChild(heartCube5);
         setRotationAngle(heartCube5, 0.0F, 0.0F, -0.7854F);
         heartCube5.texOffs(44, 120).addBox(0.19F, -1.0F, -0.5F, 0.81F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube6 = new ModelRenderer(this);
+        heartCube6 = new ModelPart(this);
         heartCube6.setPos(-0.5F, -0.5F, 0.0F);
         heartLeftArm.addChild(heartCube6);
         setRotationAngle(heartCube6, 0.0F, 0.0F, -0.7854F);
         heartCube6.texOffs(48, 121).addBox(0.0F, -1.0F, -0.5F, 1.0F, 0.81F, 1.0F, -0.05F, false);
 
-        leftArmJoint = new ModelRenderer(this);
+        leftArmJoint = new ModelPart(this);
         leftArmJoint.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftArmJoint);
         leftArmJoint.texOffs(32, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
-        leftForeArm = new ModelRenderer(this);
+        leftForeArm = new ModelPart(this);
         leftForeArm.setPos(0.0F, 4.0F, 0.0F);
         leftArm.addChild(leftForeArm);
         leftForeArm.texOffs(32, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, true);
@@ -346,7 +346,7 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         leftForeArm.texOffs(32, 96).addBox(0.9F, 2.7F, -1.5F, 2.0F, 3.0F, 3.0F, -0.6F, true);
         leftForeArm.texOffs(42, 97).addBox(1.5F, 5.1F, -2.0F, 1.0F, 1.0F, 4.0F, -0.2F, true);
 
-        rightArmXRot = new ModelRenderer(this);
+        rightArmXRot = new ModelPart(this);
         rightArmXRot.setPos(-6.0F, -10.0F, 0.0F);
         upperPart.addChild(rightArmXRot);
         
@@ -359,35 +359,35 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         rightArm.texOffs(16, 110).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 3.0F, 4.0F, 0.25F, false);
         rightArm.texOffs(16, 105).addBox(-2.0F, 3.0F, -2.0F, 4.0F, 1.0F, 4.0F, 0.075F, false);
 
-        heartRightArm = new ModelRenderer(this);
+        heartRightArm = new ModelPart(this);
         heartRightArm.setPos(0.0F, 3.8F, 1.8F);
         rightArm.addChild(heartRightArm);
         
 
-        heartCube1 = new ModelRenderer(this);
+        heartCube1 = new ModelPart(this);
         heartCube1.setPos(0.0F, 0.0F, 0.0F);
         heartRightArm.addChild(heartCube1);
         setRotationAngle(heartCube1, 0.0F, 0.0F, -0.7854F);
         heartCube1.texOffs(16, 119).addBox(0.0F, -1.0F, -0.5F, 1.0F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube2 = new ModelRenderer(this);
+        heartCube2 = new ModelPart(this);
         heartCube2.setPos(0.5F, -0.5F, 0.0F);
         heartRightArm.addChild(heartCube2);
         setRotationAngle(heartCube2, 0.0F, 0.0F, -0.7854F);
         heartCube2.texOffs(12, 120).addBox(0.19F, -1.0F, -0.5F, 0.81F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube3 = new ModelRenderer(this);
+        heartCube3 = new ModelPart(this);
         heartCube3.setPos(-0.5F, -0.5F, 0.0F);
         heartRightArm.addChild(heartCube3);
         setRotationAngle(heartCube3, 0.0F, 0.0F, -0.7854F);
         heartCube3.texOffs(16, 121).addBox(0.0F, -1.0F, -0.5F, 1.0F, 0.81F, 1.0F, -0.05F, false);
 
-        rightArmJoint = new ModelRenderer(this);
+        rightArmJoint = new ModelPart(this);
         rightArmJoint.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightArmJoint);
         rightArmJoint.texOffs(0, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
-        rightForeArm = new ModelRenderer(this);
+        rightForeArm = new ModelPart(this);
         rightForeArm.setPos(0.0F, 4.0F, 0.0F);
         rightArm.addChild(rightForeArm);
         rightForeArm.texOffs(0, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
@@ -396,7 +396,7 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         rightForeArm.texOffs(0, 96).addBox(-2.9F, 2.7F, -1.5F, 2.0F, 3.0F, 3.0F, -0.6F, false);
         rightForeArm.texOffs(10, 97).addBox(-2.5F, 5.1F, -2.0F, 1.0F, 1.0F, 4.0F, -0.2F, false);
 
-        leftLegXRot = new ModelRenderer(this);
+        leftLegXRot = new ModelPart(this);
         leftLegXRot.setPos(2.0F, 12.0F, 0.0F);
         body.addChild(leftLegXRot);
         
@@ -408,41 +408,41 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         leftLeg.texOffs(112, 99).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, 0.2F, false);
         leftLeg.texOffs(112, 108).addBox(1.8F, -1.75F, -1.5F, 1.0F, 3.0F, 3.0F, 0.0F, true);
 
-        heartRightLeg = new ModelRenderer(this);
+        heartRightLeg = new ModelPart(this);
         heartRightLeg.setPos(0.0F, 6.0F, -1.8F);
         leftLeg.addChild(heartRightLeg);
         
 
-        heartCube10 = new ModelRenderer(this);
+        heartCube10 = new ModelPart(this);
         heartCube10.setPos(0.0F, 0.05F, 0.0F);
         heartRightLeg.addChild(heartCube10);
         setRotationAngle(heartCube10, 0.0F, 0.0F, -0.7854F);
         heartCube10.texOffs(96, 120).addBox(0.0F, -1.05F, -0.5F, 1.0F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube11 = new ModelRenderer(this);
+        heartCube11 = new ModelPart(this);
         heartCube11.setPos(0.5F, -0.45F, 0.0F);
         heartRightLeg.addChild(heartCube11);
         setRotationAngle(heartCube11, 0.0F, 0.0F, -0.7854F);
         heartCube11.texOffs(92, 120).addBox(0.19F, -1.05F, -0.5F, 0.81F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube12 = new ModelRenderer(this);
+        heartCube12 = new ModelPart(this);
         heartCube12.setPos(-0.5F, -0.45F, 0.0F);
         heartRightLeg.addChild(heartCube12);
         setRotationAngle(heartCube12, 0.0F, 0.0F, -0.7854F);
         heartCube12.texOffs(92, 118).addBox(0.0F, -1.05F, -0.5F, 1.0F, 0.81F, 1.0F, -0.05F, false);
 
-        leftLegJoint = new ModelRenderer(this);
+        leftLegJoint = new ModelPart(this);
         leftLegJoint.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLegJoint);
         leftLegJoint.texOffs(96, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, true);
 
-        leftLowerLeg = new ModelRenderer(this);
+        leftLowerLeg = new ModelPart(this);
         leftLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         leftLeg.addChild(leftLowerLeg);
         leftLowerLeg.texOffs(96, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);
         leftLowerLeg.texOffs(112, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, 0.2F, false);
 
-        rightLegXRot = new ModelRenderer(this);
+        rightLegXRot = new ModelPart(this);
         rightLegXRot.setPos(-2.0F, 12.0F, 0.0F);
         body.addChild(rightLegXRot);
         
@@ -454,35 +454,35 @@ public class TheWorldModel extends HumanoidStandModel<TheWorldEntity> {
         rightLeg.texOffs(80, 99).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F, 0.2F, false);
         rightLeg.texOffs(80, 108).addBox(-2.8F, -1.25F, -1.5F, 1.0F, 3.0F, 3.0F, 0.0F, false);
 
-        heartLeftLeg = new ModelRenderer(this);
+        heartLeftLeg = new ModelPart(this);
         heartLeftLeg.setPos(0.0F, 6.0F, -1.8F);
         rightLeg.addChild(heartLeftLeg);
         
 
-        heartCube7 = new ModelRenderer(this);
+        heartCube7 = new ModelPart(this);
         heartCube7.setPos(0.0F, 0.05F, 0.0F);
         heartLeftLeg.addChild(heartCube7);
         setRotationAngle(heartCube7, 0.0F, 0.0F, -0.7854F);
         heartCube7.texOffs(64, 120).addBox(0.0F, -1.05F, -0.5F, 1.0F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube8 = new ModelRenderer(this);
+        heartCube8 = new ModelPart(this);
         heartCube8.setPos(0.5F, -0.45F, 0.0F);
         heartLeftLeg.addChild(heartCube8);
         setRotationAngle(heartCube8, 0.0F, 0.0F, -0.7854F);
         heartCube8.texOffs(60, 120).addBox(0.19F, -1.05F, -0.5F, 0.81F, 1.0F, 1.0F, -0.05F, false);
 
-        heartCube9 = new ModelRenderer(this);
+        heartCube9 = new ModelPart(this);
         heartCube9.setPos(-0.5F, -0.45F, 0.0F);
         heartLeftLeg.addChild(heartCube9);
         setRotationAngle(heartCube9, 0.0F, 0.0F, -0.7854F);
         heartCube9.texOffs(60, 118).addBox(0.0F, -1.05F, -0.5F, 1.0F, 0.81F, 1.0F, -0.05F, false);
 
-        rightLegJoint = new ModelRenderer(this);
+        rightLegJoint = new ModelPart(this);
         rightLegJoint.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLegJoint);
         rightLegJoint.texOffs(64, 102).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, -0.1F, false);
 
-        rightLowerLeg = new ModelRenderer(this);
+        rightLowerLeg = new ModelPart(this);
         rightLowerLeg.setPos(0.0F, 6.0F, 0.0F);
         rightLeg.addChild(rightLowerLeg);
         rightLowerLeg.texOffs(64, 118).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F, -0.001F, false);

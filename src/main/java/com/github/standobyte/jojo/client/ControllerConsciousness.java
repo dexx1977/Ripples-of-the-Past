@@ -9,12 +9,12 @@ import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.Timer;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.client.player.Input;
+import net.minecraft.client.Timer;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -37,7 +37,7 @@ public class ControllerConsciousness {
     private ClientConsciousnessEntity playerCsnsEntity = null;
 //    private boolean slowedDown = false;
 
-    public MovementInput input;
+    public Input input;
     
     private ControllerConsciousness(Minecraft mc) {
         this.mc = mc;
@@ -59,7 +59,7 @@ public class ControllerConsciousness {
     public void tick(ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) return;
         
-        ClientPlayerEntity player = mc.player;
+        LocalPlayer player = mc.player;
         if (mc.level != null && player != null) {
             boolean hasEffect = mc.player.hasEffect(ModStatusEffects.SENSORY_OVERLOAD.get());
             boolean splitCsns = isControllingConsciousnessEntity();
@@ -86,8 +86,8 @@ public class ControllerConsciousness {
                     playerCsnsEntity = null;
                 }
                 else {
-                    player.connection.send(new CPlayerPacket.PositionRotationPacket(
-                            player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.isOnGround()));
+                    player.connection.send(new ServerboundMovePlayerPacket.PositionRotationPacket(
+                            player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.onGround()));
                 }
             }
         }
@@ -133,11 +133,11 @@ public class ControllerConsciousness {
     
     public void spawnConsciousness() {
         if (!isControllingConsciousnessEntity()) {
-            ClientPlayerEntity playerEntity = mc.player;
-            ClientWorld world = playerEntity.clientLevel;
+            LocalPlayer playerEntity = mc.player;
+            ClientLevel world = playerEntity.clientLevel;
             ClientConsciousnessEntity entity = new ClientConsciousnessEntity(this);
             
-            Vector3d pos = playerEntity.position();
+            Vec3 pos = playerEntity.position();
             entity.setPacketCoordinates(pos.x, pos.y, pos.z);
             entity.absMoveTo(pos.x, pos.y, pos.z, playerEntity.yRot, playerEntity.xRot);
             entity.setYHeadRot(playerEntity.yHeadRot);

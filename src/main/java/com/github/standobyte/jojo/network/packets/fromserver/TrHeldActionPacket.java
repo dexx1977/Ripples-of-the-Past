@@ -14,11 +14,11 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHeldActionPacket {
     private final int userId;
@@ -50,7 +50,7 @@ public class TrHeldActionPacket {
     public static class Handler implements IModPacketHandler<TrHeldActionPacket> {
 
         @Override
-        public void encode(TrHeldActionPacket msg, PacketBuffer buf) {
+        public void encode(TrHeldActionPacket msg, FriendlyByteBuf buf) {
             boolean stopHeld = msg.action == null;
             buf.writeBoolean(stopHeld);
             buf.writeInt(msg.userId);
@@ -66,7 +66,7 @@ public class TrHeldActionPacket {
         }
 
         @Override
-        public TrHeldActionPacket decode(PacketBuffer buf) {
+        public TrHeldActionPacket decode(FriendlyByteBuf buf) {
             boolean stopHeld = buf.readBoolean();
             if (stopHeld) {
                 return actionStopped(buf.readInt(), buf.readEnum(PowerClassification.class), 
@@ -88,7 +88,7 @@ public class TrHeldActionPacket {
                             setHeldAction(power, msg.action, msg.target);
                         }
                         power.refreshHeldActionTickState(msg.requirementsFulfilled);
-                        if (user instanceof PlayerEntity && msg.action.clHeldStartAnim((PlayerEntity) user)) {
+                        if (user instanceof Player && msg.action.clHeldStartAnim((Player) user)) {
                             user.getCapability(ClientPlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                                 cap.setHeldActionWithAnim(msg.action);
                             });
@@ -99,10 +99,10 @@ public class TrHeldActionPacket {
                         if (isClientPlayer) {
                             InputHandler.getInstance().stopHeldAction(power);
                         }
-                        if (user instanceof PlayerEntity) {
+                        if (user instanceof Player) {
                             user.getCapability(ClientPlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                                 cap.getHeldActionWithAnim().ifPresent(action -> {
-                                    action.clHeldStopAnim((PlayerEntity) user);
+                                    action.clHeldStopAnim((Player) user);
                                 });
                             });
                         }

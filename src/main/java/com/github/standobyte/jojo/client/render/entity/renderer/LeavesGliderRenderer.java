@@ -4,17 +4,17 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.LeavesGliderModel;
 import com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile.CDBlockBulletRenderer;
 import com.github.standobyte.jojo.entity.LeavesGliderEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class LeavesGliderRenderer extends SimpleEntityRenderer<LeavesGliderEntity, LeavesGliderModel> {
     private static final ResourceLocation DEFAULT_OAK_LEAVES = new ResourceLocation("textures/block/oak_leaves.png");
 
-    public LeavesGliderRenderer(EntityRendererManager renderManager) {
+    public LeavesGliderRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, new LeavesGliderModel(), null);
     }
     
@@ -33,7 +33,7 @@ public class LeavesGliderRenderer extends SimpleEntityRenderer<LeavesGliderEntit
     
     @Override
     protected void renderModel(LeavesGliderEntity entity, LeavesGliderModel model, float partialTick, 
-            MatrixStack matrixStack, IVertexBuilder vertexBuilder, int packedLight) {
+            PoseStack matrixStack, VertexConsumer vertexBuilder, int packedLight) {
         matrixStack.pushPose();
         matrixStack.translate(0, -entity.getBbHeight(), 0);
         float[] rgb = ClientUtil.rgb(entity.getFoliageColor());

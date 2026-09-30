@@ -13,9 +13,9 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceLifeDetector extends StandEntityAction {
     public static final Object GE_DETECTOR_CTX = new Object();
@@ -25,7 +25,7 @@ public class GoldExperienceLifeDetector extends StandEntityAction {
     }
     
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         int tick = task.getTick();
         if (world.isClientSide() && userPower.getUser() == ClientUtil.getClientPlayer()) {
             double radius = Math.min((double) tick, 32);

@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.capability.entity.living.LivingWallClimbing;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClStopWallClimbPacket {
     
@@ -16,16 +16,16 @@ public class ClStopWallClimbPacket {
     public static class Handler implements IModPacketHandler<ClStopWallClimbPacket> {
 
         @Override
-        public void encode(ClStopWallClimbPacket msg, PacketBuffer buf) {}
+        public void encode(ClStopWallClimbPacket msg, FriendlyByteBuf buf) {}
 
         @Override
-        public ClStopWallClimbPacket decode(PacketBuffer buf) {
+        public ClStopWallClimbPacket decode(FriendlyByteBuf buf) {
             return new ClStopWallClimbPacket();
         }
     
         @Override
         public void handle(ClStopWallClimbPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (player.isAlive()) {
                 LivingWallClimbing.getHandler(player).ifPresent(cap -> cap.stopWallClimbing());
             }

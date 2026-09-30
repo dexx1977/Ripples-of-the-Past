@@ -15,22 +15,22 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.SegmentedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.ListModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class ModelCubeWeightedList {
     
     public static ModelCubeWeightedList fromModel(EntityModel<?> model) {
-        Stream<ModelRenderer> modelParts;
-        if (model instanceof SegmentedModel) {
-            modelParts = StreamSupport.stream(((SegmentedModel<?>) model).parts().spliterator(), false);
+        Stream<ModelPart> modelParts;
+        if (model instanceof ListModel) {
+            modelParts = StreamSupport.stream(((ListModel<?>) model).parts().spliterator(), false);
         }
-        else if (model instanceof AgeableModel) {
-            AgeableModel<?> ageable = (AgeableModel<?>) model;
+        else if (model instanceof AgeableListModel) {
+            AgeableListModel<?> ageable = (AgeableListModel<?>) model;
             modelParts = Stream.concat(
                     StreamSupport.stream(ClientReflection.getHeadParts(ageable).spliterator(), false), 
                     StreamSupport.stream(ClientReflection.getBodyParts(ageable).spliterator(), false));
@@ -38,20 +38,20 @@ public class ModelCubeWeightedList {
         else {
             modelParts = FieldUtils.getAllFieldsList(model.getClass()).stream()
                     .flatMap(field -> {
-                        if (ModelRenderer.class.isAssignableFrom(field.getType())) {
+                        if (ModelPart.class.isAssignableFrom(field.getType())) {
                             field.setAccessible(true);
-                            ModelRenderer inModModelPart;
+                            ModelPart inModModelPart;
                             try {
-                                inModModelPart = (ModelRenderer) field.get(model);
+                                inModModelPart = (ModelPart) field.get(model);
                                 return Stream.of(inModModelPart);
                             } catch (IllegalArgumentException | IllegalAccessException ignored) {}
                         }
                         
-                        else if (ModelRenderer[].class.isAssignableFrom(field.getType())) {
+                        else if (ModelPart[].class.isAssignableFrom(field.getType())) {
                             field.setAccessible(true);
-                            ModelRenderer[] inModModelParts;
+                            ModelPart[] inModModelParts;
                             try {
-                                inModModelParts = (ModelRenderer[]) field.get(model);
+                                inModModelParts = (ModelPart[]) field.get(model);
                                 return Arrays.stream(inModModelParts);
                             } catch (IllegalArgumentException | IllegalAccessException ignored) {}
                         }
@@ -62,15 +62,15 @@ public class ModelCubeWeightedList {
         return fromModelParts(modelParts);
     }
     
-    public static ModelCubeWeightedList fromModelParts(Stream<ModelRenderer> modelParts) {
-        Map<ModelRenderer, ModelPartParents> inModModelParts = modelParts.distinct().collect(Collectors.toMap(
+    public static ModelCubeWeightedList fromModelParts(Stream<ModelPart> modelParts) {
+        Map<ModelPart, ModelPartParents> inModModelParts = modelParts.distinct().collect(Collectors.toMap(
                 Function.identity(), ModelPartParents::new, (po,huy) -> huy, HashMap::new));
         
         List<ModelPartParents> prevGen = new ArrayList<>(inModModelParts.values());
         List<ModelPartParents> thisGen = new ArrayList<>();
         do {
             for (ModelPartParents parent : prevGen) {
-                List<ModelRenderer> children = ClientReflection.getChildren(parent.modelPart);
+                List<ModelPart> children = ClientReflection.getChildren(parent.modelPart);
                 children.stream().map(parent::withChild).forEach(thisGen::add);
                 
                 for (ModelPartParents modelPart : thisGen) {
@@ -88,7 +88,7 @@ public class ModelCubeWeightedList {
         
         List<ModelCube> modelCubes = inModModelParts.values().stream()
                 .flatMap(modelPart -> {
-                    List<ModelRenderer.ModelBox> cubes = ClientReflection.getCubes(modelPart.modelPart);
+                    List<ModelPart.ModelBox> cubes = ClientReflection.getCubes(modelPart.modelPart);
                     return cubes.stream().map(cube -> new ModelCube(cube, modelPart));
                 })
                 .collect(Collectors.toList());
@@ -127,11 +127,11 @@ public class ModelCubeWeightedList {
     
     
     public static class ModelCube {
-        public final ModelRenderer.ModelBox cube;
+        public final ModelPart.ModelBox cube;
         private final float area;
         private final ModelPartParents modelPart;
         
-        private ModelCube(ModelRenderer.ModelBox cube, ModelPartParents modelPart) {
+        private ModelCube(ModelPart.ModelBox cube, ModelPartParents modelPart) {
             this.cube = cube;
             float x = cube.maxX - cube.minX;
             float y = cube.maxY - cube.minY;
@@ -140,38 +140,38 @@ public class ModelCubeWeightedList {
             this.modelPart = modelPart;
         }
         
-        public ModelRenderer.ModelBox cube() {
+        public ModelPart.ModelBox cube() {
             return cube;
         }
         
-        public void translateAndRotate(MatrixStack matrixStack) {
+        public void translateAndRotate(PoseStack matrixStack) {
             modelPart.translateAndRotate(matrixStack);
         }
     }
     
     private static class ModelPartParents {
-        private final ModelRenderer modelPart;
-        private final List<ModelRenderer> parents;
+        private final ModelPart modelPart;
+        private final List<ModelPart> parents;
         
-        public void translateAndRotate(MatrixStack matrixStack) {
-            for (ModelRenderer parent : parents) {
+        public void translateAndRotate(PoseStack matrixStack) {
+            for (ModelPart parent : parents) {
                 parent.translateAndRotate(matrixStack);
             }
             modelPart.translateAndRotate(matrixStack);
         }
         
         
-        private ModelPartParents(ModelRenderer modelPart) {
+        private ModelPartParents(ModelPart modelPart) {
             this(modelPart, ImmutableList.of());
         }
         
-        private ModelPartParents(ModelRenderer modelPart, List<ModelRenderer> parents) {
+        private ModelPartParents(ModelPart modelPart, List<ModelPart> parents) {
             this.modelPart = modelPart;
             this.parents = parents;
         }
         
-        private ModelPartParents withChild(ModelRenderer child) {
-            return new ModelPartParents(child, new ImmutableList.Builder<ModelRenderer>()
+        private ModelPartParents withChild(ModelPart child) {
+            return new ModelPartParents(child, new ImmutableList.Builder<ModelPart>()
                     .addAll(this.parents).add(this.modelPart).build());
         }
     }

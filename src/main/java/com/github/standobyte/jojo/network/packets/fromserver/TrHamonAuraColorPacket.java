@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonAuraColorPacket {
     private final int entityId;
@@ -26,13 +26,13 @@ public class TrHamonAuraColorPacket {
     public static class Handler implements IModPacketHandler<TrHamonAuraColorPacket> {
 
         @Override
-        public void encode(TrHamonAuraColorPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonAuraColorPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeEnum(msg.color);
         }
 
         @Override
-        public TrHamonAuraColorPacket decode(PacketBuffer buf) {
+        public TrHamonAuraColorPacket decode(FriendlyByteBuf buf) {
             return new TrHamonAuraColorPacket(buf.readInt(), buf.readEnum(HamonAuraColor.class));
         }
 

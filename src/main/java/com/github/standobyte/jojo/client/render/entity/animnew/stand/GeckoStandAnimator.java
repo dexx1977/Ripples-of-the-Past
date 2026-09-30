@@ -24,13 +24,13 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.google.common.collect.Streams;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
 public class GeckoStandAnimator implements IStandAnimator {
     protected final Map<String, List<StandActionAnimation>> namedAnimations = new HashMap<>();
@@ -138,12 +138,12 @@ public class GeckoStandAnimator implements IStandAnimator {
     
     
     public static Vector3f lerpKeyframes(Keyframe[] keyframes, float seconds, float animSpeed) {
-        int i = Math.max(0, MathHelper.binarySearch(0, keyframes.length, index -> seconds <= keyframes[index].timestamp()) - 1);
+        int i = Math.max(0, Mth.binarySearch(0, keyframes.length, index -> seconds <= keyframes[index].timestamp()) - 1);
         int j = Math.min(keyframes.length - 1, i + 1);
         Keyframe keyframe = keyframes[i];
         Keyframe keyframe2 = keyframes[j];
         float h = seconds - keyframe.timestamp();
-        float k = j != i ? MathHelper.clamp(h / (keyframe2.timestamp() - keyframe.timestamp()), 0.0f, 1.0f) : 0.0f;
+        float k = j != i ? Mth.clamp(h / (keyframe2.timestamp() - keyframe.timestamp()), 0.0f, 1.0f) : 0.0f;
         keyframe2.interpolation().apply(TEMP, k, keyframes, i, j, animSpeed);
         return TEMP;
     }
@@ -156,7 +156,7 @@ public class GeckoStandAnimator implements IStandAnimator {
     
     public static void animateSecs(StandEntityModel<?> model, Animation animation, float seconds, float animSpeed) {
         for (Map.Entry<String, List<Transformation>> entry : animation.boneAnimations().entrySet()) {
-            ModelRenderer modelPart = model.getModelPart(entry.getKey());
+            ModelPart modelPart = model.getModelPart(entry.getKey());
             if (modelPart != null) {
                 List<Transformation> transformations = entry.getValue();
                 for (Transformation tf : transformations) {
@@ -185,7 +185,7 @@ public class GeckoStandAnimator implements IStandAnimator {
                 JsonElement value = keyframeEntry.getValue();
                 Iterable<JsonElement> instructions = value.isJsonArray() ? value.getAsJsonArray() : Collections.singleton(value);
                 Map<String, String> assignmentMap = Streams.stream(instructions)
-                        .filter(JSONUtils::isStringValue)
+                        .filter(GsonHelper::isStringValue)
                         .map(JsonElement::getAsString)
                         .map(instruction -> instruction.split("[ ]*=[ ]*"))
                         .filter(assignment -> assignment.length == 2)
@@ -223,7 +223,7 @@ public class GeckoStandAnimator implements IStandAnimator {
 
     @Override
     public <T extends StandEntity> void renderBarrageSwings(T entity, StandEntityModel<T> model, float yRotOffsetDeg, float xRotDeg,
-            MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green,
+            PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green,
             float blue, float alpha) {
         BarrageSwings swings = entity.getBarrageSwings();
         if (swings != null) {

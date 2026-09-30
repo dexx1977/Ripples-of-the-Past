@@ -7,12 +7,12 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.ResolveCounter;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HGEmeraldEntity extends ModdedProjectileEntity {
     @Nullable
@@ -20,12 +20,12 @@ public class HGEmeraldEntity extends ModdedProjectileEntity {
     private boolean lowerKnockback;
     private boolean breakBlocks;
 
-    public HGEmeraldEntity(LivingEntity shooter, World world, @Nullable IStandPower standPower) {
+    public HGEmeraldEntity(LivingEntity shooter, Level world, @Nullable IStandPower standPower) {
         super(ModEntityTypes.HG_EMERALD.get(), shooter, world);
         userStandPower = standPower;
     }
 
-    public HGEmeraldEntity(EntityType<? extends HGEmeraldEntity> type, World world) {
+    public HGEmeraldEntity(EntityType<? extends HGEmeraldEntity> type, Level world) {
         super(type, world);
     }
 
@@ -63,7 +63,7 @@ public class HGEmeraldEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (!level.isClientSide() && entityHurt && userStandPower != null) {
             Entity target = entityRayTraceResult.getEntity();
             if (ResolveCounter.attackingTargetGivesResolve(target)) {
@@ -72,9 +72,9 @@ public class HGEmeraldEntity extends ModdedProjectileEntity {
         }
     }
 
-    private static final Vector3d OFFSET = new Vector3d(0.0, -0.3, 0.75);
+    private static final Vec3 OFFSET = new Vec3(0.0, -0.3, 0.75);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 }

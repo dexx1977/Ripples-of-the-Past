@@ -4,16 +4,16 @@ import com.github.standobyte.jojo.action.stand.StandEntityAction.Phase;
 import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityModel;
 import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 
 @Deprecated
 public class StandOneHandedBarrageAnimation<T extends StandEntity> extends ArmsBarrageAnimation<T, StandEntityModel<T>> {
-    private final Hand standArm;
+    private final InteractionHand standArm;
 
-    public StandOneHandedBarrageAnimation(StandEntityModel<T> model, IModelPose<T> loop, IModelPose<T> recovery, Hand standArm) {
+    public StandOneHandedBarrageAnimation(StandEntityModel<T> model, IModelPose<T> loop, IModelPose<T> recovery, InteractionHand standArm) {
         super(model, loop, recovery, 2);
         this.standArm = standArm;
     }
@@ -29,7 +29,7 @@ public class StandOneHandedBarrageAnimation<T extends StandEntity> extends ArmsB
     }
 
     @Override
-    protected HandSide getHandSide(Phase phase, T entity, float ticks) {
+    protected HumanoidArm getHandSide(Phase phase, T entity, float ticks) {
         return entity.getArm(standArm);
     }
     
@@ -44,13 +44,13 @@ public class StandOneHandedBarrageAnimation<T extends StandEntity> extends ArmsB
     }
 
     @Override
-    protected void addSwing(T entity, BarrageSwingsHolder<T, StandEntityModel<T>> swings, HandSide side, float f,
+    protected void addSwing(T entity, BarrageSwingsHolder<T, StandEntityModel<T>> swings, HumanoidArm side, float f,
             double maxOffset) {
         swings.addSwing(new StandArmBarrageSwing<>(this, f, getLoopLen(), side, maxOffset));
     }
     
     @Override
-    public void beforeSwingAfterimageRender(MatrixStack matrixStack, StandEntityModel<T> model, float loopCompletion, HandSide side) {
+    public void beforeSwingAfterimageRender(PoseStack matrixStack, StandEntityModel<T> model, float loopCompletion, HumanoidArm side) {
         model.applyXRotation();
     }
 }

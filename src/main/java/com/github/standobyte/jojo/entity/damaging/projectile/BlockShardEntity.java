@@ -15,41 +15,41 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SoundType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class BlockShardEntity extends ModdedProjectileEntity implements EntityMadeFromBlock {
-    private static final DataParameter<Boolean> CRAZY_D_RESTORED = EntityDataManager.defineId(BlockShardEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> CRAZY_D_RESTORED = SynchedEntityData.defineId(BlockShardEntity.class, EntityDataSerializers.BOOLEAN);
     private BlockState blockState;
     private Optional<BlockPos> originBlockPos = Optional.empty();
     private int crazyDRestoreTick = 1;
     
-    public BlockShardEntity(LivingEntity shooter, World world, BlockState blockState, BlockPos originBlockPos) {
+    public BlockShardEntity(LivingEntity shooter, Level world, BlockState blockState, BlockPos originBlockPos) {
         super(ModEntityTypes.BLOCK_SHARD.get(), shooter, world);
         this.blockState = blockState;
         this.originBlockPos = Optional.ofNullable(originBlockPos);
     }
 
-    public BlockShardEntity(EntityType<? extends BlockShardEntity> entityType, World world) {
+    public BlockShardEntity(EntityType<? extends BlockShardEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -139,8 +139,8 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
                     return;
                 }
                 
-                Vector3d targetPos = Vector3d.atCenterOf(target);
-                Vector3d vecToTarget = targetPos.subtract(this.position());
+                Vec3 targetPos = Vec3.atCenterOf(target);
+                Vec3 vecToTarget = targetPos.subtract(this.position());
                 setDeltaMovement(vecToTarget.scale(0.5));
                 getUserStandPower().ifPresent(stand -> {
                     stand.consumeStamina(stand.getStaminaTickGain() + ModStandsInit.CRAZY_DIAMOND_BLOCK_BULLET.get().getStaminaCostTicking(stand), true);
@@ -156,14 +156,14 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (level.isClientSide() && blockState != null) {
-            Vector3d position = position();
+            Vec3 position = position();
             SoundType soundType = blockState.getSoundType();
             SoundEvent sound = soundType.getBreakSound();
             if (sound != null) {
                 level.playLocalSound(position.x, position.y, position.z, 
-                        sound, SoundCategory.BLOCKS, 
+                        sound, SoundSource.BLOCKS, 
                         (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F, false);
             }
             
@@ -181,40 +181,40 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
     
     
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         if (blockState != null) {
-            nbt.put("Block", NBTUtil.writeBlockState(blockState));
+            nbt.put("Block", NbtUtils.writeBlockState(blockState));
         }
-        originBlockPos.ifPresent(pos -> nbt.put("OriginPos", NBTUtil.writeBlockPos(pos)));
+        originBlockPos.ifPresent(pos -> nbt.put("OriginPos", NbtUtils.writeBlockPos(pos)));
         nbt.putBoolean("CDRestore", isCrazyDRestored());
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
-        blockState = NBTUtil.readBlockState(nbt.getCompound("Block"));
+        blockState = NbtUtils.readBlockState(nbt.getCompound("Block"));
         if (blockState.getBlock() == Blocks.AIR) {
             blockState = Blocks.COBBLESTONE.defaultBlockState();
         }
-        originBlockPos = MCUtil.nbtGetCompoundOptional(nbt, "OriginPos").map(NBTUtil::readBlockPos);
+        originBlockPos = MCUtil.nbtGetCompoundOptional(nbt, "OriginPos").map(NbtUtils::readBlockPos);
         entityData.set(CRAZY_D_RESTORED, nbt.getBoolean("CDRestore"));
     }
 
     
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeInt(Block.getId(getBlock()));
         NetworkUtil.writeOptional(buffer, originBlockPos, buffer::writeBlockPos);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         this.blockState = Block.stateById(additionalData.readInt());
-        this.originBlockPos = NetworkUtil.readOptional(additionalData, PacketBuffer::readBlockPos);
+        this.originBlockPos = NetworkUtil.readOptional(additionalData, FriendlyByteBuf::readBlockPos);
     }
     
     
@@ -228,7 +228,7 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
     }
     
     public static void glassShardBleeding(LivingEntity entity) {
-        entity.addEffect(new EffectInstance(ModStatusEffects.BLEEDING.get(), 100, 0, false, false, true));
+        entity.addEffect(new MobEffectInstance(ModStatusEffects.BLEEDING.get(), 100, 0, false, false, true));
     }
 
 }

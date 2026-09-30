@@ -8,13 +8,13 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 
-public class CustomTextResource extends ReloadListener<String> {
+public class CustomTextResource extends SimplePreparableReloadListener<String> {
     private String text;
     private final ResourceLocation location;
 
@@ -23,9 +23,9 @@ public class CustomTextResource extends ReloadListener<String> {
     }
 
     @Override
-    protected String prepare(IResourceManager resourceManager, IProfiler profiler) {
+    protected String prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         try (
-                IResource resource = Minecraft.getInstance().getResourceManager().getResource(location);
+                Resource resource = Minecraft.getInstance().getResourceManager().getResource(location);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
                 ) {
             return reader.lines().reduce("", (l1, l2) -> l1 + l2 + "\n");
@@ -35,7 +35,7 @@ public class CustomTextResource extends ReloadListener<String> {
     }
 
     @Override
-    protected void apply(String text, IResourceManager resourceManager, IProfiler profiler) {
+    protected void apply(String text, ResourceManager resourceManager, ProfilerFiller profiler) {
         this.text = text;
     }
     

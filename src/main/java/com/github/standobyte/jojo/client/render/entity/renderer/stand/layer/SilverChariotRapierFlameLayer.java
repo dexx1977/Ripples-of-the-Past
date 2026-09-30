@@ -8,11 +8,11 @@ import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityMo
 import com.github.standobyte.jojo.client.render.entity.renderer.stand.SilverChariotRenderer;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 
-import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.resources.ResourceLocation;
 
 public class SilverChariotRapierFlameLayer extends StandModelLayerRenderer<SilverChariotEntity, StandEntityModel<SilverChariotEntity>> {
 
@@ -27,19 +27,19 @@ public class SilverChariotRapierFlameLayer extends StandModelLayerRenderer<Silve
     
     @Override
     public RenderType getRenderType(SilverChariotEntity entity) {
-        return Atlases.translucentCullBlockSheet();
+        return Sheets.translucentCullBlockSheet();
     }
 
     @Override
     public RenderType getRenderType(SilverChariotEntity entity, Function<ResourceLocation, RenderType> renderTYPE) {
-        return Atlases.translucentCullBlockSheet();
+        return Sheets.translucentCullBlockSheet();
         
     }
 
     @Deprecated
     @Override
     public ResourceLocation getLayerTexture(Optional<ResourceLocation> standSkin) {
-        return PlayerContainer.BLOCK_ATLAS;
+        return InventoryMenu.BLOCK_ATLAS;
     }
 
     @Override

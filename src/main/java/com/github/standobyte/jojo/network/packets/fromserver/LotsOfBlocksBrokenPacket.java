@@ -16,17 +16,17 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.google.common.collect.Streams;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.network.NetworkEvent;
 
 public class LotsOfBlocksBrokenPacket {
     public List<BrokenBlock> brokenBlocks;
@@ -43,13 +43,13 @@ public class LotsOfBlocksBrokenPacket {
         brokenBlocks.add(new BrokenBlock(blockPos, blockState));
     }
     
-    public void sendToPlayers(ServerWorld world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public void sendToPlayers(ServerLevel world, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         if (brokenBlocks.isEmpty()) return;
         
         brokenBlocks = GeneralUtil.limitRandom(brokenBlocks, 256);
         
         final double radius = 64;
-        for (ServerPlayerEntity player : world.players()) {
+        for (ServerPlayer player : world.players()) {
             if (player.level.dimension() == world.dimension()) {
                 double x = player.getX();
                 double y = player.getY();
@@ -81,12 +81,12 @@ public class LotsOfBlocksBrokenPacket {
             this.blockState = blockState;
         }
         
-        void toBuf(PacketBuffer buffer) {
+        void toBuf(FriendlyByteBuf buffer) {
             buffer.writeBlockPos(this.blockPos);
             buffer.writeInt(this.blockStateData);
         }
         
-        static BrokenBlock fromBuf(PacketBuffer buffer) {
+        static BrokenBlock fromBuf(FriendlyByteBuf buffer) {
             BlockPos blockPos = buffer.readBlockPos();
             int data = buffer.readInt();
             return new BrokenBlock(blockPos, data);
@@ -100,7 +100,7 @@ public class LotsOfBlocksBrokenPacket {
     public void forEachBlock(boolean network, TriConsumer<BlockPos, BlockState, Long> action) {
         Stream<BrokenBlock> stream = brokenBlocks.stream();
         if (brokenBlocks.size() > 128) {
-            Vector3d cameraPos = ClientUtil.getCameraPos();
+            Vec3 cameraPos = ClientUtil.getCameraPos();
             stream = stream
                     .sorted(Comparator.comparingDouble(block -> block.blockPos.distSqr(cameraPos.x, cameraPos.y, cameraPos.z, true)))
                     .limit(128);
@@ -115,7 +115,7 @@ public class LotsOfBlocksBrokenPacket {
     }
     
     public static void blockBreakVisuals(BlockPos blockPos, BlockState blockState, long i) {
-        World world = ClientUtil.getClientWorld();
+        Level world = ClientUtil.getClientWorld();
         if (!blockState.isAir(world, blockPos)) {
             int particlesSetting = ClientUtil.particlesSetting();
             if (particlesSetting < 2 && (particlesSetting < 1 || i % 2 == 0)) {
@@ -127,7 +127,7 @@ public class LotsOfBlocksBrokenPacket {
                         blockPos.getX() + 0.5, 
                         blockPos.getY() + 0.5, 
                         blockPos.getZ() + 0.5, 
-                        soundType.getBreakSound(), SoundCategory.BLOCKS, 
+                        soundType.getBreakSound(), SoundSource.BLOCKS, 
                         (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F, false);
             }
         }
@@ -138,12 +138,12 @@ public class LotsOfBlocksBrokenPacket {
     public static class Handler implements IModPacketHandler<LotsOfBlocksBrokenPacket> {
 
         @Override
-        public void encode(LotsOfBlocksBrokenPacket msg, PacketBuffer buf) {
+        public void encode(LotsOfBlocksBrokenPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.brokenBlocks, BrokenBlock::toBuf, false);
         }
 
         @Override
-        public LotsOfBlocksBrokenPacket decode(PacketBuffer buf) {
+        public LotsOfBlocksBrokenPacket decode(FriendlyByteBuf buf) {
             return new LotsOfBlocksBrokenPacket(NetworkUtil.readCollection(buf, BrokenBlock::fromBuf));
         }
 

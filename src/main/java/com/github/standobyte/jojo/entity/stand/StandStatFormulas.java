@@ -5,10 +5,10 @@ import java.util.Random;
 import com.github.standobyte.jojo.JojoModConfig;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 public class StandStatFormulas {
 
@@ -21,7 +21,7 @@ public class StandStatFormulas {
         float f = (40 - (float) speed * 1.25F);
         float min = f / 3;
         float max = f * 2 / 3;
-        return MathHelper.ceil(MathHelper.lerp(finisherMeter, max, min));
+        return Mth.ceil(Mth.lerp(finisherMeter, max, min));
     }
     
     public static int getHeavyAttackRecovery(double speed) {
@@ -31,7 +31,7 @@ public class StandStatFormulas {
     public static int getHeavyAttackRecovery(double speed, float punchFinisherMeter) {
         float max = (40 - (float) speed * 1.25F) * 0.75F;
         float min = max / 2;
-        return MathHelper.floor(MathHelper.lerp(punchFinisherMeter, max, min));
+        return Mth.floor(Mth.lerp(punchFinisherMeter, max, min));
     }
     
     
@@ -54,7 +54,7 @@ public class StandStatFormulas {
             val /= 2;
         }
         
-        int ticks = MathHelper.floor(val);
+        int ticks = Mth.floor(val);
         if (RANDOM.nextDouble() < val - ticks) ticks++;
         return ticks;
     }
@@ -65,7 +65,7 @@ public class StandStatFormulas {
         if (val > 4) {
             val = Math.max(val * (1.0F - finisherMeter * 0.4F), 4);
         }
-        int ticks = MathHelper.ceil(val);
+        int ticks = Mth.ceil(val);
         return ticks;
     }
     
@@ -89,7 +89,7 @@ public class StandStatFormulas {
     }
     
     public static int getBarrageRecovery(double speed) {
-        return MathHelper.floor((40.0 - speed * 1.25) * 0.25);
+        return Mth.floor((40.0 - speed * 1.25) * 0.25);
     }
     
     public static int getBarrageMaxDuration(double durability) {
@@ -117,12 +117,12 @@ public class StandStatFormulas {
             dmgCoeff /= config;
         }
         
-        resistance += (1 - resistance) * MathHelper.clamp(1 - dmgCoeff, 0, 1);
+        resistance += (1 - resistance) * Mth.clamp(1 - dmgCoeff, 0, 1);
         return (float) resistance;
     }
     
     public static float getBlockingKnockbackMult(double durability) {
-        return MathHelper.clamp((float) Math.pow(2, 1 - durability / 4), 0, 1);
+        return Mth.clamp((float) Math.pow(2, 1 - durability / 4), 0, 1);
     }
     
     public static float getStaminaMultiplier(double durability) {
@@ -161,7 +161,7 @@ public class StandStatFormulas {
         return Math.max((int) (30 - movementSpeed * 25), 2);
     }
     
-    public static float getStandBreakBlockHardness(BlockState blockState, World world, BlockPos blockPos) {
+    public static float getStandBreakBlockHardness(BlockState blockState, Level world, BlockPos blockPos) {
         float hardness = blockState.getDestroySpeed(world, blockPos);
         if (!blockState.requiresCorrectToolForDrops()) {
             hardness *= 0.6f;

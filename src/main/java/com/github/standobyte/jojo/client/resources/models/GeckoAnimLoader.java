@@ -24,14 +24,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 
-public class GeckoAnimLoader extends ReloadListener<Map<ResourceLocation, JsonElement>> {
+public class GeckoAnimLoader extends SimplePreparableReloadListener<Map<ResourceLocation, JsonElement>> {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Gson gson;
     private final Map<ResourceLocation, GeckoStandAnimator> loadedAnims = new HashMap<>();
@@ -43,7 +43,7 @@ public class GeckoAnimLoader extends ReloadListener<Map<ResourceLocation, JsonEl
     private static final String DIRECTORY = "animations";
     private static final String SUFFIX = ".animation.json";
     @Override
-    protected Map<ResourceLocation, JsonElement> prepare(IResourceManager pResourceManager, IProfiler pProfiler) {
+    protected Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
         
         for (ResourceLocation path : pResourceManager.listResources(DIRECTORY, p -> p.endsWith(SUFFIX))) {
@@ -52,11 +52,11 @@ public class GeckoAnimLoader extends ReloadListener<Map<ResourceLocation, JsonEl
             ResourceLocation preparedPath = new ResourceLocation(path.getNamespace(), fileName);
             
             try (
-                    IResource iresource = pResourceManager.getResource(path);
+                    Resource iresource = pResourceManager.getResource(path);
                     InputStream inputstream = iresource.getInputStream();
                     Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                     ) {
-                JsonElement json = JSONUtils.fromJson(this.gson, reader, JsonElement.class);
+                JsonElement json = GsonHelper.fromJson(this.gson, reader, JsonElement.class);
                 if (json != null) {
                     boolean alreadyPresent = map.put(preparedPath, json) != null;
                     if (alreadyPresent) {
@@ -74,7 +74,7 @@ public class GeckoAnimLoader extends ReloadListener<Map<ResourceLocation, JsonEl
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> pObject, IResourceManager pResourceManager, IProfiler pProfiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         MolangInterpreter.init();
         loadedAnims.clear();
         StandModelRegistry.values().forEach(StandModelRegistryObj::beforeGeckoAnimReload);

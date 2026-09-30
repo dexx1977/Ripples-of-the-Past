@@ -62,36 +62,34 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.settings.AttackIndicatorStatus;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.client.AttackIndicatorStatus;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.mojang.math.Axis;
 
 @SuppressWarnings("deprecation")
 public class ActionsOverlayGui extends AbstractGui {
@@ -125,7 +123,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected Action<?> crosshairFillLastAction;
     protected final Map<InputHandler.ActionKey, ElementTransparency> actionNameTransparency = Arrays.stream(InputHandler.ActionKey.values())
             .collect(Maps.toImmutableEnumMap(hotbar -> hotbar, hotbar -> new ElementTransparency(40, 10)));
-    protected final Map<InputHandler.ActionKey, ITextComponent> lastActionName = new EnumMap<>(InputHandler.ActionKey.class);
+    protected final Map<InputHandler.ActionKey, Component> lastActionName = new EnumMap<>(InputHandler.ActionKey.class);
     protected final Map<ControlScheme.Hotbar, FadeOut> actionHotbarFold = Arrays.stream(ControlScheme.Hotbar.values())
             .collect(Maps.toImmutableEnumMap(hotbar -> hotbar, hotbar -> new FadeOut(40, 10)));
     protected final Map<PowerClassification, ElementTransparency> customKeybindActionTransparency = Arrays.stream(PowerClassification.values())
@@ -289,7 +287,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
         RenderGameOverlayEvent.ElementType elementTypeRender = event.getType();
         
-        MatrixStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getMatrixStack();
         float partialTick = event.getPartialTicks();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
@@ -480,7 +478,7 @@ public class ActionsOverlayGui extends AbstractGui {
             return;
         }
         
-        MatrixStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getMatrixStack();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
         float partialTick = event.getPartialTicks();
@@ -557,10 +555,10 @@ public class ActionsOverlayGui extends AbstractGui {
             
             for (ActionKeybindEntry entry : HudControlSettings.getInstance().getControlScheme(power).getCustomKeybinds()) {
                 if (entry.isVisibleInHud() && entry.getHudInteraction().canTrigger(power == getCurrentMode()) && !entry.getKeybind().isUnbound()) {
-                    IFormattableTextComponent keyName = 
-                            new StringTextComponent("[")
+                    MutableComponent keyName = 
+                            Component.literal("[")
                             .append(new ShortKeybindTextComponent(entry.getKeybind()))
-                            .append(new StringTextComponent("]"));
+                            .append(Component.literal("]"));
                     hotkeyInHudActions.add(new HudHotkey(entry, keyName));
                     if (entry == mode.lastHotkeyAction) {
                         hotkeyRenderOffHudAction = false;
@@ -600,13 +598,13 @@ public class ActionsOverlayGui extends AbstractGui {
     
     protected static class HudHotkey {
         final ActionKeybindEntry actionEntry;
-        final IFormattableTextComponent keyName;
+        final MutableComponent keyName;
         final int maxWidth;
         
-        public HudHotkey(ActionKeybindEntry actionEntry, IFormattableTextComponent keyName) {
+        public HudHotkey(ActionKeybindEntry actionEntry, MutableComponent keyName) {
             this.actionEntry = actionEntry;
             this.keyName = keyName;
-            this.maxWidth = Minecraft.getInstance().font.width(keyName.copy().withStyle(TextFormatting.BOLD));
+            this.maxWidth = Minecraft.getInstance().font.width(keyName.copy().withStyle(ChatFormatting.BOLD));
         }
     }
     
@@ -621,7 +619,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected final ElementPosition inHudHotkeysPosition = new ElementPosition();
     protected final ElementPosition offHudHotkeyPosition = new ElementPosition();
     protected final ElementPosition warningsPosition = new ElementPosition();
-    protected List<ITextComponent> warningLines = new ArrayList<>();
+    protected List<Component> warningLines = new ArrayList<>();
     protected final ElementPosition standStrengthPosition = new ElementPosition();
     protected final ElementPosition modeSelectorPosition = new ElementPosition();
     protected final ElementPosition hamonExerciseBarsPosition = new ElementPosition();
@@ -751,7 +749,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected <P extends IPower<P, ?>> void appendWarnings(List<ITextComponent> list, 
+    protected <P extends IPower<P, ?>> void appendWarnings(List<Component> list, 
             ActionsModeConfig<P> powerMode, ControlScheme.Hotbar actionType) {
         boolean shiftVariation = InputHandler.useShiftActionVariant(mc);
         Action<P> action = powerMode.getSelectedAction(actionType, shiftVariation, getMouseTarget());
@@ -762,7 +760,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     
 
-    protected void renderBars(MatrixStack matrixStack, ElementPosition pos, BarsRenderer renderer, float partialTick) {
+    protected void renderBars(PoseStack matrixStack, ElementPosition pos, BarsRenderer renderer, float partialTick) {
         int x = pos.x;
         int y = pos.y;
         if (renderer != null) {
@@ -773,7 +771,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void drawBarsText(MatrixStack matrixStack, BarsRenderer renderer, float partialTick) {
+    protected void drawBarsText(PoseStack matrixStack, BarsRenderer renderer, float partialTick) {
         if (renderer != null) {
             renderer.drawTextAfterRender(matrixStack, getCurrentMode(), nonStandUiMode.getPower(), 
                     standUiMode.getPower(), tickCount, partialTick, mc.font, this);
@@ -790,7 +788,7 @@ public class ActionsOverlayGui extends AbstractGui {
         return !actions.isEmpty();
     }
 
-    protected <P extends IPower<P, ?>> void renderActionsHotbar(MatrixStack matrixStack, 
+    protected <P extends IPower<P, ?>> void renderActionsHotbar(PoseStack matrixStack, 
             ElementPosition position, InputHandler.ActionKey actionKey, ActionsModeConfig<P> mode, ActionTarget target, float partialTick) {
         P power = mode.getPower();
         List<Action<?>> actions = getEnabledActions(power, actionKey);
@@ -957,7 +955,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
 
-    protected <P extends IPower<P, ?>> void renderInHudKeybindActionSlots(MatrixStack matrixStack, 
+    protected <P extends IPower<P, ?>> void renderInHudKeybindActionSlots(PoseStack matrixStack, 
             ElementPosition position, ActionTarget target, float partialTick) {
         int x = position.x;
         List<HudHotkey> hotkeysIterate = position.alignment == Alignment.RIGHT ? Lists.reverse(hotkeyInHudActions) : hotkeyInHudActions;
@@ -983,7 +981,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
 
-    protected <P extends IPower<P, ?>> void renderInHudKeybindActionNames(MatrixStack matrixStack, ElementPosition position) {
+    protected <P extends IPower<P, ?>> void renderInHudKeybindActionNames(PoseStack matrixStack, ElementPosition position) {
         int x = position.x + 9;
         if (position.alignment == Alignment.RIGHT) {
             x -= 26;
@@ -1000,9 +998,9 @@ public class ActionsOverlayGui extends AbstractGui {
                 offset = -offset;
             }
             x += offset;
-            IFormattableTextComponent keyName = hotkeySlotUi.keyName;
+            MutableComponent keyName = hotkeySlotUi.keyName;
             if (heldThisTick.contains(hotkeySlotUi.actionEntry)) {
-                keyName = keyName.withStyle(TextFormatting.BOLD);
+                keyName = keyName.withStyle(ChatFormatting.BOLD);
             }
 
             int width = mc.font.width(keyName);
@@ -1027,7 +1025,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
 
-    protected <P extends IPower<P, ?>> void renderOffHudKeybindActionSlot(MatrixStack matrixStack, 
+    protected <P extends IPower<P, ?>> void renderOffHudKeybindActionSlot(PoseStack matrixStack, 
             ElementPosition position, Action<P> action, 
             ActionTarget target, float partialTick) {
         if (action != null) {
@@ -1039,7 +1037,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected <P extends IPower<P, ?>> void renderSingleActionInSlot(MatrixStack matrixStack, 
+    protected <P extends IPower<P, ?>> void renderSingleActionInSlot(PoseStack matrixStack, 
             int x, int y, Alignment alignment, Action<P> action, 
             ActionTarget target, float alpha, float partialTick, boolean isSelected) {
         if (action == null) return;
@@ -1114,7 +1112,7 @@ public class ActionsOverlayGui extends AbstractGui {
         return controlScheme.getActionsHotbar(actionKey.getHotbar()).getEnabledActions();
     }
     
-    protected void renderMouseIcon(MatrixStack matrixStack, int x, int y, InputHandler.ActionKey actionKey) {
+    protected void renderMouseIcon(PoseStack matrixStack, int x, int y, InputHandler.ActionKey actionKey) {
         InputHandler.MouseButton button = null;
         switch (actionKey) {
         case ATTACK:
@@ -1129,7 +1127,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void renderMouseIcon(MatrixStack matrixStack, int x, int y, InputHandler.MouseButton button) {
+    protected void renderMouseIcon(PoseStack matrixStack, int x, int y, InputHandler.MouseButton button) {
         blit(matrixStack, x, y, 216 + button.ordinal() * 10, 128, 9, 16);
     }
     
@@ -1137,7 +1135,7 @@ public class ActionsOverlayGui extends AbstractGui {
         return 2 * 2 + 22 + mc.font.lineHeight;
     }
     
-    protected <P extends IPower<P, ?>> void renderActionIcon(MatrixStack matrixStack, SelectedTargetIcon targetIcon, ActionsModeConfig<P> mode, 
+    protected <P extends IPower<P, ?>> void renderActionIcon(PoseStack matrixStack, SelectedTargetIcon targetIcon, ActionsModeConfig<P> mode, 
             Action<P> action, ActionTarget target, int x, int y, 
             float partialTick, boolean isSelected, float hotbarAlpha) {
         renderActionIcon(matrixStack, targetIcon, mode, 
@@ -1146,7 +1144,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 0, 16);
     }
     
-    protected <P extends IPower<P, ?>> void renderActionIcon(MatrixStack matrixStack, SelectedTargetIcon targetIcon, ActionsModeConfig<P> mode, 
+    protected <P extends IPower<P, ?>> void renderActionIcon(PoseStack matrixStack, SelectedTargetIcon targetIcon, ActionsModeConfig<P> mode, 
             Action<P> action, ActionTarget target, float x, float y, 
             float partialTick, boolean isSelected, float hotbarAlpha, 
             float leftCut, float cutWidth) {
@@ -1213,8 +1211,8 @@ public class ActionsOverlayGui extends AbstractGui {
             RenderSystem.disableBlend();
             float barX = x + 2;
             float barY = y + 13;
-            ClientUtil.fillRect(Tessellator.getInstance().getBuilder(), barX, barY, 13, 2, 0, 0, 0, 255);
-            ClientUtil.fillRect(Tessellator.getInstance().getBuilder(), barX, barY, learningProgress * 13.0F, 1, 0, 255, 0, 255);
+            ClientUtil.fillRect(Tesselator.getInstance().getBuilder(), barX, barY, 13, 2, 0, 0, 0, 255);
+            ClientUtil.fillRect(Tesselator.getInstance().getBuilder(), barX, barY, learningProgress * 13.0F, 1, 0, 255, 0, 255);
             RenderSystem.enableBlend();
             RenderSystem.enableAlphaTest();
             RenderSystem.enableTexture();
@@ -1314,7 +1312,7 @@ public class ActionsOverlayGui extends AbstractGui {
         return hotbarsEnabled;
     }
     
-    protected <P extends IPower<P, ?>> void drawHotbarText(MatrixStack matrixStack, ElementPosition position, 
+    protected <P extends IPower<P, ?>> void drawHotbarText(PoseStack matrixStack, ElementPosition position, 
             InputHandler.ActionKey actionKey, @Nonnull ActionsModeConfig<P> mode, ActionTarget target, 
             int color, float partialTick) {
         P power = mode.getPower();
@@ -1332,11 +1330,11 @@ public class ActionsOverlayGui extends AbstractGui {
         Action<P> selectedAction = mode.getSelectedAction(actionKey.getHotbar(), shift, getMouseTarget());
         if (selectedAction != null) {
             // action name
-            ITextComponent actionName = actionName(selectedAction, power, target);
+            Component actionName = actionName(selectedAction, power, target);
             ElementTransparency transparency = actionNameTransparency.get(actionKey);
 
             Action<P> baseAction = selectedAction.getBaseVariation();
-            ITextComponent baseActionName = baseAction != null ? actionName(baseAction, power, target) : actionName;
+            Component baseActionName = baseAction != null ? actionName(baseAction, power, target) : actionName;
             if (!baseActionName.equals(lastActionName.put(actionKey, baseActionName))) {
                 transparency.reset();
             }
@@ -1344,8 +1342,8 @@ public class ActionsOverlayGui extends AbstractGui {
             if (selectedAction.hasShiftVariation()) {
                 Action<P> shiftVar = selectedAction.getShiftVariationIfPresent().getVisibleAction(power, getMouseTarget());
                 if (shiftVar != null) {
-                    actionName = new TranslationTextComponent("jojo.overlay.shift", actionName, 
-                            new KeybindTextComponent(mc.options.keyShift.getName()), 
+                    actionName = Component.translatable("jojo.overlay.shift", actionName, 
+                            Component.keybind(mc.options.keyShift.getName()), 
                             shiftVar.getNameShortened(power, shiftVar.getTranslationKey(power, target)));
                 }
             }
@@ -1371,16 +1369,16 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected static <P extends IPower<P, ?>> ITextComponent actionName(Action<P> action, P power, ActionTarget target) {
+    protected static <P extends IPower<P, ?>> Component actionName(Action<P> action, P power, ActionTarget target) {
         String translationKey = action.getTranslationKey(power, target);
-        ITextComponent actionName = action.getTranslatedName(power, translationKey);
+        Component actionName = action.getTranslatedName(power, translationKey);
         if (action.getHoldDurationMax(power) > 0) {
-            actionName = new TranslationTextComponent("jojo.overlay.hold", actionName);
+            actionName = Component.translatable("jojo.overlay.hold", actionName);
         }
         return actionName;
     }
     
-    protected <P extends IPower<P, ?>> void drawCustomKeybindActionText(MatrixStack matrixStack, ElementPosition position, 
+    protected <P extends IPower<P, ?>> void drawCustomKeybindActionText(PoseStack matrixStack, ElementPosition position, 
             Action<P> action, @Nonnull ActionsModeConfig<?> currentMode, ActionTarget target, 
             int color, float partialTick) {
         ActionsModeConfig<P> mode = (ActionsModeConfig<P>) currentMode;
@@ -1398,15 +1396,15 @@ public class ActionsOverlayGui extends AbstractGui {
         if (action != null) {
             // action name
             String translationKey = action.getTranslationKey(power, target);
-            ITextComponent actionName = action.getTranslatedName(power, translationKey);
+            Component actionName = action.getTranslatedName(power, translationKey);
             if (action.getHoldDurationMax(power) > 0) {
-                actionName = new TranslationTextComponent("jojo.overlay.hold", actionName);
+                actionName = Component.translatable("jojo.overlay.hold", actionName);
             }
             if (action.hasShiftVariation()) {
                 Action<P> shiftVar = action.getShiftVariationIfPresent().getVisibleAction(power, getMouseTarget());
                 if (shiftVar != null) {
-                    actionName = new TranslationTextComponent("jojo.overlay.shift", actionName, 
-                            new KeybindTextComponent(mc.options.keyShift.getName()), 
+                    actionName = Component.translatable("jojo.overlay.shift", actionName, 
+                            Component.keybind(mc.options.keyShift.getName()), 
                             shiftVar.getNameShortened(power, shiftVar.getTranslationKey(power, target)));
                 }
             }
@@ -1471,7 +1469,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     
 
-    protected void renderPowerIcon(MatrixStack matrixStack, ElementPosition position, @Nullable ActionsModeConfig<?> mode, float alpha) {
+    protected void renderPowerIcon(PoseStack matrixStack, ElementPosition position, @Nullable ActionsModeConfig<?> mode, float alpha) {
         int x = position.x;
         if (position.alignment == Alignment.RIGHT) {
             x -= 16;
@@ -1491,13 +1489,13 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void drawPowerName(MatrixStack matrixStack, ElementPosition position, @Nonnull ActionsModeConfig<?> mode, int color, float partialTick) {
+    protected void drawPowerName(PoseStack matrixStack, ElementPosition position, @Nonnull ActionsModeConfig<?> mode, int color, float partialTick) {
         float alpha = getNameAlpha(powerNameTransparency, partialTick);
         if (alpha > 0) {
             int x = position.x + (position.alignment == Alignment.RIGHT ? -19 : 19);
             int y = position.y + (16 - mc.font.lineHeight) / 2;
             IPower<?, ?> power = mode.getPower();
-            ITextComponent name = power.getName();
+            Component name = power.getName();
             drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, null, alpha, 0);
             drawString(matrixStack, mc.font, name, x, y, position.alignment, color, alpha);
         }
@@ -1505,7 +1503,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
 
 
-    protected void renderWarningIcons(MatrixStack matrixStack, ElementPosition position, List<ITextComponent> warningLines) {
+    protected void renderWarningIcons(PoseStack matrixStack, ElementPosition position, List<Component> warningLines) {
         mc.getTextureManager().bind(OVERLAY_LOCATION);
         int x = position.x;
         int y = position.y - 4;
@@ -1515,7 +1513,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void drawWarningText(MatrixStack matrixStack, ElementPosition position, List<ITextComponent> warningLines) {
+    protected void drawWarningText(PoseStack matrixStack, ElementPosition position, List<Component> warningLines) {
         int x = position.x;
         int y = position.y;
         switch (position.alignment) {
@@ -1526,23 +1524,23 @@ public class ActionsOverlayGui extends AbstractGui {
             x -= 2;
             break;
         }
-        for (ITextComponent line : warningLines) {
+        for (Component line : warningLines) {
             drawBackdrop(matrixStack, x, y, mc.font.width(line), position.alignment, null, 1.0F, 0);
             drawString(matrixStack, mc.font, line, x, y, position.alignment, 0xFFFFFF);
             y += 16;
         }
     }
     
-    protected void drawStandRemoteRange(MatrixStack matrixStack, float distance, float damageFactor) {
+    protected void drawStandRemoteRange(PoseStack matrixStack, float distance, float damageFactor) {
         int x = standStrengthPosition.x;
         int y = standStrengthPosition.y;
         Alignment alignment = standStrengthPosition.alignment;
-        ITextComponent distanceString = new StringTextComponent(String.format("%.2f m", distance));
+        Component distanceString = Component.literal(String.format("%.2f m", distance));
         drawBackdrop(matrixStack, x, y, mc.font.width(distanceString), alignment, null, 1.0F, 0);
         drawString(matrixStack, mc.font, distanceString, x, y, alignment, 0xFFFFFF);
         if (damageFactor < 1) {
             y += 12;
-            ITextComponent strength = new TranslationTextComponent("jojo.overlay.stand_strength", String.format("%.2f%%", damageFactor * 100F));
+            Component strength = Component.translatable("jojo.overlay.stand_strength", String.format("%.2f%%", damageFactor * 100F));
             drawBackdrop(matrixStack, x, y, mc.font.width(strength), alignment, null, 1.0F, 0);
             drawString(matrixStack, mc.font, strength, x, y, alignment, 0xFF4040);
         }
@@ -1550,7 +1548,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     
 
-    protected <P extends IPower<P, ?>> void renderActionHoldProgress(MatrixStack matrixStack, P power, Action<P> action, 
+    protected <P extends IPower<P, ?>> void renderActionHoldProgress(PoseStack matrixStack, P power, Action<P> action, 
             int ticks, float partialTick, float x, float y) {
         if (action == null) return;
 
@@ -1563,7 +1561,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 alpha = mulAlpha(alpha, 0.75F);
             }
             else {
-                ratio = MathHelper.clamp(((float) ticks + partialTick) / (float) ticksToFire, 0, 1);
+                ratio = Mth.clamp(((float) ticks + partialTick) / (float) ticksToFire, 0, 1);
             }
 
             if (alpha < 1) {
@@ -1574,7 +1572,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    public static void renderRadialIndicator(MatrixStack matrixStack, float x, float y, float ratio) {
+    public static void renderRadialIndicator(PoseStack matrixStack, float x, float y, float ratio) {
         Minecraft.getInstance().getTextureManager().bind(RADIAL_INDICATOR);
 //        int deg = (int) (ratio * 360F);
 //        BlitFloat.blitFloat(matrixStack, x + 1.5F, y + 1.5F, deg % 19 * 13, deg / 19 * 13, 13, 13, 256, 256);
@@ -1588,13 +1586,13 @@ public class ActionsOverlayGui extends AbstractGui {
             nonStandUiMode,
             standUiMode
             ));
-    protected void renderModeSelector(MatrixStack matrixStack, ElementPosition position, float partialTick) {
+    protected void renderModeSelector(PoseStack matrixStack, ElementPosition position, float partialTick) {
         if (modeSelectorTransparency.shouldRender()) {
             int x = position.x;
             int y = position.y;
             matrixStack.pushPose();
             matrixStack.translate(x, y, 0);
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(90));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(90));
             matrixStack.translate(-x, -y - 22, 0);
             HotbarRenderer.renderHotbar(matrixStack, mc, x, y, modes.size(), modeSelectorTransparency.getAlpha(partialTick));
             int selectedMode = modes.indexOf(currentMode);
@@ -1609,7 +1607,7 @@ public class ActionsOverlayGui extends AbstractGui {
     
     
     
-    protected void renderModeSelectorIcons(MatrixStack matrixStack, int x, int y, float partialTick) {
+    protected void renderModeSelectorIcons(PoseStack matrixStack, int x, int y, float partialTick) {
         for (ActionsModeConfig<?> mode : modes) {
             if (mode != null) {
                 IPower<?, ?> power = mode.getPower();
@@ -1622,12 +1620,12 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void drawModeSelectorNames(MatrixStack matrixStack, ElementPosition position, int color, float partialTick) {
+    protected void drawModeSelectorNames(PoseStack matrixStack, ElementPosition position, int color, float partialTick) {
         if (modeSelectorTransparency.shouldRender()) {
             int x = position.x + (position.alignment == Alignment.LEFT ? 26 : -4);
             int y = position.y + (22 - mc.font.lineHeight) / 2;
             for (ActionsModeConfig<?> mode : modes) {
-                ITextComponent name = getModeNameForSelector(mode);
+                Component name = getModeNameForSelector(mode);
                 if (name != null) {
                     drawBackdrop(matrixStack, x, y, mc.font.width(name), position.alignment, modeSelectorTransparency, 0, partialTick);
                     drawString(matrixStack, mc.font, name, x, y, position.alignment, modeSelectorTransparency.makeTextColorTranclucent(color, partialTick));
@@ -1638,13 +1636,13 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     @Nullable
-    protected ITextComponent getModeNameForSelector(ActionsModeConfig<?> mode) {
-        ITextComponent name;
+    protected Component getModeNameForSelector(ActionsModeConfig<?> mode) {
+        Component name;
         if (mode == null) {
             if (currentMode == null) {
                 return null;
             }
-            name = new TranslationTextComponent("jojo.overlay.mode_deselect");
+            name = Component.translatable("jojo.overlay.mode_deselect");
         }
         else {
             IPower<?, ?> power = mode.getPower();
@@ -1653,38 +1651,38 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             name = power.getName();
         }
-        ITextComponent keyName = getKeyName(mode);
+        Component keyName = getKeyName(mode);
         if (keyName != null) {
-            name = new TranslationTextComponent("jojo.overlay.mode_key", keyName, name);
+            name = Component.translatable("jojo.overlay.mode_key", keyName, name);
         }
         return name;
     }
 
-    protected Map<ActionsModeConfig<?>, Supplier<KeyBinding>> modeKeys = ImmutableMap.of(
+    protected Map<ActionsModeConfig<?>, Supplier<KeyMapping>> modeKeys = ImmutableMap.of(
             nonStandUiMode, () -> InputHandler.getInstance().nonStandMode,
             standUiMode, () -> InputHandler.getInstance().standMode);
     @Nullable
-    protected ITextComponent getKeyName(ActionsModeConfig<?> mode) {
+    protected Component getKeyName(ActionsModeConfig<?> mode) {
         if (mode == currentMode) {
             return null;
         }
         if (mode == null) {
             mode = currentMode;
         }
-        Supplier<KeyBinding> keySupplier = modeKeys.get(mode);
+        Supplier<KeyMapping> keySupplier = modeKeys.get(mode);
         if (keySupplier == null || keySupplier.get() == null) {
             return null;
         }
-        return new KeybindTextComponent(keySupplier.get().getName());
+        return Component.keybind(keySupplier.get().getName());
     }
     
     
     
-    protected void renderLeapIcon(MatrixStack matrixStack, @Nonnull ActionsModeConfig<?> mode, int screenWidth, int screenHeight) {
+    protected void renderLeapIcon(PoseStack matrixStack, @Nonnull ActionsModeConfig<?> mode, int screenWidth, int screenHeight) {
         IPower<?, ?> power = mode.getPower();
         if (power.isLeapUnlocked()) {
             mc.getTextureManager().bind(OVERLAY_LOCATION);
-            boolean rightSide = mc.player.getMainArm() == HandSide.RIGHT;
+            boolean rightSide = mc.player.getMainArm() == HumanoidArm.RIGHT;
             int iconX = rightSide ? screenWidth / 2 + 91 + 6 : screenWidth / 2 - 91 - 22;
             if (mc.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
                 if (rightSide) {
@@ -1705,7 +1703,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void renderIconBarAtCrosshair(MatrixStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
+    protected void renderIconBarAtCrosshair(PoseStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
         int xLeft = screenWidth / 2 - 24;
         int xRight = screenWidth / 2 + 8;
         int y = screenHeight / 2 - 8;
@@ -1745,7 +1743,7 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected <P extends IPower<P, ?>> void renderCrosshair(MatrixStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
+    protected <P extends IPower<P, ?>> void renderCrosshair(PoseStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
         mc.textureManager.bind(ActionsOverlayGui.OVERLAY_LOCATION);
         matrixStack.pushPose();
         float x = (screenWidth - 15) / 2;
@@ -1761,7 +1759,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 if (heldAction != null) {
                     int ticksToFire = heldAction.getHoldDurationToFire(power);
                     if (ticksToFire > 0) {
-                        float heldActionRatio = MathHelper.clamp(((float) power.getHeldActionTicks() + partialTick) / (float) ticksToFire, 0, 1);
+                        float heldActionRatio = Mth.clamp(((float) power.getHeldActionTicks() + partialTick) / (float) ticksToFire, 0, 1);
                         if (heldActionRatio > 0) {
                             if (heldActionRatio < 1) {
                                 crosshairFillLastAction = null;
@@ -1797,7 +1795,7 @@ public class ActionsOverlayGui extends AbstractGui {
         matrixStack.popPose();
     }
     
-    protected boolean renderBowChargeIcon(MatrixStack matrixStack, BowChargeEffectInstance<?, ?> bowCharge, float partialTick, int x, int y) {
+    protected boolean renderBowChargeIcon(PoseStack matrixStack, BowChargeEffectInstance<?, ?> bowCharge, float partialTick, int x, int y) {
         if (bowCharge != null && bowCharge.isBeingCharged()) {
             mc.getTextureManager().bind(bowCharge.getPower().clGetPowerTypeIcon());
             float fill = bowCharge.getProgress(partialTick);
@@ -1841,7 +1839,7 @@ public class ActionsOverlayGui extends AbstractGui {
         return false;
     }
 
-    protected void renderFilledIcon(MatrixStack matrixStack, int x, int y, boolean translucent, float fill, 
+    protected void renderFilledIcon(PoseStack matrixStack, int x, int y, boolean translucent, float fill, 
             int texX, int texY, int fillTexX, int fillTexY, int texWidth, int texHeight, int color) {
         blit(matrixStack, x, y, texX, texY, texWidth, texHeight);
         float[] rgb = ClientUtil.rgb(color);
@@ -1860,30 +1858,30 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
 
-    protected void renderHamonExerciseBars(MatrixStack matrixStack, ElementPosition position, HamonData hamon, float partialTick) {
+    protected void renderHamonExerciseBars(PoseStack matrixStack, ElementPosition position, HamonData hamon, float partialTick) {
         int x = position.x;
         int y = position.y;
         
         for (HamonStatIncNotif hamonStat : HamonStatIncNotif.values()) {
             ElementTransparency transparency = hamonLvlIncreaseTransparency.get(hamonStat);
             if (transparency.shouldRender()) {
-                IFormattableTextComponent statName = new TranslationTextComponent("hamon.stat_lvl_increase." + hamonStat.name().toLowerCase());
+                MutableComponent statName = Component.translatable("hamon.stat_lvl_increase." + hamonStat.name().toLowerCase());
                 int value = 0;
                 switch (hamonStat) {
                 case STRENGTH:
-                    statName.withStyle(Style.EMPTY.withColor(Color.fromRgb(0xE21100)));
+                    statName.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(0xE21100)));
                     value = hamon.getStatLevel(HamonStat.STRENGTH);
                     break;
                 case CONTROL:
-                    statName.withStyle(Style.EMPTY.withColor(Color.fromRgb(0x15AF00)));
+                    statName.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(0x15AF00)));
                     value = hamon.getStatLevel(HamonStat.CONTROL);
                     break;
                 case BREATHING:
-                    statName.withStyle(Style.EMPTY.withColor(Color.fromRgb(0x0070D8)));
+                    statName.withStyle(Style.EMPTY.withColor(TextColor.fromRgb(0x0070D8)));
                     value = (int) hamon.getBreathingLevel();
                     break;
                 }
-                ITextComponent increaseMsg = new TranslationTextComponent("hamon.stat_lvl_increase", statName, value);
+                Component increaseMsg = Component.translatable("hamon.stat_lvl_increase", statName, value);
                 matrixStack.pushPose();
                 matrixStack.scale(0.5f, 0.5f, 1);
                 drawBackdrop(matrixStack, x * 2, y * 2, mc.font.width(increaseMsg), Alignment.LEFT, transparency, 0, partialTick);
@@ -1907,20 +1905,20 @@ public class ActionsOverlayGui extends AbstractGui {
     
     
     
-    void drawString(MatrixStack matrixStack, FontRenderer font, ITextComponent text, int x, int y, Alignment alignment, int color, float alpha) {
+    void drawString(PoseStack matrixStack, Font font, Component text, int x, int y, Alignment alignment, int color, float alpha) {
         if (alpha > 0) {
             drawString(matrixStack, font, text, x, y, alignment, color + ((int) (Math.min(alpha, 1F) * 256F) << 24));
         }
     }
     
-    void drawString(MatrixStack matrixStack, FontRenderer font, ITextComponent text, int x, int y, Alignment alignment, int color) {
+    void drawString(PoseStack matrixStack, Font font, Component text, int x, int y, Alignment alignment, int color) {
         if (alignment == Alignment.RIGHT) {
             x -= font.width(text);
         }
         drawString(matrixStack, font, text, x, y, color);
     }
     
-    void drawBackdrop(MatrixStack matrixStack, int x, int y, int width, Alignment alignment, 
+    void drawBackdrop(PoseStack matrixStack, int x, int y, int width, Alignment alignment, 
             @Nullable ElementTransparency transparency, float alpha, float partialTick) {
         int backdropColor = mc.options.getBackgroundColor(0.0F);
         if (backdropColor != 0) {
@@ -2068,7 +2066,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
     @Nullable
     public <P extends IPower<P, ?>> ActionUseTry<P> onClick(
-            P power, ControlScheme.Hotbar mouseButton, boolean shiftVariant, boolean sneak, KeyBinding keyPressed) {
+            P power, ControlScheme.Hotbar mouseButton, boolean shiftVariant, boolean sneak, KeyMapping keyPressed) {
         if (currentMode != null) {
             int selectedIndex = currentMode.getSelectedSlot(mouseButton);
             if (selectedIndex >= 0) {
@@ -2081,7 +2079,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
     @Nullable
     public <P extends IPower<P, ?>> ActionUseTry<P> onClick(
-            P power, ControlScheme.Hotbar hotbar, boolean shiftVariant, boolean sneak, int index, KeyBinding keyPressed) {
+            P power, ControlScheme.Hotbar hotbar, boolean shiftVariant, boolean sneak, int index, KeyMapping keyPressed) {
         ControlScheme controlScheme = HudControlSettings.getInstance().getControlScheme(getCurrentMode());
         Action<P> action = (Action<P>) controlScheme.getActionsHotbar(hotbar).getBaseActionInSlot(index);
         action = resolveVisibleActionInSlot(action, shiftVariant, power, getMouseTarget());
@@ -2107,11 +2105,11 @@ public class ActionsOverlayGui extends AbstractGui {
         return baseAction;
     }
 
-    public final PacketBuffer _extraInputBuf = new PacketBuffer(Unpooled.buffer());
+    public final FriendlyByteBuf _extraInputBuf = new FriendlyByteBuf(Unpooled.buffer());
     // sends the packet which fires the action to the server
     @Nullable
     public <P extends IPower<P, ?>> ActionUseTry<P> onActionClick(
-            P power, Action<P> action, boolean sneak, KeyBinding keyPressed) {
+            P power, Action<P> action, boolean sneak, KeyMapping keyPressed) {
         if (power != null && action != null) {
             InputHandler.lastActionKey = keyPressed;
             if (action.clientOnly()) {
@@ -2208,7 +2206,7 @@ public class ActionsOverlayGui extends AbstractGui {
         nonStandUiMode.autoOpened = false;
     }
     
-    protected void blitFloat(MatrixStack pMatrixStack, float pX, float pY, 
+    protected void blitFloat(PoseStack pMatrixStack, float pX, float pY, 
             float pUOffset, float pVOffset, float pUWidth, float pVHeight) {
         BlitFloat.blitFloat(pMatrixStack, 
                 pX, pY, this.getBlitOffset(), 
@@ -2229,7 +2227,7 @@ public class ActionsOverlayGui extends AbstractGui {
         vignetteBeforeFadeAway = -1;
         prevAir = 0;
         BarsRenderer.getBarEffects(BarType.ENERGY_HAMON).resetRedHighlight();
-        mc.gui.setOverlayMessage(new TranslationTextComponent("hamon.out_of_breath"), false);
+        mc.gui.setOverlayMessage(Component.translatable("hamon.out_of_breath"), false);
     }
     
     public boolean isPlayerOutOfBreath() {
@@ -2246,7 +2244,7 @@ public class ActionsOverlayGui extends AbstractGui {
         if (outOfBreathSpriteTicks > 0) outOfBreathSpriteTicks--;
     }
     
-    protected void renderOutOfBreathSprite(MatrixStack matrixStack, float partialTick, int windowWidth, int windowHeight) {
+    protected void renderOutOfBreathSprite(PoseStack matrixStack, float partialTick, int windowWidth, int windowHeight) {
         if (outOfBreathSpriteTicks > 0) {
             boolean bubblePopped = outOfBreathSpriteTicks < 11;
             mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
@@ -2254,16 +2252,16 @@ public class ActionsOverlayGui extends AbstractGui {
         }
     }
     
-    protected void renderOutOfBreathVignette(MatrixStack matrixStack, float partialTick) {
+    protected void renderOutOfBreathVignette(PoseStack matrixStack, float partialTick) {
         if (outOfBreath) {
-            float air = MathHelper.lerp(partialTick, prevAir, (float) mc.player.getAirSupply()) / (float) mc.player.getMaxAirSupply();
+            float air = Mth.lerp(partialTick, prevAir, (float) mc.player.getAirSupply()) / (float) mc.player.getMaxAirSupply();
             float vignette;
             if (air < 0.75F) {
-                vignette = 0.8F + (MathHelper.sin((tickCount + partialTick) * 0.2F) + 1) * 0.1F;
+                vignette = 0.8F + (Mth.sin((tickCount + partialTick) * 0.2F) + 1) * 0.1F;
             }
             else {
                 if (vignetteBeforeFadeAway < 0) {
-                    vignetteBeforeFadeAway = 0.8F + (MathHelper.sin((tickCount + partialTick) * 0.2F) + 1) * 0.1F;
+                    vignetteBeforeFadeAway = 0.8F + (Mth.sin((tickCount + partialTick) * 0.2F) + 1) * 0.1F;
                 }
                 vignette = 4 * (-air + 1) * vignetteBeforeFadeAway;
             }
@@ -2272,7 +2270,7 @@ public class ActionsOverlayGui extends AbstractGui {
     }
 
     protected static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/vignette.png");
-    public void renderVignette(MatrixStack matrixStack, float r, float g, float b) {
+    public void renderVignette(PoseStack matrixStack, float r, float g, float b) {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -2281,9 +2279,9 @@ public class ActionsOverlayGui extends AbstractGui {
         double screenWidth = mc.getWindow().getGuiScaledWidth();
         double screenHeight = mc.getWindow().getGuiScaledHeight();
         mc.getTextureManager().bind(VIGNETTE_LOCATION);
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
         bufferbuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
         bufferbuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
         bufferbuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();

@@ -11,12 +11,12 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class MagiciansRedKick extends StandEntityHeavyAttack {
 
@@ -25,7 +25,7 @@ public class MagiciansRedKick extends StandEntityHeavyAttack {
     }
 
     @Override
-    public ActionTarget targetBeforePerform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    public ActionTarget targetBeforePerform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
             StandEntity standEntity = (StandEntity) power.getStandManifestation();
             Optional<LivingEntity> bound = MagiciansRedRedBind.getLandedRedBind(standEntity).map(MRRedBindEntity::getEntityAttachedTo);
@@ -46,14 +46,14 @@ public class MagiciansRedKick extends StandEntityHeavyAttack {
     
     private static final double SLIDE_DISTANCE = 3;
     @Override
-    public void standTickWindup(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickWindup(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         int ticksLeft = task.getTicksLeft();
         if (ticksLeft == 2) {
-            Vector3d targetPos = task.getTarget().getTargetPos(true);
-            Vector3d slideVec;
+            Vec3 targetPos = task.getTarget().getTargetPos(true);
+            Vec3 slideVec;
             if (targetPos != null) {
                 slideVec = targetPos.subtract(standEntity.getEyePosition(1.0F));
-                slideVec = slideVec.normalize().scale(MathHelper.clamp(slideVec.length() - standEntity.getBbWidth(), 0, SLIDE_DISTANCE));
+                slideVec = slideVec.normalize().scale(Mth.clamp(slideVec.length() - standEntity.getBbWidth(), 0, SLIDE_DISTANCE));
             }
             else {
                 slideVec = standEntity.getLookAngle().scale(SLIDE_DISTANCE);
@@ -61,7 +61,7 @@ public class MagiciansRedKick extends StandEntityHeavyAttack {
             standEntity.setDeltaMovement(slideVec);
         }
         else if (ticksLeft == 1) {
-            standEntity.setDeltaMovement(Vector3d.ZERO);
+            standEntity.setDeltaMovement(Vec3.ZERO);
             
             if (!world.isClientSide()) {
                 MagiciansRedRedBind.getLandedRedBind(standEntity).ifPresent(redBind -> {

@@ -10,23 +10,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.standobyte.jojo.itemtracking.ITrackedArrowEntity;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStackProvider;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
 
-@Mixin(ArrowEntity.class)
-public abstract class ArrowEntityMixin extends AbstractArrowEntity implements ITrackedArrowEntity {
-    @Nullable private INBT itemTrackerNBT;
+@Mixin(Arrow.class)
+public abstract class ArrowEntityMixin extends AbstractArrow implements ITrackedArrowEntity {
+    @Nullable private Tag itemTrackerNBT;
 
-    protected ArrowEntityMixin(EntityType<? extends AbstractArrowEntity> type, World world) {
+    protected ArrowEntityMixin(EntityType<? extends AbstractArrow> type, Level world) {
         super(type, world);
     }
     
     @Override
-    public void saveItemTrackerNBT(INBT nbt) {
+    public void saveItemTrackerNBT(Tag nbt) {
         this.itemTrackerNBT = nbt;
     }
     

@@ -53,53 +53,52 @@ import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.EnderCrystalEntity;
-import net.minecraft.entity.item.EnderPearlEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.item.TNTEntity;
-import net.minecraft.entity.monster.SlimeEntity;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.PotionEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.FishBucketItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ThrowablePotionItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.ThrownPotion;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ThrowablePotionItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.LazyOptional;
 
 public class GoldExperienceCreateLifeform extends StandAction {
@@ -111,18 +110,18 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     @Override
-    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, World world, LivingEntity user, IStandPower power) {
+    public void overrideVanillaMouseTarget(ObjectWrapper<ActionTarget> targetContainer, Level world, LivingEntity user, IStandPower power) {
         Entity aimingEntity = StandUtil.getStandIfInManualControl(power);
-        Vector3d startPos = aimingEntity.getEyePosition(1.0F);
+        Vec3 startPos = aimingEntity.getEyePosition(1.0F);
         double distance = Math.sqrt(getMaxRangeSqBlockTarget());
-        Vector3d rtVec = aimingEntity.getViewVector(1.0F).scale(distance);
-        Vector3d endPos = startPos.add(rtVec);
-        AxisAlignedBB aabb = aimingEntity.getBoundingBox().expandTowards(rtVec).inflate(1);
-        RayTraceResult rayTrace = JojoModUtil.rayTraceMultipleEntities(startPos, endPos, aabb, 
+        Vec3 rtVec = aimingEntity.getViewVector(1.0F).scale(distance);
+        Vec3 endPos = startPos.add(rtVec);
+        AABB aabb = aimingEntity.getBoundingBox().expandTowards(rtVec).inflate(1);
+        HitResult rayTrace = JojoModUtil.rayTraceMultipleEntities(startPos, endPos, aabb, 
                 distance, world, aimingEntity, 
-                e -> e instanceof ItemEntity, false, RayTraceContext.BlockMode.COLLIDER, 
+                e -> e instanceof ItemEntity, false, ClipContext.Block.COLLIDER, 
                 0, 0)[0];
-        if (rayTrace.getType() == RayTraceResult.Type.ENTITY) {
+        if (rayTrace.getType() == HitResult.Type.ENTITY) {
             targetContainer.set(ActionTarget.fromRayTraceResult(rayTrace));
         }
     }
@@ -138,16 +137,16 @@ public class GoldExperienceCreateLifeform extends StandAction {
             }
             // FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! use more types of inanimate entities as targets?
             return ActionConditionResult.noMessage(
-                    entity instanceof TNTEntity || 
+                    entity instanceof PrimedTnt || 
                     entity instanceof RoadRollerEntity || 
-                    entity instanceof EnderCrystalEntity || 
-                    entity instanceof BoatEntity);
+                    entity instanceof EndCrystal || 
+                    entity instanceof Boat);
         case BLOCK:
             if (!JojoModUtil.breakingBlocksEnabled(user.level)) {
                 return ActionConditionResult.NEGATIVE;
             }
             if (!power.isUserCreative()) {
-                World world = user.level;
+                Level world = user.level;
                 BlockPos blockPos = target.getBlockPos();
                 BlockState blockState = world.getBlockState(blockPos);
                 
@@ -185,7 +184,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
         boolean blockFits = false;
         boolean canUseBlock = JojoModUtil.breakingBlocksEnabled(user.level);
         
-        ItemStack item = user.getItemInHand(Hand.OFF_HAND);
+        ItemStack item = user.getItemInHand(InteractionHand.OFF_HAND);
         if (!item.isEmpty()) {
             hasAnItem = true;
             itemFits = canGiveLifeTo(item);
@@ -214,12 +213,12 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     public static boolean canGiveLifeTo(ItemStack item) {
-        return !HamonUtil.isItemLivingMatter(item) || item.getItem() instanceof FishBucketItem;
+        return !HamonUtil.isItemLivingMatter(item) || item.getItem() instanceof MobBucketItem;
     }
     
     @Override
-    public void clWriteExtraData(PacketBuffer buf) {
-        PlayerEntity player = ClientUtil.getClientPlayer();
+    public void clWriteExtraData(FriendlyByteBuf buf) {
+        Player player = ClientUtil.getClientPlayer();
         NetworkUtil.writeOptionally(buf, 
                 getChosenEntityType(player), 
                 EntitySubtype::toBuf);
@@ -231,7 +230,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     @Nullable
-    public static EntitySubtype<?> getChosenEntityType(PlayerEntity player) {
+    public static EntitySubtype<?> getChosenEntityType(Player player) {
 //        ItemStack heldItem = player.getItemInHand(Hand.OFF_HAND);
 //        if (!heldItem.isEmpty()) {
 //            Item item = heldItem.getItem();
@@ -259,34 +258,34 @@ public class GoldExperienceCreateLifeform extends StandAction {
                 .map(playerData -> playerData.getGELifeformsUIState().getGEChosenLifeformType()).orElse(null);
     }
     
-    public static Entity createEntity(EntitySubtype<?> type, World world, LivingEntity standUser) {
+    public static Entity createEntity(EntitySubtype<?> type, Level world, LivingEntity standUser) {
         Entity lifeFormCreated = type.create(world);
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.putString("DeathLootTable", "empty");
         if (!world.dimensionType().piglinSafe()) {
             nbt.putBoolean("IsImmuneToZombification", true);
         }
         lifeFormCreated.load(nbt);
         
-        if (lifeFormCreated instanceof MobEntity) {
-            ((MobEntity) lifeFormCreated).finalizeSpawn((ServerWorld) world, 
+        if (lifeFormCreated instanceof Mob) {
+            ((Mob) lifeFormCreated).finalizeSpawn((ServerLevel) world, 
                     world.getCurrentDifficultyAt(standUser.blockPosition()), 
-                    SpawnReason.COMMAND, null, null);
-            for (EquipmentSlotType slot : EquipmentSlotType.values()) {
+                    MobSpawnType.COMMAND, null, null);
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
                 lifeFormCreated.setItemSlot(slot, ItemStack.EMPTY);
             }
             
-            if (lifeFormCreated instanceof AgeableEntity) {
+            if (lifeFormCreated instanceof AgeableMob) {
                 standUser.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(playerData -> {
                     playerData.animalAgeCd += 3000;
-                    ((AgeableEntity) lifeFormCreated).setAge(Math.max(playerData.animalAgeCd - 3000, 0));
+                    ((AgeableMob) lifeFormCreated).setAge(Math.max(playerData.animalAgeCd - 3000, 0));
                 });
-                if (lifeFormCreated instanceof AbstractHorseEntity) {
-                    ((AbstractHorseEntity) lifeFormCreated).setTemper(0);
+                if (lifeFormCreated instanceof AbstractHorse) {
+                    ((AbstractHorse) lifeFormCreated).setTemper(0);
                 }
             }
-            else if (lifeFormCreated instanceof SlimeEntity) {
-                CompoundNBT additionalNbt = lifeFormCreated.serializeNBT();
+            else if (lifeFormCreated instanceof Slime) {
+                CompoundTag additionalNbt = lifeFormCreated.serializeNBT();
                 additionalNbt.putInt("Size", 0);
                 lifeFormCreated.load(additionalNbt);
             }
@@ -296,7 +295,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     @Override
-    public void perform(World world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         if (!world.isClientSide() && extraInput != null) {
             EntitySubtype<?> type = NetworkUtil.readOptional(extraInput, EntitySubtype::fromBuf).orElse(null);
             UUID itemTrackerId = NetworkUtil.readOptional(extraInput, extraInput::readUUID).orElse(null);
@@ -311,7 +310,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                 Entity performer = getControlledEntity(user, power);
                 GETransformationEntity tf = new GETransformationEntity(world);
                 
-                ObjectWrapper<ITextComponent> customName = new ObjectWrapper<>(null);
+                ObjectWrapper<Component> customName = new ObjectWrapper<>(null);
                 boolean tfTargetFound = false;
                 
                 ObjectWrapper<Entity> nonUserItemHolder = new ObjectWrapper<>(null);
@@ -319,7 +318,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                 // marked item...
                 if (itemTrackerId != null) {
                     TrackerItemStack itemTracker = SidedItemTrackerMap.getSidedTrackers(world).getTracker(itemTrackerId);
-                    if (itemTracker != null && itemTracker.checkItemIsThere((ServerWorld) world)) {
+                    if (itemTracker != null && itemTracker.checkItemIsThere((ServerLevel) world)) {
                         // ...from entity
                         Entity itemEntity = itemTracker.getAtEntity(world);
                         LivingEntity livingItemHolder = itemEntity instanceof LivingEntity ? (LivingEntity) itemEntity : null;
@@ -327,7 +326,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                             KnownItemState itemState = itemTracker.getItemState();
                             if (itemState != null) {
                                 tfTargetFound = true;
-                                Vector3d pos = itemEntity.position();
+                                Vec3 pos = itemEntity.position();
                                 
                                 switch (itemState) {
                                 case ENTITY_HAS_ITEM:
@@ -345,8 +344,8 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                     break;
                                 case STUCK_ARROW:
                                     tf.moveTo(pos.x, pos.y, pos.z, itemEntity.yRot, itemEntity.xRot);
-                                    AbstractArrowEntity arrow = new ArrowEntity(world, user);
-                                    arrow.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+                                    AbstractArrow arrow = new Arrow(world, user);
+                                    arrow.pickup = AbstractArrow.PickupStatus.ALLOWED;
                                     tf.getTfSourceData().withEntitySource(arrow);
                                     if (livingItemHolder != null) {
                                         decrementStuckArrow(livingItemHolder);
@@ -356,8 +355,8 @@ public class GoldExperienceCreateLifeform extends StandAction {
                                     break;
                                 case STUCK_KNIFE:
                                     tf.moveTo(pos.x, pos.y, pos.z, itemEntity.yRot, itemEntity.xRot);
-                                    AbstractArrowEntity knife = new KnifeEntity(world, user);
-                                    knife.pickup = AbstractArrowEntity.PickupStatus.ALLOWED;
+                                    AbstractArrow knife = new KnifeEntity(world, user);
+                                    knife.pickup = AbstractArrow.PickupStatus.ALLOWED;
                                     tf.getTfSourceData().withEntitySource(knife);
                                     if (livingItemHolder != null) {
                                         decrementStuckKnife(livingItemHolder);
@@ -414,12 +413,12 @@ public class GoldExperienceCreateLifeform extends StandAction {
                 
                 // item held in off-hand
                 if (!tfTargetFound) {
-                    ItemStack heldItem = user.getItemInHand(Hand.OFF_HAND);
+                    ItemStack heldItem = user.getItemInHand(InteractionHand.OFF_HAND);
                     if (!heldItem.isEmpty() && canGiveLifeTo(heldItem)) {
                         tfTargetFound = true;
                         
-                        Vector3d pos = performer.position();
-                        Vector3d lookVec = performer.getLookAngle();
+                        Vec3 pos = performer.position();
+                        Vec3 lookVec = performer.getLookAngle();
                         double distScale = lifeFormCreated.getBbWidth() + 1;
                         pos = pos.add(lookVec.x * distScale, 0, lookVec.z * distScale);
                         tf.moveTo(pos.x, pos.y, pos.z, performer.yRot, 0);
@@ -437,7 +436,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                     
                     if (!HamonOrganismInfusion.isBlockLiving(blockState)) {
                         tfTargetFound = true;
-                        mobFromBlock(tf, blockPos, blockState, (ServerWorld) world, lifeFormCreated, user);
+                        mobFromBlock(tf, blockPos, blockState, (ServerLevel) world, lifeFormCreated, user);
                         tf.moveTo(blockPos, performer.yRot, 0);
                     }
                 }
@@ -480,7 +479,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
                     if (lifeFormCreated instanceof LivingEntity) {
                         IStandPower.getStandPowerOptional((LivingEntity) lifeFormCreated).ifPresent(mobStand -> {
                             if (mobStand.getType() == ModStandsInit.MR_PRESIDENT.get()) {
-                                LazyOptional<MrPresidentWorldData> mrPresidentTracker = MrPresidentWorldData.get(((ServerWorld) user.level).getServer());
+                                LazyOptional<MrPresidentWorldData> mrPresidentTracker = MrPresidentWorldData.get(((ServerLevel) user.level).getServer());
                                 mrPresidentTracker.ifPresent(tracker -> {
                                     tracker.rememberTurtlePosition(lifeFormCreated);
                                     List<Entity> entitiesToTeleport = MrPresidentStandType.findTargets(
@@ -503,13 +502,13 @@ public class GoldExperienceCreateLifeform extends StandAction {
                     }
                 }
             }
-            else if (user instanceof ServerPlayerEntity) {
-                ((ServerPlayerEntity) user).displayClientMessage(new TranslationTextComponent("jojo.message.action_condition.choose_lifeform"), true);
+            else if (user instanceof ServerPlayer) {
+                ((ServerPlayer) user).displayClientMessage(Component.translatable("jojo.message.action_condition.choose_lifeform"), true);
             }
         }
     }
     
-    public static final Stack<TileEntity> KEEP_ITEMS = new Stack<>();
+    public static final Stack<BlockEntity> KEEP_ITEMS = new Stack<>();
     
     @Nullable
     private static LivingEntity getLastHurtTarget(LivingEntity standUser, @Nullable StandEntity standEntity) {
@@ -535,13 +534,13 @@ public class GoldExperienceCreateLifeform extends StandAction {
         MCUtil.cloneEntity(entity).ifPresent(e -> tf.getTfSourceData().withEntitySource(e));
         entity.remove();
         
-        Vector3d pos = entity.position();
+        Vec3 pos = entity.position();
         tf.moveTo(pos.x, pos.y, pos.z, entity.yRot, entity.xRot);
         
         if (entity.isOnFire()) {
             tf.setSecondsOnFire((entity.getRemainingFireTicks() + 19) / 20);
         }
-        if (!(entity instanceof AbstractArrowEntity && ((AbstractArrowEntity) entity).inGround)) {
+        if (!(entity instanceof AbstractArrow && ((AbstractArrow) entity).inGround)) {
             tf.setDeltaMovement(entity.getDeltaMovement());
         }
         
@@ -553,19 +552,19 @@ public class GoldExperienceCreateLifeform extends StandAction {
         }
     }
     
-    private void mobFromInventory(GETransformationEntity tf, TrackerItemStack itemTracker, World world, 
-            @Nonnull LivingEntity wouldBeThrower, BlockPos fishBucketPos, ObjectWrapper<ITextComponent> mobName) {
+    private void mobFromInventory(GETransformationEntity tf, TrackerItemStack itemTracker, Level world, 
+            @Nonnull LivingEntity wouldBeThrower, BlockPos fishBucketPos, ObjectWrapper<Component> mobName) {
         Entity holder = itemTracker.getAtEntity(world);
-        if (holder instanceof ItemFrameEntity) {
+        if (holder instanceof ItemFrame) {
             tf.moveTo(tf.position().add(holder.getLookAngle().scale(0.5)));
         }
-        itemTracker.onShrink((ServerWorld) world);
+        itemTracker.onShrink((ServerLevel) world);
         itemTracker.clear();
         mobFromInventory(tf, itemTracker.getItem(), world, wouldBeThrower, fishBucketPos, mobName);
     }
     
-    private void mobFromInventory(GETransformationEntity tf, ItemStack item, World world, 
-            @Nonnull LivingEntity wouldBeThrower, BlockPos fishBucketPos, ObjectWrapper<ITextComponent> mobName) {
+    private void mobFromInventory(GETransformationEntity tf, ItemStack item, Level world, 
+            @Nonnull LivingEntity wouldBeThrower, BlockPos fishBucketPos, ObjectWrapper<Component> mobName) {
         Entity itemEntity;
         ItemStack transformedItem = null;
         if (item.getItem() instanceof BucketItem) {
@@ -582,15 +581,15 @@ public class GoldExperienceCreateLifeform extends StandAction {
         }
         transformedItem.setCount(1);
         if (item.getItem() instanceof ThrowablePotionItem) {
-            PotionEntity potionEntity = new PotionEntity(world, wouldBeThrower);
+            ThrownPotion potionEntity = new ThrownPotion(world, wouldBeThrower);
             potionEntity.setItem(transformedItem);
             itemEntity = potionEntity;
         }
         else if (item.getItem() == Items.ENDER_PEARL) {
-            EnderPearlEntity pearlEntity = new EnderPearlEntity(world, wouldBeThrower);
+            ThrownEnderpearl pearlEntity = new ThrownEnderpearl(world, wouldBeThrower);
             itemEntity = pearlEntity;
         }
-        else if (item.getItem() == ModItems.MOLOTOV.get() && wouldBeThrower instanceof PlayerEntity && MolotovItem.useFire((PlayerEntity) wouldBeThrower, world)) {
+        else if (item.getItem() == ModItems.MOLOTOV.get() && wouldBeThrower instanceof Player && MolotovItem.useFire((Player) wouldBeThrower, world)) {
             MolotovEntity molotovEntity = new MolotovEntity(world, wouldBeThrower);
             itemEntity = molotovEntity;
         }
@@ -606,31 +605,31 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     private static final ResourceLocation ENCH_TABLE_ID = new ResourceLocation("minecraft:enchanting_table");
-    private void mobFromBlock(GETransformationEntity tf, BlockPos blockPos, BlockState blockState, ServerWorld world, Entity lifeformCreated, LivingEntity geUser) {
-        TileEntity tileEntity = world.getBlockEntity(blockPos);
+    private void mobFromBlock(GETransformationEntity tf, BlockPos blockPos, BlockState blockState, ServerLevel world, Entity lifeformCreated, LivingEntity geUser) {
+        BlockEntity tileEntity = world.getBlockEntity(blockPos);
         if (tileEntity != null) {
             ResourceLocation teId = tileEntity.getType().getRegistryName();
             if (ModInteractionUtil.isModLoaded("apotheosis") && ENCH_TABLE_ID.equals(teId)) {
                 tileEntity = null;
             }
         }
-        boolean keepItems = tileEntity instanceof IInventory;
+        boolean keepItems = tileEntity instanceof Container;
         
         if (keepItems) {
             KEEP_ITEMS.add(tileEntity);
             
             if (lifeformCreated.getType().getRegistryName().getPath().contains("pigeon")) {
-                IInventory inventory = (IInventory) tileEntity;
+                Container inventory = (Container) tileEntity;
                 Optional<UUID> deliveryDest = IntStream.range(0, inventory.getMaxStackSize()).mapToObj(inventory::getItem)
                         .filter(item -> !item.isEmpty() && item.getItem() == Items.NAME_TAG && item.hasCustomHoverName())
                         .map(nameTag -> nameTag.getHoverName().getString())
                         .filter(name -> !StringUtils.isBlank(name))
                         .map(name -> {
-                            ServerPlayerEntity online = world.getServer().getPlayerList().getPlayerByName(name);
+                            ServerPlayer online = world.getServer().getPlayerList().getPlayerByName(name);
                             if (online != null) {
                                 return online.getUUID();
                             }
-                            return PlayerEntity.createPlayerUUID(name);
+                            return Player.createPlayerUUID(name);
                         })
                         .filter(id -> id != null).findFirst();
                 deliveryDest.ifPresent(destId -> tf.getTfSourceData().withFollowTarget(destId, GETransformationEntity.FollowTargetMode.DELIVERY, geUser));
@@ -661,7 +660,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
         }
         
         double value = 240 / Math.max(standSpeed, 1)
-                + MathHelper.ceil(volume * (1 + entityStrength * 0.125) * MathHelper.clamp(100 - standSpeed * 2, 0, 100));
+                + Mth.ceil(volume * (1 + entityStrength * 0.125) * Mth.clamp(100 - standSpeed * 2, 0, 100));
         if (geUserMetMobs != null && geUserMetMobs.isMobNativeToPlayerPos(user.level, targetEntity, user)) {
             value *= 0.5;
         }
@@ -676,9 +675,9 @@ public class GoldExperienceCreateLifeform extends StandAction {
             double entityStrength = getAttackStrength(lifeform);
             float volume = getVolume(lifeform);
             
-            float entityMultiplier = MathHelper.clamp(volume, 1, 3);
+            float entityMultiplier = Mth.clamp(volume, 1, 3);
             if (entityStrength > 0) {
-                entityMultiplier *= MathHelper.clamp(entityStrength, 2, 6) * 0.45 + 0.3;
+                entityMultiplier *= Mth.clamp(entityStrength, 2, 6) * 0.45 + 0.3;
             }
             
             return baseCost * entityMultiplier;
@@ -725,10 +724,10 @@ public class GoldExperienceCreateLifeform extends StandAction {
     
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         EntitySubtype<?> chosenEntityType = getChosenEntityType(ClientUtil.getClientPlayer());
         if (chosenEntityType != null) {
-            return new TranslationTextComponent(key + ".param", chosenEntityType.getDescription());
+            return Component.translatable(key + ".param", chosenEntityType.getDescription());
         }
         else {
             return super.getTranslatedName(power, key);
@@ -736,7 +735,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
     }
     
     @Override
-    public void renderActionIcon(MatrixStack matrixStack, IStandPower power, float x, float y) {
+    public void renderActionIcon(PoseStack matrixStack, IStandPower power, float x, float y) {
         EntitySubtype<?> selectedMob = GoldExperienceCreateLifeform.getChosenEntityType(ClientUtil.getClientPlayer());
         if (selectedMob != null) {
             EntityTypeIcon.renderIcon(selectedMob, matrixStack, x, y);

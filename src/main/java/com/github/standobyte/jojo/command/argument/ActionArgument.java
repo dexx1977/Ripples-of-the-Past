@@ -26,18 +26,18 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import net.minecraft.command.arguments.ArgumentSerializer;
-import net.minecraft.command.arguments.ArgumentTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public class ActionArgument implements ArgumentType<Action<?>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("star_platinum_time_stop", "the_world_barrage");
-    public static final DynamicCommandExceptionType TYPE_UNKNOWN = new DynamicCommandExceptionType((key) -> new TranslationTextComponent("action.unknown", key));
+    public static final DynamicCommandExceptionType TYPE_UNKNOWN = new DynamicCommandExceptionType((key) -> Component.translatable("action.unknown", key));
     private static Map<String, List<Action<?>>> BY_LOCATION;
     
     public static void commonSetupRegister() {
-        ArgumentTypes.register("jojo_action", ActionArgument.class, new ArgumentSerializer<>(ActionArgument::new));
+        ArgumentTypeInfos.register("jojo_action", ActionArgument.class, new ArgumentSerializer<>(ActionArgument::new));
         BY_LOCATION = ArgumentUtil.groupByKeyLocation(JojoCustomRegistries.ACTIONS.getRegistry());
         makeExtraSuggestionMap();
     }
@@ -58,7 +58,7 @@ public class ActionArgument implements ArgumentType<Action<?>> {
         
         Set<String> suggestionsSet = new HashSet<>();
         ArgumentUtil.addSuggestions(JojoCustomRegistries.ACTIONS.getRegistry().getValues()
-                .stream().map(IForgeRegistryEntry::getRegistryName), s, Function.identity(), resLoc -> {
+                .stream().map(RegistryEntry::getRegistryName), s, Function.identity(), resLoc -> {
                     String str = resLoc.toString();
                     if (suggestionsSet.add(str)) {
                         builder.suggest(str);

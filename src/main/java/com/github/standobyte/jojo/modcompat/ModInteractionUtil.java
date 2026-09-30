@@ -11,15 +11,15 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.power.impl.nonstand.type.vampirism.VampirismUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.EndermanEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.IndirectEntityDamageSource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -63,7 +63,7 @@ public class ModInteractionUtil {
     public static boolean isEntityEnderman(Entity entity) {
         if (entity == null) return false;
         
-        if (entity instanceof EndermanEntity) {
+        if (entity instanceof EnderMan) {
             return true;
         }
         
@@ -90,7 +90,7 @@ public class ModInteractionUtil {
     public static void onAttackFromOtherMods(LivingAttackEvent event) {
         DamageSource damageSource = event.getSource();
         Entity entity = damageSource.getDirectEntity();
-        LivingEntity target = event.getEntityLiving();
+        LivingEntity target = event.getEntity();
         
         if ("mob".equals(damageSource.msgId) && entity != null) {
             ResourceLocation damagingEntityId = entity.getType().getRegistryName();
@@ -99,7 +99,7 @@ public class ModInteractionUtil {
                 if (    entityName.equals("sunstrike") || 
                         entityName.equals("solar_beam") || 
                         entityName.equals("super_nova")) {
-                    boolean targetIsVampire = target instanceof PlayerEntity && JojoModUtil.isPlayerJojoVampiric((PlayerEntity) target);
+                    boolean targetIsVampire = target instanceof Player && JojoModUtil.isPlayerJojoVampiric((Player) target);
                     if (targetIsVampire) {
                         DamageSource extraDmgSource = new IndirectEntityDamageSource("mowzie_sun", entity, damageSource.getEntity())
                                 .bypassArmor().bypassMagic().setIsFire();

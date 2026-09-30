@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.render.entity.pose;
 
 import java.util.function.UnaryOperator;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class ModelPoseTransition<T extends Entity> implements IModelPose<T> {
     private final IModelPose<T> pose1;
@@ -16,7 +16,7 @@ public class ModelPoseTransition<T extends Entity> implements IModelPose<T> {
     }
 
     @Override
-    public void poseModel(float transition, T entity, float ticks, float yRotOffsetRad, float xRotRad, HandSide side) {
+    public void poseModel(float transition, T entity, float ticks, float yRotOffsetRad, float xRotRad, HumanoidArm side) {
         pose1.poseModel(1.0F, entity, ticks, yRotOffsetRad, xRotRad, side);
         pose2.poseModel(easingFunc.apply(transition), entity, ticks, yRotOffsetRad, xRotRad, side);
     }

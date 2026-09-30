@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.capability.entity.hamonutil.ProjectileHamonCha
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonEntityChargePacket {
     private final int entityId;
@@ -39,7 +39,7 @@ public class TrHamonEntityChargePacket {
     
     public static class Handler implements IModPacketHandler<TrHamonEntityChargePacket> {
     
-        public void encode(TrHamonEntityChargePacket msg, PacketBuffer buf) {
+        public void encode(TrHamonEntityChargePacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.type);
             buf.writeInt(msg.entityId);
             buf.writeBoolean(msg.hasCharge);
@@ -55,7 +55,7 @@ public class TrHamonEntityChargePacket {
             }
         }
         
-        public TrHamonEntityChargePacket decode(PacketBuffer buf) {
+        public TrHamonEntityChargePacket decode(FriendlyByteBuf buf) {
             Type type = buf.readEnum(Type.class);
             int entityId = buf.readInt();
             boolean hasCharge = buf.readBoolean();

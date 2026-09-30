@@ -8,9 +8,9 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXHan
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXScarletOverdriveHandler extends KosmXWindupAttackHandler {
 
@@ -19,7 +19,7 @@ public class KosmXScarletOverdriveHandler extends KosmXWindupAttackHandler {
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, new KosmXHandsideMirrorModifier(player));
     }
     
@@ -27,17 +27,17 @@ public class KosmXScarletOverdriveHandler extends KosmXWindupAttackHandler {
     private static final ResourceLocation SCARLET_OVERDRIVE = new ResourceLocation(JojoMod.MOD_ID, "scarlet_overdrive");
     
     @Override
-    public boolean setWindupAnim(PlayerEntity player) {
+    public boolean setWindupAnim(Player player) {
         return setAnimFromName(player, SCARLET_OVERDRIVE, anim -> new ChargedAttackAnimPlayer(anim).windupStopsAt(anim.returnToTick));
     }
 
     @Override
-    public boolean setAttackAnim(PlayerEntity player) {
+    public boolean setAttackAnim(Player player) {
         return setToSwingTick(player, -1, SCARLET_OVERDRIVE);
     }
     
     @Override
-    public void stopAnim(PlayerEntity player) {
+    public void stopAnim(Player player) {
         fadeOutAnim(player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
     }
     

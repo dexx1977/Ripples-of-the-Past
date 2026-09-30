@@ -12,12 +12,12 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 public interface IHasStandPunch {
     
@@ -42,7 +42,7 @@ public interface IHasStandPunch {
         if (canPlay && (playAlways || punch.playImpactSound())) {
             SoundEvent punchSound = punch.getImpactSound();
             if (punchSound != null) {
-                Vector3d soundPos = punch.getImpactSoundPos();
+                Vec3 soundPos = punch.getImpactSoundPos();
                 if (soundPos != null) {
                     punch.getStand().playSound(punchSound, 1.0F, 1.0F, null, soundPos);
                 }

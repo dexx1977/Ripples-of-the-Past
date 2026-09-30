@@ -1,10 +1,10 @@
 package com.github.standobyte.jojo.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FireBlock;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 
 public class MagiciansRedFireBlock extends FireBlock {
 
@@ -13,7 +13,7 @@ public class MagiciansRedFireBlock extends FireBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(IBlockReader world, BlockPos blockPos) {
+    public BlockState getStateForPlacement(BlockGetter world, BlockPos blockPos) {
         return super.getStateForPlacement(world, blockPos);
     }
     
@@ -25,7 +25,7 @@ public class MagiciansRedFireBlock extends FireBlock {
 //    }
     
     @Override
-    public BlockState getStateWithAge(IWorld pLevel, BlockPos pPos, int pAge) {
+    public BlockState getStateWithAge(LevelAccessor pLevel, BlockPos pPos, int pAge) {
         return getStateForPlacement(pLevel, pPos).setValue(AGE, Integer.valueOf(pAge));
     }
 }

@@ -22,28 +22,28 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.Util;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
 public class HamonSendoOverdriveEntity extends Entity implements IEntityAdditionalSpawnData {
     private Entity user;
@@ -67,7 +67,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     public float damage;
     public static final float KNOCKBACK_FACTOR = 0.0F;
 
-    public HamonSendoOverdriveEntity(World world, LivingEntity user, Direction.Axis axis) {
+    public HamonSendoOverdriveEntity(Level world, LivingEntity user, Direction.Axis axis) {
         this(ModEntityTypes.SENDO_HAMON_OVERDRIVE.get(), world);
         this.user = user;
         this.userUUID = user.getUUID();
@@ -75,7 +75,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         refreshDimensions();
     }
 
-    public HamonSendoOverdriveEntity(EntityType<?> type, World world) {
+    public HamonSendoOverdriveEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
     
@@ -107,14 +107,14 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
             if (tickCount % WAVE_ADD_TICK == 0 && addedWaves++ < wavesToAdd) {
                 if (!level.isClientSide()) {
                     waves.add(new Wave());
-                    Vector3d soundPos = getBoundingBox().getCenter();
+                    Vec3 soundPos = getBoundingBox().getCenter();
                     if (addedWaves < wavesToAdd) {
                         level.playSound(null, soundPos.x, soundPos.y, soundPos.z, ModSounds.HAMON_SPARK.get(), 
-                                SoundCategory.AMBIENT, 0.25f, 1.0F + (random.nextFloat() - 0.5F) * 0.15F);
+                                SoundSource.AMBIENT, 0.25f, 1.0F + (random.nextFloat() - 0.5F) * 0.15F);
                     }
                 }
                 else {
-                    Vector3d center = getBoundingBox().getCenter();
+                    Vec3 center = getBoundingBox().getCenter();
                     switch (axis) {
                     case X:
                         spawnSparksCircle(center.add( 0.55, 0, 0), axis, radius);
@@ -148,12 +148,12 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
                 }
             }
             else {
-                AxisAlignedBB box = makeHurtHitBox(radius);
-                Vector3d cameraPos = ClientUtil.getCameraPos();
-                Vector3d soundPos = new Vector3d(
-                        MathHelper.clamp(cameraPos.x, box.minX, box.maxX),
-                        MathHelper.clamp(cameraPos.y, box.minY, box.maxY),
-                        MathHelper.clamp(cameraPos.z, box.minZ, box.maxZ));
+                AABB box = makeHurtHitBox(radius);
+                Vec3 cameraPos = ClientUtil.getCameraPos();
+                Vec3 soundPos = new Vec3(
+                        Mth.clamp(cameraPos.x, box.minX, box.maxX),
+                        Mth.clamp(cameraPos.y, box.minY, box.maxY),
+                        Mth.clamp(cameraPos.z, box.minZ, box.maxZ));
                 HamonSparksLoopSound.playSparkSound(this, soundPos, 1.0F, true);
             }
         }
@@ -196,21 +196,21 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         
         
         
-        private static final Class<? extends INBT> WAVE_NBT_CLASS = IntNBT.class;
-        private static ListNBT saveWavesToNBT(List<Wave> waves) {
-            ListNBT nbt = new ListNBT();
+        private static final Class<? extends Tag> WAVE_NBT_CLASS = IntTag.class;
+        private static ListTag saveWavesToNBT(List<Wave> waves) {
+            ListTag nbt = new ListTag();
             for (Wave wave : waves) {
-                nbt.add(IntNBT.valueOf(wave.tick));
+                nbt.add(IntTag.valueOf(wave.tick));
             }
             return nbt;
         }
         
-        private static List<Wave> loadWavesFromNBT(ListNBT nbt) {
+        private static List<Wave> loadWavesFromNBT(ListTag nbt) {
             List<Wave> waves = new LinkedList<>();
             if (nbt.getElementType() == MCUtil.getNbtId(WAVE_NBT_CLASS)) {
-                for (INBT waveNBT : nbt) {
+                for (Tag waveNBT : nbt) {
                     Wave wave = new Wave();
-                    wave.tick = ((IntNBT) waveNBT).getAsInt();
+                    wave.tick = ((IntTag) waveNBT).getAsInt();
                 }
             }
             return waves;
@@ -222,17 +222,17 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     private static final int WAVE_TICK_LENGTH = 15;
     private static final int WAVE_ADD_TICK = 4;
     private final Predicate<LivingEntity> filter = 
-            EntityPredicates.LIVING_ENTITY_STILL_ALIVE.and(EntityPredicates.NO_CREATIVE_OR_SPECTATOR)
+            EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_CREATIVE_OR_SPECTATOR)
             .and(entity -> !entity.is(getUser()));
-    private final List<AxisAlignedBB> hitboxes = Util.make(new ArrayList<>(WAVE_TICK_LENGTH), list -> {
+    private final List<AABB> hitboxes = Util.make(new ArrayList<>(WAVE_TICK_LENGTH), list -> {
         for (int i = 0; i < WAVE_TICK_LENGTH; i++) {
             list.add(null);
         }
     });
-    private AxisAlignedBB fullBox;
+    private AABB fullBox;
     
-    private AxisAlignedBB getHurtHitbox(int tick) {
-        AxisAlignedBB cache = hitboxes.get(tick);
+    private AABB getHurtHitbox(int tick) {
+        AABB cache = hitboxes.get(tick);
         if (cache == null) {
             cache = makeHurtHitBox(this.radius * (double) (tick + 1) / (double) WAVE_TICK_LENGTH);
             hitboxes.set(tick, cache);
@@ -242,19 +242,19 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     
     private boolean checkHurtAngle(Entity target) {
         if (targetedFace != null && targetedFace.getAxis() == Direction.Axis.Y) {
-            Vector3d sendoCenter = new Vector3d(this.getX(), 0, this.getZ());
-            Vector3d entityPos = new Vector3d(target.getX(), 0, target.getZ());
-            Vector3d vecToEntity = entityPos.subtract(sendoCenter);
+            Vec3 sendoCenter = new Vec3(this.getX(), 0, this.getZ());
+            Vec3 entityPos = new Vec3(target.getX(), 0, target.getZ());
+            Vec3 vecToEntity = entityPos.subtract(sendoCenter);
             float angle = MathUtil.yRotDegFromVec(vecToEntity);
-            float diff = MathHelper.wrapDegrees(angle - this.yRot) * MathUtil.DEG_TO_RAD;
+            float diff = Mth.wrapDegrees(angle - this.yRot) * MathUtil.DEG_TO_RAD;
             return diff >= -sparksAngle / 2 && diff <= sparksAngle / 2;
         }
         return true;
     }
     
-    private AxisAlignedBB makeHurtHitBox(double radius) {
-        Vector3d center = getBoundingBox().getCenter();
-        AxisAlignedBB hitBox = new AxisAlignedBB(center, center);
+    private AABB makeHurtHitBox(double radius) {
+        Vec3 center = getBoundingBox().getCenter();
+        AABB hitBox = new AABB(center, center);
         if (axis != null) {
             switch (axis) {
             case X:
@@ -278,8 +278,8 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
             user = null;
         }
         if (user == null) {
-            if (userUUID != null && level instanceof ServerWorld) {
-                user = ((ServerWorld) level).getEntity(userUUID);
+            if (userUUID != null && level instanceof ServerLevel) {
+                user = ((ServerLevel) level).getEntity(userUUID);
             } else if (userNetworkId != 0) {
                 user = level.getEntity(userNetworkId);
             }
@@ -299,7 +299,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         }
     }
     
-    private void spawnSparksCircle(Vector3d center, Direction.Axis axis, float radius) {
+    private void spawnSparksCircle(Vec3 center, Direction.Axis axis, float radius) {
         if (level.isClientSide() && axis != null && radius > 0) {
             double minAngle;
             double maxAngle;
@@ -316,16 +316,16 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
             
             double step = 0.2 / radius;
             for (double angle = minAngle; angle < maxAngle; angle += Math.PI * step) {
-                Vector3d particleVec = null;
+                Vec3 particleVec = null;
                 switch (axis) {
                 case X:
-                    particleVec = new Vector3d(0, Math.sin(angle), Math.cos(angle));
+                    particleVec = new Vec3(0, Math.sin(angle), Math.cos(angle));
                     break;
                 case Y:
-                    particleVec = new Vector3d(Math.cos(angle), 0, Math.sin(angle));
+                    particleVec = new Vec3(Math.cos(angle), 0, Math.sin(angle));
                     break;
                 case Z:
-                    particleVec = new Vector3d(Math.sin(angle), Math.cos(angle), 0);
+                    particleVec = new Vec3(Math.sin(angle), Math.cos(angle), 0);
                     break;
                 }
                 particleVec = particleVec.scale(radius / WAVE_TICK_LENGTH);
@@ -352,7 +352,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     protected void defineSynchedData() {}
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         if (nbt.hasUUID("Owner")) {
             this.userUUID = nbt.getUUID("Owner");
         }
@@ -362,7 +362,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         this.radius = nbt.getFloat("Radius");
         this.wavesToAdd = nbt.getInt("WavesToAdd");
         this.addedWaves = nbt.getInt("WavesAdded");
-        if (nbt.contains("Waves", MCUtil.getNbtId(ListNBT.class))) {
+        if (nbt.contains("Waves", MCUtil.getNbtId(ListTag.class))) {
             this.waves = Wave.loadWavesFromNBT(nbt.getList("Waves", MCUtil.getNbtId(Wave.WAVE_NBT_CLASS)));
         }
         this.sparksAngle = nbt.getFloat("SparksAngle");
@@ -370,8 +370,8 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         this.tickCount = nbt.getInt("Age");
         this.damage = nbt.getFloat("Damage");
         
-        if (nbt.contains("TargetedBlock", MCUtil.getNbtId(CompoundNBT.class))) {
-            this.targetedBlockPos = NBTUtil.readBlockPos(nbt.getCompound("TargetedBlock"));
+        if (nbt.contains("TargetedBlock", MCUtil.getNbtId(CompoundTag.class))) {
+            this.targetedBlockPos = NbtUtils.readBlockPos(nbt.getCompound("TargetedBlock"));
         }
         if (nbt.contains("TargetedFace")) {
             this.targetedFace = MCUtil.nbtGetEnum(nbt, "TargetedFace", Direction.class);
@@ -379,7 +379,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         if (userUUID != null) {
             nbt.putUUID("Owner", userUUID);
         }
@@ -396,7 +396,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
         nbt.putFloat("Damage", damage);
         
         if (targetedBlockPos != null) {
-            nbt.put("TargetedBlock", NBTUtil.writeBlockPos(targetedBlockPos));
+            nbt.put("TargetedBlock", NbtUtils.writeBlockPos(targetedBlockPos));
         }
         if (targetedFace != null) {
             MCUtil.nbtPutEnum(nbt, "TargetedFace", targetedFace);
@@ -404,12 +404,12 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     }
     
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         NetworkUtil.writeOptionally(buffer, axis, buffer::writeEnum);
         buffer.writeFloat(radius);
         buffer.writeVarInt(wavesToAdd);
@@ -423,7 +423,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         this.axis = NetworkUtil.readOptional(additionalData, () -> additionalData.readEnum(Direction.Axis.class)).orElse(null);
         this.radius = additionalData.readFloat();
         this.wavesToAdd = additionalData.readVarInt();

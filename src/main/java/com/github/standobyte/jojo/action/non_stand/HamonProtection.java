@@ -12,14 +12,14 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.general.LazySupplier;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonProtection extends HamonAction {
     
@@ -51,7 +51,7 @@ public class HamonProtection extends HamonAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {  
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {  
         if (!world.isClientSide()) {
             power.getTypeSpecificData(ModPowers.HAMON.get()).get().toggleHamonProtection();
         }
@@ -74,7 +74,7 @@ public class HamonProtection extends HamonAction {
                 return hamon.consumeHamonEnergyTo(efficiency -> {
                     float baseReduction = 0.4F + hamon.getHamonControlLevelRatio() * 0.2F;
                     hamon.hamonPointsFromAction(HamonStat.CONTROL, Math.min(energyCost, power.getEnergy()) * efficiency);
-                    return MathHelper.clamp(baseReduction * efficiency, 0, 1);
+                    return Mth.clamp(baseReduction * efficiency, 0, 1);
                 }, energyCost, getUnlockingSkill());
             }
         }).orElse(0f);
@@ -83,14 +83,14 @@ public class HamonProtection extends HamonAction {
             float damageReduced = dmgAmount * damageReductionMult;
             
             Entity sourceEntity = dmgSource.getDirectEntity();
-            Vector3d sourcePos = sourceEntity.getEyePosition(1.0F);
-            AxisAlignedBB userHitbox = user.getBoundingBox();
-            Vector3d damagePos;
+            Vec3 sourcePos = sourceEntity.getEyePosition(1.0F);
+            AABB userHitbox = user.getBoundingBox();
+            Vec3 damagePos;
             if (userHitbox.contains(sourcePos)) {
                 damagePos = sourcePos;
             }
             else {
-                Vector3d userEyePos = user.getEyePosition(1.0F);
+                Vec3 userEyePos = user.getEyePosition(1.0F);
                 damagePos = userHitbox.clip(sourcePos, sourcePos.add(sourceEntity.getLookAngle().scale(16))).orElse(userEyePos);
             }
             HamonUtil.emitHamonSparkParticles(user.level, null, damagePos, damageReduced * 0.25F);

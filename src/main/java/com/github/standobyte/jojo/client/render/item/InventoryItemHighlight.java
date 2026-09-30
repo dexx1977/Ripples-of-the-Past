@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class InventoryItemHighlight {
     private static final Map<ResourceLocation, MutableInt> HIGHLIGHT_TIMER = new HashMap<>();
@@ -47,7 +47,7 @@ public class InventoryItemHighlight {
             if (x > 1) {
                 x = 2 - x;
             }
-            x = MathHelper.sqrt(x);
+            x = Mth.sqrt(x);
             
             return x;
         }

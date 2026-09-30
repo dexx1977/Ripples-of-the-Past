@@ -7,12 +7,12 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.mod.IPlayerPossess;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.DamageSource;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClAngeloRockButtonPacket {
     private final PacketType type;
@@ -39,24 +39,24 @@ public class ClAngeloRockButtonPacket {
     public static class Handler implements IModPacketHandler<ClAngeloRockButtonPacket> {
 
         @Override
-        public void encode(ClAngeloRockButtonPacket msg, PacketBuffer buf) {
+        public void encode(ClAngeloRockButtonPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.type);
         }
 
         @Override
-        public ClAngeloRockButtonPacket decode(PacketBuffer buf) {
+        public ClAngeloRockButtonPacket decode(FriendlyByteBuf buf) {
             return new ClAngeloRockButtonPacket(buf.readEnum(PacketType.class));
         }
 
         @Override
         public void handle(ClAngeloRockButtonPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             Entity possessed = IPlayerPossess.getPossessedEntity(player);
             if (possessed != null && possessed.getType() == ModEntityTypes.ANGELO_ROCK.get()) {
                 switch (msg.type) {
                 case RESPAWN:
                     player.invulnerableTime = 0;
-                    player.removeEffect(Effects.DAMAGE_RESISTANCE);
+                    player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
                     player.hurt(new DamageSource("rockRespawn").bypassArmor().bypassInvul(), Float.MAX_VALUE);
                     break;
                 case GRUNT:

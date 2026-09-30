@@ -15,7 +15,7 @@ import com.github.standobyte.jojo.action.non_stand.VampirismSpaceRipperStingyEye
 import com.github.standobyte.jojo.action.non_stand.VampirismZombieSummon;
 import com.github.standobyte.jojo.power.impl.nonstand.type.vampirism.VampirismPowerType;
 
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModVampirismActions {
     

@@ -8,9 +8,9 @@ import java.util.stream.Stream;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.monster.SlimeEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.level.Level;
 
 /* 
  * A map to hold entity instances which aren't added into a world, 
@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 public class EntityTypeToInstance {
     private static EntityTypeToInstance instance;
     
-    public static void init(World world) {
+    public static void init(Level world) {
         if (instance == null) {
             Stream<EntitySubtype<?>> entityTypes = EntitySubtype.values();
             instance = new EntityTypeToInstance(entityTypes, world);
@@ -31,7 +31,7 @@ public class EntityTypeToInstance {
     private final Map<SubtypeResourceLocation, Entity> entityInstances = new HashMap<>();
     private final Set<EntitySubtype<?>> tryLazyInit = new HashSet<>();
     
-    private EntityTypeToInstance(Stream<EntitySubtype<?>> entityTypes, World world) {
+    private EntityTypeToInstance(Stream<EntitySubtype<?>> entityTypes, Level world) {
         entityTypes.forEach(subtype -> {
             try {
                 Entity entity = createInstance(subtype, world);
@@ -45,7 +45,7 @@ public class EntityTypeToInstance {
     }
     
     @SuppressWarnings("unchecked")
-    public static <T extends Entity> T getEntityInstance(EntitySubtype<T> subType, World world) {
+    public static <T extends Entity> T getEntityInstance(EntitySubtype<T> subType, Level world) {
         if (instance == null) {
             JojoMod.getLogger().error("An operation with {} entity type needed an Entity instance, but the map for them hasn't been created yet!", subType.vanillaType.getRegistryName());
             return null;
@@ -63,9 +63,9 @@ public class EntityTypeToInstance {
         return (T) entity;
     }
     
-    private static <T extends Entity> T createInstance(EntitySubtype<T> type, World world) {
+    private static <T extends Entity> T createInstance(EntitySubtype<T> type, Level world) {
         T entity = type.create(world);
-        if (entity instanceof SlimeEntity) {
+        if (entity instanceof Slime) {
             entity.refreshDimensions();
         }
         return entity;

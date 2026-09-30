@@ -3,7 +3,7 @@ package com.github.standobyte.jojo.client.ui.actionshud;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.Alignment;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui.BarsOrientation;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.AbstractGui;
@@ -28,7 +28,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
     }
 
     @Override
-    protected void renderBarWithIcon(MatrixStack matrixStack, BarType barType, 
+    protected void renderBarWithIcon(PoseStack matrixStack, BarType barType, 
             boolean fullSize, int color, float iconFill, 
             float value, float maxValue, 
             float attackCostValue, float abilityCostValue, float costTick, 
@@ -85,7 +85,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
     }
     
     @Override
-    protected void barFill(MatrixStack matrixStack, int x, int y, Alignment alignment, 
+    protected void barFill(PoseStack matrixStack, int x, int y, Alignment alignment, 
             int texX, int texY, int width, int length, int fill) {
         if (alignment == Alignment.RIGHT) {
             // it just works
@@ -107,7 +107,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
     }
 
     @Override
-    protected void renderCost(MatrixStack matrixStack, 
+    protected void renderCost(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int height, int length, 
             int costFill, int barFill, 
@@ -131,7 +131,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
     }
 
     @Override
-    protected void renderRedHighlight(MatrixStack matrixStack, 
+    protected void renderRedHighlight(PoseStack matrixStack, 
             int x, int y, Alignment alignment, 
             int height, int length, 
             float alpha) {
@@ -143,7 +143,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
     }
     
     @Override
-    protected void drawBarElement(MatrixStack matrixStack, int x, int y, int texX, int texY, int width, int length) {
+    protected void drawBarElement(PoseStack matrixStack, int x, int y, int texX, int texY, int width, int length) {
         super.drawBarElement(matrixStack, x, y, texX, texY, length, width);
     }
 

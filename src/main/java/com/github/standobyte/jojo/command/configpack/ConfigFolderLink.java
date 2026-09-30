@@ -8,14 +8,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 
 public class ConfigFolderLink implements IDataConfig {
     private static ConfigFolderLink instance;
@@ -32,38 +31,38 @@ public class ConfigFolderLink implements IDataConfig {
     }
     
     @Override
-    public LiteralArgumentBuilder<CommandSource> commandRegister(LiteralArgumentBuilder<CommandSource> builder, String literal) {
+    public LiteralArgumentBuilder<CommandSourceStack> commandRegister(LiteralArgumentBuilder<CommandSourceStack> builder, String literal) {
         return builder.then(Commands.literal(literal)
                 .executes(ctx -> sendDataPackLink(ctx.getSource()))
                 );
     }
     
-    private int sendDataPackLink(CommandSource src) throws CommandSyntaxException {
+    private int sendDataPackLink(CommandSourceStack src) throws CommandSyntaxException {
         try {
             if (genDataPackBase(src)) {
                 return 1;
             }
             else {
                 Path packPath = dataPackPath(src.getServer());
-                src.sendSuccess(new TranslationTextComponent("commands.jojoconfigpack.folder_link", 
-                        new StringTextComponent(getDataPackName()).withStyle(TextFormatting.ITALIC)).withStyle(TextFormatting.UNDERLINE).withStyle((style) -> {
+                src.sendSuccess(Component.translatable("commands.jojoconfigpack.folder_link", 
+                        Component.literal(getDataPackName()).withStyle(ChatFormatting.ITALIC)).withStyle(ChatFormatting.UNDERLINE).withStyle((style) -> {
                             return style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, packPath.normalize().toString()))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
-                                            new TranslationTextComponent("commands.jojoconfigpack.folder_link.tooltip", 
-                                                    new StringTextComponent("datapacks").withStyle(TextFormatting.ITALIC)
+                                            Component.translatable("commands.jojoconfigpack.folder_link.tooltip", 
+                                                    Component.literal("datapacks").withStyle(ChatFormatting.ITALIC)
                                                     )));
                         })
-                        .withStyle(TextFormatting.GRAY), true);
+                        .withStyle(ChatFormatting.GRAY), true);
                 return 0;
             }
         } catch (IOException e) {
             JojoMod.getLogger().error(e);
-            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(new StringTextComponent(e.getMessage()));
+            SimpleCommandExceptionType exceptionType = new SimpleCommandExceptionType(Component.literal(e.getMessage()));
             throw exceptionType.create();
         }
     }
     
     @Override
-    public void syncToClient(ServerPlayerEntity player) {}
+    public void syncToClient(ServerPlayer player) {}
 }

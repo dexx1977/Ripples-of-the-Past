@@ -9,11 +9,11 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrPillarmanDataPacket {
     private final int entityId;
@@ -39,7 +39,7 @@ public class TrPillarmanDataPacket {
     public static class Handler implements IModPacketHandler<TrPillarmanDataPacket> {
 
         @Override
-        public void encode(TrPillarmanDataPacket msg, PacketBuffer buf) {
+        public void encode(TrPillarmanDataPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeBoolean(msg.stoneFormEnabled);
             buf.writeBoolean(msg.bladesVisible);
@@ -48,7 +48,7 @@ public class TrPillarmanDataPacket {
         }
 
         @Override
-        public TrPillarmanDataPacket decode(PacketBuffer buf) {
+        public TrPillarmanDataPacket decode(FriendlyByteBuf buf) {
             return new TrPillarmanDataPacket(buf.readInt(), buf.readBoolean(), buf.readBoolean(), buf.readVarInt(), buf.readEnum(PillarmanData.Mode.class));
         }
 
@@ -64,8 +64,8 @@ public class TrPillarmanDataPacket {
                     pillarman.setBladesVisible(msg.bladesVisible);
                     pillarman.setEvolutionStage(msg.stage);
                     pillarman.setMode(msg.mode);
-                    if (entity instanceof PlayerEntity) {
-                        PlayerEntity userPlayer = (PlayerEntity) entity;
+                    if (entity instanceof Player) {
+                        Player userPlayer = (Player) entity;
                         ModPlayerAnimations.stoneForm.setAnimEnabled(userPlayer, msg.stoneFormEnabled);
                         /*if (!prevStoneForm && msg.stoneFormEnabled && userPlayer == ClientUtil.getClientPlayer()) {
                             ClientUtil.setThirdPerson();

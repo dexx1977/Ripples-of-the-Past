@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHamonMeditationPacket {
     private final Boolean value;
@@ -26,7 +26,7 @@ public class ClHamonMeditationPacket {
     public static class Handler implements IModPacketHandler<ClHamonMeditationPacket> {
     
         @Override
-        public void encode(ClHamonMeditationPacket msg, PacketBuffer buf) {
+        public void encode(ClHamonMeditationPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.value != null);
             if (msg.value != null) {
                 buf.writeBoolean(msg.value);
@@ -34,17 +34,17 @@ public class ClHamonMeditationPacket {
         }
 
         @Override
-        public ClHamonMeditationPacket decode(PacketBuffer buf) {
+        public ClHamonMeditationPacket decode(FriendlyByteBuf buf) {
             boolean hasValue = buf.readBoolean();
             return hasValue ? new ClHamonMeditationPacket(buf.readBoolean()) : new ClHamonMeditationPacket();
         }
 
         @Override
         public void handle(ClHamonMeditationPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
-                    if (player.isOnGround() || hamon.isMeditating()) {
+                    if (player.onGround() || hamon.isMeditating()) {
                         hamon.setIsMeditating(player, msg.value != null ? msg.value : !hamon.isMeditating());
                     }
                 });

@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHamonPickTechniquePacket {
     private final CharacterHamonTechnique technique;
@@ -23,18 +23,18 @@ public class ClHamonPickTechniquePacket {
     public static class Handler implements IModPacketHandler<ClHamonPickTechniquePacket> {
     
         @Override
-        public void encode(ClHamonPickTechniquePacket msg, PacketBuffer buf) {
+        public void encode(ClHamonPickTechniquePacket msg, FriendlyByteBuf buf) {
             buf.writeRegistryId(msg.technique);
         }
 
         @Override
-        public ClHamonPickTechniquePacket decode(PacketBuffer buf) {
+        public ClHamonPickTechniquePacket decode(FriendlyByteBuf buf) {
             return new ClHamonPickTechniquePacket(buf.readRegistryIdSafe(CharacterHamonTechnique.class));
         }
 
         @Override
         public void handle(ClHamonPickTechniquePacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                     hamon.pickHamonTechnique(player, msg.technique);

@@ -8,27 +8,28 @@ import com.github.standobyte.jojo.advancements.criterion.predicate.PowerPredicat
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.LocationPredicate;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 
-public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonChargeKillTrigger.Instance> {
+public class HamonChargeKillTrigger extends SimpleCriterionTrigger<HamonChargeKillTrigger.Instance> {
     private final ResourceLocation id;
 
     public HamonChargeKillTrigger(ResourceLocation id) {
@@ -40,7 +41,7 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
         return this.id;
     }
 
-    public void trigger(ServerPlayerEntity player, LivingEntity killed, @Nullable Entity chargedEntity, @Nullable BlockPos chargedBlockPos) {
+    public void trigger(ServerPlayer player, LivingEntity killed, @Nullable Entity chargedEntity, @Nullable BlockPos chargedBlockPos) {
         LootContext killedLootCtx = EntityPredicate.createContext(player, killed);
         if (chargedEntity != null) {
             LootContext chargedLootCtx = EntityPredicate.createContext(player, chargedEntity);
@@ -57,7 +58,7 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
     }
 
     @Override
-    public HamonChargeKillTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate playerPredicate, ConditionArrayParser conditionArrayParser) {
+    public HamonChargeKillTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate, DeserializationContext conditionArrayParser) {
         Block block = deserializeBlock(json, "block");
         StatePropertiesPredicate blockState = StatePropertiesPredicate.fromJson(json.get("state"));
         if (block != null) {
@@ -69,9 +70,9 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
         return new HamonChargeKillTrigger.Instance(
                 id, 
                 playerPredicate, 
-                EntityPredicate.AndPredicate.fromJson(json, "killed_entity", conditionArrayParser), 
+                ContextAwarePredicate.fromJson(json, "killed_entity", conditionArrayParser), 
                 PowerPredicate.fromJson(json.get("killed_power"), null),
-                EntityPredicate.AndPredicate.fromJson(json, "charged_entity", conditionArrayParser), 
+                ContextAwarePredicate.fromJson(json, "charged_entity", conditionArrayParser), 
                 block, 
                 blockState,
                 LocationPredicate.fromJson(json.get("location")));
@@ -80,7 +81,7 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
     @Nullable
     private static Block deserializeBlock(JsonObject json, String key) {
         if (json.has(key)) {
-            ResourceLocation resLoc = new ResourceLocation(JSONUtils.getAsString(json, key));
+            ResourceLocation resLoc = new ResourceLocation(GsonHelper.getAsString(json, key));
             return Optional.ofNullable(((ForgeRegistry<Block>) ForgeRegistries.BLOCKS).getRaw(resLoc)).orElseThrow(() -> {
                 return new JsonSyntaxException("Unknown block type '" + resLoc + "'");
             });
@@ -89,19 +90,19 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
         }
     }
 
-    public static class Instance extends CriterionInstance {
-        private final EntityPredicate.AndPredicate killedPredicate;
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        private final ContextAwarePredicate killedPredicate;
         private final PowerPredicate killedPowerPredicate;
         
-        private final EntityPredicate.AndPredicate chargedPredicate;
+        private final ContextAwarePredicate chargedPredicate;
         
         private final Block chargedBlock;
         private final StatePropertiesPredicate chargedBlockState;
         private final LocationPredicate chargedBlockLocation;
 
-        public Instance(ResourceLocation id, EntityPredicate.AndPredicate player, 
-                EntityPredicate.AndPredicate killedPredicate, PowerPredicate killedPowerPredicate, 
-                EntityPredicate.AndPredicate chargedPredicate, 
+        public Instance(ResourceLocation id, ContextAwarePredicate player, 
+                ContextAwarePredicate killedPredicate, PowerPredicate killedPowerPredicate, 
+                ContextAwarePredicate chargedPredicate, 
                 Block chargedBlock, StatePropertiesPredicate chargedBlockState, LocationPredicate chargedBlockLocation) {
             super(id, player);
             this.killedPredicate = killedPredicate;
@@ -118,8 +119,8 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
                     this.chargedPredicate.matches(chargedCtx);
         }
 
-        public boolean matches(LivingEntity killed, LootContext killedCtx, BlockState blockState, BlockPos blockPos, ServerWorld serverWorld) {
-            return this.chargedPredicate == EntityPredicate.AndPredicate.ANY && 
+        public boolean matches(LivingEntity killed, LootContext killedCtx, BlockState blockState, BlockPos blockPos, ServerLevel serverWorld) {
+            return this.chargedPredicate == ContextAwarePredicate.ANY && 
                     this.killedPredicate.matches(killedCtx) && killedPowerPredicate.matches(killed) && 
                     (this.chargedBlock == null || blockState.is(this.chargedBlock)) && 
                     this.chargedBlockState.matches(blockState) && 
@@ -127,7 +128,7 @@ public class HamonChargeKillTrigger extends AbstractCriterionTrigger<HamonCharge
         }
 
         @Override
-        public JsonObject serializeToJson(ConditionArraySerializer serializer) {
+        public JsonObject serializeToJson(SerializationContext serializer) {
             JsonObject jsonobject = super.serializeToJson(serializer);
             jsonobject.add("killed_entity", killedPredicate.toJson(serializer));
             jsonobject.add("killed_power", killedPowerPredicate.serializeToJson());

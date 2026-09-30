@@ -1,19 +1,19 @@
 package com.github.standobyte.jojo.capability.chunk;
 
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 
-public class ChunkCapProvider implements ICapabilitySerializable<INBT>{
+public class ChunkCapProvider implements ICapabilitySerializable<Tag>{
     @CapabilityInject(ChunkCap.class)
     public static Capability<ChunkCap> CAPABILITY = null;
     private LazyOptional<ChunkCap> instance;
     
-    public ChunkCapProvider(Chunk chunk) {
+    public ChunkCapProvider(LevelChunk chunk) {
         this.instance = LazyOptional.of(() -> new ChunkCap(chunk));
     }
 
@@ -23,13 +23,13 @@ public class ChunkCapProvider implements ICapabilitySerializable<INBT>{
     }
 
     @Override
-    public INBT serializeNBT() {
+    public Tag serializeNBT() {
         return CAPABILITY.getStorage().writeNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Chunk capability LazyOptional is not attached.")), null);
     }
 
     @Override
-    public void deserializeNBT(INBT nbt) {
+    public void deserializeNBT(Tag nbt) {
         CAPABILITY.getStorage().readNBT(CAPABILITY, instance.orElseThrow(
                 () -> new IllegalArgumentException("Chunk capability LazyOptional is not attached.")), null, nbt);
     }

@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHamonResetSkillsButtonPacket {
     private final HamonSkillsTab type;
@@ -22,18 +22,18 @@ public class ClHamonResetSkillsButtonPacket {
     public static class Handler implements IModPacketHandler<ClHamonResetSkillsButtonPacket> {
 
         @Override
-        public void encode(ClHamonResetSkillsButtonPacket msg, PacketBuffer buf) {
+        public void encode(ClHamonResetSkillsButtonPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.type);
         }
 
         @Override
-        public ClHamonResetSkillsButtonPacket decode(PacketBuffer buf) {
+        public ClHamonResetSkillsButtonPacket decode(FriendlyByteBuf buf) {
             return new ClHamonResetSkillsButtonPacket(buf.readEnum(HamonSkillsTab.class));
         }
 
         @Override
         public void handle(ClHamonResetSkillsButtonPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
                 power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                     hamon.resetHamonSkills(player, msg.type);

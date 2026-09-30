@@ -9,18 +9,18 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 public abstract class TypeSpecificData {
     protected INonStandPower power;
-    protected Optional<ServerPlayerEntity> serverPlayer;
+    protected Optional<ServerPlayer> serverPlayer;
     
     public void setPower(INonStandPower power) {
         this.power = power;
         LivingEntity user = power.getUser();
-        this.serverPlayer = user instanceof ServerPlayerEntity ? Optional.of((ServerPlayerEntity) user) : Optional.empty();
+        this.serverPlayer = user instanceof ServerPlayer ? Optional.of((ServerPlayer) user) : Optional.empty();
     }
     
     public boolean isActionUnlocked(Action<INonStandPower> action, INonStandPower powerData) {
@@ -39,9 +39,9 @@ public abstract class TypeSpecificData {
         }
     }
     
-    public abstract CompoundNBT writeNBT();
-    public abstract void readNBT(CompoundNBT nbt);
+    public abstract CompoundTag writeNBT();
+    public abstract void readNBT(CompoundTag nbt);
     
-    public abstract void syncWithUserOnly(ServerPlayerEntity user);
-    public abstract void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity entity);
+    public abstract void syncWithUserOnly(ServerPlayer user);
+    public abstract void syncWithTrackingOrUser(LivingEntity user, ServerPlayer entity);
 }

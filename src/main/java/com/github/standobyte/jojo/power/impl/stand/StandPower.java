@@ -41,23 +41,21 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.github.standobyte.jojo.util.mod.LegacyUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameRules;
 
 public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> implements IStandPower {
     private Optional<StandInstance> standInstance = Optional.empty();
     private Optional<ResourceLocation> invalidReadStandId = Optional.empty();;
-    private Optional<CompoundNBT> invalidReadStandNbt = Optional.empty();;
+    private Optional<CompoundTag> invalidReadStandNbt = Optional.empty();;
     
     private boolean hadStand = false;
     private PreviousStandsSet previousStands = new PreviousStandsSet();
@@ -220,9 +218,9 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
     
     @Override
-    public ITextComponent getName() {
+    public Component getName() {
         return hasPower() ? getStandInstance().map(stand -> stand.getName())
-                .orElse(StringTextComponent.EMPTY) : StringTextComponent.EMPTY;
+                .orElse(Component.empty()) : Component.empty();
     }
     
     @Override
@@ -283,7 +281,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     
     @Override
     public void addStamina(float amount, boolean sendToClient) {
-        setStamina(MathHelper.clamp(this.stamina + amount, 0, getMaxStamina()), sendToClient);
+        setStamina(Mth.clamp(this.stamina + amount, 0, getMaxStamina()), sendToClient);
     }
 
     @Override
@@ -316,7 +314,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
     
     private void setStamina(float amount, boolean sendToClient) {
-        amount = MathHelper.clamp(amount, 0, getMaxStamina());
+        amount = Mth.clamp(amount, 0, getMaxStamina());
         if (this.stamina != amount && user != null && (!user.level.isClientSide() || user == ClientUtil.getClientPlayer())) {
             this.stamina = amount;
             if (sendToClient) {
@@ -363,8 +361,8 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
                 return 1F;
             }).orElse(1F);
             
-            if (getUser() instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) getUser();
+            if (getUser() instanceof Player) {
+                Player player = (Player) getUser();
                 if (player.getFoodData().getFoodLevel() > 17) {
                     staminaRegen *= 1.25F;
                 }
@@ -483,7 +481,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
                     getResolveLevel() > 0 &&
                     JojoModConfig.getCommonConfigInstance(user.level.isClientSide()).soulAscension.get() &&
                     !(JojoModUtil.isUndeadOrVampiric(user) || OptionalDependencyHelper.vampirism().isEntityVampire(user)) &&
-                    !(user instanceof PlayerEntity && user.level.getGameRules().getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN));
+                    !(user instanceof Player && user.level.getGameRules().getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN));
             if (this.willSoulSpawn != soulCanSpawn) {
                 this.willSoulSpawn = soulCanSpawn;
                 serverPlayerUser.ifPresent(player -> PacketManager.sendToClient(SoulSpawnPacket.spawnFlag(soulCanSpawn), player));
@@ -516,8 +514,8 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
                     || !JojoModConfig.getCommonConfigInstance(user.level.isClientSide()).keepStandOnDeath.get();
 
             EntityUtilCap.queueOnTimeResume(user, () -> {
-                if (user instanceof ServerPlayerEntity) {
-                    ModCriteriaTriggers.SOUL_ASCENSION.get().trigger((ServerPlayerEntity) user, this, ticksClsr);
+                if (user instanceof ServerPlayer) {
+                    ModCriteriaTriggers.SOUL_ASCENSION.get().trigger((ServerPlayer) user, this, ticksClsr);
                 }
                 SoulEntity soulEntity = new SoulEntity(user.level, user, ticksClsr, resolveCanLvlUp);
                 LivingEntity killer = user.getKillCredit();
@@ -575,7 +573,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
     
     public static boolean playerSkipsActionTraining(LivingEntity user) {
-        return user != null && (user instanceof PlayerEntity && ((PlayerEntity) user).abilities.instabuild
+        return user != null && (user instanceof Player && ((Player) user).abilities.instabuild
                 || JojoModConfig.getCommonConfigInstance(user.level.isClientSide()).skipStandProgression.get());
     }
     
@@ -680,14 +678,14 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
         }
         else {
             serverPlayerUser.ifPresent(player -> {
-                ITextComponent message;
+                Component message;
                 if (invalidReadStandId.isPresent()) {
                     message = invalidReadStandId.map(id -> id.getNamespace().equals(JojoMod.MOD_ID) ? 
-                            new TranslationTextComponent("jojo.chat.message.no_stand.mod_version", id)
-                            : new TranslationTextComponent("jojo.chat.message.no_stand.addon", id)).get();
+                            Component.translatable("jojo.chat.message.no_stand.mod_version", id)
+                            : Component.translatable("jojo.chat.message.no_stand.addon", id)).get();
                 }
                 else {
-                    message = new TranslationTextComponent("jojo.chat.message.no_stand");
+                    message = Component.translatable("jojo.chat.message.no_stand");
                 }
                 player.displayClientMessage(message, true);
             });
@@ -743,7 +741,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
         if (standManifestation instanceof StandEntity) {
             StandEntity standEntity = (StandEntity) standManifestation;
             float volume = standEntity.getLeapStrength() / 2.4F;
-            ServerPlayerEntity except = serverPlayerUser.map(player -> {
+            ServerPlayer except = serverPlayerUser.map(player -> {
                 PacketManager.sendToClient(new PlaySoundAtEntityPacket(ModSounds.STAND_LEAP.get(), standEntity.getId(), 
                         volume, 1.0F), player);
                 return player;
@@ -770,8 +768,8 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
 
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT cnbt = super.writeNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag cnbt = super.writeNBT();
         GeneralUtil.ifPresentOrElse(standInstance, 
                 stand -> cnbt.put("StandInstance", stand.writeNBT()), 
                 ()    -> invalidReadStandNbt.ifPresent(standNbt -> cnbt.put("StandInstance", standNbt)));
@@ -790,15 +788,15 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
 
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         StandInstance standInstance;
-        if (nbt.contains("StandInstance", MCUtil.getNbtId(CompoundNBT.class))) {
-            CompoundNBT standInstanceNbt = nbt.getCompound("StandInstance");
+        if (nbt.contains("StandInstance", MCUtil.getNbtId(CompoundTag.class))) {
+            CompoundTag standInstanceNbt = nbt.getCompound("StandInstance");
             standInstance = StandInstance.fromNBT(standInstanceNbt);
             
             if (standInstance == null) {
                 invalidReadStandNbt = Optional.of(standInstanceNbt.copy());
-                if (standInstanceNbt.contains("StandType", MCUtil.getNbtId(StringNBT.class))) {
+                if (standInstanceNbt.contains("StandType", MCUtil.getNbtId(StringTag.class))) {
                     invalidReadStandId = Optional.of(new ResourceLocation(standInstanceNbt.getString("StandType")));
                 }
             }
@@ -814,16 +812,16 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
         }
         resolveCounter.readNbt(nbt.getCompound("Resolve"));
         skippedProgression = nbt.getBoolean("Skipped");
-        if (nbt.contains("ActionLearning", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("ActionLearning", MCUtil.getNbtId(CompoundTag.class))) {
             actionLearningProgressMap.fromNBT(nbt.getCompound("ActionLearning"));
         }
-        if (nbt.contains("Effects", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("Effects", MCUtil.getNbtId(CompoundTag.class))) {
             continuousEffects.fromNBT(nbt.getCompound("Effects"));
         }
-        if (nbt.contains("PrevStands", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("PrevStands", MCUtil.getNbtId(CompoundTag.class))) {
             previousStands.fromNBT(nbt.getCompound("PrevStands"));
         }
-        if (nbt.contains("ArrowHandler", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("ArrowHandler", MCUtil.getNbtId(CompoundTag.class))) {
             standArrowHandler.fromNBT(nbt.getCompound("ArrowHandler"));
         }
         super.readNBT(nbt);
@@ -876,7 +874,7 @@ public class StandPower extends PowerBaseImpl<IStandPower, StandType<?>> impleme
     }
     
     @Override
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         super.syncWithTrackingOrUser(player);
         if (hasPower()) {
             if (user != null) {

@@ -11,38 +11,39 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PhotosCache.PhotoInstance;
 import com.github.standobyte.jojo.item.PhotoItem;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ScreenShotHelper;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.CameraType;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Screenshot;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
+import com.mojang.math.Axis;
 
 public class PolaroidHelper {
     private static final int PHOTO_WIDTH = 272;
     private static final int PHOTO_HEIGHT = 236;
     
-    public static void takePicture(@Nullable Vector3d cameraPos, @Nullable UnaryOperator<Vector3f> cameraAngle, 
+    public static void takePicture(@Nullable Vec3 cameraPos, @Nullable UnaryOperator<Vector3f> cameraAngle, 
             boolean canCaptureStands, int giveToPlayerId) {
         Minecraft mc = Minecraft.getInstance();
         
@@ -50,22 +51,22 @@ public class PolaroidHelper {
         int height = mc.getWindow().getHeight();
         setupRemoteBuffer(mc, width, height);
         
-        Framebuffer mainBuffer = mc.getMainRenderTarget();
+        RenderTarget mainBuffer = mc.getMainRenderTarget();
         boolean guiWasHidded = mc.options.hideGui;
         Boolean forcedCanSeeStands = ClientUtil.forcedCanSeeStands;
-        PointOfView pov = mc.options.getCameraType();
+        CameraType pov = mc.options.getCameraType();
         mc.setScreen(null);
         mc.options.hideGui = true;
         if (!canCaptureStands) {
             ClientUtil.forcedCanSeeStands = false;
         }
-        mc.options.setCameraType(PointOfView.FIRST_PERSON);
+        mc.options.setCameraType(CameraType.FIRST_PERSON);
         PolaroidHelper.cameraAngle = cameraAngle;
         PolaroidHelper.cameraPos = cameraPos;
         ClientReflection.setMainRenderTarget(mc, remoteRenderTarget);
         
         renderOnRemoteBuffer(Minecraft.getInstance());
-        NativeImage image = ScreenShotHelper.takeScreenshot(width, height, remoteRenderTarget);
+        NativeImage image = Screenshot.takeScreenshot(width, height, remoteRenderTarget);
         ClientReflection.setMainRenderTarget(mc, mainBuffer);
         PolaroidHelper.cameraAngle = null;
         PolaroidHelper.cameraPos = null;
@@ -93,13 +94,13 @@ public class PolaroidHelper {
     
     
     
-    public static Framebuffer remoteRenderTarget;
+    public static RenderTarget remoteRenderTarget;
     private static UnaryOperator<Vector3f> cameraAngle;
-    private static Vector3d cameraPos;
+    private static Vec3 cameraPos;
     
     private static void setupRemoteBuffer(Minecraft mc, int width, int height) {
         if (remoteRenderTarget == null) {
-            remoteRenderTarget = new Framebuffer(width, height, true, Minecraft.ON_OSX) {
+            remoteRenderTarget = new RenderTarget(width, height, true, Minecraft.ON_OSX) {
                 @Override
                 public void blitToScreen(int width, int height, boolean flag) {}
             };
@@ -129,7 +130,7 @@ public class PolaroidHelper {
             RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
             if (mc.level != null) {
                 mc.getProfiler().push("level");
-                MatrixStack matrixStack = new MatrixStack();
+                PoseStack matrixStack = new PoseStack();
                 mc.gameRenderer.renderLevel(partialTick, Util.getNanos(), matrixStack);
                 mc.levelRenderer.doEntityOutline();
 
@@ -145,7 +146,7 @@ public class PolaroidHelper {
     
     public static boolean pictureCameraSetup(EntityViewRenderEvent.CameraSetup event) {
         if (isTakingPhoto()) {
-            ActiveRenderInfo camera = event.getInfo();
+            Camera camera = event.getInfo();
             if (cameraPos != null) {
                 ClientReflection.setPosition(camera, cameraPos);
                 ClientReflection.setIsDetached(camera, true);
@@ -165,56 +166,56 @@ public class PolaroidHelper {
     
     
     
-    public static void renderPhotoInHand(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, 
-            float pEquippedProgress, HandSide pHand, float pSwingProgress, ItemStack pStack, float partialTick) {
+    public static void renderPhotoInHand(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, 
+            float pEquippedProgress, HumanoidArm pHand, float pSwingProgress, ItemStack pStack, float partialTick) {
         pMatrixStack.pushPose();
         Minecraft mc = Minecraft.getInstance();
-        float f = pHand == HandSide.RIGHT ? 1.0F : -1.0F;
+        float f = pHand == HumanoidArm.RIGHT ? 1.0F : -1.0F;
         pMatrixStack.translate((double)(f * 0.125F), -0.125D, 0.0D);
         if (!mc.player.isInvisible()) {
             pMatrixStack.pushPose();
-            pMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 10.0F));
+            pMatrixStack.mulPose(Axis.ZP.rotationDegrees(f * 10.0F));
             renderPlayerArm(pMatrixStack, pBuffer, pCombinedLight, pEquippedProgress, pSwingProgress, pHand);
             pMatrixStack.popPose();
         }
 
         pMatrixStack.pushPose();
         pMatrixStack.translate((double)(f * 0.51F), (double)(-0.08F + pEquippedProgress * -1.2F), -0.75D);
-        float f1 = MathHelper.sqrt(pSwingProgress);
-        float f2 = MathHelper.sin(f1 * (float)Math.PI);
+        float f1 = Mth.sqrt(pSwingProgress);
+        float f2 = Mth.sin(f1 * (float)Math.PI);
         float f3 = -0.5F * f2;
-        float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-        float f5 = -0.3F * MathHelper.sin(pSwingProgress * (float)Math.PI);
+        float f4 = 0.4F * Mth.sin(f1 * ((float)Math.PI * 2F));
+        float f5 = -0.3F * Mth.sin(pSwingProgress * (float)Math.PI);
         pMatrixStack.translate((double)(f * f3), (double)(f4 - 0.3F * f2), (double)f5);
-        pMatrixStack.mulPose(Vector3f.XP.rotationDegrees(f2 * -45.0F));
-        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(f * f2 * -30.0F));
+        pMatrixStack.mulPose(Axis.XP.rotationDegrees(f2 * -45.0F));
+        pMatrixStack.mulPose(Axis.YP.rotationDegrees(f * f2 * -30.0F));
         renderPhoto(pMatrixStack, pBuffer, pCombinedLight, pStack, partialTick);
         pMatrixStack.popPose();
         pMatrixStack.popPose();
     }
 
-    private static void renderPlayerArm(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, float pEquippedProgress, float pSwingProgress, HandSide pSide) {
+    private static void renderPlayerArm(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, float pEquippedProgress, float pSwingProgress, HumanoidArm pSide) {
         Minecraft mc = Minecraft.getInstance();
-        boolean flag = pSide != HandSide.LEFT;
+        boolean flag = pSide != HumanoidArm.LEFT;
         float f = flag ? 1.0F : -1.0F;
-        float f1 = MathHelper.sqrt(pSwingProgress);
-        float f2 = -0.3F * MathHelper.sin(f1 * (float)Math.PI);
-        float f3 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-        float f4 = -0.4F * MathHelper.sin(pSwingProgress * (float)Math.PI);
+        float f1 = Mth.sqrt(pSwingProgress);
+        float f2 = -0.3F * Mth.sin(f1 * (float)Math.PI);
+        float f3 = 0.4F * Mth.sin(f1 * ((float)Math.PI * 2F));
+        float f4 = -0.4F * Mth.sin(pSwingProgress * (float)Math.PI);
         pMatrixStack.translate((double)(f * (f2 + 0.64000005F)), (double)(f3 + -0.6F + pEquippedProgress * -0.6F), (double)(f4 + -0.71999997F));
-        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(f * 45.0F));
-        float f5 = MathHelper.sin(pSwingProgress * pSwingProgress * (float)Math.PI);
-        float f6 = MathHelper.sin(f1 * (float)Math.PI);
-        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(f * f6 * 70.0F));
-        pMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * f5 * -20.0F));
-        AbstractClientPlayerEntity abstractclientplayerentity = mc.player;
+        pMatrixStack.mulPose(Axis.YP.rotationDegrees(f * 45.0F));
+        float f5 = Mth.sin(pSwingProgress * pSwingProgress * (float)Math.PI);
+        float f6 = Mth.sin(f1 * (float)Math.PI);
+        pMatrixStack.mulPose(Axis.YP.rotationDegrees(f * f6 * 70.0F));
+        pMatrixStack.mulPose(Axis.ZP.rotationDegrees(f * f5 * -20.0F));
+        AbstractClientPlayer abstractclientplayerentity = mc.player;
         mc.getTextureManager().bind(abstractclientplayerentity.getSkinTextureLocation());
         pMatrixStack.translate((double)(f * -1.0F), (double)3.6F, 3.5D);
-        pMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(f * 120.0F));
-        pMatrixStack.mulPose(Vector3f.XP.rotationDegrees(200.0F));
-        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(f * -135.0F));
+        pMatrixStack.mulPose(Axis.ZP.rotationDegrees(f * 120.0F));
+        pMatrixStack.mulPose(Axis.XP.rotationDegrees(200.0F));
+        pMatrixStack.mulPose(Axis.YP.rotationDegrees(f * -135.0F));
         pMatrixStack.translate((double)(f * 5.6F), 0.0D, 0.0D);
-        PlayerRenderer playerrenderer = (PlayerRenderer)mc.getEntityRenderDispatcher().<AbstractClientPlayerEntity>getRenderer(abstractclientplayerentity);
+        PlayerRenderer playerrenderer = (PlayerRenderer)mc.getEntityRenderDispatcher().<AbstractClientPlayer>getRenderer(abstractclientplayerentity);
         if (flag) {
             playerrenderer.renderRightHand(pMatrixStack, pBuffer, pCombinedLight, abstractclientplayerentity);
         } else {
@@ -225,13 +226,13 @@ public class PolaroidHelper {
     
     public static final ResourceLocation PHOTO_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/photo_background.png");
     public static final RenderType PHOTO_BACKGROUND = RenderType.text(PHOTO_TEXTURE);
-    private static void renderPhoto(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pCombinedLight, ItemStack pStack, float partialTick) {
-        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
-        pMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+    private static void renderPhoto(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, ItemStack pStack, float partialTick) {
+        pMatrixStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        pMatrixStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
         pMatrixStack.scale(0.38F, 0.38F, 0.38F);
         pMatrixStack.translate(-0.5D, -0.5D, 0.0D);
         pMatrixStack.scale(0.0078125F, 0.0078125F, 0.0078125F);
-        IVertexBuilder ivertexbuilder = pBuffer.getBuffer(PHOTO_BACKGROUND);
+        VertexConsumer ivertexbuilder = pBuffer.getBuffer(PHOTO_BACKGROUND);
         Matrix4f matrix4f = pMatrixStack.last().pose();
         ivertexbuilder.vertex(matrix4f, -7.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(pCombinedLight).endVertex();
         ivertexbuilder.vertex(matrix4f, 135.0F, 135.0F, 0.0F).color(255, 255, 255, 255).uv(1.0F, 1.0F).uv2(pCombinedLight).endVertex();
@@ -245,7 +246,7 @@ public class PolaroidHelper {
         }
         
         if (pStack.hasCustomHoverName()) {
-            ITextComponent name = pStack.getHoverName();
+            Component name = pStack.getHoverName();
             Minecraft mc = Minecraft.getInstance();
             int x = 64;
             int y = 117;
@@ -256,14 +257,14 @@ public class PolaroidHelper {
         }
     }
 
-    private static void drawPhoto(MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, int pPackedLight, float alpha, RenderType photo) {
+    private static void drawPhoto(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, float alpha, RenderType photo) {
         if (photo != null && alpha > 0) {
             float x0 = 3.65f - 0.01f;
             float x1 = x0 + 120.7f + 0.02f;
             float y0 = 3.65f - 0.01f;
             float y1 = y0 + 104.725f + 0.02f;
             Matrix4f matrix4f = pMatrixStack.last().pose();
-            IVertexBuilder ivertexbuilder = pBuffer.getBuffer(photo);
+            VertexConsumer ivertexbuilder = pBuffer.getBuffer(photo);
             int alphaInt = (int) (alpha * 255);
             ivertexbuilder.vertex(matrix4f, x0, y1, -0.01F).color(255, 255, 255, alphaInt).uv(0.0F, 1.0F).uv2(pPackedLight).endVertex();
             ivertexbuilder.vertex(matrix4f, x1, y1, -0.01F).color(255, 255, 255, alphaInt).uv(1.0F, 1.0F).uv2(pPackedLight).endVertex();

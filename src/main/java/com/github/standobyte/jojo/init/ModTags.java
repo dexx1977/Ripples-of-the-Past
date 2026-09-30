@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.init;
 
 import com.github.standobyte.jojo.JojoMod;
 
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.Tags.IOptionalNamedTag;
 
 public class ModTags {

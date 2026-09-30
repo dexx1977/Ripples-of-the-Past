@@ -10,10 +10,10 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mc.entitysubtype.SubtypeResourceLocation;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ClGEUiDataPacket {
@@ -48,13 +48,13 @@ public class ClGEUiDataPacket {
     public static class Handler implements IModPacketHandler<ClGEUiDataPacket> {
 
         @Override
-        public void encode(ClGEUiDataPacket msg, PacketBuffer buf) {
+        public void encode(ClGEUiDataPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.type);
             NetworkUtil.writeOptional(buf, msg.resLoc, id -> buf.writeUtf(id.toString()));
         }
 
         @Override
-        public ClGEUiDataPacket decode(PacketBuffer buf) {
+        public ClGEUiDataPacket decode(FriendlyByteBuf buf) {
             Type packetType = buf.readEnum(Type.class);
             Optional<SubtypeResourceLocation> id = NetworkUtil.readOptional(buf, () -> new SubtypeResourceLocation(buf.readUtf()));
             return new ClGEUiDataPacket(packetType, id);
@@ -62,7 +62,7 @@ public class ClGEUiDataPacket {
 
         @Override
         public void handle(ClGEUiDataPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 LifeformsUIState state = cap.getGELifeformsUIState();
                 switch (msg.type) {

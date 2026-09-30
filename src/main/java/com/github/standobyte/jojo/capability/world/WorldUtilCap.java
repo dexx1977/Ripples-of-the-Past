@@ -8,18 +8,18 @@ import java.util.Queue;
 
 import com.github.standobyte.jojo.util.TreeLeavesDecay;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.projectile.EggEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.ThrownEgg;
+import net.minecraft.world.level.Level;
 
 public class WorldUtilCap {
-    private final World world;
+    private final Level world;
     final TimeStopHandler timeStops;
-    private final Queue<EggEntity> chargedEggs = new LinkedList<>();
+    private final Queue<ThrownEgg> chargedEggs = new LinkedList<>();
     private final List<TreeLeavesDecay> decayingTrees = new LinkedList<>();
 //    public final Map<UUID, HamonProjectileShieldEntity> projectileShields = new HashMap<>();
     
-    public WorldUtilCap(World world) {
+    public WorldUtilCap(Level world) {
         this.world = world;
         this.timeStops = new TimeStopHandler(world);
     }
@@ -38,11 +38,11 @@ public class WorldUtilCap {
     }
     
     
-    public void addChargedEggEntity(EggEntity entity) {
+    public void addChargedEggEntity(ThrownEgg entity) {
         chargedEggs.add(entity);
     }
     
-    public Optional<EggEntity> eggChargingChicken(Entity chicken) {
+    public Optional<ThrownEgg> eggChargingChicken(Entity chicken) {
         if (chargedEggs.isEmpty()) {
             return Optional.empty();
         }
@@ -53,9 +53,9 @@ public class WorldUtilCap {
     }
     
     private void tickEggsQueue() {
-        Iterator<EggEntity> it = chargedEggs.iterator();
+        Iterator<ThrownEgg> it = chargedEggs.iterator();
         while (it.hasNext()) {
-            EggEntity entity = it.next();
+            ThrownEgg entity = it.next();
             if (!entity.isAlive()) {
                 it.remove();
             }

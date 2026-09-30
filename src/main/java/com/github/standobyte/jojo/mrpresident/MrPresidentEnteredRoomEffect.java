@@ -16,18 +16,18 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.world.dimension.ModDimensions;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ServerChunkProvider;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 
 public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
     public UUID roomId;
@@ -56,15 +56,15 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
             boolean roomIsLocked = MrPresidentStandType.roomIsLocked(user);
             if (roomIsLocked && !prevTickRoomWasLocked) {
                 if (!world.isClientSide()) {
-                    ServerWorld serverWorld = (ServerWorld) world;
+                    ServerLevel serverWorld = (ServerLevel) world;
                     MinecraftServer server = serverWorld.getServer();
-                    ServerWorld mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
+                    ServerLevel mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
                     BlockPos roomLowerCorner = MrPresidentInsideTeleporter.getLowerCornerRoomPos(mrPresidentWorld, roomId);
                     if (roomLowerCorner != null) {
                         getChunkFuture(mrPresidentWorld.getChunkSource(), 
                                 roomLowerCorner.getX(), roomLowerCorner.getZ(), ChunkStatus.FULL, true)
                         .thenRun(() -> {
-                            teleportEntitiesBack(mrPresidentWorld, roomLowerCorner, entity -> entity instanceof LivingEntity && !(entity instanceof ArmorStandEntity));
+                            teleportEntitiesBack(mrPresidentWorld, roomLowerCorner, entity -> entity instanceof LivingEntity && !(entity instanceof ArmorStand));
                         });
                     }
                 }
@@ -76,12 +76,12 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
     @Override
     protected void stop() {
         if (!world.isClientSide()) {
-            ServerWorld turtleWorld = (ServerWorld) world;
+            ServerLevel turtleWorld = (ServerLevel) world;
             boolean isChunkLoaded = turtleWorld.isLoaded(user.blockPosition());
             boolean isTurtleBeingUnloaded = !isChunkLoaded;
             if (!isTurtleBeingUnloaded) {
                 MinecraftServer server = turtleWorld.getServer();
-                ServerWorld mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
+                ServerLevel mrPresidentWorld = server.getLevel(ModDimensions.MR_PRESIDENT);
                 BlockPos roomLowerCorner = MrPresidentInsideTeleporter.getLowerCornerRoomPos(mrPresidentWorld, roomId);
                 if (roomLowerCorner != null) {
                     getChunkFuture(mrPresidentWorld.getChunkSource(), 
@@ -95,13 +95,13 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
         }
     }
     
-    public void teleportEntitiesBack(ServerWorld mrPresidentWorld, BlockPos roomLowerCorner, @Nullable Predicate<Entity> filter) {
+    public void teleportEntitiesBack(ServerLevel mrPresidentWorld, BlockPos roomLowerCorner, @Nullable Predicate<Entity> filter) {
         if (mrPresidentWorld == null) return;
         
         Set<Entity> entities = new HashSet<>();
         
         if (roomLowerCorner != null) {
-            AxisAlignedBB aabb = new AxisAlignedBB(roomLowerCorner, new BlockPos(
+            AABB aabb = new AABB(roomLowerCorner, new BlockPos(
                     roomLowerCorner.getX() + MrPresidentInsideTeleporter.ROOM_SIZE.getX(),
                     roomLowerCorner.getY() + MrPresidentInsideTeleporter.ROOM_SIZE.getY(),
                     roomLowerCorner.getZ() + MrPresidentInsideTeleporter.ROOM_SIZE.getZ()));
@@ -121,13 +121,13 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
         }
     }
     
-    public void breakAndTeleportBlocks(ServerWorld mrPresidentWorld, BlockPos roomLowerCorner) {
+    public void breakAndTeleportBlocks(ServerLevel mrPresidentWorld, BlockPos roomLowerCorner) {
         if (mrPresidentWorld == null) return;
         
         int x0 = roomLowerCorner.getX();
         int y0 = roomLowerCorner.getY();
         int z0 = roomLowerCorner.getZ();
-        BlockPos.Mutable pos = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int x = 0; x < MrPresidentInsideTeleporter.ROOM_SIZE.getX(); x++) {
             for (int y = 0; y < MrPresidentInsideTeleporter.ROOM_SIZE.getY(); y++) {
                 for (int z = 0; z < MrPresidentInsideTeleporter.ROOM_SIZE.getZ(); z++) {
@@ -147,10 +147,10 @@ public class MrPresidentEnteredRoomEffect extends StandEffectInstance {
     }
     
     
-    public static CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> getChunkFuture(ServerChunkProvider chunkProvider, 
+    public static CompletableFuture<Either<ChunkAccess, ChunkHolder.IChunkLoadingError>> getChunkFuture(ServerChunkCache chunkProvider, 
             int chunkX, int chunkY, ChunkStatus requiredStatus, boolean load) {
         boolean flag = Thread.currentThread() == chunkProvider.mainThread;
-        CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> future;
+        CompletableFuture<Either<ChunkAccess, ChunkHolder.IChunkLoadingError>> future;
         if (flag) {
             future = chunkProvider.getChunkFutureMainThread(chunkX, chunkY, requiredStatus, load);
             chunkProvider.mainThreadProcessor.managedBlock(future::isDone);

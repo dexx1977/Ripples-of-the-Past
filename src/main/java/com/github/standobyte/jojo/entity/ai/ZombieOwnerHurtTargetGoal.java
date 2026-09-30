@@ -4,11 +4,11 @@ import java.util.EnumSet;
 
 import com.github.standobyte.jojo.entity.mob.HungryZombieEntity;
 
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.TargetGoal;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.damagesource.DamageSource;
 
 public class ZombieOwnerHurtTargetGoal extends TargetGoal {
     private final HungryZombieEntity zombie;
@@ -31,7 +31,7 @@ public class ZombieOwnerHurtTargetGoal extends TargetGoal {
             int i = owner.getLastHurtMobTimestamp();
             DamageSource attackedBy = attacked != null ? attacked.getLastDamageSource() : null;
             return i != timestamp && !(attackedBy != null && !attackedBy.getMsgId().startsWith("bloodDrain")) &&
-                    canAttack(attacked, EntityPredicate.DEFAULT) && zombie.wantsToAttack(attacked, owner);
+                    canAttack(attacked, TargetingConditions.DEFAULT) && zombie.wantsToAttack(attacked, owner);
         }
     }
 

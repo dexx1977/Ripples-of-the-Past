@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.client.render.entity.pose.anim.barrage;
 import com.github.standobyte.jojo.action.stand.StandEntityAction.Phase;
 import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.HandSide;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.HumanoidArm;
 
 @Deprecated
 public abstract class TwoHandedBarrageAnimation<T extends LivingEntity, M extends EntityModel<T>> extends ArmsBarrageAnimation<T, M> {
@@ -14,8 +14,8 @@ public abstract class TwoHandedBarrageAnimation<T extends LivingEntity, M extend
     }
 
     @Override
-    protected HandSide getHandSide(Phase phase, T entity, float ticks) {
-        return HandSide.RIGHT;
+    protected HumanoidArm getHandSide(Phase phase, T entity, float ticks) {
+        return HumanoidArm.RIGHT;
     }
     
     @Override

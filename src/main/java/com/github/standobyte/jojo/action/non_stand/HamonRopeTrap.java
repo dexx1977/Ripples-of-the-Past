@@ -13,19 +13,19 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.TripWireBlock;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.Property;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TripWireBlock;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class HamonRopeTrap {
     
-    public static boolean ropeTrap(LivingEntity user, BlockPos pos, BlockState blockState, World world, INonStandPower power, HamonData hamon) {
+    public static boolean ropeTrap(LivingEntity user, BlockPos pos, BlockState blockState, Level world, INonStandPower power, HamonData hamon) {
         if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
             float efficiency = hamon.getActionEfficiency(STRING_CHARGE_COST, false, ModHamonSkills.ROPE_TRAP.get());
             createChargedCobweb(user, pos, blockState, world, 64, null, power, 
@@ -42,7 +42,7 @@ public class HamonRopeTrap {
             TripWireBlock.WEST, Direction.WEST, 
             TripWireBlock.NORTH, Direction.NORTH);
     private static final float STRING_CHARGE_COST = 10;
-    private static void createChargedCobweb(LivingEntity user, BlockPos pos, BlockState blockState, World world, 
+    private static void createChargedCobweb(LivingEntity user, BlockPos pos, BlockState blockState, Level world, 
             int range, @Nullable Direction from, INonStandPower power, int chargeTicks, float charge, HamonData hamon) {
         if (range > 0 && blockState.getBlock() == Blocks.TRIPWIRE && power.consumeEnergy(STRING_CHARGE_COST)) {
             hamon.hamonPointsFromAction(HamonStat.CONTROL, STRING_CHARGE_COST / 2);

@@ -15,19 +15,19 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.UseAction;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.Level;
 
 public class AjaStoneItem extends Item {
 
@@ -36,7 +36,7 @@ public class AjaStoneItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 //        if (player.isShiftKeyDown()) {
             INonStandPower power = INonStandPower.getPlayerNonStandPower(player);
@@ -50,31 +50,31 @@ public class AjaStoneItem extends Item {
                             hamon.hamonPointsFromAction(HamonStat.STRENGTH, getHamonChargeCost());
                             JojoModUtil.sayVoiceLine(player, getHamonChargeVoiceLine());
                         }
-                        Vector3d sparkVec = player.getLookAngle().scale(0.75)
+                        Vec3 sparkVec = player.getLookAngle().scale(0.75)
                                 .add(player.getX(), player.getY(0.6), player.getZ());
                         HamonUtil.emitHamonSparkParticles(world, player, sparkVec, 
                                 hamon.getHamonDamageMultiplier() / HamonData.MAX_HAMON_STRENGTH_MULTIPLIER * 1.5F);
-                        return ActionResult.success(stack);
+                        return InteractionResultHolder.success(stack);
                     }
                 }
             }
 //        }
         if (sufficientLight(world, player)) {
             player.startUsingItem(hand);
-            return ActionResult.consume(stack);
+            return InteractionResultHolder.consume(stack);
         }
-        return ActionResult.fail(stack);
+        return InteractionResultHolder.fail(stack);
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack stack, World world, LivingEntity entity) {
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity entity) {
         boolean perk = INonStandPower.getNonStandPowerOptional(entity).map(power -> power.getTypeSpecificData(ModPowers.HAMON.get()).map(
                 hamon -> hamon.isSkillLearned(ModHamonSkills.AJA_STONE_KEEPER.get())).orElse(false)).orElse(false);
         useStone(world, entity, stack, 10F, perk, true);
         return stack;
     }
 
-    protected void useStone(World world, LivingEntity entity, ItemStack itemStack, float damage, boolean perk, boolean checkLight) {
+    protected void useStone(Level world, LivingEntity entity, ItemStack itemStack, float damage, boolean perk, boolean checkLight) {
         if (checkLight && !sufficientLight(world, entity)) return;
         entity.playSound(ModSounds.AJA_STONE_BEAM.get(), Math.min(0.02F * damage, 1.0F), 1.0F + (random.nextFloat() - random.nextFloat()) * 0.1F);
         if (!world.isClientSide()) {
@@ -82,8 +82,8 @@ public class AjaStoneItem extends Item {
             beam.shoot(damage, 16F + damage / 2F);
             world.addFreshEntity(beam);
         }
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
             player.getCooldowns().addCooldown(this, getCooldown());
             breakItem(world, player, itemStack, perk);
         }
@@ -93,7 +93,7 @@ public class AjaStoneItem extends Item {
     }
 
     @Override
-    public void onUseTick(World world, LivingEntity entity, ItemStack stack, int remainingTicks) {
+    public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int remainingTicks) {
         if (world.isClientSide() && remainingTicks == getUseDuration(stack)) {
             ClientTickingSoundsHelper.playItemUseSound(entity, ModSounds.AJA_STONE_CHARGING.get(), 
                     0.25F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.05F, false, stack);
@@ -101,8 +101,8 @@ public class AjaStoneItem extends Item {
     }
     
     @Override
-    public UseAction getUseAnimation(ItemStack stack) {
-        return UseAction.BOW;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     @Override
@@ -122,7 +122,7 @@ public class AjaStoneItem extends Item {
         return ModSounds.LISA_LISA_AJA_STONE.get();
     }
 
-    protected void breakItem(World world, PlayerEntity player, ItemStack itemStack, boolean perk) {
+    protected void breakItem(Level world, Player player, ItemStack itemStack, boolean perk) {
         if (!player.abilities.instabuild) {
             itemStack.shrink(1);
             if (!world.isClientSide() && random.nextInt(2) == 0) {
@@ -131,15 +131,15 @@ public class AjaStoneItem extends Item {
         }
     }
 
-    private static boolean sufficientLight(World world, LivingEntity entity) {
+    private static boolean sufficientLight(Level world, LivingEntity entity) {
         BlockPos pos = entity.blockPosition();
         if (!world.isClientSide()) {
             return world.getMaxLocalRawBrightness(pos) > 9;
         }
 
         int time = (int) (world.getDayTime() % 24000);
-        int light = world.dimension() != World.OVERWORLD || 
-                world.isRainingAt(pos) || time > 12866 && time < 23135 ? world.getBrightness(LightType.BLOCK, pos) : world.getMaxLocalRawBrightness(pos);
+        int light = world.dimension() != Level.OVERWORLD || 
+                world.isRainingAt(pos) || time > 12866 && time < 23135 ? world.getBrightness(LightLayer.BLOCK, pos) : world.getMaxLocalRawBrightness(pos);
         return light > 9;
     }
 }

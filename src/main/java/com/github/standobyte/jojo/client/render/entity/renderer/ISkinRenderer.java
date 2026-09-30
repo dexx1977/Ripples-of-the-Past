@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ISkinRenderer<T extends Entity, M extends EntityModel<T>> {
     int getSkin(T entity);

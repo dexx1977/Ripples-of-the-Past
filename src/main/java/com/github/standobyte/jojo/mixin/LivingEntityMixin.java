@@ -10,17 +10,17 @@ import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.capability.entity.living.LivingWallClimbing;
 import com.github.standobyte.jojo.util.mc.damage.NoKnockbackOnBlocking;
 
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.level.Level;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
-    public LivingEntityMixin(EntityType<?> type, World level) {
+    public LivingEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
 
@@ -28,7 +28,7 @@ public abstract class LivingEntityMixin extends Entity {
     public void jojoMixinTick(CallbackInfo ci) {}
 
     @Inject(method = "getMobType", at = @At("HEAD"), cancellable = true)
-    public void jojoPlayerUndeadCreature(CallbackInfoReturnable<CreatureAttribute> ci) {}
+    public void jojoPlayerUndeadCreature(CallbackInfoReturnable<MobType> ci) {}
     
     
     @Inject(method = "onClimbable", at = @At("HEAD"), cancellable = true)

@@ -23,15 +23,15 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerType<?>> implements INonStandPower {
@@ -165,7 +165,7 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
 
     @Override
     public void addEnergy(float amount) {
-        setEnergy(MathHelper.clamp(this.energy + amount, 0, getMaxEnergy()));
+        setEnergy(Mth.clamp(this.energy + amount, 0, getMaxEnergy()));
     }
 
     @Override
@@ -178,7 +178,7 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
 
     @Override
     public void setEnergy(float amount) {
-        amount = MathHelper.clamp(amount, 0, getMaxEnergy());
+        amount = Mth.clamp(amount, 0, getMaxEnergy());
         if (this.energy != amount) {
             this.energy = amount;
             if (user != null && !user.level.isClientSide()) {
@@ -189,7 +189,7 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
     
     private void tickEnergy() {
         float energy = type.tickEnergy(this);
-        this.energy = MathHelper.clamp(energy, 0, getMaxEnergy());
+        this.energy = Mth.clamp(energy, 0, getMaxEnergy());
     }
     
     @Override
@@ -213,7 +213,7 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
     public float leapStrength() {
         float strength = type.getLeapStrength(this);
         if (user != null) {
-            ModifiableAttributeInstance speedAttribute = user.getAttribute(Attributes.MOVEMENT_SPEED);
+            AttributeInstance speedAttribute = user.getAttribute(Attributes.MOVEMENT_SPEED);
             if (speedAttribute != null) {
                 strength *= speedAttribute.getValue() / speedAttribute.getBaseValue();
             }
@@ -254,21 +254,21 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
     }
     
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT cnbt = super.writeNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag cnbt = super.writeNBT();
         cnbt.putFloat("Energy", energy);
         cnbt.putString("Type", JojoCustomRegistries.NON_STAND_POWERS.getKeyAsString(getType()));
         getTypeSpecificData(null).ifPresent(data -> {
             cnbt.put("AdditionalData", data.writeNBT());
         });
         cnbt.put("HadPowers", hadPowers.stream()
-                .map(type -> StringNBT.valueOf(type.getRegistryName().toString()))
-                .collect(Collectors.toCollection(ListNBT::new)));
+                .map(type -> StringTag.valueOf(type.getRegistryName().toString()))
+                .collect(Collectors.toCollection(ListTag::new)));
         return cnbt;
     }
 
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         IForgeRegistry<NonStandPowerType<?>> powerTypeRegistry = JojoCustomRegistries.NON_STAND_POWERS.getRegistry();
         String powerName = nbt.getString("Type");
         if (powerName != IPowerType.NO_POWER_NAME) {
@@ -283,8 +283,8 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
             }
         }
         
-        if (nbt.contains("HadPowers", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT list = nbt.getList("HadPowers", MCUtil.getNbtId(StringNBT.class));
+        if (nbt.contains("HadPowers", MCUtil.getNbtId(ListTag.class))) {
+            ListTag list = nbt.getList("HadPowers", MCUtil.getNbtId(StringTag.class));
             for (int i = 0; i < list.size(); i++) {
                 String name = list.getString(i);
                 if (!name.isEmpty()) {
@@ -325,7 +325,7 @@ public class NonStandPower extends PowerBaseImpl<INonStandPower, NonStandPowerTy
     }
     
     @Override
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         super.syncWithTrackingOrUser(player);
         if (hasPower() && user != null) {
             PacketManager.sendToClient(new TrTypeNonStandPowerPacket(user.getId(), getType()), player);

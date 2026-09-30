@@ -10,33 +10,33 @@ import com.google.gson.JsonSyntaxException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.client.shader.Shader;
-import net.minecraft.client.shader.ShaderGroup;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.client.renderer.PostPass;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 
-public class CustomShaderGroup extends ShaderGroup {
+public class CustomShaderGroup extends PostChain {
 
-    public CustomShaderGroup(TextureManager textureManager, IResourceManager resourceManager, 
-            Framebuffer screenTarget, ResourceLocation name) throws IOException, JsonSyntaxException {
+    public CustomShaderGroup(TextureManager textureManager, ResourceManager resourceManager, 
+            RenderTarget screenTarget, ResourceLocation name) throws IOException, JsonSyntaxException {
         super(textureManager, resourceManager, screenTarget, name);
     }
 
     @Override
-    public Shader addPass(String name, Framebuffer inTarget, Framebuffer outTarget) throws IOException {
-        Shader shader = getCustomParametersShader(Minecraft.getInstance().getResourceManager(), name, inTarget, outTarget);
+    public PostPass addPass(String name, RenderTarget inTarget, RenderTarget outTarget) throws IOException {
+        PostPass shader = getCustomParametersShader(Minecraft.getInstance().getResourceManager(), name, inTarget, outTarget);
         if (shader == null) {
             return super.addPass(name, inTarget, outTarget);
         }
-        List<Shader> passes = ClientReflection.getShaderGroupPasses(this);
+        List<PostPass> passes = ClientReflection.getShaderGroupPasses(this);
         passes.add(passes.size(), shader);
         return shader;
     }
     
     @Nullable
-    protected Shader getCustomParametersShader(IResourceManager resourceManager, String name, 
-            Framebuffer inTarget, Framebuffer outTarget) throws IOException {
+    protected PostPass getCustomParametersShader(ResourceManager resourceManager, String name, 
+            RenderTarget inTarget, RenderTarget outTarget) throws IOException {
         if ("jojo:time_stop".equals(name)) {
             return new TimeStopShader(resourceManager, name, inTarget, outTarget, 35F);
         }

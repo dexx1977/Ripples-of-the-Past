@@ -12,37 +12,37 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.ForgeEventFactory;
 
 public class MRFlameEntity extends ModdedProjectileEntity {
-    private Vector3d startingPos = null;
+    private Vec3 startingPos = null;
     
-    public MRFlameEntity(LivingEntity shooter, World world) {
+    public MRFlameEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.MR_FLAME.get(), shooter, world);
     }
     
-    protected MRFlameEntity(EntityType<? extends MRFlameEntity> type, LivingEntity shooter, World world) {
+    protected MRFlameEntity(EntityType<? extends MRFlameEntity> type, LivingEntity shooter, Level world) {
         super(type, shooter, world);
     }
 
-    public MRFlameEntity(EntityType<? extends MRFlameEntity> type, World world) {
+    public MRFlameEntity(EntityType<? extends MRFlameEntity> type, Level world) {
         super(type, world);
     }
 
@@ -74,18 +74,18 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected RayTraceResult[] rayTrace() {
-        return new RayTraceResult[] { JojoModUtil.getHitResult(this, this::canHitEntity, RayTraceContext.BlockMode.OUTLINE) };
+    protected HitResult[] rayTrace() {
+        return new HitResult[] { JojoModUtil.getHitResult(this, this::canHitEntity, ClipContext.Block.OUTLINE) };
     }
     
     @Override
-    protected void afterBlockHit(BlockRayTraceResult blockRayTraceResult, boolean blockDestroyed) {
+    protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
             if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
                 BlockPos blockPos = blockRayTraceResult.getBlockPos();
                 BlockState blockState = level.getBlockState(blockPos);
                 if (!meltIceAndSnow(level, blockState, blockPos) && 
-                        blockState.getCollisionShape(level, blockPos) != VoxelShapes.empty()) {
+                        blockState.getCollisionShape(level, blockPos) != Shapes.empty()) {
                     blockPos = blockPos.relative(blockRayTraceResult.getDirection());
                     if (level.isEmptyBlock(blockPos)) {
                         level.setBlockAndUpdate(blockPos, ModBlocks.MAGICIANS_RED_FIRE.get().getStateForPlacement(level, blockPos));
@@ -95,7 +95,7 @@ public class MRFlameEntity extends ModdedProjectileEntity {
         }
     }
     
-    public static boolean meltIceAndSnow(World world, BlockState blockState, BlockPos blockPos) {
+    public static boolean meltIceAndSnow(Level world, BlockState blockState, BlockPos blockPos) {
         if (world.isClientSide()) return false;
         if (blockState.getMaterial() == Material.SNOW || blockState.getMaterial() == Material.TOP_SNOW 
                 || blockState.getMaterial() == Material.ICE || blockState.getMaterial() == Material.ICE_SOLID) {
@@ -114,9 +114,9 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (targetType == TargetType.BLOCK) {
-            BlockRayTraceResult blockHit = (BlockRayTraceResult) hitTarget;
+            BlockHitResult blockHit = (BlockHitResult) hitTarget;
             BlockPos blockPos = blockHit.getBlockPos();
             BlockState blockState = level.getBlockState(blockPos);
             if (!blockState.isCollisionShapeFullBlock(level, blockPos)) return;
@@ -126,7 +126,7 @@ public class MRFlameEntity extends ModdedProjectileEntity {
 
     @Override
     protected boolean canBreakBlock(BlockPos blockPos, BlockState blockState) {
-        return super.canBreakBlock(blockPos, blockState) && !(blockState.getBlock() instanceof AbstractFireBlock);
+        return super.canBreakBlock(blockPos, blockState) && !(blockState.getBlock() instanceof BaseFireBlock);
     }
     
     @Override
@@ -148,7 +148,7 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     public void clearFire() {
         super.clearFire();
         if (!level.isClientSide()) {
-            JojoModUtil.extinguishFieryStandEntity(this, (ServerWorld) level);
+            JojoModUtil.extinguishFieryStandEntity(this, (ServerLevel) level);
         }
     }
     
@@ -178,22 +178,22 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
-        return Vector3d.ZERO;
+    protected Vec3 getOwnerRelativeOffset() {
+        return Vec3.ZERO;
     }
     
-    private static final Vector3d OFFSET_XROT = new Vector3d(0, 0.2, 0.0);
+    private static final Vec3 OFFSET_XROT = new Vec3(0, 0.2, 0.0);
     @Override
-    protected Vector3d getXRotOffset() {
+    protected Vec3 getXRotOffset() {
         return OFFSET_XROT;
     }
     
-    public Vector3d getStartingPos() {
+    public Vec3 getStartingPos() {
         return startingPos;
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         boolean hasStartingPos = startingPos != null;
         buffer.writeBoolean(hasStartingPos);
@@ -205,10 +205,10 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         if (additionalData.readBoolean()) {
-            startingPos = new Vector3d(additionalData.readDouble(), additionalData.readDouble(), additionalData.readDouble());
+            startingPos = new Vec3(additionalData.readDouble(), additionalData.readDouble(), additionalData.readDouble());
         }
         else {
             startingPos = position();

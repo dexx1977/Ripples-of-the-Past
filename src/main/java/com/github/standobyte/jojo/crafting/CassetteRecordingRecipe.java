@@ -12,35 +12,35 @@ import com.github.standobyte.jojo.item.CassetteRecordedItem;
 import com.github.standobyte.jojo.item.cassette.TrackSource;
 import com.github.standobyte.jojo.item.cassette.TrackSource.TrackSourceType;
 
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
-public class CassetteRecordingRecipe extends SpecialRecipe {
+public class CassetteRecordingRecipe extends CustomRecipe {
 
     public CassetteRecordingRecipe(ResourceLocation id) {
         super(id);
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return ModRecipeSerializers.CASSETTE_RECORD.get();
     }
 
     @Override
-    public boolean matches(CraftingInventory inventory, World world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         TrackRecording result = originalRecordingsAndCopyCount(inventory);
         return result != null && !result.trackSources.isEmpty() && result.copiesCount > 0;
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         TrackRecording result = originalRecordingsAndCopyCount(inventory);
         if (result != null && !result.trackSources.isEmpty() && result.copiesCount > 0) {
             ItemStack copies = new ItemStack(ModItems.CASSETTE_RECORDED.get(), result.copiesCount);
@@ -55,7 +55,7 @@ public class CassetteRecordingRecipe extends SpecialRecipe {
     }
 
     @Nullable
-    private TrackRecording originalRecordingsAndCopyCount(CraftingInventory craftingGrid) {
+    private TrackRecording originalRecordingsAndCopyCount(CraftingContainer craftingGrid) {
         int blankCassettes = 0;
         List<TrackSource> musicSources = new ArrayList<>();
         Optional<DyeColor> color = null;
@@ -92,7 +92,7 @@ public class CassetteRecordingRecipe extends SpecialRecipe {
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inventory) {
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inventory) {
         NonNullList<ItemStack> items = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
 
         for(int i = 0; i < items.size(); ++i) {

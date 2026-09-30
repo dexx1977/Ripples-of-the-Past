@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.init.ModSounds;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanData.Mode;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.Level;
 
 public class PillarmanSmallSandstorm extends PillarmanAction {
 
@@ -18,7 +18,7 @@ public class PillarmanSmallSandstorm extends PillarmanAction {
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             PillarmanDivineSandstormEntity sandstormWave = new PillarmanDivineSandstormEntity(world, user, 0)
             		.setAtmospheric(false)
@@ -28,7 +28,7 @@ public class PillarmanSmallSandstorm extends PillarmanAction {
             sandstormWave.shootFromRotation(user, 1.5F, 1F);
             world.addFreshEntity(sandstormWave);
             world.playSound(null, user.getX(), user.getY(), user.getZ(), ModSounds.MAGICIANS_RED_FIRE_BLAST.get(), 
-                    SoundCategory.AMBIENT, 0.2F, 1.0F);
+                    SoundSource.AMBIENT, 0.2F, 1.0F);
         }
     }
 

@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ResolveBoostsPacket {
     private final float boostAttack;
@@ -27,7 +27,7 @@ public class ResolveBoostsPacket {
     public static class Handler implements IModPacketHandler<ResolveBoostsPacket> {
 
         @Override
-        public void encode(ResolveBoostsPacket msg, PacketBuffer buf) {
+        public void encode(ResolveBoostsPacket msg, FriendlyByteBuf buf) {
             buf.writeFloat(msg.boostAttack);
             buf.writeFloat(msg.boostRemoteControl);
             buf.writeFloat(msg.boostChat);
@@ -35,7 +35,7 @@ public class ResolveBoostsPacket {
         }
 
         @Override
-        public ResolveBoostsPacket decode(PacketBuffer buf) {
+        public ResolveBoostsPacket decode(FriendlyByteBuf buf) {
             return new ResolveBoostsPacket(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
         }
 

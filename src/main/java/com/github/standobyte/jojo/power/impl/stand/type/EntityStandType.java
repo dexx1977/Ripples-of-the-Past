@@ -21,18 +21,18 @@ import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
 
 public class EntityStandType<T extends StandStats> extends StandType<T> {
     private Supplier<? extends StandEntityType<? extends StandEntity>> entityTypeSupplier = null;
@@ -41,7 +41,7 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
     private Optional<StandAction> finisherPunch = Optional.empty();
     
     @Deprecated
-    public EntityStandType(int color, ITextComponent partName, 
+    public EntityStandType(int color, Component partName, 
             StandAction[] attacks, StandAction[] abilities, 
             Class<T> statsClass, T defaultStats, @Nullable StandTypeOptionals additions) {
         super(color, partName, attacks, abilities, abilities.length > 0 ? abilities[0] : null, statsClass, defaultStats, additions);
@@ -119,16 +119,16 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
     }
     
     @Override
-    public RayTraceResult clientHitResult(IStandPower power, Entity cameraEntity, RayTraceResult vanillaHitResult) {
+    public HitResult clientHitResult(IStandPower power, Entity cameraEntity, HitResult vanillaHitResult) {
         if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
             StandEntity stand = (StandEntity) power.getStandManifestation();
             if (JojoModUtil.isAnotherEntityTargeted(vanillaHitResult, stand)) {
                 return super.clientHitResult(power, cameraEntity, vanillaHitResult);
             }
             
-            RayTraceResult miss = null;
-            RayTraceResult hitResult;
-            if (vanillaHitResult.getType() == RayTraceResult.Type.MISS) {
+            HitResult miss = null;
+            HitResult hitResult;
+            if (vanillaHitResult.getType() == HitResult.Type.MISS) {
                 miss = vanillaHitResult;
                 hitResult = stand.precisionRayTrace(cameraEntity);
             }
@@ -136,11 +136,11 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
                 hitResult = vanillaHitResult;
             }
             
-            if (hitResult.getType() == RayTraceResult.Type.ENTITY && !JojoModUtil.isAnotherEntityTargeted(hitResult, stand)) {
+            if (hitResult.getType() == HitResult.Type.ENTITY && !JojoModUtil.isAnotherEntityTargeted(hitResult, stand)) {
                 if (miss == null) {
-                    Vector3d lookVec = cameraEntity.getLookAngle();
-                    Vector3d eyePos = cameraEntity.getEyePosition(1);
-                    miss = BlockRayTraceResult.miss(eyePos, Direction.getNearest(lookVec.x, lookVec.y, lookVec.z), new BlockPos(eyePos));
+                    Vec3 lookVec = cameraEntity.getLookAngle();
+                    Vec3 eyePos = cameraEntity.getEyePosition(1);
+                    miss = BlockHitResult.miss(eyePos, Direction.getNearest(lookVec.x, lookVec.y, lookVec.z), new BlockPos(eyePos));
                 }
                 return miss;
             }
@@ -300,11 +300,11 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
         if (!user.level.isClientSide()) {
             power.getStandInstance().ifPresent(standInstance -> {
                 if (!standInstance.hasPart(StandPart.ARMS)) {
-                    user.addEffect(new EffectInstance(Effects.WEAKNESS, 319, 1));
-                    user.addEffect(new EffectInstance(Effects.DIG_SLOWDOWN, 319, 1));
+                    user.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 319, 1));
+                    user.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 319, 1));
                 }
                 if (!standInstance.hasPart(StandPart.LEGS)) {
-                    user.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 319, 1));
+                    user.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 319, 1));
                 }
             });
         }
@@ -319,18 +319,18 @@ public class EntityStandType<T extends StandStats> extends StandType<T> {
     
 
     
-    public static void giveEffectSharedWithStand(LivingEntity user, EffectInstance effectInstance) {
+    public static void giveEffectSharedWithStand(LivingEntity user, MobEffectInstance effectInstance) {
         IStandPower.getStandPowerOptional(user).ifPresent(power -> {
             if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
                 StandEntity stand = (StandEntity) power.getStandManifestation();
                 if (stand.isEffectSharedFromUser(effectInstance.getEffect())) {
-                    stand.addEffect(new EffectInstance(effectInstance));
+                    stand.addEffect(new MobEffectInstance(effectInstance));
                 }
             }
         });
     }
     
-    public static void removeEffectSharedWithStand(LivingEntity user, Effect effect) {
+    public static void removeEffectSharedWithStand(LivingEntity user, MobEffect effect) {
         IStandPower.getStandPowerOptional(user).ifPresent(power -> {
             if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
                 StandEntity stand = (StandEntity) power.getStandManifestation();

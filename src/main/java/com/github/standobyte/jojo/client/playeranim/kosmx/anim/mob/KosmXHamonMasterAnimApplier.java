@@ -8,7 +8,7 @@ import dev.kosmx.playerAnim.core.impl.AnimationProcessor;
 import dev.kosmx.playerAnim.core.util.SetableSupplier;
 import dev.kosmx.playerAnim.impl.IBendHelper;
 import dev.kosmx.playerAnim.impl.IMutableModel;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public class KosmXHamonMasterAnimApplier extends KosmXEntityAnimApplier<HamonMasterEntity, HamonMasterModel> {
     private final AnimationProcessor animProcessor;

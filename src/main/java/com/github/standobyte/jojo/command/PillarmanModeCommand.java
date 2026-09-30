@@ -11,19 +11,19 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 public class PillarmanModeCommand {
     private static final DynamicCommandExceptionType SINGLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.pillarman.failed.single", player));
+            player -> Component.translatable("commands.pillarman.failed.single", player));
     private static final DynamicCommandExceptionType MULTIPLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.pillarman.failed.multiple", count));
+            count -> Component.translatable("commands.pillarman.failed.multiple", count));
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("pillarman").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("set")
                         .then(Commands.literal("stage").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("stage", IntegerArgumentType.integer(1, PillarmanData.MAX_STAGE_LEVEL))
@@ -42,9 +42,9 @@ public class PillarmanModeCommand {
         JojoCommandsCommand.addCommand("pillarman");
     }
 
-    private static int setStage(CommandSource source, Collection<? extends ServerPlayerEntity> targets, int stage) throws CommandSyntaxException {
+    private static int setStage(CommandSourceStack source, Collection<? extends ServerPlayer> targets, int stage) throws CommandSyntaxException {
         int success = 0;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             success += INonStandPower.getNonStandPowerOptional(player).map(power -> {
                 Optional<PillarmanData> pillarmanOptional = power.getTypeSpecificData(ModPowers.PILLAR_MAN.get());
                 pillarmanOptional.ifPresent(pillarman -> {
@@ -62,23 +62,23 @@ public class PillarmanModeCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent("commands.pillarman.stage.success.single", stage, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(Component.translatable("commands.pillarman.stage.success.single", stage, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(new TranslationTextComponent("commands.pillarman.stage.success.multiple", stage, success), true);
+                source.sendSuccess(Component.translatable("commands.pillarman.stage.success.multiple", stage, success), true);
             }
             return success;
         }
     }
 
-    private static int setMode(CommandSource source, Collection<? extends ServerPlayerEntity> targets, int modeIndex) throws CommandSyntaxException {
+    private static int setMode(CommandSourceStack source, Collection<? extends ServerPlayer> targets, int modeIndex) throws CommandSyntaxException {
         PillarmanData.Mode mode = PillarmanData.Mode.NONE; 
         if (modeIndex > 0 && modeIndex <= 3) mode = PillarmanData.Mode.values()[modeIndex];
         return setMode(source, targets, mode);
     }
 
-    private static int setMode(CommandSource source, Collection<? extends ServerPlayerEntity> targets, PillarmanData.Mode mode) throws CommandSyntaxException {
+    private static int setMode(CommandSourceStack source, Collection<? extends ServerPlayer> targets, PillarmanData.Mode mode) throws CommandSyntaxException {
         int success = 0;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             success += INonStandPower.getNonStandPowerOptional(player).map(power -> {
                 Optional<PillarmanData> pillarmanOptional = power.getTypeSpecificData(ModPowers.PILLAR_MAN.get());
                 pillarmanOptional.ifPresent(pillarman -> {
@@ -96,9 +96,9 @@ public class PillarmanModeCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent("commands.pillarman.mode.success.single", mode, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(Component.translatable("commands.pillarman.mode.success.single", mode, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(new TranslationTextComponent("commands.pillarman.mode.success.multiple", mode, success), true);
+                source.sendSuccess(Component.translatable("commands.pillarman.mode.success.multiple", mode, success), true);
             }
             return success;
         }

@@ -9,9 +9,9 @@ import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class ResolveLevelsMap {
@@ -61,21 +61,21 @@ public class ResolveLevelsMap {
     
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         wrappedMap.forEach((standId, levelEntry) -> {
             nbt.put(standId.toString(), levelEntry.toNBT());
         });
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         nbt.getAllKeys().forEach(key -> {
             ResourceLocation standId = new ResourceLocation(key);
             IForgeRegistry<StandType<?>> registry = JojoCustomRegistries.STANDS.getRegistry();
             StandType<?> stand = registry.containsKey(standId) ? registry.getValue(standId) : null;
             ResolveLevel levelEntry = wrappedMap.computeIfAbsent(standId, ___ -> new ResolveLevel(stand));
-            if (nbt.contains(key, MCUtil.getNbtId(CompoundNBT.class))) {
+            if (nbt.contains(key, MCUtil.getNbtId(CompoundTag.class))) {
                 levelEntry.fromNBT(nbt.getCompound(key));
             }
         });
@@ -110,20 +110,20 @@ public class ResolveLevelsMap {
         
         private boolean setLevel(int level) {
             boolean changed = this.level != level;
-            this.level = MathHelper.clamp(level, 0, maxLevel);
+            this.level = Mth.clamp(level, 0, maxLevel);
             return changed;
         }
         
         
 
-        public CompoundNBT toNBT() {
-            CompoundNBT nbt = new CompoundNBT();
+        public CompoundTag toNBT() {
+            CompoundTag nbt = new CompoundTag();
             nbt.putInt("Level", level);
             nbt.putInt("ExtraLevel", extraLevel);
             return nbt;
         }
         
-        public void fromNBT(CompoundNBT nbt) {
+        public void fromNBT(CompoundTag nbt) {
             this.level = nbt.getInt("Level");
             this.extraLevel = nbt.getInt("ExtraLevel");
         }

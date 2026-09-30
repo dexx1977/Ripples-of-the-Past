@@ -6,8 +6,8 @@ import java.util.Map;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class StandStats {
     private final UpgradeableStats statsBase;
@@ -24,7 +24,7 @@ public class StandStats {
         this.randomWeight = builder.randomWeight;
     }
     
-    protected StandStats(PacketBuffer buf) {
+    protected StandStats(FriendlyByteBuf buf) {
         this.statsBase = new UpgradeableStats(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
         this.statsDevPotential = new UpgradeableStats(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readDouble());
         this.rangeEffective = buf.readDouble();
@@ -32,7 +32,7 @@ public class StandStats {
         this.randomWeight = buf.readDouble();
     }
     
-    public void write(PacketBuffer buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeDouble(statsBase.power);
         buf.writeDouble(statsBase.speed);
         buf.writeDouble(statsBase.durability);
@@ -57,7 +57,7 @@ public class StandStats {
     private static final Map<Class<? extends StandStats>, Factory<? extends StandStats>> FROM_BUFFER = new HashMap<>();
     
     protected static interface Factory<T extends StandStats> {
-        T read(PacketBuffer buf);
+        T read(FriendlyByteBuf buf);
     }
     
     static {
@@ -68,7 +68,7 @@ public class StandStats {
         FROM_BUFFER.put(clazz, factory);
     }
     
-    public static StandStats fromBuffer(Class<? extends StandStats> clazz, PacketBuffer buf) {
+    public static StandStats fromBuffer(Class<? extends StandStats> clazz, FriendlyByteBuf buf) {
         return FROM_BUFFER.get(clazz).read(buf);
     }
     

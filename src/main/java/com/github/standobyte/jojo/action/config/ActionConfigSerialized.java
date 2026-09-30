@@ -18,8 +18,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.GsonHelper;
 
 public class ActionConfigSerialized<A extends Action<?>> {
     protected static final Gson GSON = new GsonBuilder().create();
@@ -119,14 +119,14 @@ public class ActionConfigSerialized<A extends Action<?>> {
     }
     
 
-    public void toBuf(PacketBuffer buf) {
+    public void toBuf(FriendlyByteBuf buf) {
         buf.writeUtf(settingsToSend);
     }
 
-    public void applyFromBuf(PacketBuffer buf) {
+    public void applyFromBuf(FriendlyByteBuf buf) {
         String read = buf.readUtf();
         try {
-            JsonObject json = JSONUtils.parse(read);
+            JsonObject json = GsonHelper.parse(read);
             applyFromJson(json);
         }
         catch (JsonParseException e) {

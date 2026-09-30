@@ -5,12 +5,12 @@ import java.util.stream.Stream;
 import com.github.standobyte.jojo.init.power.JojoCustomRegistries;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 
-import net.minecraft.client.renderer.texture.SpriteUploader;
+import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
-public class HamonSkillSpriteUploader extends SpriteUploader {
+public class HamonSkillSpriteUploader extends TextureAtlasHolder {
     public HamonSkillSpriteUploader(TextureManager textureManager) {
         super(textureManager, new ResourceLocation("textures/atlas/hamon_skills.png"), "hamon");
     }

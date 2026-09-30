@@ -4,8 +4,8 @@ import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 import com.github.standobyte.jojo.client.render.block.BlockSprites;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.MRRedBindEntity;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.Direction;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
 
 // Made with Blockbench 3.9.2
 
@@ -25,7 +25,7 @@ public class MRRedBindModel extends RepeatingModel<MRRedBindEntity> {
     }
 
     @Override
-    protected ModelRenderer getMainPart() {
+    protected ModelPart getMainPart() {
         return null;
     }
     
@@ -35,7 +35,7 @@ public class MRRedBindModel extends RepeatingModel<MRRedBindEntity> {
     }
     
     @Override
-    protected ModelRenderer getRepeatingPart() {
+    protected ModelPart getRepeatingPart() {
         return flameRope;
     }
     

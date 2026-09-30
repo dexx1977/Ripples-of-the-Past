@@ -22,18 +22,18 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 
 public class SilverChariotEntity extends StandEntity {
@@ -56,14 +56,14 @@ public class SilverChariotEntity extends StandEntity {
     private static final AttributeModifier NO_RAPIER_ATTACK_RANGE_DECREASE = new AttributeModifier(
             UUID.fromString("ba319644-fab3-4d4c-bcdf-26fd05dd62f5"), "Attack range decrease without rapier", -RAPIER_RANGE, AttributeModifier.Operation.ADDITION);
     
-    private static final DataParameter<Boolean> HAS_RAPIER = EntityDataManager.defineId(SilverChariotEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> HAS_ARMOR = EntityDataManager.defineId(SilverChariotEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> RAPIER_ON_FIRE = EntityDataManager.defineId(SilverChariotEntity.class, DataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> HAS_RAPIER = SynchedEntityData.defineId(SilverChariotEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> HAS_ARMOR = SynchedEntityData.defineId(SilverChariotEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> RAPIER_ON_FIRE = SynchedEntityData.defineId(SilverChariotEntity.class, EntityDataSerializers.BOOLEAN);
     
     private int ticksAfterArmorRemoval;
     private int rapierFireTicks = 0;
 
-    public SilverChariotEntity(StandEntityType<SilverChariotEntity> type, World world) {
+    public SilverChariotEntity(StandEntityType<SilverChariotEntity> type, Level world) {
         super(type, world);
     }
 
@@ -81,9 +81,9 @@ public class SilverChariotEntity extends StandEntity {
     }
 
     @Override
-    public void swing(Hand hand) {
+    public void swing(InteractionHand hand) {
         if (hasRapier()) {
-            super.swing(Hand.MAIN_HAND);
+            super.swing(InteractionHand.MAIN_HAND);
         }
         else {
             super.swing(hand);
@@ -92,8 +92,8 @@ public class SilverChariotEntity extends StandEntity {
 
     // TODO render rapier in left arm if the user is left-handed
     @Override
-    public HandSide getMainArm() {
-        return HandSide.RIGHT;
+    public HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
     }
     
     public boolean hasRapier() {
@@ -159,8 +159,8 @@ public class SilverChariotEntity extends StandEntity {
     }
     
     @Override
-    public HandSide getPunchingHand() {
-        return hasRapier() ? HandSide.RIGHT : super.getPunchingHand();
+    public HumanoidArm getPunchingHand() {
+        return hasRapier() ? HumanoidArm.RIGHT : super.getPunchingHand();
     }
     
     @Override
@@ -187,8 +187,8 @@ public class SilverChariotEntity extends StandEntity {
     }
 
     private boolean attackOrDeflect(Supplier<Boolean> doAttack, StandEntityPunch punch, StandEntityTask task) {
-        if (canDeflectProjectiles() && hasRapier() && punch.target instanceof ProjectileEntity) {
-            ProjectileEntity projectile = (ProjectileEntity) punch.target;
+        if (canDeflectProjectiles() && hasRapier() && punch.target instanceof Projectile) {
+            Projectile projectile = (Projectile) punch.target;
             if (projectile.getOwner() == null || !projectile.getOwner().is(getUser())) {
                 return deflectProjectile(punch.target);
             }
@@ -199,10 +199,10 @@ public class SilverChariotEntity extends StandEntity {
     @Override
     public boolean attackTarget(ActionTarget target, IHasStandPunch punch, StandEntityTask task) {
         if (canDeflectProjectiles()) {
-            level.getEntitiesOfClass(ProjectileEntity.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())), 
+            level.getEntitiesOfClass(Projectile.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())), 
                     entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
                         if (this.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
-                                >= MathHelper.cos((float) (30.0 + MathHelper.clamp(getPrecision(), 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
+                                >= Mth.cos((float) (30.0 + Mth.clamp(getPrecision(), 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
                             deflectProjectile(projectile);
                         }
                     });

@@ -12,23 +12,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.util.mc.CustomTargetIconMap;
 import com.github.standobyte.jojo.util.mc.CustomTargetIconMap.IMapDataMixin;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.world.World;
-import net.minecraft.world.storage.MapData;
-import net.minecraft.world.storage.MapDecoration;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
 
-@Mixin(MapData.class)
+@Mixin(MapItemSavedData.class)
 public abstract class MapDataMixin implements IMapDataMixin {
     @Shadow public int x;
     @Shadow public int z;
-    @Shadow public RegistryKey<World> dimension;
+    @Shadow public ResourceKey<Level> dimension;
     @Shadow public byte scale;
     @Shadow @Final public Map<String, MapDecoration> decorations;
     
     @Inject(method = "tickCarriedBy", at = @At("TAIL"))
-    public void jojoAddMapTargetDecoration(PlayerEntity player, ItemStack mapStack, CallbackInfo ci) {
+    public void jojoAddMapTargetDecoration(Player player, ItemStack mapStack, CallbackInfo ci) {
         CustomTargetIconMap.mixinMakeIconDecoration(player, mapStack, this);
     }
 
@@ -53,7 +53,7 @@ public abstract class MapDataMixin implements IMapDataMixin {
     }
 
     @Override
-    public RegistryKey<World> dimension() {
+    public ResourceKey<Level> dimension() {
         return dimension;
     }
 }

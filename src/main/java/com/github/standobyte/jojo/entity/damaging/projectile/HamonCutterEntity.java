@@ -10,27 +10,27 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class HamonCutterEntity extends ModdedProjectileEntity {
-    private static final Vector3d MOUTH_POS_OFFSET = new Vector3d(0.0D, -0.1D, 0.0D);
+    private static final Vec3 MOUTH_POS_OFFSET = new Vec3(0.0D, -0.1D, 0.0D);
     private ItemStack potionItem;
     private int color = -1;
     private float hamonStatPoints;
 
-    public HamonCutterEntity(LivingEntity shooter, World world, ItemStack potionItem) {
+    public HamonCutterEntity(LivingEntity shooter, Level world, ItemStack potionItem) {
         super(ModEntityTypes.HAMON_CUTTER.get(), shooter, world);
         this.potionItem = potionItem == null ? ItemStack.EMPTY : potionItem;
         this.color = PotionUtils.getColor(potionItem);
@@ -41,7 +41,7 @@ public class HamonCutterEntity extends ModdedProjectileEntity {
         return this;
     }
 
-    public HamonCutterEntity(EntityType<? extends HamonCutterEntity> type, World world) {
+    public HamonCutterEntity(EntityType<? extends HamonCutterEntity> type, Level world) {
         super(type, world);
     }
     
@@ -59,7 +59,7 @@ public class HamonCutterEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return MOUTH_POS_OFFSET;
     }
 
@@ -71,19 +71,19 @@ public class HamonCutterEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
-            List<EffectInstance> effects = PotionUtils.getMobEffects(potionItem);
+            List<MobEffectInstance> effects = PotionUtils.getMobEffects(potionItem);
             Entity entity = entityRayTraceResult.getEntity();
             if (entity instanceof LivingEntity) {
                 LivingEntity target = (LivingEntity) entity;
                 if (target.isAffectedByPotions()) {
-                    for (EffectInstance effectInstance : effects) {
-                        Effect effect = effectInstance.getEffect();
+                    for (MobEffectInstance effectInstance : effects) {
+                        MobEffect effect = effectInstance.getEffect();
                         if (effect.isInstantenous()) {
                             effect.applyInstantenousEffect(this, getOwner(), target, effectInstance.getAmplifier(), 3 / 16);
                         } else {
-                            target.addEffect(new EffectInstance(effect, MathHelper.floor(effectInstance.getDuration()), 
+                            target.addEffect(new MobEffectInstance(effect, Mth.floor(effectInstance.getDuration()), 
                                     effectInstance.getAmplifier(), effectInstance.isAmbient(), effectInstance.isVisible()));
                         }
                     }
@@ -126,17 +126,17 @@ public class HamonCutterEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         if (!potionItem.isEmpty()) {
-            nbt.put("Potion", potionItem.save(new CompoundNBT()));
+            nbt.put("Potion", potionItem.save(new CompoundTag()));
         }
         nbt.putInt("Color", color);
         nbt.putFloat("Points", hamonStatPoints);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         potionItem = ItemStack.of(nbt.getCompound("Potion"));
         color = nbt.getInt("Color");
@@ -144,13 +144,13 @@ public class HamonCutterEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeInt(color);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         color = additionalData.readInt();
     }

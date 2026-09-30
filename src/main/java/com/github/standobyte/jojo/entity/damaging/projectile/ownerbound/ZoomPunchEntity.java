@@ -16,25 +16,25 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.HandSide;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.util.IndirectEntityDamageSource;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 // FIXME sparks wave anim on hamon damage
 // FIXME dislocated bones sound
 public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
-    private HandSide side;
+    private HumanoidArm side;
     private float speed;
     
     private float hamonDamage;
@@ -44,7 +44,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     private float baseHitPoints;
     private boolean gaveHamonPointsForBaseHit = false;
 
-    public ZoomPunchEntity(World world, LivingEntity owner) {
+    public ZoomPunchEntity(Level world, LivingEntity owner) {
         super(ModEntityTypes.ZOOM_PUNCH.get(), owner, world);
         this.side = owner.getMainArm();
     }
@@ -71,7 +71,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
         return this;
     }
 
-    public ZoomPunchEntity(EntityType<? extends ZoomPunchEntity> entityType, World world) {
+    public ZoomPunchEntity(EntityType<? extends ZoomPunchEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -80,14 +80,14 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
         return false;
     }
 
-    private static final Vector3d RIGHT_HAND_OFFSET = new Vector3d(-0.35D, -0.47D, 0.0D);
-    private static final Vector3d LEFT_HAND_OFFSET = new Vector3d(-RIGHT_HAND_OFFSET.x, RIGHT_HAND_OFFSET.y, RIGHT_HAND_OFFSET.z);
+    private static final Vec3 RIGHT_HAND_OFFSET = new Vec3(-0.35D, -0.47D, 0.0D);
+    private static final Vec3 LEFT_HAND_OFFSET = new Vec3(-RIGHT_HAND_OFFSET.x, RIGHT_HAND_OFFSET.y, RIGHT_HAND_OFFSET.z);
     @Override
-    public Vector3d getOwnerRelativeOffset() {
-        return side == HandSide.LEFT ? LEFT_HAND_OFFSET : RIGHT_HAND_OFFSET;
+    public Vec3 getOwnerRelativeOffset() {
+        return side == HumanoidArm.LEFT ? LEFT_HAND_OFFSET : RIGHT_HAND_OFFSET;
     }
     
-    public HandSide getSide() {
+    public HumanoidArm getSide() {
         return side;
     }
 
@@ -113,7 +113,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected Vector3d originOffset(float yRot, float xRot, double distance) {
+    protected Vec3 originOffset(float yRot, float xRot, double distance) {
         return super.originOffset(yRot, xRot, distance + 0.75);
     }
 
@@ -158,13 +158,13 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
 	            if (knockback > 0) {
 	                if (target instanceof LivingEntity) {
 	                    ((LivingEntity) target).knockback(knockback * 0.5F, 
-	                            (double) MathHelper.sin(owner.yRot * MathUtil.DEG_TO_RAD), 
-	                            (double)(-MathHelper.cos(owner.yRot * MathUtil.DEG_TO_RAD)));
+	                            (double) Mth.sin(owner.yRot * MathUtil.DEG_TO_RAD), 
+	                            (double)(-Mth.cos(owner.yRot * MathUtil.DEG_TO_RAD)));
 	                } else {
 	                    target.push(
-	                            (double)(-MathHelper.sin(owner.yRot * MathUtil.DEG_TO_RAD) * knockback * 0.5F), 
+	                            (double)(-Mth.sin(owner.yRot * MathUtil.DEG_TO_RAD) * knockback * 0.5F), 
 	                            0.1D, 
-	                            (double)(MathHelper.cos(owner.yRot * MathUtil.DEG_TO_RAD) * knockback * 0.5F));
+	                            (double)(Mth.cos(owner.yRot * MathUtil.DEG_TO_RAD) * knockback * 0.5F));
 	                }
 	
 	                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6D, 1.0D, 0.6D));
@@ -178,7 +178,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
 
     @Override
     protected DamageSource getDamageSource(LivingEntity owner) {
-        return new IndirectEntityDamageSource(owner instanceof PlayerEntity ? "player" : "mob", this, owner);
+        return new IndirectEntityDamageSource(owner instanceof Player ? "player" : "mob", this, owner);
     }
     
     private Optional<INonStandPower> userPower = Optional.empty();
@@ -213,9 +213,9 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putBoolean("LeftArm", side == HandSide.LEFT);
+        nbt.putBoolean("LeftArm", side == HumanoidArm.LEFT);
         nbt.putFloat("Speed", speed);
         nbt.putFloat("HamonDamage", hamonDamage);
         nbt.putFloat("HamonDamageCost", hamonDamageCost);
@@ -225,9 +225,9 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        side = nbt.getBoolean("LeftArm") ? HandSide.LEFT : HandSide.RIGHT;
+        side = nbt.getBoolean("LeftArm") ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
         speed = nbt.getFloat("Speed");
         hamonDamage = nbt.getFloat("HamonDamage");
         hamonDamageCost = nbt.getFloat("HamonDamageCost");
@@ -237,16 +237,16 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
-        buffer.writeBoolean(side == HandSide.LEFT);
+        buffer.writeBoolean(side == HumanoidArm.LEFT);
         buffer.writeFloat(speed);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
-        side = additionalData.readBoolean() ? HandSide.LEFT : HandSide.RIGHT;
+        side = additionalData.readBoolean() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
         speed = additionalData.readFloat();
         
         setOwnerZoomPunch(true);
@@ -262,7 +262,7 @@ public class ZoomPunchEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             setIsRetracting(true);
         }

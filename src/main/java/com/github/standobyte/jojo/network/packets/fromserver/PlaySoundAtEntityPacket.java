@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.sound.ClientTickingSoundsHelper;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class PlaySoundAtEntityPacket {
@@ -30,7 +30,7 @@ public class PlaySoundAtEntityPacket {
     public static class Handler implements IModPacketHandler<PlaySoundAtEntityPacket> {
 
         @Override
-        public void encode(PlaySoundAtEntityPacket msg, PacketBuffer buf) {
+        public void encode(PlaySoundAtEntityPacket msg, FriendlyByteBuf buf) {
             buf.writeRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS, msg.sound);
             buf.writeInt(msg.entityId);
             buf.writeFloat(msg.volume);
@@ -38,7 +38,7 @@ public class PlaySoundAtEntityPacket {
         }
 
         @Override
-        public PlaySoundAtEntityPacket decode(PacketBuffer buf) {
+        public PlaySoundAtEntityPacket decode(FriendlyByteBuf buf) {
             return new PlaySoundAtEntityPacket(buf.readRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS), buf.readInt(), buf.readFloat(), buf.readFloat());
         }
 

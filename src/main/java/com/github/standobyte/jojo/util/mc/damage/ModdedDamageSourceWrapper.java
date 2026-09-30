@@ -2,12 +2,12 @@ package com.github.standobyte.jojo.util.mc.damage;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
 
 public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDamageSource {
     private final DamageSource dmgSource;
@@ -28,7 +28,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     
     @Override
     public ModdedDamageSourceWrapper setKnockbackReduction(float factor) {
-        this.knockbackFactor = MathHelper.clamp(factor, 0, 1);
+        this.knockbackFactor = Mth.clamp(factor, 0, 1);
         return this;
     }
     
@@ -167,7 +167,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
         return this;
     }
     
-    public ITextComponent getLocalizedDeathMessage(LivingEntity pLivingEntity) {
+    public Component getLocalizedDeathMessage(LivingEntity pLivingEntity) {
         return dmgSource.getLocalizedDeathMessage(pLivingEntity);
     }
     
@@ -202,7 +202,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     @Nullable
-    public Vector3d getSourcePosition() {
+    public Vec3 getSourcePosition() {
         return dmgSource.getSourcePosition();
     }
 }

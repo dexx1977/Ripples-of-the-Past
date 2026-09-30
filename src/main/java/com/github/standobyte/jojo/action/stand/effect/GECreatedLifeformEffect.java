@@ -12,22 +12,22 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.util.mc.EntityOwnerResolver;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class GECreatedLifeformEffect extends StandEffectInstance {
     private GETransformationData source = new GETransformationData();
     private ItemStack originalAsItem = ItemStack.EMPTY;
-    private IFormattableTextComponent originalName = (StringTextComponent) StringTextComponent.EMPTY;
+    private MutableComponent originalName = (Component) Component.empty();
     
     public GECreatedLifeformEffect() {
         this(ModStandEffects.GE_CREATED_LIFEFORM.get());
@@ -50,7 +50,7 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
         return originalAsItem;
     }
     
-    public IFormattableTextComponent getName() {
+    public MutableComponent getName() {
         return originalName;
     }
     
@@ -58,7 +58,7 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
     protected void start() {}
     
     @Override
-    protected void updateTarget(World world) {
+    protected void updateTarget(Level world) {
         if (!world.isClientSide()) {
             Entity target = getTarget();
             if (target != null && !target.isAlive()) {
@@ -87,12 +87,12 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
     public void setTargetEntity(Entity target) {
         super.setTargetEntity(target);
         if (target != null) {
-            if (target instanceof MobEntity && user != null) {
-                MobEntity lifeformMob = (MobEntity) target;
+            if (target instanceof Mob && user != null) {
+                Mob lifeformMob = (Mob) target;
                 MCUtil.makeMobNeutralTo(lifeformMob, user);
             }
             
-            List<EffectInstance> effects = getSource().getItemEffects();
+            List<MobEffectInstance> effects = getSource().getItemEffects();
             if (!effects.isEmpty()) {
                 target.getCapability(LivingUtilCapProvider.CAPABILITY)
                 .ifPresent(entity -> entity.setProductEffects(effects));
@@ -127,15 +127,15 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
                 UUID followTargetId = source.getFollowTarget();
                 if (followTargetId != null) {
                     if (source.getFollowTargetMode() == FollowTargetMode.DELIVERY) {
-                        Entity deliveryDest = ((ServerWorld) entity.level).getEntity(followTargetId);
+                        Entity deliveryDest = ((ServerLevel) entity.level).getEntity(followTargetId);
                         if (deliveryDest != null && deliveryDest.distanceToSqr(entity) < 4) {
                             remove();
                             return;
                         }
                     }
 
-                    if (entity instanceof MobEntity) {
-                        mobAI((MobEntity) entity);
+                    if (entity instanceof Mob) {
+                        mobAI((Mob) entity);
                     }
                 }
             }
@@ -144,7 +144,7 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
     
     private EntityOwnerResolver followTarget = new EntityOwnerResolver();
     // doing this separately from vanilla AI code lets us not occupy Goal.Flag.MOVE and Goal.Flag.LOOK flags used for attack goals
-    private void mobAI(MobEntity entityAsMob) {
+    private void mobAI(Mob entityAsMob) {
         if (!entityAsMob.isAggressive()) {
             Entity followTarget = this.followTarget.getEntity(world);
             if (followTarget != null) {
@@ -177,17 +177,17 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
     }
 
     @Override
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {
+    protected void writeAdditionalSaveData(CompoundTag nbt) {
         source.writeNbt(nbt);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         source.readNbt(nbt);
     }
 
     @Override
-    public void writeAdditionalPacketData(PacketBuffer buf, boolean sendingToUser) {
+    public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
         if (sendingToUser) {
             source.resolveNbtRead(world);
             source.toBuf(buf);
@@ -195,7 +195,7 @@ public class GECreatedLifeformEffect extends StandEffectInstance {
     }
 
     @Override
-    public void readAdditionalPacketData(PacketBuffer buf, boolean clientIsUser) {
+    public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
         if (clientIsUser) {
             source.fromBuf(buf, world);
             originalAsItem = source.clMakeSourceItemView();

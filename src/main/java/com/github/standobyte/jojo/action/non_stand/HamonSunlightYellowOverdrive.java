@@ -23,10 +23,10 @@ import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.Level;
 
 public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayerAction<HamonSunlightYellowOverdrive.Instance, INonStandPower> {
 
@@ -70,7 +70,7 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
     }
     
     @Override
-    public void onHoldTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    public void onHoldTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         float spentEnergy = power.getEnergy();
         super.onHoldTick(world, user, power, ticksHeld, target, requirementsFulfilled);
         if (power.isUserCreative()) {
@@ -91,7 +91,7 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
     
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         playerSpentEnergy.removeFloat(user.getUUID());
         if (requirementsFulfilled && world.isClientSide()) {
             ClientTickingSoundsHelper.playStoppableEntitySound(user, ModSounds.HAMON_SYO_CHARGE.get(), 
@@ -100,12 +100,12 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return getPlayerAnim().setWindupAnim(user);
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!user.level.isClientSide()) {
             setPlayerAction(user, power);
             playerSpentEnergy.removeFloat(user.getUUID());
@@ -115,14 +115,14 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
     @Override
     public Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            getPlayerAnim().setAttackAnim((PlayerEntity) user);
+        if (user.level.isClientSide() && user instanceof Player) {
+            getPlayerAnim().setAttackAnim((Player) user);
         }
         return new Instance(user, userCap, power, this, getSpentEnergy(power));
     }
     
     @Override
-    public void stoppedHolding(World world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
         if (!willFire) {
             if (!world.isClientSide()) {
                 if (!power.isUserCreative()) {
@@ -130,8 +130,8 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
                     power.setEnergy(Math.min(power.getMaxEnergy(), power.getEnergy() + energySpent));
                 }
             }
-            else if (user instanceof PlayerEntity) {
-                getPlayerAnim().stopAnim((PlayerEntity) user);
+            else if (user instanceof Player) {
+                getPlayerAnim().stopAnim((Player) user);
             }
         }
     }
@@ -160,7 +160,7 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 1.0f);
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                 }
                 break;
             case 4:
@@ -178,7 +178,7 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
         }
         
         protected void performPunch(LivingEntity target) {
-            World world = user.level;
+            Level world = user.level;
             
             if (!world.isClientSide()) {
                 HamonSunlightYellowOverdrive hamonAction = getAction();
@@ -189,8 +189,8 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
                 HamonSunlightYellowOverdrive.doMeleeAttack(user, target);
             }
             
-            if (user instanceof PlayerEntity) {
-                ((PlayerEntity) user).resetAttackStrengthTicker();
+            if (user instanceof Player) {
+                ((Player) user).resetAttackStrengthTicker();
             }
         }
         
@@ -228,8 +228,8 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                getAction().getPlayerAnim().stopAnim((PlayerEntity) user);
+            if (user.level.isClientSide() && user instanceof Player) {
+                getAction().getPlayerAnim().stopAnim((Player) user);
             }
         }
         
@@ -237,8 +237,8 @@ public class HamonSunlightYellowOverdrive extends HamonAction implements IPlayer
     
     
     public static void doMeleeAttack(LivingEntity attacker, LivingEntity targetEntity) {
-        if (attacker instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) attacker;
+        if (attacker instanceof Player) {
+            Player player = (Player) attacker;
             player.attack(targetEntity);
         }
         else if (!attacker.level.isClientSide()) {

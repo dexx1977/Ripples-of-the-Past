@@ -13,15 +13,15 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 
 public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
@@ -44,7 +44,7 @@ public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void standTickWindup(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickWindup(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (world.isClientSide()) {
             if (task.getTicksLeft() == 1) {
                 SoundEvent sound = getPunchSwingSound();
@@ -52,8 +52,8 @@ public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
                     standEntity.playSound(sound, 1.0F, 1.0F, ClientUtil.getClientPlayer());
                 }
                 
-                double d0 = -MathHelper.sin(standEntity.yRot * MathUtil.DEG_TO_RAD);
-                double d1 = MathHelper.cos(standEntity.yRot * MathUtil.DEG_TO_RAD);
+                double d0 = -Mth.sin(standEntity.yRot * MathUtil.DEG_TO_RAD);
+                double d1 = Mth.cos(standEntity.yRot * MathUtil.DEG_TO_RAD);
                 world.addParticle(ParticleTypes.SWEEP_ATTACK, standEntity.getX() + d0, standEntity.getY(0.5), standEntity.getZ() + d1, 
                         d0, 0.0D, d1);
             }
@@ -61,13 +61,13 @@ public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             double reach = standEntity.getAttributeValue(ForgeMod.REACH_DISTANCE.get());
             world.getEntities(standEntity, standEntity.getBoundingBox().inflate(reach, 0, reach), 
                     e -> !e.isSpectator() && e.isPickable() && standEntity.canHarm(e)).forEach(targetEntity -> {
-                        Vector3d standLookVec = standEntity.getLookAngle();
-                        Vector3d targetVec = targetEntity.position().subtract(standEntity.position()).normalize();
+                        Vec3 standLookVec = standEntity.getLookAngle();
+                        Vec3 targetVec = targetEntity.position().subtract(standEntity.position()).normalize();
                         double cos = standLookVec.dot(targetVec);
                         if (cos > -0.5) {
                             StandEntityPunch slash = punchEntity(standEntity, targetEntity, standEntity.getDamageSource());
@@ -93,7 +93,7 @@ public class SilverChariotSweepingAttack extends StandEntityHeavyAttack {
     }
     
     @Override
-    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide() && task.getTick() == 0
                 && standEntity instanceof SilverChariotEntity) {
             SilverChariotEntity chariot = (SilverChariotEntity) standEntity;

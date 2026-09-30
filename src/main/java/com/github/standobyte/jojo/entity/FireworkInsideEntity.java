@@ -5,26 +5,26 @@ import java.util.UUID;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraftforge.network.NetworkHooks;
 
 public class FireworkInsideEntity extends FireworkRocketEntity {
     private Entity entityInsideOf;
     private UUID entityInsideOfUUID;
 
-    public FireworkInsideEntity(EntityType<? extends FireworkRocketEntity> type, World world) {
+    public FireworkInsideEntity(EntityType<? extends FireworkRocketEntity> type, Level world) {
         super(type, world);
     }
 
-    public FireworkInsideEntity(World world, ItemStack item, LivingEntity entity) {
+    public FireworkInsideEntity(Level world, ItemStack item, LivingEntity entity) {
         super(ModEntityTypes.FIREWORK_INSIDE.get(), world);
         this.setPos(entity.getX(), entity.getY(0.5), entity.getZ());
         entity.startRiding(this, true);
@@ -58,7 +58,7 @@ public class FireworkInsideEntity extends FireworkRocketEntity {
     public void tick() {
         if (!level.isClientSide()) {
             if (entityInsideOf == null) {
-                entityInsideOf = ((ServerWorld) level).getEntity(entityInsideOfUUID);
+                entityInsideOf = ((ServerLevel) level).getEntity(entityInsideOfUUID);
             }
             // FIXME dismount prevention
             if (entityInsideOf != null && !this.is(entityInsideOf.getVehicle())) {
@@ -79,12 +79,12 @@ public class FireworkInsideEntity extends FireworkRocketEntity {
     }
     
     @Override
-    protected ITextComponent getTypeName() {
+    protected Component getTypeName() {
         return EntityType.FIREWORK_ROCKET.getDescription();
     }
     
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

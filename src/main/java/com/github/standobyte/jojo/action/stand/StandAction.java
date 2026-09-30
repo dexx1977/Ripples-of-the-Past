@@ -32,15 +32,14 @@ import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance.StandPart;
 import com.github.standobyte.jojo.util.general.ObjectWrapper;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public abstract class StandAction extends Action<IStandPower> {
     protected final int resolveLevelToUnlock;
@@ -207,7 +206,7 @@ public abstract class StandAction extends Action<IStandPower> {
     public ActionConditionResult checkConditions(LivingEntity user, IStandPower power, ActionTarget target) {
         for (StandPart part : partsRequired) {
             if (power.hasPower() && !power.getStandInstance().get().hasPart(part)) {
-                ITextComponent message = new TranslationTextComponent("jojo.message.action_condition.no_stand_part." + part.name().toLowerCase());
+                Component message = Component.translatable("jojo.message.action_condition.no_stand_part." + part.name().toLowerCase());
                 return ActionConditionResult.createNegative(message);
             }
         }
@@ -247,12 +246,12 @@ public abstract class StandAction extends Action<IStandPower> {
     }
     
     @Override
-    public void onPerform(World world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void onPerform(Level world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         consumeStamina(world, power);
         super.onPerform(world, user, power, target, extraInput);
     }
     
-    protected void consumeStamina(World world, IStandPower power) {
+    protected void consumeStamina(Level world, IStandPower power) {
         if (!world.isClientSide()) {
             power.consumeStamina(getStaminaCost(power));
         }
@@ -260,7 +259,7 @@ public abstract class StandAction extends Action<IStandPower> {
     
     
     @Override
-    public void onClick(World world, LivingEntity user, IStandPower power) {
+    public void onClick(Level world, LivingEntity user, IStandPower power) {
         if (!world.isClientSide() && !power.isActive() && autoSummonStand(power)) {
             power.getType().summon(user, power, true);
         }
@@ -282,10 +281,10 @@ public abstract class StandAction extends Action<IStandPower> {
     public void passivelyOnNewDay(LivingEntity user, IStandPower power, long prevDay, long day) {}
     
     @Override
-    public IFormattableTextComponent getNameLocked(IStandPower power) {
+    public MutableComponent getNameLocked(IStandPower power) {
         if (resolveLevelToUnlock > power.getResolveLevel()) {
-            return new TranslationTextComponent("jojo.layout_edit.locked.stand", 
-                    new TranslationTextComponent("jojo.layout_edit.locked.stand.resolve").withStyle(ClientUtil.textColor(ModStatusEffects.RESOLVE.get().getColor())), 
+            return Component.translatable("jojo.layout_edit.locked.stand", 
+                    Component.translatable("jojo.layout_edit.locked.stand.resolve").withStyle(ClientUtil.textColor(ModStatusEffects.RESOLVE.get().getColor())), 
                     (int) resolveLevelToUnlock);
         }
         return super.getNameLocked(power);
@@ -303,17 +302,17 @@ public abstract class StandAction extends Action<IStandPower> {
     
     
     // TODO use this for CrazyDiamondBlockBullet (save the reference to the blood drops effect in StandEntityTask)
-    protected static void clWriteTargetedStandEffect(PacketBuffer buf, StandEffectType<?> type, double maxRange) {
+    protected static void clWriteTargetedStandEffect(FriendlyByteBuf buf, StandEffectType<?> type, double maxRange) {
         buf.writeVarInt(clGetTargetedStandEffect(type, maxRange).map(effect -> effect.getId()).orElse(-1));
     }
     
     protected static Optional<StandEffectInstance> clGetTargetedStandEffect(StandEffectType<?> type, double maxRange) {
-        PlayerEntity user = ClientUtil.getClientPlayer();
+        Player user = ClientUtil.getClientPlayer();
         return IStandPower.getStandPowerOptional(user).resolve().flatMap(
                 power -> StandEffectsTracker.getTargetLookedAt(power, type, maxRange, user));
     }
     
-    protected static Optional<StandEffectInstance> readTargetedStandEffect(PacketBuffer buf, IStandPower power, StandEffectType<?> type) {
+    protected static Optional<StandEffectInstance> readTargetedStandEffect(FriendlyByteBuf buf, IStandPower power, StandEffectType<?> type) {
         int effectId = buf.readVarInt();
         if (effectId > 0) {
             StandEffectInstance effect = power.getContinuousEffects().getById(effectId);
@@ -392,7 +391,7 @@ public abstract class StandAction extends Action<IStandPower> {
         }
         
         public T cooldown(int technical, int additional, float resolveCooldownMultiplier) {
-            this.resolveCooldownMultiplier = MathHelper.clamp(resolveCooldownMultiplier, 0, 1);
+            this.resolveCooldownMultiplier = Mth.clamp(resolveCooldownMultiplier, 0, 1);
             return super.cooldown(technical, additional);
         }
         

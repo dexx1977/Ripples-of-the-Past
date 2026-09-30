@@ -4,20 +4,20 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.client.controls.ActionKeybindEntry;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraftforge.client.settings.KeyModifier;
 
 public class SelectedKey {
     private ActionKeybindEntry customActionKeybind;
-    private KeyBinding registeredKeybind;
+    private KeyMapping registeredKeybind;
     
     void setKeybind(ActionKeybindEntry customActionKeybind) {
         this.customActionKeybind = customActionKeybind;
         this.registeredKeybind = null;
     }
     
-    void setKeybind(KeyBinding registeredKeybind) {
+    void setKeybind(KeyMapping registeredKeybind) {
         this.customActionKeybind = null;
         this.registeredKeybind = registeredKeybind;
     }
@@ -31,7 +31,7 @@ public class SelectedKey {
         return getKeybind() == null;
     }
     
-    void setKeyModifierAndCode(KeyModifier keyModifier, InputMappings.Input keyCode) {
+    void setKeyModifierAndCode(KeyModifier keyModifier, InputConstants.Input keyCode) {
         if (customActionKeybind != null) {
             customActionKeybind.setKeyModifierAndCode(keyModifier, keyCode);
         }
@@ -46,7 +46,7 @@ public class SelectedKey {
     }
     
     @Nullable
-    KeyBinding getKeybind() {
+    KeyMapping getKeybind() {
         if (customActionKeybind != null) {
             return customActionKeybind.getKeybind();
         }

@@ -2,14 +2,14 @@ package com.github.standobyte.jojo.advancements.criterion;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.EntityPredicate.AndPredicate;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.resources.ResourceLocation;
 
-public class UnconditionalTrigger extends AbstractCriterionTrigger<UnconditionalTrigger.Instance> {
+public class UnconditionalTrigger extends SimpleCriterionTrigger<UnconditionalTrigger.Instance> {
     private final ResourceLocation id;
 
     public UnconditionalTrigger(ResourceLocation id) {
@@ -21,20 +21,20 @@ public class UnconditionalTrigger extends AbstractCriterionTrigger<Unconditional
         return id;
     }
 
-    public void trigger(ServerPlayerEntity player) {
+    public void trigger(ServerPlayer player) {
         trigger(player, (criterion) -> {
             return true;
         });
     }
 
     @Override
-    public UnconditionalTrigger.Instance createInstance(JsonObject json, AndPredicate playerPredicate,
-            ConditionArrayParser conditionArrayParser) {
+    public UnconditionalTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate,
+            DeserializationContext conditionArrayParser) {
         return new UnconditionalTrigger.Instance(id, playerPredicate);
     }
 
-    public static class Instance extends CriterionInstance {
-        public Instance(ResourceLocation criterion, AndPredicate player) {
+    public static class Instance extends AbstractCriterionTriggerInstance {
+        public Instance(ResourceLocation criterion, ContextAwarePredicate player) {
             super(criterion, player);
         }
     }

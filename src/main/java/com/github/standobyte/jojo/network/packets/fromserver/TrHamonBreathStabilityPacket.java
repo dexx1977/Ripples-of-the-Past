@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonBreathStabilityPacket {
     private final int entityId;
@@ -28,14 +28,14 @@ public class TrHamonBreathStabilityPacket {
     public static class Handler implements IModPacketHandler<TrHamonBreathStabilityPacket> {
 
         @Override
-        public void encode(TrHamonBreathStabilityPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonBreathStabilityPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeFloat(msg.breathStability);
             buf.writeVarInt(msg.noIncTicks);
         }
 
         @Override
-        public TrHamonBreathStabilityPacket decode(PacketBuffer buf) {
+        public TrHamonBreathStabilityPacket decode(FriendlyByteBuf buf) {
             return new TrHamonBreathStabilityPacket(buf.readInt(), buf.readFloat(), buf.readVarInt());
         }
 

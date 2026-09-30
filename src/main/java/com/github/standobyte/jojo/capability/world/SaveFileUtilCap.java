@@ -20,15 +20,16 @@ import com.github.standobyte.jojo.network.packets.fromserver.ServerIdPacket;
 import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 public class SaveFileUtilCap {
-    private final ServerWorld overworld;
+    private final ServerLevel overworld;
 
     private UUID serverId;
     
@@ -48,7 +49,7 @@ public class SaveFileUtilCap {
     
     private SidedItemTrackerMap itemsTracker = new SidedItemTrackerMap();
     
-    public SaveFileUtilCap(ServerWorld overworld) {
+    public SaveFileUtilCap(ServerLevel overworld) {
         this.overworld = overworld;
         if (!overworld.isClientSide()) {
             this.serverId = UUID.randomUUID();
@@ -73,7 +74,7 @@ public class SaveFileUtilCap {
         }
     }
     
-    public void onPlayerLogIn(ServerPlayerEntity player) {
+    public void onPlayerLogIn(ServerPlayer player) {
         PacketManager.sendToClient(new ServerIdPacket(serverId), player);
     }
     
@@ -138,7 +139,7 @@ public class SaveFileUtilCap {
     
     
     
-    public void setTimeStopGamerules(ServerWorld world) {
+    public void setTimeStopGamerules(ServerLevel world) {
         if (noTimeStopInstances(world)) {
             GameRules gameRules = overworld.getGameRules();
             MinecraftServer server = overworld.getServer();
@@ -150,7 +151,7 @@ public class SaveFileUtilCap {
         }
     }
     
-    public void restoreTimeStopGamerules(ServerWorld world) {
+    public void restoreTimeStopGamerules(ServerLevel world) {
         if (usedTimeStop && noTimeStopInstances(world)) {
             GameRules gameRules = overworld.getGameRules();
             MinecraftServer server = overworld.getServer();
@@ -160,9 +161,9 @@ public class SaveFileUtilCap {
         }
     }
     
-    private boolean noTimeStopInstances(@Nullable ServerWorld except) {
+    private boolean noTimeStopInstances(@Nullable ServerLevel except) {
         MinecraftServer server = overworld.getServer();
-        for (ServerWorld world : server.getAllLevels()) {
+        for (ServerLevel world : server.getAllLevels()) {
             if (world != except && world.getCapability(WorldUtilCapProvider.CAPABILITY)
                     .map(cap -> cap.getTimeStopHandler().hasTimeStopInstances()).orElse(false)) {
                 return false;
@@ -194,11 +195,11 @@ public class SaveFileUtilCap {
     
     
     
-    CompoundNBT save() {
-        CompoundNBT nbt = new CompoundNBT();
+    CompoundTag save() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putUUID("ServerId", serverId);
         
-        CompoundNBT timesStandsTakenMap = new CompoundNBT();
+        CompoundTag timesStandsTakenMap = new CompoundTag();
         for (Map.Entry<StandType<?>, Integer> entry : timesStandsTaken.entrySet()) {
             timesStandsTakenMap.putInt(JojoCustomRegistries.STANDS.getKeyAsString(entry.getKey()), entry.getValue());
         }
@@ -214,14 +215,14 @@ public class SaveFileUtilCap {
         return nbt;
     }
     
-    void load(CompoundNBT nbt) {
+    void load(CompoundTag nbt) {
         if (nbt.hasUUID("ServerId")) {
             serverId = nbt.getUUID("ServerId");
         }
         
         if (nbt.contains("StandsTaken", 10)) {
             Map<StandType<?>, Integer> stands = new HashMap<>();
-            CompoundNBT timesStandsTakenNBT = nbt.getCompound("StandsTaken");
+            CompoundTag timesStandsTakenNBT = nbt.getCompound("StandsTaken");
             JojoCustomRegistries.STANDS.getRegistry().forEach(stand -> {
                 int timesTaken = timesStandsTakenNBT.getInt(JojoCustomRegistries.STANDS.getKeyAsString(stand));
                 if (timesTaken > 0) {
@@ -237,7 +238,7 @@ public class SaveFileUtilCap {
         gameruleWeatherCycle = nbt.getBoolean("GameruleWeatherCycle");
         walkmanId = nbt.getInt("WalkmanId");
         cassetteId = nbt.getInt("CassetteId");
-        if (nbt.contains("PolaroidPhotos", Constants.NBT.TAG_COMPOUND)) polaroidPhotos.fromNBT(nbt.getCompound("PolaroidPhotos"));
+        if (nbt.contains("PolaroidPhotos", Tag.TAG_COMPOUND)) polaroidPhotos.fromNBT(nbt.getCompound("PolaroidPhotos"));
         int latestId = nbt.getInt("StandEffId");
         if (latestId < (1 << 30)) {
             StandEffectsTracker.EFFECTS_COUNTER.set(latestId);

@@ -10,12 +10,12 @@ import com.github.standobyte.jojo.client.render.entity.renderer.stand.layer.Silv
 import com.github.standobyte.jojo.client.render.entity.renderer.stand.layer.StandLayerGlowLayer;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.resources.ResourceLocation;
 
 public class SilverChariotRenderer extends StandEntityRenderer<SilverChariotEntity, StandEntityModel<SilverChariotEntity>> {
     
-    public SilverChariotRenderer(EntityRendererManager renderManager) {
+    public SilverChariotRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager, 
                 StandModelRegistry.registerModel(new ResourceLocation(JojoMod.MOD_ID, "silver_chariot"), SilverChariotModel::new), 
                 new ResourceLocation(JojoMod.MOD_ID, "textures/entity/stand/silver_chariot.png"), 0);

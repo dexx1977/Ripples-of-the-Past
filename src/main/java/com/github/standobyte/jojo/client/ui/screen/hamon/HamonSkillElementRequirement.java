@@ -1,9 +1,9 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
 
 public class HamonSkillElementRequirement extends HamonSkillGuiElement {
 
@@ -12,9 +12,9 @@ public class HamonSkillElementRequirement extends HamonSkillGuiElement {
     }
 
     @Override
-    void drawTooltip(HamonScreen hamonScreen, MatrixStack matrixStack, int mouseX, int mouseY) {
+    void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
         hamonScreen.renderTooltip(matrixStack, 
-                name.withStyle(hamonScreen.hamon.isSkillLearned(getHamonSkill()) ? TextFormatting.GREEN : TextFormatting.RED), 
+                name.withStyle(hamonScreen.hamon.isSkillLearned(getHamonSkill()) ? ChatFormatting.GREEN : ChatFormatting.RED), 
                 mouseX, mouseY);
     }
 }

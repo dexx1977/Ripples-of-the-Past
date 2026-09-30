@@ -11,10 +11,10 @@ import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrackedItemPacket {
     private final UUID trackerId;
@@ -46,7 +46,7 @@ public class TrackedItemPacket {
     public static class Handler implements IModPacketHandler<TrackedItemPacket> {
 
         @Override
-        public void encode(TrackedItemPacket msg, PacketBuffer buf) {
+        public void encode(TrackedItemPacket msg, FriendlyByteBuf buf) {
             buf.writeUUID(msg.trackerId);
             buf.writeItem(msg.itemStack);
             NetworkUtil.writeOptionalInt(buf, msg.entityId, false);
@@ -54,7 +54,7 @@ public class TrackedItemPacket {
         }
 
         @Override
-        public TrackedItemPacket decode(PacketBuffer buf) {
+        public TrackedItemPacket decode(FriendlyByteBuf buf) {
             TrackedItemPacket packet = new TrackedItemPacket(
                     buf.readUUID(), 
                     buf.readItem(),

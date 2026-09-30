@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import com.github.standobyte.jojo.JojoModConfig;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ResetSyncedCommonConfigPacket {
     
@@ -18,11 +18,11 @@ public class ResetSyncedCommonConfigPacket {
     public static class Handler implements IModPacketHandler<ResetSyncedCommonConfigPacket> {
 
         @Override
-        public void encode(ResetSyncedCommonConfigPacket msg, PacketBuffer buf) {
+        public void encode(ResetSyncedCommonConfigPacket msg, FriendlyByteBuf buf) {
         }
 
         @Override
-        public ResetSyncedCommonConfigPacket decode(PacketBuffer buf) {
+        public ResetSyncedCommonConfigPacket decode(FriendlyByteBuf buf) {
             return new ResetSyncedCommonConfigPacket();
         }
 

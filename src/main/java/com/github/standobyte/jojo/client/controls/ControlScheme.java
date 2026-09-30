@@ -18,10 +18,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
 
 public class ControlScheme {
     public static final ControlScheme EMPTY = new ControlSchemeEmpty();
@@ -71,7 +71,7 @@ public class ControlScheme {
             obj.hotbars.get(hotbar).fromJson(hotbarJson);
         }
         
-        obj.hotbarsEnabled = JSONUtils.getAsBoolean(jsonObj, "hotbarsEnabled", obj.hotbarsEnabled);
+        obj.hotbarsEnabled = GsonHelper.getAsBoolean(jsonObj, "hotbarsEnabled", obj.hotbarsEnabled);
         
         
         return obj;
@@ -275,14 +275,14 @@ public class ControlScheme {
     }
     
     public ActionKeybindEntry addBlankKeybindEntry() {
-        return addKeybindEntry(new ActionKeybindEntry(new ResourceLocation("blank"), InputMappings.Type.KEYSYM, -1));
+        return addKeybindEntry(new ActionKeybindEntry(new ResourceLocation("blank"), InputConstants.Type.KEYSYM, -1));
     }
     
     public ActionKeybindEntry addKeybindEntry(Action<?> action, int key) {
-        return addKeybindEntry(action, InputMappings.Type.KEYSYM, key);
+        return addKeybindEntry(action, InputConstants.Type.KEYSYM, key);
     }
     
-    public ActionKeybindEntry addKeybindEntry(Action<?> action, InputMappings.Type inputType, int key) {
+    public ActionKeybindEntry addKeybindEntry(Action<?> action, InputConstants.Type inputType, int key) {
         return addKeybindEntry(new ActionKeybindEntry(action, inputType, key));
     }
     

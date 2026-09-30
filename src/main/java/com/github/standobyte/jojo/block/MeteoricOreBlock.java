@@ -9,23 +9,23 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.OreBlock;
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
-public class MeteoricOreBlock extends OreBlock {
+public class MeteoricOreBlock extends DropExperienceBlock {
 
     public MeteoricOreBlock(Properties properties) {
         super(properties);
@@ -38,16 +38,16 @@ public class MeteoricOreBlock extends OreBlock {
 
     @Override
     protected int xpOnDrop(Random rand) {
-        return MathHelper.nextInt(rand, 6, 10);
+        return Mth.nextInt(rand, 6, 10);
     }
 
     @Override
-    public void tick(BlockState state, ServerWorld world, BlockPos pos, Random rand) {
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, Random rand) {
         double x = pos.getX();
         double y = pos.getY();
         double z = pos.getZ();
-        for (LivingEntity entity : world.getEntitiesOfClass(LivingEntity.class, (new AxisAlignedBB(x, y, z, x, y, z)).inflate(2.0D, 2.0D, 2.0D))) {
-            if (entity.getMobType() != CreatureAttribute.UNDEAD && entity.getHealth() < entity.getMaxHealth() && !isImmuneToMeteoriteStrain(entity)) {
+        for (LivingEntity entity : world.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2.0D, 2.0D, 2.0D))) {
+            if (entity.getMobType() != MobType.UNDEAD && entity.getHealth() < entity.getMaxHealth() && !isImmuneToMeteoriteStrain(entity)) {
                 entity.hurt(DamageUtil.STAND_VIRUS_METEORITE, 4.0F);
             }
         }
@@ -55,7 +55,7 @@ public class MeteoricOreBlock extends OreBlock {
     }
 
     @Override
-    public void animateTick(BlockState state, World world, BlockPos pos, Random random) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, Random random) {
         double d0 = (double)((float)pos.getX() + random.nextFloat() * 4F - 2F);
         double d1 = (double)((float)pos.getY() + random.nextFloat() * 4F - 2F);
         double d2 = (double)((float)pos.getZ() + random.nextFloat() * 4F - 2F);
@@ -64,18 +64,18 @@ public class MeteoricOreBlock extends OreBlock {
 
     @Deprecated
     @Override
-    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, IWorld world, BlockPos currentPos, BlockPos facingPos) {
+    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos currentPos, BlockPos facingPos) {
         world.getBlockTicks().scheduleTick(currentPos, this, 10);
         return super.updateShape(state, facing, facingState, world, currentPos, facingPos);
     }
 
     @Override
-    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         world.getBlockTicks().scheduleTick(pos, this, 10);
     }
 
     @Override
-    public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable TileEntity tileEntity, ItemStack stack) {
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tileEntity, ItemStack stack) {
         super.playerDestroy(world, player, pos, state, tileEntity, stack);
         if (player.getHealth() < player.getMaxHealth() && !isImmuneToMeteoriteStrain(player)) {
             player.hurt(DamageUtil.STAND_VIRUS_METEORITE, 10.0F);

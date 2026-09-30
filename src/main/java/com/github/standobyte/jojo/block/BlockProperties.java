@@ -1,13 +1,13 @@
 package com.github.standobyte.jojo.block;
 
-import net.minecraft.state.EnumProperty;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.util.StringRepresentable;
 
 public class BlockProperties {
 
     public static final EnumProperty<HorizontalHalf> TABLE_HALF = EnumProperty.create("jojo_table_half", HorizontalHalf.class);
     
-    public enum HorizontalHalf implements IStringSerializable {
+    public enum HorizontalHalf implements StringRepresentable {
         LEFT("left"),
         RIGHT("right");
         

@@ -2,19 +2,19 @@ package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projec
 
 import com.github.standobyte.jojo.client.render.entity.model.projectile.MRCrossfireHurricaneModel;
 import com.github.standobyte.jojo.entity.damaging.projectile.MRCrossfireHurricaneEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 
 public class MRCrossfireHurricaneSpecialRenderer extends MRCrossfireHurricaneRenderer {
 
-    public MRCrossfireHurricaneSpecialRenderer(EntityRendererManager renderManager) {
+    public MRCrossfireHurricaneSpecialRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
     
     @Override
-    protected void renderModel(MRCrossfireHurricaneEntity entity, MRCrossfireHurricaneModel model, float partialTick, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int packedLight) {
+    protected void renderModel(MRCrossfireHurricaneEntity entity, MRCrossfireHurricaneModel model, float partialTick, PoseStack matrixStack, VertexConsumer vertexBuilder, int packedLight) {
         matrixStack.pushPose();
         matrixStack.scale(0.5F, 0.5F, 0.5F);
         super.renderModel(entity, model, partialTick, matrixStack, vertexBuilder, packedLight);

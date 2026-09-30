@@ -3,32 +3,32 @@ package com.github.standobyte.jojo.entity.damaging;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class LightBeamEntity extends DamagingEntity {
-    protected RayTraceResult target;
+    protected HitResult target;
     protected float length;
     protected float damage;
 
-    public LightBeamEntity(EntityType<? extends LightBeamEntity> entityType, LivingEntity shooter, World world) {
+    public LightBeamEntity(EntityType<? extends LightBeamEntity> entityType, LivingEntity shooter, Level world) {
         super(entityType, shooter, world);
     }
 
-    public LightBeamEntity(EntityType<? extends LightBeamEntity> entityType, World world) {
+    public LightBeamEntity(EntityType<? extends LightBeamEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -38,15 +38,15 @@ public class LightBeamEntity extends DamagingEntity {
         LivingEntity shooter = getOwner();
         if (shooter != null) {
             target = rayTrace()[0];
-            if (target.getType() != RayTraceResult.Type.MISS) {
-                length = MathHelper.sqrt(shooter.distanceToSqr(target.getLocation()));
+            if (target.getType() != HitResult.Type.MISS) {
+                length = Mth.sqrt(shooter.distanceToSqr(target.getLocation()));
             }
         }
     }
 
     @Override
-    public RayTraceResult[] rayTrace() {
-        return new RayTraceResult[] { JojoModUtil.rayTrace(this, length, e -> e != getOwner()) };
+    public HitResult[] rayTrace() {
+        return new HitResult[] { JojoModUtil.rayTrace(this, length, e -> e != getOwner()) };
     }
     
     @Override
@@ -58,7 +58,7 @@ public class LightBeamEntity extends DamagingEntity {
     }
     
     @Override
-    protected void onHitEntity(EntityRayTraceResult entityRayTraceResult) {
+    protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         if (!level.isClientSide()) {
             Entity target = entityRayTraceResult.getEntity();
             target.setSecondsOnFire((int) damage / 2);
@@ -69,11 +69,11 @@ public class LightBeamEntity extends DamagingEntity {
     }
 
     @Override
-    protected void onHitBlock(BlockRayTraceResult blockRayTraceResult) {
+    protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         if (!level.isClientSide()) {
             BlockPos blockPos = blockRayTraceResult.getBlockPos().relative(blockRayTraceResult.getDirection());
             if (level.isEmptyBlock(blockPos)) {
-                level.setBlockAndUpdate(blockPos, AbstractFireBlock.getState(level, blockPos));
+                level.setBlockAndUpdate(blockPos, BaseFireBlock.getState(level, blockPos));
             }
         }
     }
@@ -99,7 +99,7 @@ public class LightBeamEntity extends DamagingEntity {
     }
     
     @Override
-    public AxisAlignedBB getBoundingBoxForCulling() {
+    public AABB getBoundingBoxForCulling() {
         return getBoundingBox().expandTowards(getEndPoint().subtract(position()));
     }
 
@@ -108,8 +108,8 @@ public class LightBeamEntity extends DamagingEntity {
         return super.shouldRenderAtSqrDistance(distance - length * length);
     }
     
-    public Vector3d getEndPoint() {
-        return position().add(Vector3d.directionFromRotation(xRot, yRot).scale(length));
+    public Vec3 getEndPoint() {
+        return position().add(Vec3.directionFromRotation(xRot, yRot).scale(length));
     }
     
     public float getLength() {
@@ -117,28 +117,28 @@ public class LightBeamEntity extends DamagingEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Length", length);
         nbt.putFloat("Damage", damage);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         damage = nbt.getFloat("Damage");
         length = nbt.getFloat("Length");
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeFloat(length);
         buffer.writeFloat(damage);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         length = additionalData.readFloat();
         damage = additionalData.readFloat();

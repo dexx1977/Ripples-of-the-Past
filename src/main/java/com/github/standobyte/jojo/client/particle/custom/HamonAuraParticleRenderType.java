@@ -6,18 +6,18 @@ import com.github.standobyte.jojo.client.ClientModSettings;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.particle.ParticleRenderType;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
 /*
  *  Thanks to desht from TeamPneumatic
  *  https://github.com/TeamPneumatic/pnc-repressurized/blob/9f722043d49d248222e0117a7eea6afef75af069/src/main/java/me/desht/pneumaticcraft/client/particle/AirParticle.java#L107
  */
-public class HamonAuraParticleRenderType implements IParticleRenderType {
+public class HamonAuraParticleRenderType implements ParticleRenderType {
     public static final HamonAuraParticleRenderType HAMON_AURA = new HamonAuraParticleRenderType();
     
     protected HamonAuraParticleRenderType() {}
@@ -31,19 +31,19 @@ public class HamonAuraParticleRenderType implements IParticleRenderType {
         RenderSystem.alphaFunc(GL11.GL_GREATER, 0.003921569F);
         RenderSystem.disableLighting();
 
-        textureManager.bind(AtlasTexture.LOCATION_PARTICLES);
+        textureManager.bind(TextureAtlas.LOCATION_PARTICLES);
         if (ClientModSettings.getSettingsReadOnly().hamonAuraBlur) {
-            textureManager.getTexture(AtlasTexture.LOCATION_PARTICLES).setBlurMipmap(true, false);
+            textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).setBlurMipmap(true, false);
         }
-        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.PARTICLE);
+        bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.PARTICLE);
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public void end(Tessellator tessellator) {
+    public void end(Tesselator tessellator) {
         tessellator.end();
 
-        Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_PARTICLES).restoreLastBlurMipmap();
+        Minecraft.getInstance().textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).restoreLastBlurMipmap();
         RenderSystem.alphaFunc(GL11.GL_GREATER, 0.1F);
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);

@@ -2,43 +2,43 @@ package com.github.standobyte.jojo.client.render.entity.pose;
 
 import com.github.standobyte.jojo.util.general.MathUtil;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.Mth;
 
 public class RotationAngle {
-    public final ModelRenderer modelRenderer;
+    public final ModelPart modelRenderer;
     public final float angleX;
     public final float angleY;
     public final float angleZ;
     public boolean wrapDegrees = true;
     
-    public RotationAngle(ModelRenderer modelRenderer, float angleX, float angleY, float angleZ) {
+    public RotationAngle(ModelPart modelRenderer, float angleX, float angleY, float angleZ) {
         this.modelRenderer = modelRenderer;
         this.angleX = angleX;
         this.angleY = angleY;
         this.angleZ = angleZ;
     }
     
-    public static RotationAngle fromDegrees(ModelRenderer modelRenderer, float angleX, float angleY, float angleZ) {
+    public static RotationAngle fromDegrees(ModelPart modelRenderer, float angleX, float angleY, float angleZ) {
         return new RotationAngle(modelRenderer, angleX * MathUtil.DEG_TO_RAD, angleY * MathUtil.DEG_TO_RAD, angleZ * MathUtil.DEG_TO_RAD);
     }
     
     // in case you apply the rotations to the model on the Edit tab
     // if you do it on the Animate tab, use RotationAngle.fromDegrees
-    public static RotationAngle blockbenchRotationAngle(ModelRenderer modelRenderer, float angleX, float angleY, float angleZ) {
+    public static RotationAngle blockbenchRotationAngle(ModelPart modelRenderer, float angleX, float angleY, float angleZ) {
         return fromDegrees(modelRenderer, -angleX, -angleY, angleZ);
     }
     
     
     
-    public RotationAngle(ModelRenderer modelRenderer, double angleX, double angleY, double angleZ) {
+    public RotationAngle(ModelPart modelRenderer, double angleX, double angleY, double angleZ) {
         this(modelRenderer, (float) angleX, (float) angleY, (float) angleZ);
     }
     
-    public static RotationAngle fromDegrees(ModelRenderer modelRenderer, double angleX, double angleY, double angleZ) {
+    public static RotationAngle fromDegrees(ModelPart modelRenderer, double angleX, double angleY, double angleZ) {
         return fromDegrees(modelRenderer, (float) angleX, (float) angleY, (float) angleZ);
     }
-    public static RotationAngle blockbenchRotationAngle(ModelRenderer modelRenderer, double angleX, double angleY, double angleZ) {
+    public static RotationAngle blockbenchRotationAngle(ModelPart modelRenderer, double angleX, double angleY, double angleZ) {
         return blockbenchRotationAngle(modelRenderer, (float) angleX, (float) angleY, (float) angleZ);
     }
     
@@ -57,7 +57,7 @@ public class RotationAngle {
     }
     
     private TernaryOperator<Float> getLerp() {
-        return wrapDegrees ? MathUtil::rotLerpRad : MathHelper::lerp;
+        return wrapDegrees ? MathUtil::rotLerpRad : Mth::lerp;
     }
     
     private static interface TernaryOperator<T> {

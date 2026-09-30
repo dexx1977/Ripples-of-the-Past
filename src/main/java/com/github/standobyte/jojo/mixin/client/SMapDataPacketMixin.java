@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.util.mc.CustomTargetIconMap;
 
-import net.minecraft.network.play.server.SMapDataPacket;
-import net.minecraft.world.storage.MapDecoration;
+import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
 
-@Mixin(SMapDataPacket.class)
+@Mixin(ClientboundMapItemDataPacket.class)
 public class SMapDataPacketMixin {
     @Shadow private MapDecoration[] decorations;
 

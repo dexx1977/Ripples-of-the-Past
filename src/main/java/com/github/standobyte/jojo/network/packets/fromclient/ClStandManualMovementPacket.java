@@ -12,12 +12,12 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClStandManualMovementPacket {
     private final double x;
@@ -41,7 +41,7 @@ public class ClStandManualMovementPacket {
     public static class Handler implements IModPacketHandler<ClStandManualMovementPacket> {
     
         @Override
-        public void encode(ClStandManualMovementPacket msg, PacketBuffer buf) {
+        public void encode(ClStandManualMovementPacket msg, FriendlyByteBuf buf) {
             buf.writeDouble(msg.x);
             buf.writeDouble(msg.y);
             buf.writeDouble(msg.z);
@@ -51,16 +51,16 @@ public class ClStandManualMovementPacket {
         }
 
         @Override
-        public ClStandManualMovementPacket decode(PacketBuffer buf) {
+        public ClStandManualMovementPacket decode(FriendlyByteBuf buf) {
             return new ClStandManualMovementPacket(buf.readDouble(), buf.readDouble(), buf.readDouble(), 
                     buf.readFloat(), buf.readFloat(), buf.readBoolean());
         }
 
         @Override
         public void handle(ClStandManualMovementPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayerEntity player = ctx.get().getSender();
+            ServerPlayer player = ctx.get().getSender();
             if (!isValid(msg)) {
-                player.connection.disconnect(new TranslationTextComponent("multiplayer.disconnect.invalid_stand_movement"));
+                player.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_stand_movement"));
             }
             IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                 IStandManifestation standManifestation = power.getStandManifestation();
@@ -92,7 +92,7 @@ public class ClStandManualMovementPacket {
 //                    diffX = posXcl - lastGoodX;
 //                    diffY = posYcl - lastGoodY;
 //                    diffZ = posZcl - lastGoodZ;
-                    stand.move(MoverType.PLAYER, new Vector3d(diffX, diffY, diffZ)); // also moves the stand towards user if the client tries to go to far away
+                    stand.move(MoverType.PLAYER, new Vec3(diffX, diffY, diffZ)); // also moves the stand towards user if the client tries to go to far away
 //                    diffX = posXcl - entity.getX();
 //                    diffY = posYcl - entity.getY();
 //                    if (diffY > -0.5D || diffY < 0.5D) {
@@ -116,7 +116,7 @@ public class ClStandManualMovementPacket {
 //                    lastGoodY = stand.getY();
 //                    lastGoodZ = stand.getZ();
                     if (msg.resetDeltaMovement) {
-                        stand.setDeltaMovement(Vector3d.ZERO);
+                        stand.setDeltaMovement(Vec3.ZERO);
                     }
                 }
             });

@@ -25,19 +25,19 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.SortedMultiset;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.FloatNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.Mth;
 
 public class ResolveCounter {
     public static final float RESOLVE_DMG_REDUCTION = 0.6667F;
@@ -63,7 +63,7 @@ public class ResolveCounter {
     protected static final float BOOST_PER_CHARACTER = 0.05F;
     
     protected final IStandPower stand;
-    protected final Optional<ServerPlayerEntity> serverPlayerUser;
+    protected final Optional<ServerPlayer> serverPlayerUser;
     
     protected float resolve = 0;
     protected float prevTickResolve;
@@ -87,7 +87,7 @@ public class ResolveCounter {
     public ResolveCounter(IStandPower stand) {
         this.stand = stand;
         LivingEntity standUser = stand.getUser();
-        this.serverPlayerUser = standUser instanceof ServerPlayerEntity ? Optional.of((ServerPlayerEntity) standUser) : Optional.empty();
+        this.serverPlayerUser = standUser instanceof ServerPlayer ? Optional.of((ServerPlayer) standUser) : Optional.empty();
         this.clientSide = standUser.level.isClientSide();
     }
 
@@ -100,7 +100,7 @@ public class ResolveCounter {
         prevTickResolve = resolve;
         LivingEntity user = stand.getUser();
         if (user != null && user.hasEffect(ModStatusEffects.RESOLVE.get())) {
-            EffectInstance effect = user.getEffect(ModStatusEffects.RESOLVE.get());
+            MobEffectInstance effect = user.getEffect(ModStatusEffects.RESOLVE.get());
             if (effect.getAmplifier() < RESOLVE_EFFECT_MIN.length) {
                 int effectLevel = effect.getAmplifier();
                 if (effectLevel < 0) {
@@ -197,7 +197,7 @@ public class ResolveCounter {
 
 
     public void setResolveValue(float resolve, int noDecayTicks) {
-        resolve = MathHelper.clamp(resolve, 0, getMaxResolveValue());
+        resolve = Mth.clamp(resolve, 0, getMaxResolveValue());
         if (noDecayTicks < 0) {
             noDecayTicks = this.noResolveDecayTicks;
         }
@@ -217,7 +217,7 @@ public class ResolveCounter {
         
         int resolveLevel = getResolveLevel();
         if (resolve == getMaxResolveValue() && stand.getUser() != null && !stand.getUser().level.isClientSide() && !stand.getUser().hasEffect(ModStatusEffects.RESOLVE.get())) {
-            stand.getUser().addEffect(new EffectInstance(ModStatusEffects.RESOLVE.get(), 
+            stand.getUser().addEffect(new MobEffectInstance(ModStatusEffects.RESOLVE.get(), 
                     RESOLVE_EFFECT_MAX[Math.min(resolveLevel, RESOLVE_EFFECT_MAX.length - 1)], resolveLevel, false, 
                     false, true));
         }
@@ -262,8 +262,8 @@ public class ResolveCounter {
         if (hpOnGettingAttacked > -1 && hpOnGettingAttacked < hp) {
             hp = hpOnGettingAttacked;
         }
-        hp = MathHelper.clamp(hp, BOOST_MIN_HP, BOOST_MAX_HP);
-        float boost = MathHelper.clamp((BOOST_MAX_HP - hp) * (BOOST_MISSING_HP_MAX - 1) / (BOOST_MAX_HP - BOOST_MIN_HP) + 1, 0, BOOST_MAX_HP);
+        hp = Mth.clamp(hp, BOOST_MIN_HP, BOOST_MAX_HP);
+        float boost = Mth.clamp((BOOST_MAX_HP - hp) * (BOOST_MISSING_HP_MAX - 1) / (BOOST_MAX_HP - BOOST_MIN_HP) + 1, 0, BOOST_MAX_HP);
         return boost;
     }
     
@@ -295,8 +295,8 @@ public class ResolveCounter {
             if (!user.level.isClientSide() && boostAttack < BOOST_ATTACK_MAX) {
                 float boost = dmgAmount * BOOST_PER_DMG_DEALT;
                 boostAttack = Math.min(boostAttack + boost, BOOST_ATTACK_MAX);
-                if (user instanceof ServerPlayerEntity) {
-                    PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayerEntity) user);
+                if (user instanceof ServerPlayer) {
+                    PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayer) user);
                 }
             }
         }
@@ -311,8 +311,8 @@ public class ResolveCounter {
             }
             hpOnGettingAttacked = hp;
             
-            if (user instanceof ServerPlayerEntity) {
-                PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayerEntity) user);
+            if (user instanceof ServerPlayer) {
+                PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayer) user);
             }
             
             if (dmgAmount >= user.getMaxHealth() * 0.4F) {
@@ -340,8 +340,8 @@ public class ResolveCounter {
             int length = message.length();
             boostChat = Math.min(boostChat + length * BOOST_PER_CHARACTER, BOOST_CHAT_MAX);
             LivingEntity user = stand.getUser();
-            if (user instanceof ServerPlayerEntity) {
-                PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayerEntity) user);
+            if (user instanceof ServerPlayer) {
+                PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), (ServerPlayer) user);
             }
         }
     }
@@ -436,18 +436,18 @@ public class ResolveCounter {
         hpOnGettingAttacked = -1;
     }
 
-    public void syncWithUser(ServerPlayerEntity player) {
+    public void syncWithUser(ServerPlayer player) {
         PacketManager.sendToClient(new MaxAchievedResolvePacket(maxAchievedValue), player);
         PacketManager.sendToClient(new ResolveBoostsPacket(boostAttack, boostRemoteControl, boostChat, hpOnGettingAttacked), player);
     }
 
-    public void syncWithTrackingOrUser(ServerPlayerEntity player) {
+    public void syncWithTrackingOrUser(ServerPlayer player) {
         LivingEntity user = stand.getUser();
         PacketManager.sendToClient(new TrResolveLevelPacket(user.getId(), getResolveLevel()), player);
         PacketManager.sendToClient(new TrResolvePacket(user.getId(), getResolveValue(), noResolveDecayTicks), player);
     }
 
-    public void readNbt(CompoundNBT nbt) {
+    public void readNbt(CompoundTag nbt) {
         resolve = nbt.getFloat("Resolve");
         prevTickResolve = resolve;
         noResolveDecayTicks = nbt.getInt("ResolveTicks");
@@ -457,7 +457,7 @@ public class ResolveCounter {
         boostChat = nbt.getFloat("BoostChat");
         hpOnGettingAttacked = nbt.getFloat("HpOnGettingAttacked");
         
-        if (nbt.contains("Levels", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("Levels", MCUtil.getNbtId(CompoundTag.class))) {
             levels.fromNBT(nbt.getCompound("Levels"));
         }
         
@@ -465,8 +465,8 @@ public class ResolveCounter {
             LegacyUtil.readOldResolveLevels(nbt, levels, stand);
         }
         
-        if (nbt.contains("ResolveRecord", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT listNBT = nbt.getList("ResolveRecord", MCUtil.getNbtId(FloatNBT.class));
+        if (nbt.contains("ResolveRecord", MCUtil.getNbtId(ListTag.class))) {
+            ListTag listNBT = nbt.getList("ResolveRecord", MCUtil.getNbtId(FloatTag.class));
             for (int i = 0; i < listNBT.size(); i++) {
                 this.resolveRecords.add(listNBT.getFloat(i));
             }
@@ -474,8 +474,8 @@ public class ResolveCounter {
         maxAchievedValue = nbt.getFloat("MaxAchieved");
     }
 
-    public CompoundNBT writeNBT() {
-        CompoundNBT resolveNbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag resolveNbt = new CompoundTag();
         resolveNbt.putFloat("Resolve", resolve);
         resolveNbt.putInt("ResolveTicks", noResolveDecayTicks);
         resolveNbt.putBoolean("SaveNextRecord", saveNextRecord);
@@ -486,9 +486,9 @@ public class ResolveCounter {
 
         resolveNbt.put("Levels", levels.toNBT());
         
-        ListNBT recordNbt = new ListNBT();
+        ListTag recordNbt = new ListTag();
         for (float record : resolveRecords.getWrappedSet()) {
-            recordNbt.add(FloatNBT.valueOf(record));
+            recordNbt.add(FloatTag.valueOf(record));
         }
         resolveNbt.put("ResolveRecord", recordNbt);
         resolveNbt.putFloat("MaxAchieved", maxAchievedValue);
@@ -548,7 +548,7 @@ public class ResolveCounter {
         if (!target.isAlive()) {
             return false;
         }
-        if (target.getClassification(false) == EntityClassification.MONSTER || target.getType() == EntityType.PLAYER) {
+        if (target.getClassification(false) == MobCategory.MONSTER || target.getType() == EntityType.PLAYER) {
             return true;
         }
         if (target instanceof LivingEntity) {
@@ -556,11 +556,11 @@ public class ResolveCounter {
             if (livingEntity instanceof StandEntity) {
                 return true;
             }
-            if (livingEntity instanceof MobEntity) {
-                if (livingEntity instanceof MonsterEntity) {
+            if (livingEntity instanceof Mob) {
+                if (livingEntity instanceof Monster) {
                     return true;
                 }
-                MobEntity mobEntity = (MobEntity) livingEntity;
+                Mob mobEntity = (Mob) livingEntity;
                 return mobEntity.isAggressive();
             }
         }

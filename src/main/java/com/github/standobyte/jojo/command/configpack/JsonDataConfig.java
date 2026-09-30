@@ -2,9 +2,9 @@ package com.github.standobyte.jojo.command.configpack;
 
 import com.google.gson.Gson;
 
-import net.minecraft.client.resources.JsonReloadListener;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 
-public abstract class JsonDataConfig extends JsonReloadListener implements IDataConfig {
+public abstract class JsonDataConfig extends SimpleJsonResourceReloadListener implements IDataConfig {
     private final Gson gson;
     
     public JsonDataConfig(String directory) {

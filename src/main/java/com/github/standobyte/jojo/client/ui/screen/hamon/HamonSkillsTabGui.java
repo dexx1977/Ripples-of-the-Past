@@ -25,48 +25,47 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.google.common.collect.Streams;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 @SuppressWarnings("deprecation")
 public abstract class HamonSkillsTabGui extends HamonTabGui {
     public static final ResourceLocation HAMON_SKILLS = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/hamon_window_2.png");
     
-    protected List<IReorderingProcessor> creativeResetButtonTooltip;
+    protected List<FormattedCharSequence> creativeResetButtonTooltip;
     protected final Map<AbstractHamonSkill, HamonSkillElementLearnable> skills = new HashMap<>();
     protected HamonScreenButton learnButton;
     protected HamonScreenButton creativeResetButton;
     @Nullable private HamonSkillElementLearnable selectedSkill = null;
     @Nullable private HamonSkillDescBox selectedSkillDesc = null;
     protected List<HamonSkillGuiElement> skillRequirements = Collections.emptyList();
-    protected List<IReorderingProcessor> skillClosedReason = Collections.emptyList();
+    protected List<FormattedCharSequence> skillClosedReason = Collections.emptyList();
     @Nullable private HamonSkillElementLearnable lastClickedSkill = null;
     private int lastClickDelay;
     
     HamonSkillsTabGui(Minecraft minecraft, HamonScreen screen, String title, int scrollWidth, int scrollHeight) {
         super(minecraft, screen, title, scrollWidth, scrollHeight);
-        creativeResetButtonTooltip = minecraft.font.split(new TranslationTextComponent("hamon.reset_creative_only"), 150);
+        creativeResetButtonTooltip = minecraft.font.split(Component.translatable("hamon.reset_creative_only"), 150);
     }
 
     @Override
     public void addButtons() {
-        addButton(learnButton = new HamonScreenButton(screen.windowPosX() + 150, screen.windowPosY() + 92, 64, 20, new TranslationTextComponent("hamon.learnButton"), button -> {
+        addButton(learnButton = new HamonScreenButton(screen.windowPosX() + 150, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.learnButton"), button -> {
             if (selectedSkill != null) {
                 PacketManager.sendToServer(new ClHamonLearnButtonPacket(selectedSkill.getHamonSkill()));
                 screen.clickedOnSkill = true;
             }
         }));
         
-        addButton(creativeResetButton = new HamonScreenButton(screen.windowPosX() + 16, screen.windowPosY() + 92, 64, 20, new TranslationTextComponent("hamon.resetButton"), button -> {
+        addButton(creativeResetButton = new HamonScreenButton(screen.windowPosX() + 16, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.resetButton"), button -> {
             PacketManager.sendToServer(new ClHamonResetSkillsButtonPacket(getSkillsType()));
         }));
     }
@@ -74,18 +73,18 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     protected abstract HamonSkillsTab getSkillsType();
 
     @Override
-    protected void drawOnBackground(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY) {
+    protected void drawOnBackground(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY) {
         if (selectedSkillDesc != null) {
             selectedSkillDesc.renderBg(matrixStack, intScrollX, intScrollY, mouseX, mouseY);
         }
     }
 
     @Override
-    protected void drawActualContents(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         renderSkillTrees(screen, matrixStack, mouseX, mouseY);
     }
     
-    private void renderSkillTrees(HamonScreen screen, MatrixStack matrixStack, int mouseX, int mouseY) {
+    private void renderSkillTrees(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY) {
         // skill squares
         this.minecraft.getTextureManager().bind(HAMON_SKILLS);
         HamonSkillElementLearnable hovered = null;
@@ -156,7 +155,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
         RenderSystem.disableBlend();
     }
     
-    public static void renderHamonSkillIcon(MatrixStack matrixStack, AbstractHamonSkill skill, int x, int y) {
+    public static void renderHamonSkillIcon(PoseStack matrixStack, AbstractHamonSkill skill, int x, int y) {
         TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
         Minecraft.getInstance().getTextureManager().bind(textureAtlasSprite.atlas().location());
         blit(matrixStack, x, y, 0, 16, 16, textureAtlasSprite);
@@ -167,7 +166,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     }
     
     @Override
-    protected void drawDesc(MatrixStack matrixStack) {
+    protected void drawDesc(PoseStack matrixStack) {
         if (selectedSkill != null) {
             drawSkillDesc(matrixStack);
         }
@@ -176,8 +175,8 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
         }
     }
     
-    protected void drawSkillDesc(MatrixStack matrixStack) {
-        List<IReorderingProcessor> skillName = minecraft.font.split(selectedSkill.name, 120);
+    protected void drawSkillDesc(PoseStack matrixStack) {
+        List<FormattedCharSequence> skillName = minecraft.font.split(selectedSkill.name, 120);
         ClientUtil.drawLines(matrixStack, minecraft.font, skillName, 
                 intScrollX + 22, intScrollY + 8 - minecraft.font.lineHeight * (skillName.size() - 1) * 0.5F, 
                 0, 0xFFFFFF, true, false);
@@ -192,7 +191,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     }
     
     @Override
-    void drawToolTips(MatrixStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
+    void drawToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowPosX, int windowPosY) {
         for (HamonSkillGuiElement skill : skills.values()) {
             if (skill.isMouseOver(intScrollX, intScrollY, mouseX, mouseY)) {
                 skill.drawTooltip(screen, matrixStack, mouseX, mouseY);
@@ -326,9 +325,9 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
         if (selectedSkill != null) {
             learnButton.visible = !screen.hamon.isSkillLearned(selectedSkill.getHamonSkill());
             ActionConditionResult canLearnSkill = screen.hamon.canLearnSkill(minecraft.player, selectedSkill.getHamonSkill(), screen.teacherSkills);
-            ITextComponent closedReason = canLearnSkill.getWarning();
-            if (closedReason instanceof IFormattableTextComponent) {
-                ((IFormattableTextComponent) closedReason).withStyle(TextFormatting.RED);
+            Component closedReason = canLearnSkill.getWarning();
+            if (closedReason instanceof MutableComponent) {
+                ((MutableComponent) closedReason).withStyle(ChatFormatting.RED);
             }
             this.skillClosedReason = closedReason != null ? minecraft.font.split(canLearnSkill.getWarning(), 100) : Collections.emptyList();
             learnButton.active = canLearnSkill.isPositive();

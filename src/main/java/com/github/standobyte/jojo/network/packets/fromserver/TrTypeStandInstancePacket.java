@@ -9,10 +9,10 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrTypeStandInstancePacket {
     private final int entityId;
@@ -34,7 +34,7 @@ public class TrTypeStandInstancePacket {
     public static class Handler implements IModPacketHandler<TrTypeStandInstancePacket> {
 
         @Override
-        public void encode(TrTypeStandInstancePacket msg, PacketBuffer buf) {
+        public void encode(TrTypeStandInstancePacket msg, FriendlyByteBuf buf) {
             boolean noStand = msg.standInstance == null;
             buf.writeBoolean(noStand);
             buf.writeInt(msg.entityId);
@@ -49,7 +49,7 @@ public class TrTypeStandInstancePacket {
         }
 
         @Override
-        public TrTypeStandInstancePacket decode(PacketBuffer buf) {
+        public TrTypeStandInstancePacket decode(FriendlyByteBuf buf) {
             boolean noStand = buf.readBoolean();
             if (noStand) {
                 return noStand(buf.readInt());

@@ -13,12 +13,12 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.world.shader.ShaderEffectApplier;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TimeStopInstancePacket {
     private final PacketType packetType;
@@ -56,7 +56,7 @@ public class TimeStopInstancePacket {
     public static class Handler implements IModPacketHandler<TimeStopInstancePacket> {
 
         @Override
-        public void encode(TimeStopInstancePacket msg, PacketBuffer buf) {
+        public void encode(TimeStopInstancePacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.packetType);
             buf.writeInt(msg.instanceId);
             switch (msg.packetType) {
@@ -79,7 +79,7 @@ public class TimeStopInstancePacket {
         }
 
         @Override
-        public TimeStopInstancePacket decode(PacketBuffer buf) {
+        public TimeStopInstancePacket decode(FriendlyByteBuf buf) {
             PacketType packetType = buf.readEnum(PacketType.class);
             int id = buf.readInt();
             int ticks;
@@ -102,7 +102,7 @@ public class TimeStopInstancePacket {
 
         @Override
         public void handle(TimeStopInstancePacket msg, Supplier<NetworkEvent.Context> ctx) {
-            World world = ClientUtil.getClientWorld();
+            Level world = ClientUtil.getClientWorld();
             switch (msg.packetType) {
             case NEW_INSTANCE:
                 if (msg.timeStopTicks > 0) {

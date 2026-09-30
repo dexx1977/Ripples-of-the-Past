@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.playeranim.anim.interfaces.PlayerBarrag
 import com.github.standobyte.jojo.client.playeranim.anim.interfaces.WindupAttackAnim;
 import com.github.standobyte.jojo.client.playeranim.anim.interfaces.WallClimbAnim;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ModPlayerAnimations {
     public static HamonMeditationPoseAnim meditationPoseAnim;

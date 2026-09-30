@@ -1,19 +1,19 @@
 package com.github.standobyte.jojo.client.render.entity.model.projectile;
 
 import com.github.standobyte.jojo.entity.damaging.projectile.SCRapierEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class SCRapierModel extends EntityModel<SCRapierEntity> {
-    private final ModelRenderer rapier;
+    private final ModelPart rapier;
 
     public SCRapierModel() {
         texWidth = 128;
         texHeight = 128;
-        rapier = new ModelRenderer(this);
+        rapier = new ModelPart(this);
         rapier.setPos(-0.5F, 0.0F, 0.0F);
         rapier.texOffs(32, 72).addBox(-0.5F, -1.5F, -0.5F, 1.0F, 1.0F, 15.0F, -0.3F, false);
     }
@@ -25,7 +25,7 @@ public class SCRapierModel extends EntityModel<SCRapierEntity> {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         rapier.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

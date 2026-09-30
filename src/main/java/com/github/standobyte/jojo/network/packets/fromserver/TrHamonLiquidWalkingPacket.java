@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonLiquidWalkingPacket {
     private final int userId;
@@ -26,13 +26,13 @@ public class TrHamonLiquidWalkingPacket {
     public static class Handler implements IModPacketHandler<TrHamonLiquidWalkingPacket> {
 
         @Override
-        public void encode(TrHamonLiquidWalkingPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonLiquidWalkingPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.userId);
             buf.writeBoolean(msg.liquidWalking);
         }
 
         @Override
-        public TrHamonLiquidWalkingPacket decode(PacketBuffer buf) {
+        public TrHamonLiquidWalkingPacket decode(FriendlyByteBuf buf) {
             return new TrHamonLiquidWalkingPacket(buf.readInt(), buf.readBoolean());
         }
 

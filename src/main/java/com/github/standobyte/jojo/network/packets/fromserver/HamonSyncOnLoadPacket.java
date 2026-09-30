@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonSyncOnLoadPacket {
     public final int ticksMaskWithNoHamonBreath;
@@ -25,11 +25,11 @@ public class HamonSyncOnLoadPacket {
     
     public static class Handler implements IModPacketHandler<HamonSyncOnLoadPacket> {
         
-        public void encode(HamonSyncOnLoadPacket msg, PacketBuffer buf) {
+        public void encode(HamonSyncOnLoadPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.ticksMaskWithNoHamonBreath);
         }
         
-        public HamonSyncOnLoadPacket decode(PacketBuffer buf) {
+        public HamonSyncOnLoadPacket decode(FriendlyByteBuf buf) {
             return new HamonSyncOnLoadPacket(buf.readInt());
         }
         

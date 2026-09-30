@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrVampirismDataPacket {
     private final int entityId;
@@ -43,7 +43,7 @@ public class TrVampirismDataPacket {
     public static class Handler implements IModPacketHandler<TrVampirismDataPacket> {
 
         @Override
-        public void encode(TrVampirismDataPacket msg, PacketBuffer buf) {
+        public void encode(TrVampirismDataPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeEnum(msg.field);
             switch (msg.field) {
@@ -57,7 +57,7 @@ public class TrVampirismDataPacket {
         }
 
         @Override
-        public TrVampirismDataPacket decode(PacketBuffer buf) {
+        public TrVampirismDataPacket decode(FriendlyByteBuf buf) {
             int entityId = buf.readInt();
             VampireField field = buf.readEnum(VampireField.class);
             switch (field) {

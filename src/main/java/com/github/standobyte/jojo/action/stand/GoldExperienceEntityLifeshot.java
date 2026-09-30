@@ -10,13 +10,13 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 
-import net.minecraft.entity.CreatureAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.ZombieVillagerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceEntityLifeshot extends StandEntityActionModifier {
     public static final int ENTITY_ID = 0x3a4a9b10; // random large int number
@@ -44,19 +44,19 @@ public class GoldExperienceEntityLifeshot extends StandEntityActionModifier {
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         if (!world.isClientSide()) {
             Entity targetEntity = task.affectedTarget.getEntity();
             if (targetEntity instanceof LivingEntity) {
                 LivingEntity targetLiving = (LivingEntity) targetEntity;
                 targetLiving = StandUtil.getStandUser(targetLiving);
-                if (targetLiving.getMobType() != CreatureAttribute.UNDEAD) {
+                if (targetLiving.getMobType() != MobType.UNDEAD) {
                     if (!targetLiving.hasEffect(ModStatusEffects.SENSORY_OVERLOAD.get())) {
                         giveEffectWithResist(targetLiving);
                     }
                 }
-                else if (targetLiving instanceof ZombieVillagerEntity) {
-                    CommonReflection.startConverting((ZombieVillagerEntity) targetEntity, 
+                else if (targetLiving instanceof ZombieVillager) {
+                    CommonReflection.startConverting((ZombieVillager) targetEntity, 
                             userPower.getUser().getUUID(), 
                             targetLiving.getRandom().nextInt(2401) + 3600);
                 }
@@ -73,13 +73,13 @@ public class GoldExperienceEntityLifeshot extends StandEntityActionModifier {
         int duration = targetEntity.getCapability(LivingUtilCapProvider.CAPABILITY)
                 .map(cap -> cap.onLifeShot(MAX_DURATION)).orElse(MAX_DURATION);
         if (duration > 0) {
-            targetEntity.addEffect(new EffectInstance(ModStatusEffects.SENSORY_OVERLOAD.get(), duration, 0, false, false, false));
+            targetEntity.addEffect(new MobEffectInstance(ModStatusEffects.SENSORY_OVERLOAD.get(), duration, 0, false, false, false));
         }
         else {
-            targetEntity.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 40, 1, false, false, false));
-            targetEntity.addEffect(new EffectInstance(Effects.DIG_SPEED, 40, 0, false, false, false));
-            targetEntity.addEffect(new EffectInstance(Effects.DAMAGE_BOOST, 40, 0, false, false, false));
-            targetEntity.addEffect(new EffectInstance(Effects.REGENERATION, 40, 0, false, false, false));
+            targetEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 1, false, false, false));
+            targetEntity.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 40, 0, false, false, false));
+            targetEntity.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 40, 0, false, false, false));
+            targetEntity.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 40, 0, false, false, false));
         }
     }
 }

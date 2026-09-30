@@ -6,20 +6,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.util.GsonHelper;
 
 public class HamonStatsPredicate {
     public static final HamonStatsPredicate ANY = new HamonStatsPredicate(null, null, null);
     @Nullable
-    private final MinMaxBounds.IntBound strengthLevel;
+    private final MinMaxBounds.Ints strengthLevel;
     @Nullable
-    private final MinMaxBounds.IntBound controlLevel;
+    private final MinMaxBounds.Ints controlLevel;
     @Nullable
     private final MinMaxBounds.FloatBound breathingTrainingLevel;
     
-    public HamonStatsPredicate(MinMaxBounds.IntBound strengthLevel, 
-            MinMaxBounds.IntBound controlLevel, MinMaxBounds.FloatBound breathingTrainingLevel) {
+    public HamonStatsPredicate(MinMaxBounds.Ints strengthLevel, 
+            MinMaxBounds.Ints controlLevel, MinMaxBounds.FloatBound breathingTrainingLevel) {
         this.strengthLevel = strengthLevel;
         this.controlLevel = controlLevel;
         this.breathingTrainingLevel = breathingTrainingLevel;
@@ -39,10 +39,10 @@ public class HamonStatsPredicate {
             return ANY;
         }
         else {
-            JsonObject jsonObject = JSONUtils.convertToJsonObject(json, "Hamon stats");
+            JsonObject jsonObject = GsonHelper.convertToJsonObject(json, "Hamon stats");
             
-            MinMaxBounds.IntBound strength = MinMaxBounds.IntBound.fromJson(jsonObject.get("strength_level"));
-            MinMaxBounds.IntBound control = MinMaxBounds.IntBound.fromJson(jsonObject.get("control_level"));
+            MinMaxBounds.Ints strength = MinMaxBounds.Ints.fromJson(jsonObject.get("strength_level"));
+            MinMaxBounds.Ints control = MinMaxBounds.Ints.fromJson(jsonObject.get("control_level"));
             MinMaxBounds.FloatBound breathingTraining = MinMaxBounds.FloatBound.fromJson(jsonObject.get("breathing_training_level"));
             
             return new HamonStatsPredicate(strength, control, breathingTraining);

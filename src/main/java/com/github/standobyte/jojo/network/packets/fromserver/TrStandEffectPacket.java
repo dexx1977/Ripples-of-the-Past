@@ -10,10 +10,10 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrStandEffectPacket {
     private final PacketType packetType;
@@ -23,7 +23,7 @@ public class TrStandEffectPacket {
     private final StandEffectType<?> effectFactory;
     private final StandEffectInstance effect;
     private final boolean isUser;
-    private final PacketBuffer buf;
+    private final FriendlyByteBuf buf;
     
     public static TrStandEffectPacket add(StandEffectInstance effect, boolean sentToOwner) {
         return new TrStandEffectPacket(PacketType.ADD, effect.getStandUser().getId(), effect.getId(), 
@@ -45,7 +45,7 @@ public class TrStandEffectPacket {
     }
     
     private TrStandEffectPacket(PacketType packetType, int userId, int effectId, int targetId, 
-            StandEffectType<?> effectFactory, StandEffectInstance effect, boolean isUser, PacketBuffer buf) {
+            StandEffectType<?> effectFactory, StandEffectInstance effect, boolean isUser, FriendlyByteBuf buf) {
         this.packetType = packetType;
         this.userId = userId;
         this.effectId = effectId;
@@ -61,7 +61,7 @@ public class TrStandEffectPacket {
     public static class Handler implements IModPacketHandler<TrStandEffectPacket> {
 
         @Override
-        public void encode(TrStandEffectPacket msg, PacketBuffer buf) {
+        public void encode(TrStandEffectPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.packetType);
             switch (msg.packetType) {
             case ADD:
@@ -88,7 +88,7 @@ public class TrStandEffectPacket {
         }
 
         @Override
-        public TrStandEffectPacket decode(PacketBuffer buf) {
+        public TrStandEffectPacket decode(FriendlyByteBuf buf) {
             PacketType type = buf.readEnum(PacketType.class);
             switch (type) {
             case ADD:

@@ -2,27 +2,27 @@ package com.github.standobyte.jojo.item.cassette;
 
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.MusicDiscItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.RecordItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class TrackSourceMusicDisc extends TrackSource {
-    private final MusicDiscItem musicDisc;
+    private final RecordItem musicDisc;
     
-    public TrackSourceMusicDisc(MusicDiscItem musicDisc) {
+    public TrackSourceMusicDisc(RecordItem musicDisc) {
         super(TrackSourceType.MUSIC_DISC);
         this.musicDisc = musicDisc;
     }
     
-    static TrackSource fromNBT(CompoundNBT nbt) {
-        if (nbt.contains("MusicDisc", MCUtil.getNbtId(StringNBT.class))) {
+    static TrackSource fromNBT(CompoundTag nbt) {
+        if (nbt.contains("MusicDisc", MCUtil.getNbtId(StringTag.class))) {
             Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("MusicDisc")));
-            if (item instanceof MusicDiscItem) {
-                return new TrackSourceMusicDisc((MusicDiscItem) item);
+            if (item instanceof RecordItem) {
+                return new TrackSourceMusicDisc((RecordItem) item);
             }
         }
         
@@ -30,8 +30,8 @@ public class TrackSourceMusicDisc extends TrackSource {
     }
     
     @Override
-    protected CompoundNBT toNBT() {
-        CompoundNBT nbt = super.toNBT();
+    protected CompoundTag toNBT() {
+        CompoundTag nbt = super.toNBT();
         nbt.putString("MusicDisc", musicDisc.getRegistryName().toString());
         return nbt;
     }

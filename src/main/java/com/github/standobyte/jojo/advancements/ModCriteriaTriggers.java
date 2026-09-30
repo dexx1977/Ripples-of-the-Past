@@ -22,8 +22,8 @@ import com.github.standobyte.jojo.advancements.criterion.StoneMaskDestroyedTrigg
 import com.github.standobyte.jojo.advancements.criterion.UnconditionalTrigger;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
@@ -91,7 +91,7 @@ public class ModCriteriaTriggers {
     
     
     
-    public static class CriteriaTriggerSupplier<T extends AbstractCriterionTrigger<?>> implements Supplier<T> {
+    public static class CriteriaTriggerSupplier<T extends SimpleCriterionTrigger<?>> implements Supplier<T> {
         private static final Set<CriteriaTriggerSupplier<?>> TO_REGISTER = new HashSet<>();
         
         private final Supplier<T> supplier;

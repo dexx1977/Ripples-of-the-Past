@@ -11,11 +11,10 @@ import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.TypeSpecificData;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public abstract class NonStandAction extends Action<INonStandPower> {
     private final float energyCost;
@@ -65,7 +64,7 @@ public abstract class NonStandAction extends Action<INonStandPower> {
     
     protected ActionConditionResult checkEnergy(LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!power.hasEnergy(getEnergyNeeded(power.getHeldActionTicks(), power, target))) {
-            ITextComponent message = new TranslationTextComponent("jojo.message.action_condition.no_energy_" + power.getType().getRegistryName().getPath());
+            Component message = Component.translatable("jojo.message.action_condition.no_energy_" + power.getType().getRegistryName().getPath());
             return ActionConditionResult.createNegative(message);
         }
         return ActionConditionResult.POSITIVE;
@@ -78,19 +77,19 @@ public abstract class NonStandAction extends Action<INonStandPower> {
     }
     
     @Override
-    public void onPerform(World world, LivingEntity user, INonStandPower power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void onPerform(Level world, LivingEntity user, INonStandPower power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         super.onPerform(world, user, power, target, extraInput);
         consumeEnergy(world, user, power, target);
     }
     
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             power.consumeEnergy(getEnergyCost(power, target));
         }
     }
     
     @Override
-    public void onHoldTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    public void onHoldTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         super.onHoldTick(world, user, power, ticksHeld, target, requirementsFulfilled);
         if (requirementsFulfilled) {
             power.consumeEnergy(getHeldTickEnergyCost(power));

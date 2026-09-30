@@ -1,11 +1,11 @@
 package com.github.standobyte.jojo.client.ui.toasts;
 
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.gui.toasts.ToastGui;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class FinisherAttackToast extends ActionToast {
     
@@ -15,7 +15,7 @@ public class FinisherAttackToast extends ActionToast {
     
     private static final int FINISHER_BAR_TIME = 2000;
     @Override
-    protected void renderIcon(MatrixStack matrixStack, ToastGui toastGui, int timeMs) {
+    protected void renderIcon(PoseStack matrixStack, ToastComponent toastGui, int timeMs) {
         if (timeMs > TIME_MS - FINISHER_BAR_TIME) {
             toastGui.getMinecraft().getTextureManager().bind(ActionsOverlayGui.OVERLAY_LOCATION);
             toastGui.blit(matrixStack, 7, 7, 132, 216, 18, 18);
@@ -41,7 +41,7 @@ public class FinisherAttackToast extends ActionToast {
         }
         
         @Override
-        public IToast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
+        public Toast createToast(ResourceLocation actionIcon, ResourceLocation powerTypeIcon) {
             return new FinisherAttackToast(actionIcon, powerTypeIcon);
         }
     }

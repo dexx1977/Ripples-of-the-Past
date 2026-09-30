@@ -6,12 +6,12 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.RenderState;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.resources.ResourceLocation;
 
 public class CustomRenderType extends RenderType {
     
@@ -22,7 +22,7 @@ public class CustomRenderType extends RenderType {
     
     public static RenderType hamonProjectileShield(ResourceLocation glintTexture) { // it just works
         RenderType.State renderType$state = RenderType.State.builder()
-                .setTextureState(new RenderState.TextureState(glintTexture, true, false))
+                .setTextureState(new RenderStateShard.TextureState(glintTexture, true, false))
                 .setWriteMaskState(COLOR_WRITE)
                 .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
@@ -30,14 +30,14 @@ public class CustomRenderType extends RenderType {
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setTexturingState(ENTITY_GLINT_TEXTURING)
                 .createCompositeState(false);
-        return RenderType.create("jojo_proj_shield", DefaultVertexFormats.BLOCK, 7, 256, false, true, renderType$state);
+        return RenderType.create("jojo_proj_shield", DefaultVertexFormat.BLOCK, 7, 256, false, true, renderType$state);
     }
     
     
     private static final ResourceLocation GE_GLINT_PATH = new ResourceLocation(JojoMod.MOD_ID, "textures/item_imbued_with_life.png");
     public static RenderType goldExperienceLifeformAura() {
         RenderType.State renderType$state = RenderType.State.builder()
-                .setTextureState(new RenderState.TextureState(GE_GLINT_PATH, true, false))
+                .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
                 .setWriteMaskState(COLOR_WRITE)
                 .setFogState(NO_FOG)
                 .setCullState(NO_CULL)
@@ -45,12 +45,12 @@ public class CustomRenderType extends RenderType {
                 .setOutputState(ITEM_ENTITY_TARGET)
                 .setTexturingState(ENTITY_GLINT_TEXTURING)
                 .createCompositeState(false);
-        return RenderType.create("jojo_ge_lifeform", DefaultVertexFormats.BLOCK, 7, 256, false, true, renderType$state);
+        return RenderType.create("jojo_ge_lifeform", DefaultVertexFormat.BLOCK, 7, 256, false, true, renderType$state);
     }
     
     public static RenderType goldExperienceLifeformOverlay(ResourceLocation overlayTexture, float xScale, float yScale) {
         RenderType.State rendertype$state = RenderType.State.builder()
-                .setTextureState(new RenderState.TextureState(overlayTexture, false, false))
+                .setTextureState(new RenderStateShard.TextureState(overlayTexture, false, false))
                 .setTexturingState(new ScaledTexturingState(xScale, yScale))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setDiffuseLightingState(DIFFUSE_LIGHTING)
@@ -59,12 +59,12 @@ public class CustomRenderType extends RenderType {
                 .setLightmapState(LIGHTMAP)
                 .setOverlayState(OVERLAY)
                 .createCompositeState(false);
-        return create("jojo_ge_lifeform_overlay", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, true, rendertype$state);
+        return create("jojo_ge_lifeform_overlay", DefaultVertexFormat.NEW_ENTITY, 7, 256, true, true, rendertype$state);
     }
     
-    private static final RenderType GE_IMBUED_GLINT = RenderType.create("jojo_ge_glint", DefaultVertexFormats.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT = RenderType.create("jojo_ge_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
             RenderType.State.builder()
-            .setTextureState(new RenderState.TextureState(GE_GLINT_PATH, true, false))
+            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -75,9 +75,9 @@ public class CustomRenderType extends RenderType {
         return GE_IMBUED_GLINT;
     }
     
-    private static final RenderType GE_IMBUED_GLINT_DIRECT = RenderType.create("jojo_ge_glint_direct", DefaultVertexFormats.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT_DIRECT = RenderType.create("jojo_ge_glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
             RenderType.State.builder()
-            .setTextureState(new RenderState.TextureState(GE_GLINT_PATH, true, false))
+            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)
@@ -88,9 +88,9 @@ public class CustomRenderType extends RenderType {
         return GE_IMBUED_GLINT_DIRECT;
     }
     
-    private static final RenderType GE_IMBUED_GLINT_TRANSLUCENT = create("jojo_ge_glint_translucent", DefaultVertexFormats.POSITION_TEX, 7, 256, 
+    private static final RenderType GE_IMBUED_GLINT_TRANSLUCENT = create("jojo_ge_glint_translucent", DefaultVertexFormat.POSITION_TEX, 7, 256, 
             RenderType.State.builder()
-            .setTextureState(new RenderState.TextureState(GE_GLINT_PATH, true, false))
+            .setTextureState(new RenderStateShard.TextureState(GE_GLINT_PATH, true, false))
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(EQUAL_DEPTH_TEST)

@@ -10,14 +10,14 @@ import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClHeldActionTargetPacket {
     private final PowerClassification classification;
@@ -27,12 +27,12 @@ public class ClHeldActionTargetPacket {
     @Nullable
     private Direction blockFace;
 
-    public static ClHeldActionTargetPacket withRayTraceResult(PowerClassification classification, RayTraceResult target) {
+    public static ClHeldActionTargetPacket withRayTraceResult(PowerClassification classification, HitResult target) {
         switch (target.getType()) {
         case ENTITY:
-            return new ClHeldActionTargetPacket(classification, ((EntityRayTraceResult) target).getEntity().getId());
+            return new ClHeldActionTargetPacket(classification, ((EntityHitResult) target).getEntity().getId());
         case BLOCK:
-            BlockRayTraceResult blockTarget = (BlockRayTraceResult) target;
+            BlockHitResult blockTarget = (BlockHitResult) target;
             return new ClHeldActionTargetPacket(classification, blockTarget.getBlockPos(), blockTarget.getDirection());
         default:
             return new ClHeldActionTargetPacket(classification);
@@ -59,7 +59,7 @@ public class ClHeldActionTargetPacket {
     public static class Handler implements IModPacketHandler<ClHeldActionTargetPacket> {
 
         @Override
-        public void encode(ClHeldActionTargetPacket msg, PacketBuffer buf) {
+        public void encode(ClHeldActionTargetPacket msg, FriendlyByteBuf buf) {
             byte targetType = 0;
             if (msg.targetBlock != null) {
                 targetType |= 1;
@@ -79,7 +79,7 @@ public class ClHeldActionTargetPacket {
         }
 
         @Override
-        public ClHeldActionTargetPacket decode(PacketBuffer buf) {
+        public ClHeldActionTargetPacket decode(FriendlyByteBuf buf) {
             byte targetType = buf.readByte();
             switch (targetType & 3) {
             case 1:
@@ -93,7 +93,7 @@ public class ClHeldActionTargetPacket {
 
         @Override
         public void handle(ClHeldActionTargetPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             if (!JojoModUtil.tmpSpectatorCantUsePowers(player)) {
                 IPower.getPowerOptional(player, msg.classification).ifPresent(power -> {
                     ActionTarget target = msg.targetEntityId == -1 ? msg.targetBlock == null ? 

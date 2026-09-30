@@ -22,31 +22,29 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.UseAction;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 
 public class TommyGunItem extends Item {
@@ -58,7 +56,7 @@ public class TommyGunItem extends Item {
     }
     
     @Override
-    public void onUseTick(World world, LivingEntity entity, ItemStack stack, int remainingTicks) {
+    public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int remainingTicks) {
         int ammo = getAmmo(stack);
         int tick = getUseDuration(stack) - remainingTicks;
         boolean shotTick = tick % 2 == 0;
@@ -76,12 +74,12 @@ public class TommyGunItem extends Item {
                 if (shotTick) {
 //                    for (int i = 0; i < bulletsPerTickForLulz; i++) {
                         TommyGunBulletEntity bullet = new TommyGunBulletEntity(entity, world);
-                        Vector3d pos = entity.getEyePosition(1).subtract(0, bullet.getBbHeight() / 2, 0).add(entity.getLookAngle());
+                        Vec3 pos = entity.getEyePosition(1).subtract(0, bullet.getBbHeight() / 2, 0).add(entity.getLookAngle());
                         bullet.shootFromRotation(entity, 2f, 0);
 //                        pos = pos.add(bullet.getDeltaMovement().scale((double) i / bulletsPerTickForLulz));
                         bullet.setPos(pos.x, pos.y, pos.z);
                         world.addFreshEntity(bullet);
-                        if (!(entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild)) {
+                        if (!(entity instanceof Player && ((Player) entity).abilities.instabuild)) {
                             consumeAmmo(stack, 1);
                         }
 //                        if (getAmmo(stack) <= 0) break;
@@ -98,7 +96,7 @@ public class TommyGunItem extends Item {
                 if (entity.getType() == EntityType.PLAYER ? world.isClientSide() : !world.isClientSide()) {
                     float recoil = 1F + Math.min((1F - (float) remainingTicks / (float) getUseDuration(stack)) * 6F, 3F);
                     entity.yRot += (random.nextFloat() - 0.5F) * 0.3F * recoil;
-                    entity.xRot = MathHelper.clamp(entity.xRot -random.nextFloat() * 0.75F * recoil, -90, 90);
+                    entity.xRot = Mth.clamp(entity.xRot -random.nextFloat() * 0.75F * recoil, -90, 90);
                 }
                 if (!world.isClientSide()) {
                     stack.getOrCreateTag().putByte("GunshotTick", (byte) 3);
@@ -131,11 +129,11 @@ public class TommyGunItem extends Item {
         return false;
     }
     
-    private boolean reload(ItemStack stack, LivingEntity entity, World world) {
+    private boolean reload(ItemStack stack, LivingEntity entity, Level world) {
         int ammoToLoad = MAX_AMMO - getAmmo(stack);
         if (ammoToLoad > 0) {
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) entity;
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
                 ammoToLoad = consumeAmmo(player, ammoToLoad);
                 if (!world.isClientSide()) {
                     player.getCooldowns().addCooldown(this, ammoToLoad * 2);
@@ -152,7 +150,7 @@ public class TommyGunItem extends Item {
     }
 
     private static final int BULLETS_PER_GUNPOWDER = 8;
-    private int consumeAmmo(PlayerEntity player, int ammoToLoad) {
+    private int consumeAmmo(Player player, int ammoToLoad) {
         if (!player.abilities.instabuild) {
             List<ItemStack> ironNuggets = new ArrayList<>();
             int ironNuggetsCount = 0;
@@ -173,7 +171,7 @@ public class TommyGunItem extends Item {
             
             ammoToLoad = MathUtil.min(ironNuggetsCount, gunpowderCount * BULLETS_PER_GUNPOWDER, ammoToLoad);
             ironNuggetsCount = ammoToLoad;
-            gunpowderCount = MathHelper.ceil((float) ammoToLoad / BULLETS_PER_GUNPOWDER);
+            gunpowderCount = Mth.ceil((float) ammoToLoad / BULLETS_PER_GUNPOWDER);
 
             for (ItemStack ironNuggetsStack : ironNuggets) {
                 int consumed = Math.min(ironNuggetsStack.getCount(), ironNuggetsCount);
@@ -206,7 +204,7 @@ public class TommyGunItem extends Item {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> items) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
         if (this.allowdedIn(group)) {
             ItemStack stack = new ItemStack(this);
             stack.getOrCreateTag().putInt("Ammo", MAX_AMMO);
@@ -215,16 +213,16 @@ public class TommyGunItem extends Item {
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, World world, LivingEntity entity, int remainingTicks) {
+    public void releaseUsing(ItemStack stack, Level world, LivingEntity entity, int remainingTicks) {
         if (remainingTicks <= 1 && josephVoiceLine(entity)) {
             JojoModUtil.sayVoiceLine(entity, ModSounds.JOSEPH_WAR_DECLARATION.get());
         }
     }
     
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
         if (!world.isClientSide() && stack.hasTag()) {
-            CompoundNBT tag = stack.getTag();
+            CompoundTag tag = stack.getTag();
             byte textureTicks = tag.getByte("GunshotTick");
             if (textureTicks > 0) {
                 tag.putByte("GunshotTick", --textureTicks);
@@ -240,20 +238,20 @@ public class TommyGunItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
-            return reload(stack, player, world) ? ActionResult.consume(stack) : ActionResult.fail(stack);
+            return reload(stack, player, world) ? InteractionResultHolder.consume(stack) : InteractionResultHolder.fail(stack);
         }
         else {
             player.startUsingItem(hand);
-            return ActionResult.consume(stack);
+            return InteractionResultHolder.consume(stack);
         }
     }
 
     @Override
-    public UseAction getUseAnimation(ItemStack stack) {
-        return UseAction.NONE;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.NONE;
     }
 
     @Override
@@ -296,8 +294,8 @@ public class TommyGunItem extends Item {
 
     @SuppressWarnings("deprecation")
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
-        if (slot == EquipmentSlotType.MAINHAND) {
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.MAINHAND) {
             if (attributeModifiers == null) {
                 Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
                 builder.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(UUID.fromString("9b14156e-7ba3-446a-b18b-4c81a7d47a8b"), 
@@ -312,9 +310,9 @@ public class TommyGunItem extends Item {
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        tooltip.add(new TranslationTextComponent("item.jojo.tommy_gun.reload_prompt", 
-                new KeybindTextComponent("key.sneak"), new KeybindTextComponent("key.use")).withStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("item.jojo.tommy_gun.reload_prompt", 
+                Component.keybind("key.sneak"), Component.keybind("key.use")).withStyle(ChatFormatting.GRAY));
         
         ClientUtil.addItemReferenceQuote(tooltip, this);
         tooltip.add(ClientUtil.donoItemTooltip("KingKKrill"));

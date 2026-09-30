@@ -42,27 +42,27 @@ import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.google.common.collect.Sets;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.server.level.ServerLevel;
 
 public class StandEntityHeavyAttack extends StandEntityAction implements IHasStandPunch {
     private final Supplier<? extends StandEntityHeavyAttack> finisherVariation;
@@ -127,7 +127,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
     }
     
     @Override
-    public void onClick(World world, LivingEntity user, IStandPower power) {
+    public void onClick(Level world, LivingEntity user, IStandPower power) {
         super.onClick(world, user, power);
         if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
             ((StandEntity) power.getStandManifestation()).setHeavyPunchFinisher();
@@ -135,7 +135,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
     }
     
     @Override
-    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
+    public void onTaskSet(Level world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
         standEntity.alternateHands();
         if (!world.isClientSide()) {
             standEntity.addFinisherMeter(-0.51F, 0);
@@ -143,7 +143,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
     }
     
     @Override
-    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         standEntity.punch(task, this, task.getTarget());
     }
     
@@ -174,7 +174,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
     }
     
     @Override
-    public void standTickWindup(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickWindup(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         IHasStandPunch.playPunchSwingSound(task, Phase.WINDUP, 3, this, standEntity);
     }
     
@@ -395,12 +395,12 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             if (stand.level.isClientSide()) return false;
             super.doHit(task);
             
-            Vector3d pos = Vector3d.atCenterOf(blockPos).add(Vector3d.atLowerCornerOf(face.getNormal()).scale(0.6));
+            Vec3 pos = Vec3.atCenterOf(blockPos).add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.6));
             HeavyPunchExplosion explosion = new HeavyPunchExplosion(stand.level, stand, new ActionTarget(blockPos, face), 
                     stand.getLookAngle(), explosionDmgSource(stand), null, 
                     pos.x, pos.y, pos.z, 
                     calcExplosionRadius(stand), false, 
-                    JojoModUtil.breakingBlocksEnabled(stand.level) ? Explosion.Mode.BREAK : Explosion.Mode.NONE)
+                    JojoModUtil.breakingBlocksEnabled(stand.level) ? Explosion.BlockInteraction.BREAK : Explosion.BlockInteraction.NONE)
                     .aoeDamage(calcExplosionDamage(stand))
                     .createBlockShards(stand.getAttackDamage(), stand.getPrecision());
             CustomExplosion.explode(explosion);
@@ -418,7 +418,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             private LivingEntity attacker;
             @Nullable private StandEntity attackerAsStand;
             private ActionTarget hitBlock;
-            private Vector3d explosionDirection;
+            private Vec3 explosionDirection;
             private float aoeDamage;
             public boolean dropBlocks;
             
@@ -428,10 +428,10 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             private List<Entity> noDamage = new ArrayList<>();
             
             
-            public HeavyPunchExplosion(World pLevel, LivingEntity attacker, ActionTarget hitBlock, 
-                    Vector3d direction, @Nullable DamageSource pDamageSource, @Nullable ExplosionContext pDamageCalculator, 
+            public HeavyPunchExplosion(Level pLevel, LivingEntity attacker, ActionTarget hitBlock, 
+                    Vec3 direction, @Nullable DamageSource pDamageSource, @Nullable ExplosionDamageCalculator pDamageCalculator, 
                     double pToBlowX, double pToBlowY, double pToBlowZ, 
-                    float pRadius, boolean pFire, Explosion.Mode pBlockInteraction) {
+                    float pRadius, boolean pFire, Explosion.BlockInteraction pBlockInteraction) {
                 super(pLevel, attacker, 
                         pDamageSource, pDamageCalculator, 
                         pToBlowX, pToBlowY, pToBlowZ, 
@@ -460,26 +460,26 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             }
             
             
-            public HeavyPunchExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
+            public HeavyPunchExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
                 super(pLevel, pToBlowX, pToBlowY, pToBlowZ, pRadius);
             }
             
             
             @Override
-            protected ExplosionContext makeDamageCalculator(@Nullable Entity pEntity) {
+            protected ExplosionDamageCalculator makeDamageCalculator(@Nullable Entity pEntity) {
                 return new ExplContext();
             }
             
-            protected static class ExplContext extends ExplosionContext {
+            protected static class ExplContext extends ExplosionDamageCalculator {
                 
                 @Override
-                public Optional<Float> getBlockExplosionResistance(Explosion pExplosion, IBlockReader pLevel, 
+                public Optional<Float> getBlockExplosionResistance(Explosion pExplosion, BlockGetter pLevel, 
                         BlockPos pPos, BlockState pBlockState, FluidState pFluidState) {
                     return super.getBlockExplosionResistance(pExplosion, pLevel, pPos, pBlockState, pFluidState);
                 }
                 
                 @Override
-                public boolean shouldBlockExplode(Explosion pExplosion, IBlockReader pLevel, 
+                public boolean shouldBlockExplode(Explosion pExplosion, BlockGetter pLevel, 
                         BlockPos pPos, BlockState pBlockState, float pExplosionPower) {
                     return pBlockState.getBlock() != Blocks.SPAWNER;
                 }
@@ -498,8 +498,8 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             
             @Override
             protected void explodeBlocks() {
-                if (level instanceof ServerWorld) {
-                    ServerWorld world = (ServerWorld) level;
+                if (level instanceof ServerLevel) {
+                    ServerLevel world = (ServerLevel) level;
                     List<BlockPos> toBlow = getToBlow();
                     LivingEntity standUser = StandUtil.getStandUser(attacker);
                     
@@ -510,7 +510,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                         double shardsInaccuracy = Math.max(100 - precision * 4.5, 0);
                         
                         shardsInaccuracy = Math.min(shardsInaccuracy * 0.0075, 1);
-                        Vector3d vecMaxAccuracy = explosionDirection.normalize();
+                        Vec3 vecMaxAccuracy = explosionDirection.normalize();
                         
                         for (BlockPos blockPos : toBlow) {
                             BlockState blockState = level.getBlockState(blockPos);
@@ -523,11 +523,11 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                                             blockPos.getY() + random.nextDouble(),
                                             blockPos.getZ() + random.nextDouble());
                                     
-                                    Vector3d vecMinAccuracy = blockShard.position().subtract(this.getPosition()).normalize();
-                                    Vector3d shootVec = new Vector3d(
-                                            MathHelper.lerp(shardsInaccuracy, vecMaxAccuracy.x, vecMinAccuracy.x),
-                                            MathHelper.lerp(shardsInaccuracy, vecMaxAccuracy.y, vecMinAccuracy.y),
-                                            MathHelper.lerp(shardsInaccuracy, vecMaxAccuracy.z, vecMinAccuracy.z));
+                                    Vec3 vecMinAccuracy = blockShard.position().subtract(this.getPosition()).normalize();
+                                    Vec3 shootVec = new Vec3(
+                                            Mth.lerp(shardsInaccuracy, vecMaxAccuracy.x, vecMinAccuracy.x),
+                                            Mth.lerp(shardsInaccuracy, vecMaxAccuracy.y, vecMinAccuracy.y),
+                                            Mth.lerp(shardsInaccuracy, vecMaxAccuracy.z, vecMinAccuracy.z));
                                     
                                     blockShard.shoot(shootVec.x, shootVec.y, shootVec.z, shardsVelocity, 4);
                                     shards[i] = blockShard;
@@ -537,7 +537,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                         }
                     }
                     
-                    dropBlocks = !(standUser instanceof PlayerEntity && ((PlayerEntity) standUser).abilities.instabuild);
+                    dropBlocks = !(standUser instanceof Player && ((Player) standUser).abilities.instabuild);
                     MCUtil.destroyBlocksInBulk(toBlow, world, attacker, dropBlocks);
                     
                     if (!blockShardEntities.isEmpty()) {
@@ -550,9 +550,9 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                                 level.addFreshEntity(blockShard);
                             }
                             
-                            IChunk chunk = world.getChunk(pos);
-                            if (chunk instanceof Chunk) {
-                                ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+                            ChunkAccess chunk = world.getChunk(pos);
+                            if (chunk instanceof LevelChunk) {
+                                ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                                     PrevBlockInfo brokenBlock = cap.getBrokenBlockAt(pos);
                                     if (brokenBlock != null) {
                                         brokenBlock.withEntities(shards);
@@ -576,13 +576,13 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             }
             
             @Override
-            protected void hurtEntity(Entity entity, float damage, double knockback, Vector3d vecToEntityNorm) {
+            protected void hurtEntity(Entity entity, float damage, double knockback, Vec3 vecToEntityNorm) {
                 if (attackerAsStand != null) {
                     attackerAsStand.hurtTarget(entity, getDamageSource(), damage);
                     
                     entity.setDeltaMovement(entity.getDeltaMovement().add(vecToEntityNorm.scale(knockback)));
-                    if (entity instanceof PlayerEntity) {
-                        PlayerEntity player = (PlayerEntity) entity;
+                    if (entity instanceof Player) {
+                        Player player = (Player) entity;
                         if (!player.isSpectator() && (!player.isCreative() || !player.abilities.flying)) {
                             getHitPlayers().put(player, vecToEntityNorm.scale(knockback));
                         }
@@ -614,7 +614,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                                 }
                                 
                                 float power = radius * (0.7F + level.random.nextFloat() * 0.6F);
-                                Vector3d pos = getPosition();
+                                Vec3 pos = getPosition();
                                 double x = pos.x;
                                 double y = pos.y;
                                 double z = pos.z;
@@ -647,14 +647,14 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             protected void remainingBlocksShockWave() {
                 if (!level.isClientSide()) {
                     LotsOfBlocksBrokenPacket blocksShockwaveVisual = new LotsOfBlocksBrokenPacket();
-                    Vector3d pos = getPosition();
+                    Vec3 pos = getPosition();
                     double radius = this.radius;
-                    int minX = MathHelper.floor(pos.x - radius);
-                    int minY = MathHelper.floor(pos.y - radius);
-                    int minZ = MathHelper.floor(pos.z - radius);
-                    int maxX = MathHelper.ceil(pos.x + radius);
-                    int maxY = MathHelper.ceil(pos.y + radius);
-                    int maxZ = MathHelper.ceil(pos.z + radius);
+                    int minX = Mth.floor(pos.x - radius);
+                    int minY = Mth.floor(pos.y - radius);
+                    int minZ = Mth.floor(pos.z - radius);
+                    int maxX = Mth.ceil(pos.x + radius);
+                    int maxY = Mth.ceil(pos.y + radius);
+                    int maxZ = Mth.ceil(pos.z + radius);
                     boolean test = true;
                     MCUtil.iterateOverBlocks(minX, minY, minZ, maxX, maxY, maxZ, blockPos -> {
                         if (test || pos.distanceToSqr(blockPos.getX() + 0.5, blockPos.getX() + 0.5, blockPos.getX() + 0.5) > radius + 0.5) {
@@ -664,7 +664,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                             }
                         }
                     });
-                    blocksShockwaveVisual.sendToPlayers((ServerWorld) level, minX, minY, minZ, maxX, maxY, maxZ);
+                    blocksShockwaveVisual.sendToPlayers((ServerLevel) level, minX, minY, minZ, maxX, maxY, maxZ);
                 }
             }
             
@@ -675,15 +675,15 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
             protected void spawnParticles() {}
             
             @Override
-            public void toBuf(PacketBuffer buf) {
+            public void toBuf(FriendlyByteBuf buf) {
                 NetworkUtil.writeVecApproximate(buf, explosionDirection);
                 buf.writeEnum(blockInteraction);
             }
             
             @Override
-            public void fromBuf(PacketBuffer buf) {
+            public void fromBuf(FriendlyByteBuf buf) {
                 explosionDirection = NetworkUtil.readVecApproximate(buf);
-                blockInteraction = buf.readEnum(Explosion.Mode.class);
+                blockInteraction = buf.readEnum(Explosion.BlockInteraction.class);
             }
             
             @Override

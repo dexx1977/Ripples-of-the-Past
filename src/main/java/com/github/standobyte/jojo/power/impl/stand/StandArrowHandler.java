@@ -14,16 +14,17 @@ import com.github.standobyte.jojo.network.packets.fromserver.ArrowXpLevelsDataPa
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 public class StandArrowHandler {
     private int xpLevelsTakenByArrow;
@@ -61,28 +62,28 @@ public class StandArrowHandler {
         this.standsGotFromArrow = handler.standsGotFromArrow;
     }
     
-    public void syncWithUser(ServerPlayerEntity user) {
+    public void syncWithUser(ServerPlayer user) {
         PacketManager.sendToClient(new ArrowXpLevelsDataPacket(xpLevelsTakenByArrow, standsGotFromArrow), user);
     }
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt("ArrowLevels", xpLevelsTakenByArrow);
         nbt.putInt("ArrowStands", standsGotFromArrow);
-        nbt.put("ArrowItem", standArrowItem.save(new CompoundNBT()));
+        nbt.put("ArrowItem", standArrowItem.save(new CompoundTag()));
         if (standToGive != null) {
             nbt.putString("StandToGive", standToGive.getRegistryName().toString());
         }
         return nbt;
     }
     
-    public void fromNBT(CompoundNBT nbt) {
+    public void fromNBT(CompoundTag nbt) {
         xpLevelsTakenByArrow = nbt.getInt("ArrowLevels");
         standsGotFromArrow = nbt.getInt("ArrowStands");
-        if (nbt.contains("ArrowItem", MCUtil.getNbtId(CompoundNBT.class))) {
+        if (nbt.contains("ArrowItem", MCUtil.getNbtId(CompoundTag.class))) {
             standArrowItem = ItemStack.of(nbt.getCompound("ArrowItem"));
         }
-        if (nbt.contains("StandToGive", Constants.NBT.TAG_STRING)) {
+        if (nbt.contains("StandToGive", Tag.TAG_STRING)) {
             ResourceLocation id = new ResourceLocation(nbt.getString("StandToGive"));
             standToGive = JojoCustomRegistries.STANDS.getValue(id);
         }
@@ -97,8 +98,8 @@ public class StandArrowHandler {
     
     public void setXpLevelsTakenByArrow(int levels, LivingEntity user) {
         this.xpLevelsTakenByArrow = levels;
-        if (user instanceof ServerPlayerEntity) {
-            PacketManager.sendToClient(new ArrowXpLevelsDataPacket(xpLevelsTakenByArrow, standsGotFromArrow), (ServerPlayerEntity) user);
+        if (user instanceof ServerPlayer) {
+            PacketManager.sendToClient(new ArrowXpLevelsDataPacket(xpLevelsTakenByArrow, standsGotFromArrow), (ServerPlayer) user);
         }
     }
     
@@ -126,14 +127,14 @@ public class StandArrowHandler {
         xpLevelsTakenByArrow = 0;
         standsGotFromArrow++;
         if (!user.level.isClientSide()) {
-            if (user instanceof ServerPlayerEntity) {
-                PacketManager.sendToClient(new ArrowXpLevelsDataPacket(xpLevelsTakenByArrow, standsGotFromArrow), (ServerPlayerEntity) user);
+            if (user instanceof ServerPlayer) {
+                PacketManager.sendToClient(new ArrowXpLevelsDataPacket(xpLevelsTakenByArrow, standsGotFromArrow), (ServerPlayer) user);
             }
 
             if (standArrowShooterUUID != null) {
-                PlayerEntity shooter = ((ServerWorld) user.level).getPlayerByUUID(standArrowShooterUUID);
+                Player shooter = ((ServerLevel) user.level).getPlayerByUUID(standArrowShooterUUID);
                 if (shooter != null) {
-                    ModCriteriaTriggers.STAND_ARROW_HIT.get().trigger((ServerPlayerEntity) shooter, user, true);
+                    ModCriteriaTriggers.STAND_ARROW_HIT.get().trigger((ServerPlayer) shooter, user, true);
                 }
                 standArrowShooterUUID = null;
             }

@@ -17,9 +17,9 @@ import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.impl.IMutableModel;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXMeditationPoseHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements HamonMeditationPoseAnim {
 
@@ -28,7 +28,7 @@ public class KosmXMeditationPoseHandler extends AnimLayerHandler<ModifierLayer<I
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null);
     }
     
@@ -36,7 +36,7 @@ public class KosmXMeditationPoseHandler extends AnimLayerHandler<ModifierLayer<I
     private static final ResourceLocation SIT_DOWN_PATH = new ResourceLocation(JojoMod.MOD_ID, "meditation");
 //    private static final ResourceLocation STAND_UP_PATH = new ResourceLocation(JojoMod.MOD_ID, "meditation_stand_up");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         if (enabled) {
             return setAnimFromName(player, SIT_DOWN_PATH);
         }

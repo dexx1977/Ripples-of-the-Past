@@ -1,24 +1,25 @@
 package com.github.standobyte.jojo.client.render.item;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.storage.MapDecoration;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import net.minecraft.world.level.saveddata.maps.MapDecoration;
+import com.mojang.math.Axis;
 
 public class CustomIconMapRender {
-    private static MatrixStack matrixStack;
-    private static IRenderTypeBuffer buffer;
+    private static PoseStack matrixStack;
+    private static MultiBufferSource buffer;
     @SuppressWarnings("unused")
     private static boolean active;
     private static int packedLight;
     
     public static void clCaptureIconRenderArgs(
-            MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer, 
+            PoseStack pMatrixStack, MultiBufferSource pBuffer, 
             boolean pActive, int pPackedLight) {
         matrixStack = pMatrixStack;
         buffer = pBuffer;
@@ -35,11 +36,11 @@ public class CustomIconMapRender {
         
         matrixStack.pushPose();
         matrixStack.translate(((float)mapIcon.getX() / 2 + 64), ((float)mapIcon.getY() / 2 + 64), -0.02);
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees((float)(mapIcon.getRot() * 360) / 16));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees((float)(mapIcon.getRot() * 360) / 16));
         matrixStack.scale(4, 4, 3);
         matrixStack.translate(-0.125, 0.125, 0);
         Matrix4f matrix4f1 = matrixStack.last().pose();
-        IVertexBuilder ivertexbuilder1 = buffer.getBuffer(icon);
+        VertexConsumer ivertexbuilder1 = buffer.getBuffer(icon);
         ivertexbuilder1.vertex(matrix4f1, -2,  2, (float)index * -0.001F).color(255, 255, 255, 255).uv(1, 0).uv2(packedLight).endVertex();
         ivertexbuilder1.vertex(matrix4f1,  2,  2, (float)index * -0.001F).color(255, 255, 255, 255).uv(0, 0).uv2(packedLight).endVertex();
         ivertexbuilder1.vertex(matrix4f1,  2, -2, (float)index * -0.001F).color(255, 255, 255, 255).uv(0, 1).uv2(packedLight).endVertex();

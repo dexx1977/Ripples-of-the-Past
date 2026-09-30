@@ -18,13 +18,13 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamon
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public abstract class HamonAction extends NonStandAction {
     private final Map<Supplier<CharacterHamonTechnique>, Supplier<SoundEvent>> voiceLinesUnregistered;
@@ -90,7 +90,7 @@ public abstract class HamonAction extends NonStandAction {
     }
     
     @Override
-    public void afterClick(World world, LivingEntity user, INonStandPower power, boolean passedRequirements) {
+    public void afterClick(Level world, LivingEntity user, INonStandPower power, boolean passedRequirements) {
         if (changesAuraColor() && passedRequirements) {
             power.getTypeSpecificData(ModPowers.HAMON.get()).get().setLastUsedAction(this);
         }
@@ -101,9 +101,9 @@ public abstract class HamonAction extends NonStandAction {
     }
     
     @Override
-    public IFormattableTextComponent getNameLocked(INonStandPower power) {
+    public MutableComponent getNameLocked(INonStandPower power) {
         AbstractHamonSkill skill = getUnlockingSkill();
-        return skill != null ? new TranslationTextComponent("jojo.layout_edit.locked.hamon_skill", skill.getNameTranslated())
+        return skill != null ? Component.translatable("jojo.layout_edit.locked.hamon_skill", skill.getNameTranslated())
                 : super.getNameLocked(power);
     }
     
@@ -112,7 +112,7 @@ public abstract class HamonAction extends NonStandAction {
         return unlockingSkill;
     }
     
-    public boolean renderHamonAuraOnItem(ItemStack item, HandSide handSide) {
+    public boolean renderHamonAuraOnItem(ItemStack item, HumanoidArm handSide) {
         return false;
     }
     

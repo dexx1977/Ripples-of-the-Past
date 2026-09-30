@@ -3,18 +3,18 @@ package com.github.standobyte.jojo.potion;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.effect.MobEffectCategory;
 
 public class ResolveEffect extends StatusEffect {
 
-    public ResolveEffect(EffectType type, int liquidColor) {
+    public ResolveEffect(MobEffectCategory type, int liquidColor) {
         super(type, liquidColor);
     }
 
     @Override
-    public void addAttributeModifiers(LivingEntity entity, AttributeModifierManager attributes, int amplifier) {
+    public void addAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
         super.addAttributeModifiers(entity, attributes, amplifier);
         IStandPower.getStandPowerOptional(entity).ifPresent(stand -> {
             if (stand.usesResolve()) {
@@ -24,7 +24,7 @@ public class ResolveEffect extends StatusEffect {
     }
 
     @Override
-    public void removeAttributeModifiers(LivingEntity entity, AttributeModifierManager attributes, int amplifier) {
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
         super.addAttributeModifiers(entity, attributes, amplifier);
         IStandPower.getStandPowerOptional(entity).ifPresent(stand -> {
             if (stand.usesResolve()) {

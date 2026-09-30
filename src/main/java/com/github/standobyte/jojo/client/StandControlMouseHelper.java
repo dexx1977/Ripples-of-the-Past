@@ -4,16 +4,16 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHelper;
-import net.minecraft.client.util.MouseSmoother;
-import net.minecraft.client.util.NativeUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.util.SmoothDouble;
+import com.mojang.blaze3d.Blaze3D;
+import net.minecraft.world.entity.Entity;
 
 @Deprecated
-public class StandControlMouseHelper extends MouseHelper {
+public class StandControlMouseHelper extends MouseHandler {
     private final Minecraft minecraft;
-    private final MouseSmoother smoothTurnX = new MouseSmoother();
-    private final MouseSmoother smoothTurnY = new MouseSmoother();
+    private final SmoothDouble smoothTurnX = new SmoothDouble();
+    private final SmoothDouble smoothTurnY = new SmoothDouble();
     private double lastMouseEventTime = Double.MIN_VALUE;
 
     public StandControlMouseHelper(Minecraft minecraft) {
@@ -22,13 +22,13 @@ public class StandControlMouseHelper extends MouseHelper {
     }
     
     public static void overrideVanillaMouseHelper(Minecraft mc) {
-        MouseHelper cursed = new StandControlMouseHelper(mc);
+        MouseHandler cursed = new StandControlMouseHelper(mc);
         ClientReflection.setMouseHandler(mc, cursed);
     }
     
     @Override
     public void turnPlayer() {
-        double time = NativeUtil.getTime();
+        double time = Blaze3D.getTime();
         double timeDelta = time - lastMouseEventTime;
         lastMouseEventTime = time;
         

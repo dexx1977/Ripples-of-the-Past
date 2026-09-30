@@ -8,12 +8,12 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.HandSide;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.HumanoidArm;
 
 public class CopyBipedUserPose<T extends StandEntity> implements IModelPose<T> {
     private final HumanoidStandModel<T> model;
@@ -24,29 +24,29 @@ public class CopyBipedUserPose<T extends StandEntity> implements IModelPose<T> {
 
     @Override
     public void poseModel(float rotationAmount, T entity, float ticks, float yRotOffsetRad, float xRotRad,
-            HandSide side) {
+            HumanoidArm side) {
         LivingEntity user = entity.getUser();
         if (user != null) {
             EntityRenderer<?> userRenderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(user);
-            if (userRenderer instanceof LivingRenderer) {
-                EntityModel<?> userModel = ((LivingRenderer<?, ?>) userRenderer).getModel();
-                if (userModel instanceof BipedModel) {
-                    BipedModel<?> userBipedModel = (BipedModel<?>) userModel;
+            if (userRenderer instanceof LivingEntityRenderer) {
+                EntityModel<?> userModel = ((LivingEntityRenderer<?, ?>) userRenderer).getModel();
+                if (userModel instanceof HumanoidModel) {
+                    HumanoidModel<?> userBipedModel = (HumanoidModel<?>) userModel;
 
                     model.resetPose(entity);
 
                     copyRotation(model.getHead(), userBipedModel.head);
                     copyRotation(model.getTorso(), userBipedModel.body);
-                    copyRotation(model.getArm(HandSide.LEFT), userBipedModel.leftArm);
-                    copyRotation(model.getArm(HandSide.RIGHT), userBipedModel.rightArm);
-                    copyRotation(model.getLeg(HandSide.LEFT), userBipedModel.leftLeg);
-                    copyRotation(model.getLeg(HandSide.RIGHT), userBipedModel.rightLeg);
+                    copyRotation(model.getArm(HumanoidArm.LEFT), userBipedModel.leftArm);
+                    copyRotation(model.getArm(HumanoidArm.RIGHT), userBipedModel.rightArm);
+                    copyRotation(model.getLeg(HumanoidArm.LEFT), userBipedModel.leftLeg);
+                    copyRotation(model.getLeg(HumanoidArm.RIGHT), userBipedModel.rightLeg);
                 }
             }
         }        
     }
     
-    private void copyRotation(ModelRenderer to, ModelRenderer from) {
+    private void copyRotation(ModelPart to, ModelPart from) {
         to.xRot = from.xRot;
         to.yRot = from.yRot;
         to.zRot = from.zRot;

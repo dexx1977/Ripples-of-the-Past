@@ -10,22 +10,21 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.container.RepairContainer;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.AnvilUpdateEvent;
 
 public class GlovesItem extends Item {
@@ -43,7 +42,7 @@ public class GlovesItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
 //        if (openFingers()) {
 //            tooltip.add(new TranslationTextComponent("item.jojo.gloves.hint").withStyle(TextFormatting.GRAY));
 //        }
@@ -55,8 +54,8 @@ public class GlovesItem extends Item {
     
     @SuppressWarnings("deprecation")
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
-        return slot == EquipmentSlotType.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(slot);
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        return slot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(slot);
     }
     
     @Override
@@ -87,7 +86,7 @@ public class GlovesItem extends Item {
         ItemStack item = event.getLeft();
         ItemStack item1 = item.copy();
         ItemStack item2 = event.getRight();
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         
         int i = 0;
         int cost = event.getCost();
@@ -171,7 +170,7 @@ public class GlovesItem extends Item {
         } else if (!itemName.equals(item.getHoverName().getString())) {
            k = 1;
            i += k;
-           item1.setHoverName(new StringTextComponent(itemName));
+           item1.setHoverName(Component.literal(itemName));
         }
         if (flag && !item1.isBookEnchantable(item2)) item1 = ItemStack.EMPTY;
 
@@ -195,7 +194,7 @@ public class GlovesItem extends Item {
            }
 
            if (k != i || k == 0) {
-              k2 = RepairContainer.calculateIncreasedRepairCost(k2);
+              k2 = AnvilMenu.calculateIncreasedRepairCost(k2);
            }
 
            item1.setRepairCost(k2);

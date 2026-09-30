@@ -35,18 +35,18 @@ import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.Util;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class RockPaperScissorsGame {
     private static final int ROUNDS_TO_WIN = 3;
@@ -73,7 +73,7 @@ public class RockPaperScissorsGame {
         this.player2 = player2;
     }
 
-    public void gameStarted(ServerWorld serverWorld) {
+    public void gameStarted(ServerLevel serverWorld) {
         playerLeft = false;
         sendToBothPlayers(serverWorld, (player, opponent) -> {
             Entity opponentEntity = opponent.getGamePlayerEntity(serverWorld);
@@ -95,7 +95,7 @@ public class RockPaperScissorsGame {
 
     public void makeAPick(Entity entity, @Nullable Pick pick, boolean canChange) {
         Pair<RockPaperScissorsPlayerData, RockPaperScissorsPlayerData> players = playersPair(entity);
-        World world = entity.level;
+        Level world = entity.level;
         if (players == null) return;
         RockPaperScissorsPlayerData player = players.getLeft();
         RockPaperScissorsPlayerData opponent = players.getRight();
@@ -106,9 +106,9 @@ public class RockPaperScissorsGame {
             comparePicks(opponent, player);
             
             if (!world.isClientSide()) {
-                ((ServerWorld) world).sendParticles(player1.pick.getParticle(), player1.entity.getX(), player1.entity.getY() + player1.entity.getBbHeight(), player1.entity.getZ(), 
+                ((ServerLevel) world).sendParticles(player1.pick.getParticle(), player1.entity.getX(), player1.entity.getY() + player1.entity.getBbHeight(), player1.entity.getZ(), 
                         0, 0, 0, 0, 0);
-                ((ServerWorld) world).sendParticles(player2.pick.getParticle(), player2.entity.getX(), player2.entity.getY() + player2.entity.getBbHeight(), player2.entity.getZ(), 
+                ((ServerLevel) world).sendParticles(player2.pick.getParticle(), player2.entity.getX(), player2.entity.getY() + player2.entity.getBbHeight(), player2.entity.getZ(), 
                         0, 0, 0, 0, 0);
             }
             
@@ -129,7 +129,7 @@ public class RockPaperScissorsGame {
             lastRoundWinner = null;
         }
         if (player.canOpponentReadThoughts && !world.isClientSide()) {
-            this.sendPick((ServerWorld) world, player, true);
+            this.sendPick((ServerLevel) world, player, true);
         }
     }
     
@@ -139,9 +139,9 @@ public class RockPaperScissorsGame {
         return isItNewRoundYet;
     }
 
-    private void onRoundEnd(World world) {
+    private void onRoundEnd(Level world) {
         if (!world.isClientSide()) {
-            ServerWorld serverWorld = (ServerWorld) world;
+            ServerLevel serverWorld = (ServerLevel) world;
             // TODO (BIIM) show ties in the ui
             this.sendToBothPlayers(serverWorld, (player, opponent) -> RPSGameStatePacket.stateUpdated(player.previousPicks, opponent.previousPicks));
             if (lastRoundWinner != null) {
@@ -151,15 +151,15 @@ public class RockPaperScissorsGame {
                 roundTie();
             }
             
-            Vector3d pos = player1.entity.position().scale(0.5).add(player2.entity.position().scale(0.5));
+            Vec3 pos = player1.entity.position().scale(0.5).add(player2.entity.position().scale(0.5));
             world.playSound(null, pos.x, pos.y, pos.z, 
-                    SoundEvents.UI_STONECUTTER_SELECT_RECIPE, SoundCategory.AMBIENT, 1.0F, 2.0F);
+                    SoundEvents.UI_STONECUTTER_SELECT_RECIPE, SoundSource.AMBIENT, 1.0F, 2.0F);
         }
     }
 
     private void roundTie() {}
 
-    private void roundWon(ServerWorld serverWorld, RockPaperScissorsPlayerData roundWinner, RockPaperScissorsPlayerData roundLoser) {
+    private void roundWon(ServerLevel serverWorld, RockPaperScissorsPlayerData roundWinner, RockPaperScissorsPlayerData roundLoser) {
         LivingEntity winnerEntity = roundWinner.getGamePlayerEntity(serverWorld);
         LivingEntity loserEntity = roundLoser.getGamePlayerEntity(serverWorld);
         boy2Man(winnerEntity, loserEntity, roundWinner.getScore());
@@ -175,8 +175,8 @@ public class RockPaperScissorsGame {
             else {
                 players.getLeft().pickThoughts = pick;
                 Entity opponent = players.getRight().getGamePlayerEntity(entity.level);
-                if (opponent instanceof ServerPlayerEntity) {
-                    PacketManager.sendToClient(new RPSOpponentPickThoughtsPacket(pick), (ServerPlayerEntity) opponent);
+                if (opponent instanceof ServerPlayer) {
+                    PacketManager.sendToClient(new RPSOpponentPickThoughtsPacket(pick), (ServerPlayer) opponent);
                 }
             }
         }
@@ -189,22 +189,22 @@ public class RockPaperScissorsGame {
         }
     }
 
-    private void onGameOver(World world, RockPaperScissorsPlayerData winner) {
+    private void onGameOver(Level world, RockPaperScissorsPlayerData winner) {
         if (!world.isClientSide()) {
-            ServerWorld serverWorld = (ServerWorld) world;
+            ServerLevel serverWorld = (ServerLevel) world;
             sendToBothPlayers(serverWorld, (player, opponent) -> RPSGameStatePacket.gameOver(player == winner));
             triggerAchievement(player1.getGamePlayerEntity(serverWorld));
             triggerAchievement(player2.getGamePlayerEntity(serverWorld));
-            if (winner.entity instanceof ServerPlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) winner.entity;
+            if (winner.entity instanceof ServerPlayer) {
+                ServerPlayer player = (ServerPlayer) winner.entity;
                 player.awardStat(ModCustomStats.RPS_WON);
             }
         }
     }
     
     private void triggerAchievement(Entity entity) {
-        if (entity instanceof ServerPlayerEntity) {
-            ModCriteriaTriggers.ROCK_PAPER_SCISSORS_GAME.get().trigger((ServerPlayerEntity) entity, this, boyIIManTookStand);
+        if (entity instanceof ServerPlayer) {
+            ModCriteriaTriggers.ROCK_PAPER_SCISSORS_GAME.get().trigger((ServerPlayer) entity, this, boyIIManTookStand);
         }
     }
 
@@ -253,11 +253,11 @@ public class RockPaperScissorsGame {
                                     boyIIManEffects.removeEffect(effect);
                                     // TODO (BIIM) remove the effects more precisely
                                     if (partsToReturn.contains(StandPart.ARMS)) {
-                                        roundWinner.removeEffect(Effects.WEAKNESS);
-                                        roundWinner.removeEffect(Effects.DIG_SLOWDOWN);
+                                        roundWinner.removeEffect(MobEffects.WEAKNESS);
+                                        roundWinner.removeEffect(MobEffects.DIG_SLOWDOWN);
                                     }
                                     if (partsToReturn.contains(StandPart.LEGS)) {
-                                        roundWinner.removeEffect(Effects.MOVEMENT_SLOWDOWN);
+                                        roundWinner.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
                                     }
                                 }
                             }
@@ -300,32 +300,32 @@ public class RockPaperScissorsGame {
         }
     }
     
-    private void sendPick(ServerWorld world, RockPaperScissorsPlayerData player, boolean toOpponent) {
+    private void sendPick(ServerLevel world, RockPaperScissorsPlayerData player, boolean toOpponent) {
         if (player.pick != null) {
             Entity entity = (toOpponent ? getOpponent(player) : player).getGamePlayerEntity(world);
-            if (entity instanceof ServerPlayerEntity) {
+            if (entity instanceof ServerPlayer) {
                 PacketManager.sendToClient(
                         toOpponent ? 
                                 RPSGameStatePacket.setOpponentPick(player.pick, player.getGamePlayerEntity(world).getId())
-                                : RPSGameStatePacket.setOwnPick(player.pick), (ServerPlayerEntity) entity);
+                                : RPSGameStatePacket.setOwnPick(player.pick), (ServerPlayer) entity);
             }
         }
     }
 
-    private void sendToBothPlayers(ServerWorld world, BiFunction<RockPaperScissorsPlayerData, RockPaperScissorsPlayerData, Object> packet) {
+    private void sendToBothPlayers(ServerLevel world, BiFunction<RockPaperScissorsPlayerData, RockPaperScissorsPlayerData, Object> packet) {
         Entity player1Entity = player1.getGamePlayerEntity(world);
-        if (player1Entity instanceof ServerPlayerEntity) {
+        if (player1Entity instanceof ServerPlayer) {
             Object msg = packet.apply(player1, player2);
             if (msg != null) {
-                PacketManager.sendToClient(msg, (ServerPlayerEntity) player1Entity);
+                PacketManager.sendToClient(msg, (ServerPlayer) player1Entity);
             }
         }
 
         Entity player2Entity = player2.getGamePlayerEntity(world);
-        if (player2Entity instanceof ServerPlayerEntity) {
+        if (player2Entity instanceof ServerPlayer) {
             Object msg = packet.apply(player2, player1);
             if (msg != null) {
-                PacketManager.sendToClient(msg, (ServerPlayerEntity) player2Entity);
+                PacketManager.sendToClient(msg, (ServerPlayer) player2Entity);
             }
         }
     }
@@ -372,7 +372,7 @@ public class RockPaperScissorsGame {
         player2.pick = null;
         playerLeft = true;
         if (!entity.level.isClientSide()) {
-            ServerWorld world = (ServerWorld) entity.level;
+            ServerLevel world = (ServerLevel) entity.level;
             sendToBothPlayers(world, (player, opponent) -> RPSGameStatePacket.leftGame());
         }
     }
@@ -387,15 +387,15 @@ public class RockPaperScissorsGame {
             CHEATS.put(PowerClassification.NON_STAND, Util.make(Maps.newHashMap(), map -> {
                 map.put(ModPowers.HAMON.get(), (game, player, world) -> {
                     if (!world.isClientSide()) {
-                        ServerWorld serverWorld = (ServerWorld) world;
+                        ServerLevel serverWorld = (ServerLevel) world;
                         RockPaperScissorsPlayerData opponent = game.getOpponent(player);
                         game.sendPick(serverWorld, opponent, true);
                         
                         opponent.canOpponentReadThoughts = true;
                         Entity playerEntity = player.getGamePlayerEntity(serverWorld);
                         Entity opponentEntity = opponent.getGamePlayerEntity(serverWorld);
-                        if (opponentEntity instanceof ServerPlayerEntity) {
-                            PacketManager.sendToClient(RPSGameStatePacket.mindRead(playerEntity.getId()), (ServerPlayerEntity) opponentEntity);
+                        if (opponentEntity instanceof ServerPlayer) {
+                            PacketManager.sendToClient(RPSGameStatePacket.mindRead(playerEntity.getId()), (ServerPlayer) opponentEntity);
                         }
                         
                         if (!player.hasCheatedBefore) {
@@ -406,7 +406,7 @@ public class RockPaperScissorsGame {
                 });
                 map.put(ModPowers.VAMPIRISM.get(), (game, player, world) -> {
                     if (!world.isClientSide()) {
-                        ServerWorld serverWorld = (ServerWorld) world;
+                        ServerLevel serverWorld = (ServerLevel) world;
                         RockPaperScissorsPlayerData opponent = game.getOpponent(player);
                         game.makeAPick(opponent.getGamePlayerEntity(serverWorld), Pick.ROCK, true);
                         game.sendPick(serverWorld, opponent, false);
@@ -438,8 +438,8 @@ public class RockPaperScissorsGame {
         return CHEATS.get(powerClassification).get(powerType);
     }
 
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt("Round", round);
         nbt.put("Player1", player1.writeNBT());
         nbt.put("Player2", player2.writeNBT());
@@ -447,12 +447,12 @@ public class RockPaperScissorsGame {
     }
 
     @Nullable
-    public static RockPaperScissorsGame fromNBT(CompoundNBT nbt) {
-        if (!nbt.contains("Player1", MCUtil.getNbtId(CompoundNBT.class))) return null;
+    public static RockPaperScissorsGame fromNBT(CompoundTag nbt) {
+        if (!nbt.contains("Player1", MCUtil.getNbtId(CompoundTag.class))) return null;
         RockPaperScissorsPlayerData player1 = RockPaperScissorsPlayerData.fromNBT(nbt.getCompound("Player1"));
         if (player1 == null) return null;
         
-        if (!nbt.contains("Player2", MCUtil.getNbtId(CompoundNBT.class))) return null;
+        if (!nbt.contains("Player2", MCUtil.getNbtId(CompoundTag.class))) return null;
         RockPaperScissorsPlayerData player2 = RockPaperScissorsPlayerData.fromNBT(nbt.getCompound("Player2"));
         if (player2 == null) return null;
         
@@ -479,9 +479,9 @@ public class RockPaperScissorsGame {
             this.uuid = uuid;
         }
 
-        private LivingEntity getGamePlayerEntity(World serverWorld) {
+        private LivingEntity getGamePlayerEntity(Level serverWorld) {
             if (this.entity == null && !serverWorld.isClientSide()) {
-                Entity entity = ((ServerWorld) serverWorld).getEntity(uuid);
+                Entity entity = ((ServerLevel) serverWorld).getEntity(uuid);
                 if (entity instanceof LivingEntity) {
                     this.entity = (LivingEntity) entity;
                 }
@@ -523,15 +523,15 @@ public class RockPaperScissorsGame {
             hasCheatedBefore = true;
         }
 
-        private CompoundNBT writeNBT() {
-            CompoundNBT nbt = new CompoundNBT();
+        private CompoundTag writeNBT() {
+            CompoundTag nbt = new CompoundTag();
             nbt.putUUID("Player", uuid);
             nbt.putByte("Score", (byte) score);
             if (pick != null) {
                 nbt.putString("Pick", pick.name());
             }
 
-            CompoundNBT previousPicksNBT = new CompoundNBT();
+            CompoundTag previousPicksNBT = new CompoundTag();
             int size = previousPicks.size();
             if (size > 0) {
                 previousPicksNBT.putInt("Size", size);
@@ -545,15 +545,15 @@ public class RockPaperScissorsGame {
         }
 
         @Nullable
-        private static RockPaperScissorsPlayerData fromNBT(CompoundNBT nbt) {
+        private static RockPaperScissorsPlayerData fromNBT(CompoundTag nbt) {
             if (!nbt.hasUUID("Player")) return null;
             UUID uuid = nbt.getUUID("Player");
             RockPaperScissorsPlayerData player = new RockPaperScissorsPlayerData(uuid);
             player.score = nbt.getByte("Score");
             player.pick = GeneralUtil.enumValueOfNullable(Pick.class, nbt.getString("Pick"));
 
-            if (nbt.contains("PreviousPicks", MCUtil.getNbtId(CompoundNBT.class))) {
-                CompoundNBT previousPicksNBT = nbt.getCompound("PreviousPicks");
+            if (nbt.contains("PreviousPicks", MCUtil.getNbtId(CompoundTag.class))) {
+                CompoundTag previousPicksNBT = nbt.getCompound("PreviousPicks");
                 int size = previousPicksNBT.getInt("Size");
                 for (int i = 0; i < size; i++) {
                     Pick pick = Pick.valueOf(previousPicksNBT.getString(String.valueOf(i)));
@@ -595,7 +595,7 @@ public class RockPaperScissorsGame {
             }
 
             @Override
-            public IParticleData getParticle() {
+            public ParticleOptions getParticle() {
                 return ModParticles.RPS_ROCK.get();
             }
         },
@@ -606,7 +606,7 @@ public class RockPaperScissorsGame {
             }
 
             @Override
-            public IParticleData getParticle() {
+            public ParticleOptions getParticle() {
                 return ModParticles.RPS_PAPER.get();
             }
         },
@@ -617,13 +617,13 @@ public class RockPaperScissorsGame {
             }
 
             @Override
-            public IParticleData getParticle() {
+            public ParticleOptions getParticle() {
                 return ModParticles.RPS_SCISSORS.get();
             }
         };
 
         public abstract boolean beats(Pick opponentPick);
-        public abstract IParticleData getParticle();
+        public abstract ParticleOptions getParticle();
 
         public boolean ties(Pick opponentPick) {
             return this == opponentPick;
@@ -632,6 +632,6 @@ public class RockPaperScissorsGame {
 
     @FunctionalInterface
     public static interface RPSCheat {
-        void cheat(RockPaperScissorsGame game, RockPaperScissorsPlayerData player, World world);
+        void cheat(RockPaperScissorsGame game, RockPaperScissorsPlayerData player, Level world);
     }
 }

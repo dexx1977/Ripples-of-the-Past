@@ -2,16 +2,16 @@ package com.github.standobyte.jojo.item;
 
 import java.util.function.Supplier;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.LazyValue;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 
-public enum ModArmorMaterials implements IArmorMaterial {
+public enum ModArmorMaterials implements ArmorMaterial {
     STONE_MASK("stone_mask", 3, new int[]{0, 0, 0, 1}, 0, SoundEvents.ARMOR_EQUIP_GENERIC, 0.0F, 0.0F, () -> Ingredient.EMPTY),
     BREATH_CONTROL_MASK("breath_control_mask", 10, new int[]{0, 0, 0, 1}, 9, SoundEvents.ARMOR_EQUIP_GENERIC, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT)),
     SATIPOROJA_SCARF("satiporoja_scarf", 0, new int[]{0, 0, 0, 1}, 25, SoundEvents.ARMOR_EQUIP_GENERIC, 0.0F, 0.0F, () -> Ingredient.EMPTY),
@@ -40,7 +40,7 @@ public enum ModArmorMaterials implements IArmorMaterial {
     private final SoundEvent soundEvent;
     private final float toughness;
     private final float knockbackResistance;
-    private final LazyValue<Ingredient> repairMaterial;
+    private final LazyLoadedValue<Ingredient> repairMaterial;
     
     private ModArmorMaterials(String name, int maxDamageFactor, int[] damageReductionAmounts, int enchantability, SoundEvent equipSound, 
             float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterialSupplier) {
@@ -51,22 +51,22 @@ public enum ModArmorMaterials implements IArmorMaterial {
         this.soundEvent = equipSound;
         this.toughness = toughness;
         this.knockbackResistance = knockbackResistance;
-        this.repairMaterial = new LazyValue<>(repairMaterialSupplier);
+        this.repairMaterial = new LazyLoadedValue<>(repairMaterialSupplier);
     }
 
-    private ModArmorMaterials(IItemProvider woolItem) {
+    private ModArmorMaterials(ItemLike woolItem) {
         this(woolItem.asItem().getDescriptionId() + "_cloth", 12, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_GENERIC, 0.0F, 0.0F, () -> {
             return Ingredient.of(woolItem);
         });
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlotType slot) {
+    public int getDurabilityForSlot(EquipmentSlot slot) {
         return MAX_DAMAGE_ARRAY[slot.getIndex()] * maxDamageFactor;
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlotType slot) {
+    public int getDefenseForSlot(EquipmentSlot slot) {
         return damageReductionAmountArray[slot.getIndex()];
     }
 

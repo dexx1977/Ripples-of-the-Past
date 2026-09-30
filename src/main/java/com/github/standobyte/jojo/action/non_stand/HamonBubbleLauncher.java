@@ -9,11 +9,11 @@ import com.github.standobyte.jojo.item.TommyGunItem;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.HandSide;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.level.Level;
 
 public class HamonBubbleLauncher extends HamonAction {
 
@@ -77,7 +77,7 @@ public class HamonBubbleLauncher extends HamonAction {
     }
     
     @Override
-    protected void holdTick(World world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+    protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled && !world.isClientSide()) {
             int bubblesCount = 4;
             TookSoapFrom soapSource = consumeSoap(user, 1);
@@ -94,7 +94,7 @@ public class HamonBubbleLauncher extends HamonAction {
     }
     
     @Override
-    public boolean renderHamonAuraOnItem(ItemStack item, HandSide handSide) {
+    public boolean renderHamonAuraOnItem(ItemStack item, HumanoidArm handSide) {
         return item.getItem() == ModItems.SOAP.get();
     }
             

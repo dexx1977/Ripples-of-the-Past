@@ -1,18 +1,18 @@
 package com.github.standobyte.jojo.client.sound;
 
-import net.minecraft.client.audio.ITickableSound;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.network.chat.Component;
 
-public class ResolvedLocationTickingSound extends ResolvedLocationSimpleSound implements ITickableSound {
+public class ResolvedLocationTickingSound extends ResolvedLocationSimpleSound implements TickableSoundInstance {
     private boolean stopped;
 
-    public ResolvedLocationTickingSound(Sound sound, SoundCategory source, ITextComponent subtitle) {
+    public ResolvedLocationTickingSound(Sound sound, SoundSource source, Component subtitle) {
         super(sound, source, subtitle);
     }
 
-    public ResolvedLocationTickingSound(Sound sound, SoundCategory source) {
+    public ResolvedLocationTickingSound(Sound sound, SoundSource source) {
         super(sound, source);
     }
 

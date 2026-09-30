@@ -28,15 +28,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 
-public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.ModelType, Map<ResourceLocation, StandModelOverrides.CustomModelPrepared>>> {
+public class StandModelOverrides extends SimplePreparableReloadListener<Map<StandModelOverrides.ModelType, Map<ResourceLocation, StandModelOverrides.CustomModelPrepared>>> {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Gson gson;
     private final Map<ResourceLocation, StandEntityModel<?>> standModelOverrides = new HashMap<>();
@@ -52,7 +52,7 @@ public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.
     };
     
     @Override
-    protected Map<ModelType, Map<ResourceLocation, CustomModelPrepared>> prepare(IResourceManager pResourceManager, IProfiler pProfiler) {
+    protected Map<ModelType, Map<ResourceLocation, CustomModelPrepared>> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         Map<ModelType, Map<ResourceLocation, CustomModelPrepared>> map = Maps.newHashMap();
         for (ModelType modelType : ModelType.values()) {
             Map<ResourceLocation, CustomModelPrepared> entriesMap = map.compute(modelType, (__, ___) -> new HashMap<>());
@@ -64,7 +64,7 @@ public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.
         return map;
     }
     
-    protected void addEntries(String directory, String pathPostfix, IResourceManager pResourceManager, 
+    protected void addEntries(String directory, String pathPostfix, ResourceManager pResourceManager, 
             Format format, ModelType modelType, Map<ResourceLocation, CustomModelPrepared> entriesMap) {
         for (ResourceLocation path : pResourceManager.listResources(directory, p -> p.endsWith(pathPostfix))) {
             String fileName = path.getPath();
@@ -72,11 +72,11 @@ public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.
             ResourceLocation preparedPath = new ResourceLocation(path.getNamespace(), fileName);
             
             try (
-                    IResource iresource = pResourceManager.getResource(path);
+                    Resource iresource = pResourceManager.getResource(path);
                     InputStream inputstream = iresource.getInputStream();
                     Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                     ) {
-                JsonElement json = JSONUtils.fromJson(this.gson, reader, JsonElement.class);
+                JsonElement json = GsonHelper.fromJson(this.gson, reader, JsonElement.class);
                 if (json != null) {
                     CustomModelPrepared preparedData = new CustomModelPrepared(json, format, modelType);
                     CustomModelPrepared alreadyPresent = entriesMap.get(preparedPath);
@@ -97,7 +97,7 @@ public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.
     
     @Override
     protected void apply(Map<ModelType, Map<ResourceLocation, CustomModelPrepared>> pObject, 
-            IResourceManager pResourceManager, IProfiler pProfiler) {
+            ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         standModelOverrides.clear();
         for (ModelType modelType : ModelType.values()) {
             for (Map.Entry<ResourceLocation, CustomModelPrepared> entry : pObject.get(modelType).entrySet()) {
@@ -129,9 +129,9 @@ public class StandModelOverrides extends ReloadListener<Map<StandModelOverrides.
             EntityModelUnbaked modelOverride = readJson.createModel(modelId);
             
             try {
-                Map<String, ModelRenderer> modelParts = modelOverride.getNamedModelParts();
+                Map<String, ModelPart> modelParts = modelOverride.getNamedModelParts();
                 BlockbenchStandModelHelper.replaceModelParts(modelCopy, modelParts);
-                for (Map.Entry<String, ModelRenderer> entry : modelParts.entrySet()) {
+                for (Map.Entry<String, ModelPart> entry : modelParts.entrySet()) {
                     modelCopy.putNamedModelPart(entry.getKey(), entry.getValue());
                 }
             } catch (Exception e) {

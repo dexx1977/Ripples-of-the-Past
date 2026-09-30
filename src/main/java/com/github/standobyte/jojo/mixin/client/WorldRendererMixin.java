@@ -7,13 +7,13 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.client.ClientTimeStopHandler;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.entity.Entity;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public class WorldRendererMixin {
     
     @ModifyVariable(method = "renderSnowAndRain", at = @At("HEAD"), argsOnly = true, ordinal = 0)
@@ -41,7 +41,7 @@ public class WorldRendererMixin {
     
     @ModifyVariable(method = "renderEntity", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float jojoTsEntityChangePartialTick(float partialTick, 
-            Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTicks, MatrixStack pMatrixStack, IRenderTypeBuffer pBuffer) {
+            Entity pEntity, double pCamX, double pCamY, double pCamZ, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer) {
         if (ClientTimeStopHandler.isTimeStoppedStatic()) {
             return ClientTimeStopHandler.getInstance().getConstantEntityPartialTick(pEntity, partialTick);
         }

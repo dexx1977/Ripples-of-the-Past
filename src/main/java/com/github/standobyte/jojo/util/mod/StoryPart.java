@@ -14,44 +14,43 @@ import javax.annotation.Nullable;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ui.text.JojoTextComponentWrapper;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class StoryPart {
     private static final List<StoryPart> ALL_VALUES = new ArrayList<>();
-    private static List<ITextComponent> TOOLTIPS_WITH_ICONS = new ArrayList<>();
+    private static List<Component> TOOLTIPS_WITH_ICONS = new ArrayList<>();
     private static boolean updateOrder = false;
     private static final Map<String, StoryPart> ALL_VALUES_MAP = new HashMap<>();
     
-    public static final StoryPart PHANTOM_BLOOD           = canon(1, "jojo.story_part.1", name -> name.withStyle(TextFormatting.DARK_BLUE));
-    public static final StoryPart BATTLE_TENDENCY         = canon(2, "jojo.story_part.2", name -> name.withStyle(TextFormatting.GREEN));
-    public static final StoryPart STARDUST_CRUSADERS      = canon(3, "jojo.story_part.3", name -> name.withStyle(TextFormatting.DARK_PURPLE));
-    public static final StoryPart DIAMOND_IS_UNBREAKABLE  = canon(4, "jojo.story_part.4", name -> name.withStyle(TextFormatting.RED));
-    public static final StoryPart GOLDEN_WIND             = canon(5, "jojo.story_part.5", name -> name.withStyle(TextFormatting.GOLD));
-    public static final StoryPart STONE_OCEAN             = canon(6, "jojo.story_part.6", name -> name.withStyle(TextFormatting.AQUA));
-    public static final StoryPart STEEL_BALL_RUN          = canon(7, "jojo.story_part.7", name -> name.withStyle(TextFormatting.LIGHT_PURPLE));
-    public static final StoryPart JOJOLION                = canon(8, "jojo.story_part.8", name -> name.withStyle(TextFormatting.WHITE));
-    public static final StoryPart THE_JOJOLANDS           = canon(9, "jojo.story_part.9", name -> name.withStyle(TextFormatting.BLUE));
-    public static final StoryPart OTHER                   = canon(-1, "jojo.story_part.none", name -> name.withStyle(TextFormatting.GRAY));
+    public static final StoryPart PHANTOM_BLOOD           = canon(1, "jojo.story_part.1", name -> name.withStyle(ChatFormatting.DARK_BLUE));
+    public static final StoryPart BATTLE_TENDENCY         = canon(2, "jojo.story_part.2", name -> name.withStyle(ChatFormatting.GREEN));
+    public static final StoryPart STARDUST_CRUSADERS      = canon(3, "jojo.story_part.3", name -> name.withStyle(ChatFormatting.DARK_PURPLE));
+    public static final StoryPart DIAMOND_IS_UNBREAKABLE  = canon(4, "jojo.story_part.4", name -> name.withStyle(ChatFormatting.RED));
+    public static final StoryPart GOLDEN_WIND             = canon(5, "jojo.story_part.5", name -> name.withStyle(ChatFormatting.GOLD));
+    public static final StoryPart STONE_OCEAN             = canon(6, "jojo.story_part.6", name -> name.withStyle(ChatFormatting.AQUA));
+    public static final StoryPart STEEL_BALL_RUN          = canon(7, "jojo.story_part.7", name -> name.withStyle(ChatFormatting.LIGHT_PURPLE));
+    public static final StoryPart JOJOLION                = canon(8, "jojo.story_part.8", name -> name.withStyle(ChatFormatting.WHITE));
+    public static final StoryPart THE_JOJOLANDS           = canon(9, "jojo.story_part.9", name -> name.withStyle(ChatFormatting.BLUE));
+    public static final StoryPart OTHER                   = canon(-1, "jojo.story_part.none", name -> name.withStyle(ChatFormatting.GRAY));
     public static final StoryPart[] CANON_PARTS = { PHANTOM_BLOOD, BATTLE_TENDENCY, STARDUST_CRUSADERS, DIAMOND_IS_UNBREAKABLE, GOLDEN_WIND, STONE_OCEAN, STEEL_BALL_RUN, JOJOLION, THE_JOJOLANDS };
     
-    private final ITextComponent name;
-    private final ITextComponent tooltipName;
+    private final Component name;
+    private final Component tooltipName;
     @Nullable private ResourceLocation sprite;
     private OptionalInt canonPart = OptionalInt.empty();
     
-    private static StoryPart canon(int partNumber, String name, Consumer<IFormattableTextComponent> style) {
+    private static StoryPart canon(int partNumber, String name, Consumer<MutableComponent> style) {
         ResourceLocation sprite = new ResourceLocation(JojoMod.MOD_ID, String.valueOf(partNumber));
         StoryPart storyPart = create(partNumber > 0 ? sprite : null, name, style);
         storyPart.canonPart = OptionalInt.of(partNumber);
         return storyPart;
     }
     
-    public static StoryPart create(ResourceLocation sprite, String name, @Nullable Consumer<IFormattableTextComponent> style) {
-        IFormattableTextComponent nameComponent = new TranslationTextComponent(name);
+    public static StoryPart create(ResourceLocation sprite, String name, @Nullable Consumer<MutableComponent> style) {
+        MutableComponent nameComponent = Component.translatable(name);
         if (style != null) style.accept(nameComponent);
         return new StoryPart(spritePath(sprite), name, nameComponent);
     }
@@ -60,7 +59,7 @@ public class StoryPart {
         return id == null ? null : new ResourceLocation(id.getNamespace(), "textures/gui/story_part/" + id.getPath() + ".png");
     }
     
-    protected StoryPart(ResourceLocation sprite, String id, IFormattableTextComponent name) {
+    protected StoryPart(ResourceLocation sprite, String id, MutableComponent name) {
         this.sprite = sprite;
         this.name = name;
         this.tooltipName = new JojoTextComponentWrapper(name).setStoryPartSprite(this);
@@ -98,11 +97,11 @@ public class StoryPart {
     }
     
     
-    public ITextComponent getName() {
+    public Component getName() {
         return tooltipName;
     }
     
-    public ITextComponent getNonTooltipName() {
+    public Component getNonTooltipName() {
         return name;
     }
     
@@ -123,7 +122,7 @@ public class StoryPart {
         return ALL_VALUES_MAP.get(name);
     }
     
-    public static Comparator<ITextComponent> partNamesComparator() {
+    public static Comparator<Component> partNamesComparator() {
         if (updateOrder) {
             TOOLTIPS_WITH_ICONS = ALL_VALUES.stream().map(StoryPart::getName).collect(Collectors.toCollection(ArrayList::new));
             updateOrder = false;

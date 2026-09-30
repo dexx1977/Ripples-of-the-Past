@@ -8,18 +8,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.standobyte.jojo.mrpresident.CocoJumboTurtleEntity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 
-@Mixin(ServerPlayNetHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerPlayNetHandlerMixin {
-    @Shadow public ServerPlayerEntity player;
+    @Shadow public ServerPlayer player;
 
     @Inject(method = "handlePlayerAction", at = @At("HEAD"), cancellable = true)
-    public void jojoOnItemSwapKey(CPlayerDiggingPacket packet, CallbackInfo ci) {
-        if (packet.getAction() == CPlayerDiggingPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
+    public void jojoOnItemSwapKey(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
+        if (packet.getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
             for (Entity passenger : player.getPassengers()) {
                 if (CocoJumboTurtleEntity.isCarriedTurtle(passenger, player)) {
                     passenger.stopRiding();

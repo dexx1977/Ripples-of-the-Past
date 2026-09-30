@@ -9,12 +9,12 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class VampirismBloodGift extends VampirismAction {
 
@@ -25,7 +25,7 @@ public class VampirismBloodGift extends VampirismAction {
     @Override
     public ActionConditionResult checkTarget(ActionTarget target, LivingEntity user, INonStandPower power) {
         Entity targetEntity = target.getEntity();
-        if (!(targetEntity instanceof PlayerEntity)) {
+        if (!(targetEntity instanceof Player)) {
             return conditionMessage("player_target");
         }
         LivingEntity targetLiving = (LivingEntity) targetEntity;
@@ -63,7 +63,7 @@ public class VampirismBloodGift extends VampirismAction {
     }
 
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         Entity targetEntity = target.getEntity();
         if (targetEntity instanceof LivingEntity) {
             LivingEntity targetLiving = (LivingEntity) targetEntity;

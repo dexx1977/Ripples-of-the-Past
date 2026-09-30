@@ -15,21 +15,21 @@ import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.monster.SilverfishEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.state.properties.NoteBlockInstrument;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class CDBlockBulletEntity extends ModdedProjectileEntity {
     private Block block;
@@ -37,11 +37,11 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     private Optional<Entity> homingTarget = Optional.empty();
     private boolean soundStarted = false;
     
-    public CDBlockBulletEntity(LivingEntity shooter, World world) {
+    public CDBlockBulletEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.CD_BLOCK_BULLET.get(), shooter, world);
     }
 
-    public CDBlockBulletEntity(EntityType<? extends CDBlockBulletEntity> type, World world) {
+    public CDBlockBulletEntity(EntityType<? extends CDBlockBulletEntity> type, Level world) {
         super(type, world);
     }
     
@@ -79,8 +79,8 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
                 homingTarget = Optional.empty();
             }
             else if (tickCount >= 10) {
-                Vector3d targetPos = target.getBoundingBox().getCenter();
-                Vector3d vecToTarget = targetPos.subtract(this.position());
+                Vec3 targetPos = target.getBoundingBox().getCenter();
+                Vec3 vecToTarget = targetPos.subtract(this.position());
                 setDeltaMovement(vecToTarget.normalize().scale(this.getDeltaMovement().length()));
                 getUserStandPower().ifPresent(stand -> {
                     stand.consumeStamina(stand.getStaminaTickGain() + ModStandsInit.CRAZY_DIAMOND_BLOCK_BULLET.get().getStaminaCostTicking(stand), true);
@@ -131,13 +131,13 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
             
             else if (target instanceof LivingEntity) {
                 if (block == Blocks.ICE) {
-                    ((LivingEntity) target).addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 60, 0));
+                    ((LivingEntity) target).addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 60, 0));
                 }
                 else if (block == Blocks.PACKED_ICE) {
-                    ((LivingEntity) target).addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 60, 1));
+                    ((LivingEntity) target).addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 60, 1));
                 }
                 else if (block == Blocks.BLUE_ICE) {
-                    ((LivingEntity) target).addEffect(new EffectInstance(ModStatusEffects.FREEZE.get(), 60, 2));
+                    ((LivingEntity) target).addEffect(new MobEffectInstance(ModStatusEffects.FREEZE.get(), 60, 2));
                 }
             }
         }
@@ -145,7 +145,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     }
     
     @Override
-    protected void breakProjectile(TargetType targetType, RayTraceResult hitTarget) {
+    protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (!level.isClientSide() && (
                 block == Blocks.INFESTED_CHISELED_STONE_BRICKS ||
                 block == Blocks.INFESTED_COBBLESTONE ||
@@ -153,7 +153,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
                 block == Blocks.INFESTED_MOSSY_STONE_BRICKS || 
                 block == Blocks.INFESTED_STONE || 
                 block == Blocks.INFESTED_STONE_BRICKS)) {
-            SilverfishEntity silverfish = EntityType.SILVERFISH.create(level);
+            Silverfish silverfish = EntityType.SILVERFISH.create(level);
             silverfish.moveTo(getX(), getY(0.5), getZ(), 0.0F, 0.0F);
             level.addFreshEntity(silverfish);
             silverfish.spawnAnim();
@@ -173,7 +173,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
 
     private UUID targetUUID;
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         homingTarget.ifPresent(target -> {
             nbt.putUUID("HomingTarget", target.getUUID());
@@ -181,7 +181,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         if (nbt.hasUUID("HomingTarget")) {
             targetUUID = nbt.getUUID("HomingTarget");
@@ -189,9 +189,9 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         if (targetUUID != null) {
-            setTarget(((ServerWorld) level).getEntity(targetUUID));
+            setTarget(((ServerLevel) level).getEntity(targetUUID));
         }
         super.writeSpawnData(buffer);
         NetworkUtil.writeOptionally(buffer, block, buffer::writeRegistryId);
@@ -199,7 +199,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         NetworkUtil.readOptional(additionalData, () -> additionalData.readRegistryIdSafe(Block.class)).ifPresent(block -> setBlock(block));
         NetworkUtil.readOptional(additionalData, additionalData::readInt).ifPresent(id -> setTarget(level.getEntity(id)));

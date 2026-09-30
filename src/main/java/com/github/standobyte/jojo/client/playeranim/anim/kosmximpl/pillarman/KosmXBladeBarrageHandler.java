@@ -10,10 +10,10 @@ import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXBladeBarrageHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
 	private static final float SPEED = 3.25F;
@@ -23,22 +23,22 @@ public class KosmXBladeBarrageHandler extends AnimLayerHandler<ModifierLayer<IAn
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, 
-        		new KosmXArmsRotationModifier(player, HandSide.LEFT, HandSide.RIGHT), 
+        		new KosmXArmsRotationModifier(player, HumanoidArm.LEFT, HumanoidArm.RIGHT), 
         		new SpeedModifier(SPEED));
     }
     
     
     private static final ResourceLocation ANIM = new ResourceLocation(JojoMod.MOD_ID, "blade_barrage");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         enabled &= !player.isPassenger();
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, ANIM);
+            return setAnimFromName((AbstractClientPlayer) player, ANIM);
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn(10, Ease.OUTCUBIC), null);
         }
     }
 

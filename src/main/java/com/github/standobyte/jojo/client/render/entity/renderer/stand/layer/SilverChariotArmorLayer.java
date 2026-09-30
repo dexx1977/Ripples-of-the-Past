@@ -6,7 +6,7 @@ import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityMo
 import com.github.standobyte.jojo.client.render.entity.renderer.stand.SilverChariotRenderer;
 import com.github.standobyte.jojo.entity.stand.stands.SilverChariotEntity;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class SilverChariotArmorLayer extends StandModelLayerRenderer<SilverChariotEntity, StandEntityModel<SilverChariotEntity>> {
 

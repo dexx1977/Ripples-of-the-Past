@@ -7,27 +7,27 @@ import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.entity.mob.HamonMasterEntity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 
-public class HamonMasterModel extends BipedModel<HamonMasterEntity> {
+public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
     private IEntityAnimApplier<HamonMasterEntity, HamonMasterModel> sittingAnim;
     private boolean animInit = false;
     
-    public final ModelRenderer leftSleeve;
-    public final ModelRenderer rightSleeve;
-    public final ModelRenderer leftPants;
-    public final ModelRenderer rightPants;
-    public final ModelRenderer jacket;
+    public final ModelPart leftSleeve;
+    public final ModelPart rightSleeve;
+    public final ModelPart leftPants;
+    public final ModelPart rightPants;
+    public final ModelPart jacket;
     
-    private final ModelRenderer rightCapeBinding;
-    private final ModelRenderer rightCape;
-    private final ModelRenderer lowRightCape;
-    private final ModelRenderer leftCapeBinding;
-    private final ModelRenderer leftCape;
-    private final ModelRenderer lowLeftCape;
+    private final ModelPart rightCapeBinding;
+    private final ModelPart rightCape;
+    private final ModelPart lowRightCape;
+    private final ModelPart leftCapeBinding;
+    private final ModelPart leftCape;
+    private final ModelPart lowLeftCape;
     
     public HamonMasterModel(boolean isExtraLayer) {
         super(0, 0, 64, 64);
@@ -35,54 +35,54 @@ public class HamonMasterModel extends BipedModel<HamonMasterEntity> {
         
         // emulating PlayerModel
         // subclassing PlayerModel wouldn't work with the animations
-        leftArm = new ModelRenderer(this, 32, 48);
+        leftArm = new ModelPart(this, 32, 48);
         leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
         leftArm.setPos(5.0F, 2.0F, 0.0F);
-        leftSleeve = new ModelRenderer(this, 48, 48);
+        leftSleeve = new ModelPart(this, 48, 48);
         leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         leftSleeve.setPos(5.0F, 2.0F, 0.0F);
-        rightSleeve = new ModelRenderer(this, 40, 32);
+        rightSleeve = new ModelPart(this, 40, 32);
         rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         rightSleeve.setPos(-5.0F, 2.0F, 10.0F);
-        leftLeg = new ModelRenderer(this, 16, 48);
+        leftLeg = new ModelPart(this, 16, 48);
         leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
         leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        leftPants = new ModelRenderer(this, 0, 48);
+        leftPants = new ModelPart(this, 0, 48);
         leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         leftPants.setPos(1.9F, 12.0F, 0.0F);
-        rightPants = new ModelRenderer(this, 0, 32);
+        rightPants = new ModelPart(this, 0, 32);
         rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         rightPants.setPos(-1.9F, 12.0F, 0.0F);
-        jacket = new ModelRenderer(this, 16, 32);
+        jacket = new ModelPart(this, 16, 32);
         jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.25F);
         jacket.setPos(0.0F, 0.0F, 0.0F);
         
         
-        rightCapeBinding = new ModelRenderer(this);
+        rightCapeBinding = new ModelPart(this);
         rightCapeBinding.setPos(-2.0F, 12.0F, 0.0F);
         body.addChild(rightCapeBinding);
         ClientUtil.setRotationAngle(rightCapeBinding, 0.0F, 0.0F, 0.0873F);
         
-        rightCape = new ModelRenderer(this);
+        rightCape = new ModelPart(this);
         rightCape.setPos(-2.0F, 12.0F, 2.0F);
         body.addChild(rightCape);
         ClientUtil.setRotationAngle(rightCape, 0.2182F, 0.0F, 0.1745F);
 
-        lowRightCape = new ModelRenderer(this);
+        lowRightCape = new ModelPart(this);
         lowRightCape.setPos(-2.0F, 4.0F, -0.35F);
         rightCape.addChild(lowRightCape);
 
-        leftCapeBinding = new ModelRenderer(this);
+        leftCapeBinding = new ModelPart(this);
         leftCapeBinding.setPos(2.0F, 12.0F, 0.0F);
         body.addChild(leftCapeBinding);
         ClientUtil.setRotationAngle(leftCapeBinding, 0.0F, 0.0F, -0.0873F);
 
-        leftCape = new ModelRenderer(this);
+        leftCape = new ModelPart(this);
         leftCape.setPos(2.0F, 12.0F, 2.0F);
         body.addChild(leftCape);
         ClientUtil.setRotationAngle(leftCape, 0.2182F, 0.0F, -0.1745F);
         
-        lowLeftCape = new ModelRenderer(this);
+        lowLeftCape = new ModelPart(this);
         lowLeftCape.setPos(2.0F, 4.0F, -0.35F);
         leftCape.addChild(lowLeftCape);
         
@@ -152,7 +152,7 @@ public class HamonMasterModel extends BipedModel<HamonMasterEntity> {
         }
     }
     
-    public void setupPoseRotations(MatrixStack matrixStack, float partialTick) {
+    public void setupPoseRotations(PoseStack matrixStack, float partialTick) {
         if (sittingAnim != null) {
             sittingAnim.applyBodyTransforms(matrixStack, partialTick);
         }
@@ -198,7 +198,7 @@ public class HamonMasterModel extends BipedModel<HamonMasterEntity> {
     
     
     @Override
-    protected Iterable<ModelRenderer> bodyParts() {
+    protected Iterable<ModelPart> bodyParts() {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(leftPants, rightPants, leftSleeve, rightSleeve, jacket));
     }
     

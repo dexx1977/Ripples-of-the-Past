@@ -4,14 +4,12 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.SoulEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.screen.DeathScreen;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -102,7 +100,7 @@ public class ControllerSoul {
                 playerSoulEntity != null && playerSoulEntity == mc.getCameraEntity() && !mc.player.isSpectator() && mc.player.isDeadOrDying()) {
             event.setCanceled(true);
             
-            MatrixStack matrixStack = event.getMatrixStack();
+            PoseStack matrixStack = event.getMatrixStack();
             mc.getProfiler().push("expBar");
             mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
             int i = mc.player.getXpNeededForNextLevel();
@@ -132,13 +130,13 @@ public class ControllerSoul {
         }
     }
     
-    private static final ITextComponent OVERLAY_MESSAGE = new TranslationTextComponent("jojo.message.skip_soul_ascension", new KeybindTextComponent("key.jump"));
+    private static final Component OVERLAY_MESSAGE = Component.translatable("jojo.message.skip_soul_ascension", Component.keybind("key.jump"));
     private void setOverlayMessage(boolean message) {
         if (message) {
             mc.gui.setOverlayMessage(OVERLAY_MESSAGE, false);
         }
         else {
-            ITextComponent overlayMessage = ClientReflection.getOverlayMessageString(mc.gui);
+            Component overlayMessage = ClientReflection.getOverlayMessageString(mc.gui);
             if (OVERLAY_MESSAGE.equals(overlayMessage)) {
                 mc.gui.setOverlayMessage(null, false);
                 ClientReflection.setOverlayMessageTime(mc.gui, 0);

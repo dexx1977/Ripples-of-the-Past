@@ -9,21 +9,21 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.level.Level;
 
 public class HamonBubbleEntity extends ModdedProjectileEntity {
     
-    public HamonBubbleEntity(LivingEntity shooter, World world) {
+    public HamonBubbleEntity(LivingEntity shooter, Level world) {
         super(ModEntityTypes.HAMON_BUBBLE.get(), shooter, world);
     }
 
-    public HamonBubbleEntity(EntityType<? extends HamonBubbleEntity> type, World world) {
+    public HamonBubbleEntity(EntityType<? extends HamonBubbleEntity> type, Level world) {
         super(type, world);
     }
     
@@ -42,7 +42,7 @@ public class HamonBubbleEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void afterEntityHit(EntityRayTraceResult entityRayTraceResult, boolean entityHurt) {
+    protected void afterEntityHit(EntityHitResult entityRayTraceResult, boolean entityHurt) {
         if (entityHurt) {
             LivingEntity owner = getOwner();
             if (owner != null) {
@@ -76,22 +76,22 @@ public class HamonBubbleEntity extends ModdedProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
     }
 }

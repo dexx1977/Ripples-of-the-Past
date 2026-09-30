@@ -8,32 +8,31 @@ import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MoverType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 
 public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
     private Type objectType;
     private UUID owner;
 
-    public ObjectEntity(EntityType<?> pType, World pLevel) {
+    public ObjectEntity(EntityType<?> pType, Level pLevel) {
         super(pType, pLevel);
     }
 
-    public ObjectEntity(World world, Type objectType) {
+    public ObjectEntity(Level world, Type objectType) {
         this(ModEntityTypes.OBJECT.get(), world);
         this.objectType = objectType;
     }
@@ -52,9 +51,9 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    protected ITextComponent getTypeName() {
+    protected Component getTypeName() {
         if (objectType != null) {
-            return new TranslationTextComponent(getType().getDescriptionId() + '.' + objectType.name().toLowerCase());
+            return Component.translatable(getType().getDescriptionId() + '.' + objectType.name().toLowerCase());
         }
         return super.getTypeName();
     }
@@ -77,7 +76,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
             return;
         }
         
-        if ((isOnGround() || fluidHeight.values().stream().anyMatch(height -> height > 0)) && tickCount > 100) {
+        if ((onGround() || fluidHeight.values().stream().anyMatch(height -> height > 0)) && tickCount > 100) {
             if (!level.isClientSide()) {
                 remove();
             }
@@ -87,7 +86,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
         this.xo = this.getX();
         this.yo = this.getY();
         this.zo = this.getZ();
-        Vector3d vector3d = this.getDeltaMovement();
+        Vec3 vector3d = this.getDeltaMovement();
         float f = this.getEyeHeight() - 0.11111111F;
         if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > (double)f) {
             this.setUnderwaterMovement();
@@ -115,14 +114,14 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
 
             this.setDeltaMovement(this.getDeltaMovement().multiply((double)f1, 0.98D, (double)f1));
             if (this.onGround) {
-                Vector3d vector3d1 = this.getDeltaMovement();
+                Vec3 vector3d1 = this.getDeltaMovement();
                 if (vector3d1.y < 0.0D) {
                     this.setDeltaMovement(vector3d1.multiply(1.0D, -0.5D, 1.0D));
                 }
             }
         }
 
-        boolean flag = MathHelper.floor(this.xo) != MathHelper.floor(this.getX()) || MathHelper.floor(this.yo) != MathHelper.floor(this.getY()) || MathHelper.floor(this.zo) != MathHelper.floor(this.getZ());
+        boolean flag = Mth.floor(this.xo) != Mth.floor(this.getX()) || Mth.floor(this.yo) != Mth.floor(this.getY()) || Mth.floor(this.zo) != Mth.floor(this.getZ());
         int i = flag ? 2 : 40;
         if (this.tickCount % i == 0) {
             if (this.level.getFluidState(this.blockPosition()).is(FluidTags.LAVA) && !this.fireImmune()) {
@@ -140,12 +139,12 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     private void setUnderwaterMovement() {
-        Vector3d vector3d = this.getDeltaMovement();
+        Vec3 vector3d = this.getDeltaMovement();
         this.setDeltaMovement(vector3d.x * (double)0.99F, vector3d.y + (double)(vector3d.y < (double)0.06F ? 5.0E-4F : 0.0F), vector3d.z * (double)0.99F);
     }
 
     private void setUnderLavaMovement() {
-        Vector3d vector3d = this.getDeltaMovement();
+        Vec3 vector3d = this.getDeltaMovement();
         this.setDeltaMovement(vector3d.x * (double)0.95F, vector3d.y + (double)(vector3d.y < (double)0.06F ? 5.0E-4F : 0.0F), vector3d.z * (double)0.95F);
     }
 
@@ -160,7 +159,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
     protected void defineSynchedData() {}
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT pCompound) {
+    protected void addAdditionalSaveData(CompoundTag pCompound) {
         if (objectType != null) {
             MCUtil.nbtPutEnum(pCompound, "ObjType", objectType);
         }
@@ -171,7 +170,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT pCompound) {
+    protected void readAdditionalSaveData(CompoundTag pCompound) {
         objectType = MCUtil.nbtGetEnum(pCompound, "ObjType", Type.class);
         tickCount = pCompound.getInt("Age");
         if (pCompound.hasUUID("Owner")) {
@@ -181,17 +180,17 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
 
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         NetworkUtil.writeOptionally(buffer, objectType, t -> buffer.writeEnum(t));
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         objectType = NetworkUtil.readOptional(additionalData, () -> additionalData.readEnum(Type.class)).orElse(null);
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

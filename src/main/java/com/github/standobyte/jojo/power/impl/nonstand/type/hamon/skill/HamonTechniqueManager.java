@@ -15,13 +15,13 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.MainHamonSkillsManager;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechniqueHamonSkill> {
@@ -51,9 +51,9 @@ public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechn
         return isCurrentTechniquePerk(skill) || wrappedSkillSet.contains(skill);
     }
 
-    private static final ActionConditionResult TECHNIQUE_LOCKED = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.technique.locked"));
-    private static final ActionConditionResult TECHNIQUE_MAX = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.technique.max"));
-    private static final ActionConditionResult WRONG_TECHNIQUE = ActionConditionResult.createNegative(new TranslationTextComponent("hamon.closed.technique.bug"));
+    private static final ActionConditionResult TECHNIQUE_LOCKED = ActionConditionResult.createNegative(Component.translatable("hamon.closed.technique.locked"));
+    private static final ActionConditionResult TECHNIQUE_MAX = ActionConditionResult.createNegative(Component.translatable("hamon.closed.technique.max"));
+    private static final ActionConditionResult WRONG_TECHNIQUE = ActionConditionResult.createNegative(Component.translatable("hamon.closed.technique.bug"));
     @Override
     public ActionConditionResult canLearnSkill(LivingEntity user, HamonData hamon, CharacterTechniqueHamonSkill skill) {
         boolean clientSide = user.level.isClientSide();
@@ -128,12 +128,12 @@ public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechn
     
     
     
-    public CompoundNBT toNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag toNBT() {
+        CompoundTag nbt = new CompoundTag();
         
-        ListNBT skillsList = new ListNBT();
+        ListTag skillsList = new ListTag();
         wrappedSkillSet.forEach(skill -> {
-            CompoundNBT skillNbt = new CompoundNBT();
+            CompoundTag skillNbt = new CompoundTag();
             skillNbt.putString("Name", skill.getRegistryName().toString());
             skillsList.add(skillNbt);
         });
@@ -146,12 +146,12 @@ public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechn
         return nbt;
     }
     
-    public void fromNBT(MainHamonSkillsManager mainSkillsHolder, CompoundNBT nbt) {
-        ListNBT skillsNbt = nbt.getList("Skills", MCUtil.getNbtId(CompoundNBT.class));
+    public void fromNBT(MainHamonSkillsManager mainSkillsHolder, CompoundTag nbt) {
+        ListTag skillsNbt = nbt.getList("Skills", MCUtil.getNbtId(CompoundTag.class));
         skillsNbt.forEach(entry -> {
-            if (entry instanceof CompoundNBT) {
-                CompoundNBT skillNbt = (CompoundNBT) entry;
-                if (skillNbt.contains("Name", MCUtil.getNbtId(StringNBT.class))) {
+            if (entry instanceof CompoundTag) {
+                CompoundTag skillNbt = (CompoundTag) entry;
+                if (skillNbt.contains("Name", MCUtil.getNbtId(StringTag.class))) {
                     AbstractHamonSkill s = JojoCustomRegistries.HAMON_SKILLS.getRegistry().getValue(new ResourceLocation(skillNbt.getString("Name")));
                     if (s instanceof CharacterTechniqueHamonSkill) {
                         CharacterTechniqueHamonSkill skill = (CharacterTechniqueHamonSkill) s;
@@ -161,7 +161,7 @@ public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechn
             }
         });
         
-        if (nbt.contains("CharacterTechnique", MCUtil.getNbtId(StringNBT.class))) {
+        if (nbt.contains("CharacterTechnique", MCUtil.getNbtId(StringTag.class))) {
             ResourceLocation techniqueId = new ResourceLocation(nbt.getString("CharacterTechnique"));
             IForgeRegistry<CharacterHamonTechnique> registry = JojoCustomRegistries.HAMON_CHARACTER_TECHNIQUES.getRegistry();
             if (registry.containsKey(techniqueId)) {
@@ -176,9 +176,9 @@ public class HamonTechniqueManager implements IHamonSkillsManager<CharacterTechn
         }
     }
     
-    public void syncWithUser(ServerPlayerEntity user, HamonData hamon) {}
+    public void syncWithUser(ServerPlayer user, HamonData hamon) {}
     
-    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity tracking, HamonData hamon) {
+    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayer tracking, HamonData hamon) {
         if (getTechnique() != null) {
             PacketManager.sendToClient(new TrHamonCharacterTechniquePacket(user.getId(), getTechnique()), tracking);
         }

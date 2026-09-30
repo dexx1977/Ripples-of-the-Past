@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrDoubleShiftPacket {
     private final int entityId;
@@ -23,19 +23,19 @@ public class TrDoubleShiftPacket {
     public static class Handler implements IModPacketHandler<TrDoubleShiftPacket> {
 
         @Override
-        public void encode(TrDoubleShiftPacket msg, PacketBuffer buf) {
+        public void encode(TrDoubleShiftPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
         }
 
         @Override
-        public TrDoubleShiftPacket decode(PacketBuffer buf) {
+        public TrDoubleShiftPacket decode(FriendlyByteBuf buf) {
             return new TrDoubleShiftPacket(buf.readInt());
         }
 
         @Override
         public void handle(TrDoubleShiftPacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.entityId);
-            if (entity instanceof PlayerEntity) {
+            if (entity instanceof Player) {
                 entity.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setDoubleShiftPress());
             }
         }

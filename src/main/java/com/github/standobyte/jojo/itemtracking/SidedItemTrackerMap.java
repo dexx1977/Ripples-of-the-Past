@@ -13,13 +13,13 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class SidedItemTrackerMap {
     final Map<UUID, TrackerItemStack> trackingMap = new HashMap<>();
     final Set<UUID> serverTrackedIds = new HashSet<>();
     
-    public static SidedItemTrackerMap getSidedTrackers(World world) {
+    public static SidedItemTrackerMap getSidedTrackers(Level world) {
         if (!world.isClientSide()) {
             return SaveFileUtilCapProvider.getSaveFileCap(world.getServer()).getItemsTracker();
         }
@@ -45,7 +45,7 @@ public class SidedItemTrackerMap {
         serverTrackedIds.add(id);
     }
     
-    public void updateTracker(UUID id, TrackerItemStack tracker, World world) {
+    public void updateTracker(UUID id, TrackerItemStack tracker, Level world) {
         if (world.isClientSide() || serverTrackedIds.contains(id)) {
             TrackerItemStack prev = trackingMap.put(id, tracker);
             if (prev != null && prev != tracker) {

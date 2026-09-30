@@ -7,8 +7,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PhotosCache;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class PhotoIdAssignedPacket {
     private final UUID photoSendId;
@@ -26,14 +26,14 @@ public class PhotoIdAssignedPacket {
     public static class Handler implements IModPacketHandler<PhotoIdAssignedPacket> {
 
         @Override
-        public void encode(PhotoIdAssignedPacket msg, PacketBuffer buf) {
+        public void encode(PhotoIdAssignedPacket msg, FriendlyByteBuf buf) {
             buf.writeUUID(msg.photoSendId);
             buf.writeLong(msg.photoFinalId);
             buf.writeBoolean(msg.saveToFile);
         }
 
         @Override
-        public PhotoIdAssignedPacket decode(PacketBuffer buf) {
+        public PhotoIdAssignedPacket decode(FriendlyByteBuf buf) {
             UUID photoSendId = buf.readUUID();
             long photoFinalId = buf.readLong();
             boolean saveToFile = buf.readBoolean();

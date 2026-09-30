@@ -1,22 +1,22 @@
 package com.github.standobyte.jojo.crafting;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.CraftingResultSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.ResultSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.common.ForgeHooks;
 
-public class FixedCraftingResultSlot<C extends CraftingInventory, T extends IRecipe<C>> extends CraftingResultSlot {
-    protected final IRecipeType<T> recipeType;
+public class FixedCraftingResultSlot<C extends CraftingContainer, T extends Recipe<C>> extends ResultSlot {
+    protected final RecipeType<T> recipeType;
     protected final C craftSlots;
-    protected final PlayerEntity player;
+    protected final Player player;
 
-    public FixedCraftingResultSlot(PlayerEntity pPlayer, C pCraftSlots, 
-            IInventory pContainer, int pSlot, int pXPosition, int pYPosition, IRecipeType<T> recipeType) {
+    public FixedCraftingResultSlot(Player pPlayer, C pCraftSlots, 
+            Container pContainer, int pSlot, int pXPosition, int pYPosition, RecipeType<T> recipeType) {
         super(pPlayer, pCraftSlots, pContainer, pSlot, pXPosition, pYPosition);
         this.recipeType = recipeType;
         this.craftSlots = pCraftSlots;
@@ -24,7 +24,7 @@ public class FixedCraftingResultSlot<C extends CraftingInventory, T extends IRec
     }
     
     @Override
-    public ItemStack onTake(PlayerEntity pPlayer, ItemStack pStack) {
+    public ItemStack onTake(Player pPlayer, ItemStack pStack) {
         checkTakeAchievements(pStack);
         ForgeHooks.setCraftingPlayer(pPlayer);
         NonNullList<ItemStack> nonnulllist = pPlayer.level.getRecipeManager().getRemainingItemsFor(recipeType, craftSlots, pPlayer.level);

@@ -2,21 +2,21 @@ package com.github.standobyte.jojo.client.ui.actionshud;
 
 import com.github.standobyte.jojo.client.ui.BlitFloat;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
 
 public class RadialBar {
     private static final float PI = (float) Math.PI;
 
     // TODO breaks when using non-zero angle0 with fill > 0.5 (not planning to do that anyway, but when i've got nothing else to do might as well fix that)
-    public static void render(MatrixStack matrixStack, float x, float y, 
+    public static void render(PoseStack matrixStack, float x, float y, 
             float angle0, float fill, 
             float emptyTexU, float emptyTexV, float filledTexU, float filledTexV, 
             float uWidth, float vHeight, float texWidth, float texHeight, int blitOffset) {
@@ -42,7 +42,7 @@ public class RadialBar {
         }
 
         Matrix4f matrix = matrixStack.last().pose();
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         float xWidth = uWidth;
         float yHeight = vHeight;
         float halfWidth = xWidth / 2;
@@ -82,10 +82,10 @@ public class RadialBar {
             if (angle1 > quadrant.minAngle && angle0 <= quadrant.maxAngle) {
                 angleV1 = Math.max(angle0, quadrant.minAngle) - quadrant.minAngle;
                 angleV3 = Math.min(angle1, quadrant.maxAngle) - quadrant.minAngle;
-                cosV1 = MathHelper.cos(angleV1);
-                sinV1 = MathHelper.sin(angleV1);
-                cosV3 = MathHelper.cos(angleV3);
-                sinV3 = MathHelper.sin(angleV3);
+                cosV1 = Mth.cos(angleV1);
+                sinV1 = Mth.sin(angleV1);
+                cosV3 = Mth.cos(angleV3);
+                sinV3 = Mth.sin(angleV3);
                 
                 switch (quadrant) {
                 case LOWER_RIGHT:
@@ -148,7 +148,7 @@ public class RadialBar {
                     throw new AssertionError();
                 }
                 
-                bufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+                bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
                 bufferBuilder.vertex(matrix, x3, y3, blitOffset).uv(
                         lerpUV(x3, minX, maxX, minU, maxU), 
                         lerpUV(y3, minY, maxY, minV, maxV))
@@ -167,7 +167,7 @@ public class RadialBar {
                 .endVertex();
                 bufferBuilder.end();
                 RenderSystem.enableAlphaTest();
-                WorldVertexBufferUploader.end(bufferBuilder);
+                BufferUploader.end(bufferBuilder);
             }
         }
     }
@@ -188,6 +188,6 @@ public class RadialBar {
     }
     
     private static float lerpUV(float coord, float coord0, float coord1, float minUV, float maxUV) {
-        return (float) MathHelper.lerp(MathHelper.inverseLerp(coord, coord0, coord1), minUV, maxUV);
+        return (float) Mth.lerp(Mth.inverseLerp(coord, coord0, coord1), minUV, maxUV);
     }
 }

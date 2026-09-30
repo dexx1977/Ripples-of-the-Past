@@ -2,21 +2,21 @@ package com.github.standobyte.jojo.crafting;
 
 import com.github.standobyte.jojo.init.ModRecipeSerializers;
 
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 
-public class StandUserShapedRecipe extends StandUserRecipe<ShapedRecipe> implements IShapedRecipe<CraftingInventory> {
+public class StandUserShapedRecipe extends StandUserRecipe<ShapedRecipe> implements IShapedRecipe<CraftingContainer> {
 
     public StandUserShapedRecipe(ShapedRecipe recipe, NonNullList<ResourceLocation> stands) {
         super(recipe, stands);
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return ModRecipeSerializers.STAND_USER_SHAPED_RECIPE.get();
     }
 

@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.power.impl.stand.stats;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ArmoredStandStats extends StandStats {
     public final double armor;
@@ -12,14 +12,14 @@ public class ArmoredStandStats extends StandStats {
         this.armorToughness = builder.armorToughness;
     }
     
-    protected ArmoredStandStats(PacketBuffer buf) {
+    protected ArmoredStandStats(FriendlyByteBuf buf) {
         super(buf);
         this.armor = buf.readDouble();
         this.armorToughness = buf.readDouble();
     }
     
     @Override
-    public void write(PacketBuffer buf) {
+    public void write(FriendlyByteBuf buf) {
         super.write(buf);
         buf.writeDouble(armor);
         buf.writeDouble(armorToughness);

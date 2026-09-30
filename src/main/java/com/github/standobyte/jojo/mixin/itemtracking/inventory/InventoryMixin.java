@@ -12,26 +12,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.IInventoryChangedListener;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerListener;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 
-@Mixin(Inventory.class)
-public abstract class InventoryMixin implements IInventory {
+@Mixin(SimpleContainer.class)
+public abstract class InventoryMixin implements Container {
     @Shadow
     @Final private NonNullList<ItemStack> items;
     @Shadow
-    private List<IInventoryChangedListener> listeners;
+    private List<ContainerListener> listeners;
     
     @Inject(method = "setItem", at = @At("TAIL"))
     public void jojoOnItemSetToSlot(int slot, ItemStack item, CallbackInfo ci) {
         if (listeners != null) {
-            for (IInventoryChangedListener shouldBeHorse : listeners) {
-                if (shouldBeHorse instanceof AbstractHorseEntity) {
-                    AbstractHorseEntity horse = (AbstractHorseEntity) shouldBeHorse;
+            for (ContainerListener shouldBeHorse : listeners) {
+                if (shouldBeHorse instanceof AbstractHorse) {
+                    AbstractHorse horse = (AbstractHorse) shouldBeHorse;
                     if (!horse.level.isClientSide()) {
                         TrackerItemStack.getItemTrackerInInventory(item, items.stream(), false)
                         .ifPresent(tracker -> {

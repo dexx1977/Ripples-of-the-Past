@@ -6,20 +6,20 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.github.standobyte.jojo.init.ModEnchantments;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 
 public class GlovesSpeedEnchantment extends Enchantment {
-    protected final EquipmentSlotType[] slots;
+    protected final EquipmentSlot[] slots;
 
     public GlovesSpeedEnchantment(Enchantment.Rarity pRarity, 
-            EnchantmentType type, EquipmentSlotType... pApplicableSlots) {
+            EnchantmentCategory type, EquipmentSlot... pApplicableSlots) {
         super(pRarity, type, pApplicableSlots);
         this.slots = pApplicableSlots;
     }
@@ -45,7 +45,7 @@ public class GlovesSpeedEnchantment extends Enchantment {
         return 4;
     }
     
-    public boolean appliesToSlot(EquipmentSlotType slot) {
+    public boolean appliesToSlot(EquipmentSlot slot) {
         return ArrayUtils.contains(slots, slot);
     }
 
@@ -54,7 +54,7 @@ public class GlovesSpeedEnchantment extends Enchantment {
         if (ModEnchantments.GLOVES_SPEED.get().appliesToSlot(modifiers.getSlotType())) {
             int glovesSpeedLevel = EnchantmentHelper.getItemEnchantmentLevel(ModEnchantments.GLOVES_SPEED.get(), item);
             if (glovesSpeedLevel > 0) {
-                double multiplier = modifiers.getSlotType() == EquipmentSlotType.MAINHAND ? 0.1 : 0.025;
+                double multiplier = modifiers.getSlotType() == EquipmentSlot.MAINHAND ? 0.1 : 0.025;
                 modifiers.addModifier(Attributes.ATTACK_SPEED, new AttributeModifier(
                         ATTRIBUTE_ID, "Gloves attack speed", multiplier * glovesSpeedLevel, AttributeModifier.Operation.MULTIPLY_TOTAL));
             }

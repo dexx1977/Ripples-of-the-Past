@@ -4,18 +4,18 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class ActionTarget {
     private final TargetType type;
@@ -23,7 +23,7 @@ public class ActionTarget {
     private final Direction face;
     private Entity entity;
     private final int entityId;
-    private final Vector3d targetPos;
+    private final Vec3 targetPos;
     
     public static final ActionTarget EMPTY = new ActionTarget();
     
@@ -42,7 +42,7 @@ public class ActionTarget {
         this.face = face;
         this.entity = null;
         this.entityId = -1;
-        this.targetPos = new Vector3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()).add(0.5D, 0.5D, 0.5D);
+        this.targetPos = new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()).add(0.5D, 0.5D, 0.5D);
     }
     
     public ActionTarget(@Nonnull Entity entity) {
@@ -64,17 +64,17 @@ public class ActionTarget {
         }
     }
     
-    public ActionTarget(int entityId, World world) {
+    public ActionTarget(int entityId, Level world) {
         this(world.getEntity(entityId));
     }
     
-    public static ActionTarget fromRayTraceResult(RayTraceResult result) {
+    public static ActionTarget fromRayTraceResult(HitResult result) {
         switch (result.getType()) {
         case BLOCK:
-            BlockRayTraceResult blockResult = (BlockRayTraceResult) result;
+            BlockHitResult blockResult = (BlockHitResult) result;
             return new ActionTarget(blockResult.getBlockPos(), blockResult.getDirection());
         case ENTITY:
-            return new ActionTarget(((EntityRayTraceResult) result).getEntity());
+            return new ActionTarget(((EntityHitResult) result).getEntity());
         default:
             return ActionTarget.EMPTY;
         }
@@ -96,14 +96,14 @@ public class ActionTarget {
         return entity;
     }
 
-    public Vector3d getTargetPos(boolean targetEntityEyeHeight) {
+    public Vec3 getTargetPos(boolean targetEntityEyeHeight) {
         return type == TargetType.ENTITY && entity != null ? 
                 targetEntityEyeHeight ? entity.getEyePosition(1.0F) : entity.position()
                         : targetPos;
     }
     
-    public Optional<AxisAlignedBB> getBoundingBox(World world) {
-        AxisAlignedBB aabb = null;
+    public Optional<AABB> getBoundingBox(Level world) {
+        AABB aabb = null;
         switch (type) {
         case ENTITY:
             aabb = getEntity().getBoundingBox();
@@ -122,7 +122,7 @@ public class ActionTarget {
     }
     
 
-    public void writeToBuf(PacketBuffer buf) {
+    public void writeToBuf(FriendlyByteBuf buf) {
         TargetType type = getType();
         buf.writeEnum(type);
         switch (type) {
@@ -137,7 +137,7 @@ public class ActionTarget {
         }
     }
     
-    public static ActionTarget readFromBuf(PacketBuffer buf) {
+    public static ActionTarget readFromBuf(FriendlyByteBuf buf) {
         TargetType type = buf.readEnum(TargetType.class);
         switch (type) {
         case ENTITY:
@@ -149,12 +149,12 @@ public class ActionTarget {
         }
     }
     
-    public static ActionTarget readFromBuf(PacketBuffer buf, World clientWorld) {
+    public static ActionTarget readFromBuf(FriendlyByteBuf buf, Level clientWorld) {
         ActionTarget target = readFromBuf(buf);
         return target.resolveEntityId(clientWorld);
     }
     
-    public ActionTarget resolveEntityId(World world) {
+    public ActionTarget resolveEntityId(Level world) {
         if (getType() == TargetType.ENTITY) {
             this.entity = world.getEntity(entityId);
             return this.entity != null ? this : ActionTarget.EMPTY;

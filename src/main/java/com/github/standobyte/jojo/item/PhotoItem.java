@@ -8,15 +8,14 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PhotosCache;
 import com.github.standobyte.jojo.client.polaroid.PhotosCache.PhotoHolder;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 
 public class PhotoItem extends Item {
 
@@ -25,8 +24,8 @@ public class PhotoItem extends Item {
     }
     
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-        CompoundNBT tag = stack.getTag();
+    public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
+        CompoundTag tag = stack.getTag();
         if (tag != null && tag.contains("DevTicks")) {
             int textureTicks = tag.getInt("DevTicks");
             if (textureTicks > 0) {
@@ -47,7 +46,7 @@ public class PhotoItem extends Item {
     
     public static long getPhotoId(ItemStack photoItem) {
         if (photoItem.hasTag()) {
-            CompoundNBT tag = photoItem.getTag();
+            CompoundTag tag = photoItem.getTag();
             if (tag.contains("PhotoId")) {
                 return tag.getLong("PhotoId");
             }
@@ -84,13 +83,13 @@ public class PhotoItem extends Item {
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         if (flag.isAdvanced()) {
             long photoId = getPhotoId(stack);
             if (photoId > -1) {
                 PhotoHolder.Status status = PhotosCache.getCacheStatus(ClientUtil.getServerUUID(), photoId);
-                tooltip.add(new StringTextComponent("Id: " + photoId).withStyle(TextFormatting.DARK_GRAY));
-                tooltip.add(new StringTextComponent("Status: " + status.toString()).withStyle(TextFormatting.DARK_GRAY));
+                tooltip.add(Component.literal("Id: " + photoId).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(Component.literal("Status: " + status.toString()).withStyle(ChatFormatting.DARK_GRAY));
             }
         }
     }

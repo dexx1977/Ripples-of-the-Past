@@ -17,16 +17,15 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class ArgumentUtil {
-    public static final DynamicCommandExceptionType AMBIGUOUS_ID = new DynamicCommandExceptionType((key) -> new TranslationTextComponent("jojo.command.id_ambiguous", key));
+    public static final DynamicCommandExceptionType AMBIGUOUS_ID = new DynamicCommandExceptionType((key) -> Component.translatable("jojo.command.id_ambiguous", key));
     
-    public static <V extends IForgeRegistryEntry<V>> V bestFittingValue(String idInput, IForgeRegistry<V> registry, 
+    public static <V> V bestFittingValue(String idInput, IForgeRegistry<V> registry, 
             Map<String, List<V>> aliasMap, 
             DynamicCommandExceptionType unknownException) throws CommandSyntaxException { 
         ResourceLocation id;
@@ -59,7 +58,7 @@ public class ArgumentUtil {
     }
     
     
-    public static <V extends IForgeRegistryEntry<V>> Map<String, List<V>> groupByKeyLocation(IForgeRegistry<V> registry) {
+    public static <V> Map<String, List<V>> groupByKeyLocation(IForgeRegistry<V> registry) {
         return registry.getEntries().stream()
                 .collect(Collectors.groupingBy(
                         entry -> entry.getKey().location().getPath(), 
@@ -84,7 +83,7 @@ public class ArgumentUtil {
         return charIn >= '0' && charIn <= '9' || charIn >= 'a' && charIn <= 'z' || charIn == '_' || charIn == ':' || charIn == '/' || charIn == '.' || charIn == '-';
     }
     
-    private static final SimpleCommandExceptionType INVALID_EXCEPTION = new SimpleCommandExceptionType(new TranslationTextComponent("argument.id.invalid"));
+    private static final SimpleCommandExceptionType INVALID_EXCEPTION = new SimpleCommandExceptionType(Component.translatable("argument.id.invalid"));
 
 
     public static CompletableFuture<Suggestions> suggestIterable(Stream<ResourceLocation> registryKeys, SuggestionsBuilder builder) {

@@ -14,20 +14,20 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class ClackersItem extends Item {
     public static final int TICKS_MAX_POWER = 20;
@@ -42,7 +42,7 @@ public class ClackersItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         INonStandPower power = INonStandPower.getPlayerNonStandPower(player);
         if (power.getTypeSpecificData(ModPowers.HAMON.get()).map(hamon -> {
@@ -52,28 +52,28 @@ public class ClackersItem extends Item {
             return false;
         }).orElse(false)) {
             player.startUsingItem(hand);
-            return ActionResult.pass(stack);
+            return InteractionResultHolder.pass(stack);
         }
         else {
             playClackSound(world, player);
             ding(world, player);
-            return ActionResult.fail(stack);
+            return InteractionResultHolder.fail(stack);
         }
     }
     
-    private void ding(World world, PlayerEntity player) {
+    private void ding(Level world, Player player) {
     }
 
     private static final float CHARGE_TICK_COST = 5;
     private static final float UPKEEP_TICK_COST = CHARGE_TICK_COST / 5;
     @Override
-    public void onUseTick(World world, LivingEntity entity, ItemStack stack, int remainingTicks) {
+    public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int remainingTicks) {
         int ticksUsed = getUseDuration(stack) - remainingTicks;
         int ticksMaxPower = TICKS_MAX_POWER;
         if (clackersTexVariant(ticksUsed, ticksMaxPower) > 0) {
             //playClackSound(world, entity);
             if (ticksUsed >= ticksMaxPower / 2 && !world.isClientSide()) {
-                Vector3d sparkVec = entity.getLookAngle().scale(0.75)
+                Vec3 sparkVec = entity.getLookAngle().scale(0.75)
                         .add(entity.getX(), entity.getY(0.6), entity.getZ());
 //                HamonUtil.emitHamonSparkParticles(world, entity instanceof PlayerEntity ? (PlayerEntity) entity : null, 
 //                        sparkVec, ticksUsed >= ticksMaxPower ? 0.25F : 0.1F);
@@ -102,14 +102,14 @@ public class ClackersItem extends Item {
     }
 
     @Override
-    public void releaseUsing(ItemStack itemStack, World world, LivingEntity entity, int ticksLeft) {
+    public void releaseUsing(ItemStack itemStack, Level world, LivingEntity entity, int ticksLeft) {
         int ticksUsed = getUseDuration(itemStack) - ticksLeft;
         float power = (float) Math.min(ticksUsed, TICKS_MAX_POWER) / (float) TICKS_MAX_POWER;
         if (power > 0) {
             if (power < 0.15) {
                 playClackSound(world, entity);
                 if (!world.isClientSide()) {
-                    entity.hurt(entity instanceof PlayerEntity ? DamageSource.playerAttack((PlayerEntity) entity) : DamageSource.mobAttack(entity), 1.0F);
+                    entity.hurt(entity instanceof Player ? DamageSource.playerAttack((Player) entity) : DamageSource.mobAttack(entity), 1.0F);
                     JojoModUtil.sayVoiceLine(entity, ModSounds.JOSEPH_OH_NO.get());
                 }
             }
@@ -132,14 +132,14 @@ public class ClackersItem extends Item {
                 world.addFreshEntity(clackers);
             }
         }
-        if (power > 0.5 && !(entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild)) {
+        if (power > 0.5 && !(entity instanceof Player && ((Player) entity).abilities.instabuild)) {
             itemStack.shrink(1);
         }
     }
 
     @Override
-    public UseAction getUseAnimation(ItemStack stack) {
-        return UseAction.BOW;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     @Override
@@ -166,15 +166,15 @@ public class ClackersItem extends Item {
         }).orElse(false)).orElse(false);
     }
 
-    public static void playClackSound(World world, LivingEntity entity) {
-        world.playSound(entity instanceof PlayerEntity ? (PlayerEntity) entity : null, entity.getX(), entity.getY(), entity.getZ(), 
+    public static void playClackSound(Level world, LivingEntity entity) {
+        world.playSound(entity instanceof Player ? (Player) entity : null, entity.getX(), entity.getY(), entity.getZ(), 
                 ModSounds.CLACKERS.get(), entity.getSoundSource(), 0.5F, 1.0F + (random.nextFloat() - 0.5F) * 0.1F);
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
-        if (slot == EquipmentSlotType.MAINHAND) {
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.MAINHAND) {
             return attributeModifiers;
         }
         return super.getDefaultAttributeModifiers(slot);

@@ -6,11 +6,11 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.network.NetworkUtil;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.IDataSerializer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DataSerializerEntry;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -21,10 +21,10 @@ public class ModDataSerializers {
     public static final RegistryObject<DataSerializerEntry> STAND_ENTITY_TASK = DATA_SERIALIZERS.register("stand_action", StandEntityTask.SERIALIZER);
     
     public static final RegistryObject<DataSerializerEntry> OPTIONAL_VECTOR3D = DATA_SERIALIZERS.register("optional_vector3d", () -> new DataSerializerEntry(
-            new IDataSerializer<Optional<Vector3d>>() {
+            new EntityDataSerializer<Optional<Vec3>>() {
 
         @Override
-        public void write(PacketBuffer buf, Optional<Vector3d> value) {
+        public void write(FriendlyByteBuf buf, Optional<Vec3> value) {
             NetworkUtil.writeOptional(buf, value, vector -> {
                 buf.writeDouble(vector.x);
                 buf.writeDouble(vector.y);
@@ -33,30 +33,30 @@ public class ModDataSerializers {
         }
 
         @Override
-        public Optional<Vector3d> read(PacketBuffer buf) {
+        public Optional<Vec3> read(FriendlyByteBuf buf) {
             return NetworkUtil.readOptional(buf, () -> {
-                Vector3d vec = new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+                Vec3 vec = new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
                 return vec;
             });
         }
 
         @Override
-        public Optional<Vector3d> copy(Optional<Vector3d> value) {
+        public Optional<Vec3> copy(Optional<Vec3> value) {
             return value;
         }
     }));
     
     public static final RegistryObject<DataSerializerEntry> OPTIONAL_RES_LOC = DATA_SERIALIZERS.register("optional_res_loc", () -> new DataSerializerEntry(
-            new IDataSerializer<Optional<ResourceLocation>>() {
+            new EntityDataSerializer<Optional<ResourceLocation>>() {
 
         @Override
-        public void write(PacketBuffer buf, Optional<ResourceLocation> value) {
+        public void write(FriendlyByteBuf buf, Optional<ResourceLocation> value) {
             NetworkUtil.writeOptional(buf, value, buf::writeResourceLocation);
         }
 
         @Override
-        public Optional<ResourceLocation> read(PacketBuffer buf) {
-            return NetworkUtil.readOptional(buf, PacketBuffer::readResourceLocation);
+        public Optional<ResourceLocation> read(FriendlyByteBuf buf) {
+            return NetworkUtil.readOptional(buf, FriendlyByteBuf::readResourceLocation);
         }
 
         @Override

@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.util.mod;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public interface IPlayerLeap {
     boolean _isEntityOnGround();

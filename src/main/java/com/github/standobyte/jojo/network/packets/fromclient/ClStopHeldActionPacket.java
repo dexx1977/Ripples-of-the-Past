@@ -7,9 +7,9 @@ import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.IPower;
 import com.github.standobyte.jojo.power.IPower.PowerClassification;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClStopHeldActionPacket {
     private final PowerClassification classification;
@@ -25,19 +25,19 @@ public class ClStopHeldActionPacket {
     public static class Handler implements IModPacketHandler<ClStopHeldActionPacket> {
 
         @Override
-        public void encode(ClStopHeldActionPacket msg, PacketBuffer buf) {
+        public void encode(ClStopHeldActionPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.classification);
             buf.writeBoolean(msg.shouldFire);
         }
 
         @Override
-        public ClStopHeldActionPacket decode(PacketBuffer buf) {
+        public ClStopHeldActionPacket decode(FriendlyByteBuf buf) {
             return new ClStopHeldActionPacket(buf.readEnum(PowerClassification.class), buf.readBoolean());
         }
 
         @Override
         public void handle(ClStopHeldActionPacket msg, Supplier<NetworkEvent.Context> ctx) {
-            PlayerEntity player = ctx.get().getSender();
+            Player player = ctx.get().getSender();
             IPower.getPowerOptional(player, msg.classification).ifPresent(power -> {
                 Action<?> heldAction = power.getHeldAction();
                 if (heldAction != null && !heldAction.commitToWindup) {

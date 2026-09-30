@@ -2,11 +2,11 @@ package com.github.standobyte.jojo.util.mc.damage;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
 
 public class StandLinkDamageSource extends DamageSource {
     private final Entity standEntity;
@@ -90,7 +90,7 @@ public class StandLinkDamageSource extends DamageSource {
     }
 
     @Override
-    public ITextComponent getLocalizedDeathMessage(LivingEntity dead) {
+    public Component getLocalizedDeathMessage(LivingEntity dead) {
         return actualSource.getLocalizedDeathMessage(dead);
     }
 
@@ -105,7 +105,7 @@ public class StandLinkDamageSource extends DamageSource {
 
     @Override
     @Nullable
-    public Vector3d getSourcePosition() {
+    public Vec3 getSourcePosition() {
         return null;
     }
     

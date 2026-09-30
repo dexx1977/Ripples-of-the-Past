@@ -16,44 +16,45 @@ import com.github.standobyte.jojo.client.render.rendertype.CustomRenderType;
 import com.github.standobyte.jojo.entity.GETransformationEntity;
 import com.github.standobyte.jojo.util.mc.reflection.ClientReflection;
 import com.github.standobyte.jojo.util.mc.reflection.ReflectionUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.entity.model.SegmentedModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.ListModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.common.MinecraftForge;
+import com.mojang.math.Axis;
 
 public class GETransformationRenderer<T extends GETransformationEntity> extends EntityRenderer<T> {
 
-    public GETransformationRenderer(EntityRendererManager renderManager) {
+    public GETransformationRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
 
@@ -64,7 +65,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void render(T entity, float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(T entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         if (entity.getVehicle() != null && entity.getVehicle() == ClientUtil.getClientPlayer()) {
             return;
         }
@@ -89,15 +90,15 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                     else {
                         this.shadowRadius = 0;
                         
-                        if (sourceBlock.getRenderShape() == BlockRenderType.MODEL) {
-                           World world = entity.level;
-                           if (sourceBlock != world.getBlockState(entity.blockPosition()) && sourceBlock.getRenderShape() != BlockRenderType.INVISIBLE) {
+                        if (sourceBlock.getRenderShape() == RenderShape.MODEL) {
+                           Level world = entity.level;
+                           if (sourceBlock != world.getBlockState(entity.blockPosition()) && sourceBlock.getRenderShape() != RenderShape.INVISIBLE) {
                               matrixStack.pushPose();
                               BlockPos blockPos = new BlockPos(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
                               matrixStack.translate(-0.5, 0, -0.5);
-                              BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
+                              BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
                               for (RenderType type : RenderType.chunkBufferLayers()) {
-                                 if (RenderTypeLookup.canRenderInLayer(sourceBlock, type)) {
+                                 if (ItemBlockRenderTypes.canRenderInLayer(sourceBlock, type)) {
                                     ForgeHooksClient.setRenderLayer(type);
                                     BlockPos startingPos = entity.getTfSourceData().getSourceBlockPos();
                                     if (startingPos == null) startingPos = entity.blockPosition();
@@ -119,10 +120,10 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             else {
                 Entity target = entity.getTransformationTarget();
                 if (target != null) {
-                    float progress = MathHelper.clamp((age - itemSourceAge) / (ageMax - itemSourceAge), 0, 1);
+                    float progress = Mth.clamp((age - itemSourceAge) / (ageMax - itemSourceAge), 0, 1);
                     EntityRenderer<?> renderer = entityRenderDispatcher.getRenderer(target);
-                    if (target instanceof LivingEntity && renderer instanceof LivingRenderer) {
-                        renderTransformationLiving((LivingEntity) target, entity, (LivingRenderer) renderer, 
+                    if (target instanceof LivingEntity && renderer instanceof LivingEntityRenderer) {
+                        renderTransformationLiving((LivingEntity) target, entity, (LivingEntityRenderer) renderer, 
                                 yRotation, partialTick, matrixStack, buffer, packedLight, progress);
                     }
                     else {
@@ -136,11 +137,11 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     }
     
     private <E extends Entity> void renderTransformationNonLiving(E target, T transformationEntity, EntityRenderer<E> renderer, 
-            float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, float progress) {
+            float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, float progress) {
     }
     
-    private <E extends LivingEntity, M extends EntityModel<E>> void renderTransformationLiving(E living, T transformationEntity, LivingRenderer<E, M> renderer,
-            float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, float progress) {
+    private <E extends LivingEntity, M extends EntityModel<E>> void renderTransformationLiving(E living, T transformationEntity, LivingEntityRenderer<E, M> renderer,
+            float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight, float progress) {
         if (MinecraftForge.EVENT_BUS.post(new RenderLivingEvent.Pre<E, M>(living, renderer, partialTick, matrixStack, buffer, packedLight))) return;
         
         M targetModel = renderer.getModel();
@@ -149,12 +150,12 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
 
         targetModel.riding = false;
         targetModel.young = living.isBaby();
-        float yHeadRotation = MathHelper.rotLerp(partialTick, living.yHeadRotO, living.yHeadRot);
-        float yBodyRotation = MathHelper.rotLerp(partialTick, living.yBodyRotO, living.yBodyRot);
+        float yHeadRotation = Mth.rotLerp(partialTick, living.yHeadRotO, living.yHeadRot);
+        float yBodyRotation = Mth.rotLerp(partialTick, living.yBodyRotO, living.yBodyRot);
         float f2 = yHeadRotation - yBodyRotation;
         
-        float xRotation = MathHelper.lerp(partialTick, transformationEntity.xRotO, transformationEntity.xRot);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - yBodyRotation));
+        float xRotation = Mth.lerp(partialTick, transformationEntity.xRotO, transformationEntity.xRot);
+        matrixStack.mulPose(Axis.YP.rotationDegrees(180.0F - yBodyRotation));
 
         float ticks = living.tickCount + partialTick;
         matrixStack.scale(-1.0F, -1.0F, 1.0F);
@@ -174,7 +175,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                 modelState.saveState();
                 modelState.lerp(progress);
                 
-                IVertexBuilder ivertexbuilder = buffer.getBuffer(rendertype);
+                VertexConsumer ivertexbuilder = buffer.getBuffer(rendertype);
                 int overlay = OverlayTexture.NO_OVERLAY;
                 
                 
@@ -191,7 +192,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                         RenderType renderTypeItem = CustomRenderType.goldExperienceLifeformOverlay(
                                 blockSprite, targetModel.texWidth / 16F, targetModel.texHeight / 16F);
                         if (renderTypeItem != null) {
-                            IVertexBuilder vertexBuilderItem = buffer.getBuffer(renderTypeItem);
+                            VertexConsumer vertexBuilderItem = buffer.getBuffer(renderTypeItem);
                             targetModel.renderToBuffer(matrixStack, vertexBuilderItem, packedLight, overlay, 1.0F, 1.0F, 1.0F, blockOverlayAlpha);
                         }
                     }
@@ -230,10 +231,10 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     
     
-    private static Map<ModelRenderer, float[]> createStateZero(Collection<ModelRenderer> modelParts) {
-        Map<ModelRenderer, float[]> map = new HashMap<>();
+    private static Map<ModelPart, float[]> createStateZero(Collection<ModelPart> modelParts) {
+        Map<ModelPart, float[]> map = new HashMap<>();
         modelParts.forEach(modelPart -> {
-            ObjectList<ModelRenderer.ModelBox> boxes = modelPart.cubes;
+            ObjectList<ModelPart.ModelBox> boxes = modelPart.cubes;
             float minX = boxes.stream().map(box -> box.minX).min(Float::compare).orElse(0f);
             float maxX = boxes.stream().map(box -> box.maxX).max(Float::compare).orElse(0f);
             float minY = boxes.stream().map(box -> box.minY).min(Float::compare).orElse(0f);
@@ -257,11 +258,11 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     private static final Map<EntityModel<?>, ModelStateEntry> MODEL_PARTS_CACHE = new HashMap<>();
     private static class ModelStateEntry {
-        private final Map<ModelRenderer, ModelRendererState> state;
+        private final Map<ModelPart, ModelRendererState> state;
         
         private ModelStateEntry(EntityModel<?> model) {
-            Collection<ModelRenderer> modelParts = getModelParts(model);
-            Map<ModelRenderer, float[]> stateZero = createStateZero(modelParts);
+            Collection<ModelPart> modelParts = getModelParts(model);
+            Map<ModelPart, float[]> stateZero = createStateZero(modelParts);
             this.state = modelParts.stream().collect(Collectors.toMap(Function.identity(), modelPart -> {
                 float[] partStateZero = stateZero.get(modelPart);
                 return new ModelRendererState()
@@ -310,11 +311,11 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             return this;
         }
         
-        public ModelRendererState withNormalState(ModelRenderer modelRenderer) {
+        public ModelRendererState withNormalState(ModelPart modelRenderer) {
             return withNormalState(modelRenderer.x, modelRenderer.y, modelRenderer.z, modelRenderer.xRot, modelRenderer.yRot, modelRenderer.zRot);
         }
         
-        public void saveState(ModelRenderer modelRenderer) {
+        public void saveState(ModelPart modelRenderer) {
             stateSaved[0] = modelRenderer.x;
             stateSaved[1] = modelRenderer.y;
             stateSaved[2] = modelRenderer.z;
@@ -323,7 +324,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             stateSaved[5] = modelRenderer.zRot;
         }
         
-        public void restoreState(ModelRenderer modelRenderer) {
+        public void restoreState(ModelPart modelRenderer) {
             modelRenderer.x = stateSaved[0];
             modelRenderer.y = stateSaved[1];
             modelRenderer.z = stateSaved[2];
@@ -332,49 +333,49 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             modelRenderer.zRot = stateSaved[5];
         }
         
-        public void lerp(ModelRenderer modelRenderer, float lerp) {
-            modelRenderer.x = MathHelper.lerp(lerp, stateZero[0], stateNormal[0]);
-            modelRenderer.y = MathHelper.lerp(lerp, stateZero[1], stateNormal[1]);
-            modelRenderer.z = MathHelper.lerp(lerp, stateZero[2], stateNormal[2]);
-            modelRenderer.xRot = MathHelper.lerp(lerp, stateZero[3], stateNormal[3]);
-            modelRenderer.yRot = MathHelper.lerp(lerp, stateZero[4], stateNormal[4]);
-            modelRenderer.zRot = MathHelper.lerp(lerp, stateZero[5], stateNormal[5]);
+        public void lerp(ModelPart modelRenderer, float lerp) {
+            modelRenderer.x = Mth.lerp(lerp, stateZero[0], stateNormal[0]);
+            modelRenderer.y = Mth.lerp(lerp, stateZero[1], stateNormal[1]);
+            modelRenderer.z = Mth.lerp(lerp, stateZero[2], stateNormal[2]);
+            modelRenderer.xRot = Mth.lerp(lerp, stateZero[3], stateNormal[3]);
+            modelRenderer.yRot = Mth.lerp(lerp, stateZero[4], stateNormal[4]);
+            modelRenderer.zRot = Mth.lerp(lerp, stateZero[5], stateNormal[5]);
         }
     }
     
     
     
-    private static Collection<ModelRenderer> getModelParts(EntityModel<?> model) {
-        Set<ModelRenderer> modelParts = new HashSet<>();
-        if (model instanceof AgeableModel) {
-            AgeableModel<?> ageable = (AgeableModel<?>) model;
+    private static Collection<ModelPart> getModelParts(EntityModel<?> model) {
+        Set<ModelPart> modelParts = new HashSet<>();
+        if (model instanceof AgeableListModel) {
+            AgeableListModel<?> ageable = (AgeableListModel<?>) model;
             ClientReflection.getHeadParts(ageable).forEach(modelPart -> addSubPartsAndSelf(modelParts, modelPart));
             ClientReflection.getBodyParts(ageable).forEach(modelPart -> addSubPartsAndSelf(modelParts, modelPart));
         }
-        else if (model instanceof SegmentedModel) {
-            SegmentedModel<?> segmented = (SegmentedModel<?>) model;
+        else if (model instanceof ListModel) {
+            ListModel<?> segmented = (ListModel<?>) model;
             segmented.parts().forEach(modelPart -> addSubPartsAndSelf(modelParts, modelPart));
         }
         else {
             ReflectionUtil.getFieldsIncludingSuperclasses(model.getClass()).forEach(field -> {
-                if (ModelRenderer.class.isAssignableFrom(field.getType())) {
+                if (ModelPart.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
                         Object obj = field.get(model);
                         if (obj != null) {
-                            ModelRenderer modelPart = (ModelRenderer) obj;
+                            ModelPart modelPart = (ModelPart) obj;
                             addSubPartsAndSelf(modelParts, modelPart);
                         }
                     } catch (IllegalArgumentException | IllegalAccessException e) {
                         JojoMod.getLogger().error("Failed to create the lifeform creation animation for model {}", model.getClass().getSimpleName(), e);
                     }
                 }
-                else if (ModelRenderer[].class.isAssignableFrom(field.getType())) {
+                else if (ModelPart[].class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
                         Object obj = field.get(model);
                         if (obj != null) {
-                            for (ModelRenderer modelPart : (ModelRenderer[]) obj)
+                            for (ModelPart modelPart : (ModelPart[]) obj)
                             addSubPartsAndSelf(modelParts, modelPart);
                         }
                     } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -387,9 +388,9 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
         return modelParts;
     }
     
-    private static void addSubPartsAndSelf(Set<ModelRenderer> modelParts, ModelRenderer modelRenderer) {
+    private static void addSubPartsAndSelf(Set<ModelPart> modelParts, ModelPart modelRenderer) {
         modelParts.add(modelRenderer);
-        ObjectList<ModelRenderer> children = modelRenderer.children;
+        ObjectList<ModelPart> children = modelRenderer.children;
         children.forEach(child -> addSubPartsAndSelf(modelParts, child));
     }
     

@@ -10,9 +10,9 @@ import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXHea
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.core.util.Ease;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 
 public class KosmXLightFlashHandler extends AnimLayerHandler<ModifierLayer<IAnimation>> implements BasicToggleAnim {
     private static final float SPEED = 1.0F;
@@ -22,7 +22,7 @@ public class KosmXLightFlashHandler extends AnimLayerHandler<ModifierLayer<IAnim
     }
 
     @Override
-    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayerEntity player) {
+    protected ModifierLayer<IAnimation> createAnimLayer(AbstractClientPlayer player) {
         return new ModifierLayer<>(null, 
                 new KosmXHandsideMirrorModifier(player), new KosmXHeadRotationModifier());
     }
@@ -30,12 +30,12 @@ public class KosmXLightFlashHandler extends AnimLayerHandler<ModifierLayer<IAnim
 
     private static final ResourceLocation ANIM = new ResourceLocation(JojoMod.MOD_ID, "light_flash");
     @Override
-    public boolean setAnimEnabled(PlayerEntity player, boolean enabled) {
+    public boolean setAnimEnabled(Player player, boolean enabled) {
         if (enabled) {
-            return setAnimFromName((AbstractClientPlayerEntity) player, ANIM);
+            return setAnimFromName((AbstractClientPlayer) player, ANIM);
         }
         else {
-            return fadeOutAnim((AbstractClientPlayerEntity) player, KosmXFixedFadeModifier.standardFadeIn((int) (10 * SPEED), Ease.OUTCUBIC), null);
+            return fadeOutAnim((AbstractClientPlayer) player, KosmXFixedFadeModifier.standardFadeIn((int) (10 * SPEED), Ease.OUTCUBIC), null);
         }
     }
 

@@ -12,12 +12,12 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraftforge.network.NetworkEvent;
 
 public class BrokenChunkBlocksPacket {
     private final Collection<PrevBlockInfo> blocks;
@@ -33,13 +33,13 @@ public class BrokenChunkBlocksPacket {
     public static class Handler implements IModPacketHandler<BrokenChunkBlocksPacket> {
 
         @Override
-        public void encode(BrokenChunkBlocksPacket msg, PacketBuffer buf) {
+        public void encode(BrokenChunkBlocksPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeCollection(buf, msg.blocks, PrevBlockInfo::toBuf, true);
             buf.writeBoolean(msg.reset);
         }
 
         @Override
-        public BrokenChunkBlocksPacket decode(PacketBuffer buf) {
+        public BrokenChunkBlocksPacket decode(FriendlyByteBuf buf) {
             return new BrokenChunkBlocksPacket(NetworkUtil.readCollection(buf, PrevBlockInfo::fromBuf), 
                     buf.readBoolean());
         }
@@ -47,11 +47,11 @@ public class BrokenChunkBlocksPacket {
         @Override
         public void handle(BrokenChunkBlocksPacket msg, Supplier<NetworkEvent.Context> ctx) {
             IStandPower.getStandPowerOptional(ClientUtil.getClientPlayer()).ifPresent(power -> {
-                World world = ClientUtil.getClientWorld();
+                Level world = ClientUtil.getClientWorld();
                 msg.blocks.forEach(block -> {
-                    IChunk chunk = world.getChunk(block.pos);
-                    if (chunk instanceof Chunk) {
-                        ((Chunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
+                    ChunkAccess chunk = world.getChunk(block.pos);
+                    if (chunk instanceof LevelChunk) {
+                        ((LevelChunk) chunk).getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> {
                             if (msg.reset) {
                                 cap.reset();
                             }

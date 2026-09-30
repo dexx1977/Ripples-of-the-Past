@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.entity.EntityType;
 
 public class LifeformEntityTypeEntry {
     public final EntityType<?> entityType;

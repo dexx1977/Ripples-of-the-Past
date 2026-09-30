@@ -6,9 +6,9 @@ import com.github.standobyte.jojo.entity.SoulEntity;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.google.common.primitives.Floats;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ClSoulRotationPacket {
     private final int entityId;
@@ -26,14 +26,14 @@ public class ClSoulRotationPacket {
     public static class Handler implements IModPacketHandler<ClSoulRotationPacket> {
 
         @Override
-        public void encode(ClSoulRotationPacket msg, PacketBuffer buf) {
+        public void encode(ClSoulRotationPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeFloat(msg.yRot);
             buf.writeFloat(msg.xRot);
         }
 
         @Override
-        public ClSoulRotationPacket decode(PacketBuffer buf) {
+        public ClSoulRotationPacket decode(FriendlyByteBuf buf) {
             return new ClSoulRotationPacket(buf.readInt(), buf.readFloat(), buf.readFloat());
         }
 

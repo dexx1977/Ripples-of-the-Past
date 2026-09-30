@@ -7,14 +7,14 @@ import com.github.standobyte.jojo.client.ControllerConsciousness;
 import com.github.standobyte.jojo.init.ModStatusEffects;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class GESplitConsciousnessPacket {
-    private final Vector3d deltaMovement;
+    private final Vec3 deltaMovement;
     
-    public GESplitConsciousnessPacket(Vector3d deltaMovement) {
+    public GESplitConsciousnessPacket(Vec3 deltaMovement) {
         this.deltaMovement = deltaMovement;
     }
     
@@ -23,15 +23,15 @@ public class GESplitConsciousnessPacket {
     public static class Handler implements IModPacketHandler<GESplitConsciousnessPacket> {
 
         @Override
-        public void encode(GESplitConsciousnessPacket msg, PacketBuffer buf) {
+        public void encode(GESplitConsciousnessPacket msg, FriendlyByteBuf buf) {
             buf.writeDouble(msg.deltaMovement.x);
             buf.writeDouble(msg.deltaMovement.y);
             buf.writeDouble(msg.deltaMovement.z);
         }
 
         @Override
-        public GESplitConsciousnessPacket decode(PacketBuffer buf) {
-            return new GESplitConsciousnessPacket(new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()));
+        public GESplitConsciousnessPacket decode(FriendlyByteBuf buf) {
+            return new GESplitConsciousnessPacket(new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
         }
 
         @Override

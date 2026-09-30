@@ -21,34 +21,34 @@ import com.github.standobyte.jojo.power.impl.stand.StandEffectsTracker;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
-import net.minecraft.entity.monster.AbstractSkeletonEntity;
-import net.minecraft.entity.monster.HoglinEntity;
-import net.minecraft.entity.monster.PatrollerEntity;
-import net.minecraft.entity.monster.ZombieEntity;
-import net.minecraft.entity.monster.piglin.AbstractPiglinEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.CowEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.passive.OcelotEntity;
-import net.minecraft.entity.passive.PandaEntity;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.entity.passive.PolarBearEntity;
-import net.minecraft.entity.passive.RabbitEntity;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.entity.passive.WaterMobEntity;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.hoglin.Hoglin;
+import net.minecraft.world.entity.monster.PatrollingMonster;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.animal.Fox;
+import net.minecraft.world.entity.animal.Ocelot;
+import net.minecraft.world.entity.animal.Panda;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.animal.Sheep;
+import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     
@@ -74,25 +74,25 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     public static ObjectEntity.Type getToothObject(LivingEntity punchTarget) {
         EntityType<?> type = punchTarget.getType();
         if (type == EntityType.PLAYER
-                || punchTarget instanceof AbstractSkeletonEntity
-                || punchTarget instanceof ZombieEntity
-                || punchTarget instanceof AbstractVillagerEntity
-                || punchTarget instanceof AbstractPiglinEntity
-                || punchTarget instanceof PatrollerEntity
+                || punchTarget instanceof AbstractSkeleton
+                || punchTarget instanceof Zombie
+                || punchTarget instanceof AbstractVillager
+                || punchTarget instanceof AbstractPiglin
+                || punchTarget instanceof PatrollingMonster
                 || type == EntityType.BAT
-                || punchTarget instanceof AbstractHorseEntity
-                || punchTarget instanceof CowEntity
-                || punchTarget instanceof FoxEntity
-                || punchTarget instanceof HoglinEntity
-                || punchTarget instanceof OcelotEntity
-                || punchTarget instanceof PandaEntity
-                || punchTarget instanceof PigEntity
-                || punchTarget instanceof PolarBearEntity
-                || punchTarget instanceof RabbitEntity
-                || punchTarget instanceof SheepEntity
-                || punchTarget instanceof CatEntity
-                || punchTarget instanceof WolfEntity
-                || punchTarget instanceof WaterMobEntity) {
+                || punchTarget instanceof AbstractHorse
+                || punchTarget instanceof Cow
+                || punchTarget instanceof Fox
+                || punchTarget instanceof Hoglin
+                || punchTarget instanceof Ocelot
+                || punchTarget instanceof Panda
+                || punchTarget instanceof Pig
+                || punchTarget instanceof PolarBear
+                || punchTarget instanceof Rabbit
+                || punchTarget instanceof Sheep
+                || punchTarget instanceof Cat
+                || punchTarget instanceof Wolf
+                || punchTarget instanceof WaterAnimal) {
             return ObjectEntity.Type.TOOTH;
         }
         
@@ -100,14 +100,14 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     }
     
     @Override
-    public void clWriteExtraData(PacketBuffer buf) {
+    public void clWriteExtraData(FriendlyByteBuf buf) {
         NetworkUtil.writeOptionally(buf, 
                 GoldExperienceCreateLifeform.getChosenEntityType(ClientUtil.getClientPlayer()), 
                 EntitySubtype::toBuf);
     }
     
     @Override
-    public void perform(World world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable PacketBuffer extraInput) {
+    public void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target, @Nullable FriendlyByteBuf extraInput) {
         super.perform(world, user, power, target, extraInput);
         if (!world.isClientSide() && extraInput != null && power.isActive()) {
             EntitySubtype<?> type = NetworkUtil.readOptional(extraInput, EntitySubtype::fromBuf).orElse(null);
@@ -123,7 +123,7 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     }
     
     @Override
-    public void standTickRecovery(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+    public void standTickRecovery(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         boolean triggerEffect = task.getTicksLeft() <= 1;
         if (task.getAdditionalData().isEmpty(TriggeredFlag.class)) {
             if (!world.isClientSide() && !task.getAdditionalData().isEmpty(Integer.class) && triggerEffect) {
@@ -147,7 +147,7 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
                                 .withFollowTarget(toothEntity.getOwner(), GETransformationEntity.FollowTargetMode.AGGRO_TRACK, user));
                         targetEntity.remove();
 
-                        Vector3d pos = targetEntity.position();
+                        Vec3 pos = targetEntity.position();
                         tf.moveTo(pos.x, pos.y, pos.z, targetEntity.yRot, targetEntity.xRot);
 
                         if (targetEntity.isOnFire()) {
@@ -178,7 +178,7 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
 //                        }
                     }
 //                    else if (user instanceof ServerPlayerEntity) {
-//                        ((ServerPlayerEntity) user).displayClientMessage(new TranslationTextComponent("jojo.message.action_condition.choose_lifeform"), true);
+//                        ((ServerPlayerEntity) user).displayClientMessage(Component.translatable("jojo.message.action_condition.choose_lifeform"), true);
 //                    }
                     
                     
@@ -192,13 +192,13 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     }
     
     @Override
-    public IFormattableTextComponent getTranslatedName(IStandPower power, String key) {
+    public MutableComponent getTranslatedName(IStandPower power, String key) {
         if (power.isActive()) {
             StandEntity stand = (StandEntity) power.getStandManifestation();
             if (stand.getCurrentTask().map(task -> task.getTarget().getType() == TargetType.ENTITY).orElse(false)) {
                 EntitySubtype<?> chosenEntityType = GoldExperienceCreateLifeform.getChosenEntityType(ClientUtil.getClientPlayer());
                 if (chosenEntityType != null) {
-                    return new TranslationTextComponent(key + ".param", chosenEntityType.getDescription());
+                    return Component.translatable(key + ".param", chosenEntityType.getDescription());
                 }
             }
         }
@@ -207,7 +207,7 @@ public class GoldExperienceToothLifeform extends StandEntityActionModifier {
     }
     
     @Override
-    public void renderActionIcon(MatrixStack matrixStack, IStandPower power, float x, float y) {
+    public void renderActionIcon(PoseStack matrixStack, IStandPower power, float x, float y) {
         EntitySubtype<?> selectedMob = GoldExperienceCreateLifeform.getChosenEntityType(ClientUtil.getClientPlayer());
         if (selectedMob != null) {
             EntityTypeIcon.renderIcon(selectedMob, matrixStack, x, y);

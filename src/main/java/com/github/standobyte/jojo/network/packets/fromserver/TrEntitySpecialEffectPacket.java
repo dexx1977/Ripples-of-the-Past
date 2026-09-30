@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.client.particle.custom.CustomParticlesHelper;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class TrEntitySpecialEffectPacket {
@@ -28,13 +28,13 @@ public class TrEntitySpecialEffectPacket {
     
     public static class Handler implements IModPacketHandler<TrEntitySpecialEffectPacket> {
     
-        public void encode(TrEntitySpecialEffectPacket msg, PacketBuffer buf) {
+        public void encode(TrEntitySpecialEffectPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS, msg.sound);
             buf.writeInt(msg.playerId);
         }
         
-        public TrEntitySpecialEffectPacket decode(PacketBuffer buf) {
+        public TrEntitySpecialEffectPacket decode(FriendlyByteBuf buf) {
             return new TrEntitySpecialEffectPacket(buf.readInt(), buf.readRegistryIdUnsafe(ForgeRegistries.SOUND_EVENTS), buf.readInt());
         }
     

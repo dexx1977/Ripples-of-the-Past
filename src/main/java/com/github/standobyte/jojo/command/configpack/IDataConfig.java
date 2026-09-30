@@ -18,35 +18,33 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.FileUtil;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.world.storage.FolderName;
+import net.minecraft.FileUtil;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.world.level.storage.LevelResource;
 
 public interface IDataConfig {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     
-    LiteralArgumentBuilder<CommandSource> commandRegister(LiteralArgumentBuilder<CommandSource> builder, String literal);
+    LiteralArgumentBuilder<CommandSourceStack> commandRegister(LiteralArgumentBuilder<CommandSourceStack> builder, String literal);
     
     default String getDataPackName() {
         return "jojoconfig";
     }
     
     default Path dataPackPath(MinecraftServer server) {
-        return server.getWorldPath(FolderName.DATAPACK_DIR).resolve(getDataPackName());
+        return server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(getDataPackName());
     }
     
-    default boolean genDataPackBase(CommandSource src) throws IOException {
+    default boolean genDataPackBase(CommandSourceStack src) throws IOException {
         boolean generatedPack = false;
         Path packPath = dataPackPath(src.getServer());
         if (!java.nio.file.Files.exists(packPath)) {
@@ -80,7 +78,7 @@ public interface IDataConfig {
                     "commands.jojoconfigpack.base_created.link_name", 
                     "commands.jojoconfigpack.folder_link.tooltip", 
                     packPath, 
-                    new StringTextComponent(getDataPackName()).withStyle(TextFormatting.ITALIC)), 
+                    Component.literal(getDataPackName()).withStyle(ChatFormatting.ITALIC)), 
                     true);
         }
         return generatedPack;
@@ -88,30 +86,30 @@ public interface IDataConfig {
     
     static final String LOCAL_FILE_TOOLTIP = "commands.jojoconfigpack.standstats.all.folder_link";
     static final String REMOTE_FILE_TOOLTIP = "commands.jojoconfigpack.remote_server";
-    default ITextComponent generatePackLink(CommandSource source, String message, String fileLinkPart, 
+    default Component generatePackLink(CommandSourceStack source, String message, String fileLinkPart, 
             String localFileLinkTooltip, Path path, Object... args) {
         Object[] allArgs = new Object[args.length + 1];
         if (args.length > 0) {
             System.arraycopy(args, 0, allArgs, 1, args.length);
         }
         boolean isLocalServer = !source.getServer().isDedicatedServer();
-        ITextComponent tooltip;
+        Component tooltip;
         if (isLocalServer) {
-            tooltip = new TranslationTextComponent(localFileLinkTooltip, 
-                    new StringTextComponent("datapacks").withStyle(TextFormatting.ITALIC));
+            tooltip = Component.translatable(localFileLinkTooltip, 
+                    Component.literal("datapacks").withStyle(ChatFormatting.ITALIC));
         }
         else {
-            tooltip = new TranslationTextComponent(REMOTE_FILE_TOOLTIP, 
-                    new StringTextComponent("datapacks").withStyle(TextFormatting.ITALIC))
-                    .withStyle(TextFormatting.RED);
+            tooltip = Component.translatable(REMOTE_FILE_TOOLTIP, 
+                    Component.literal("datapacks").withStyle(ChatFormatting.ITALIC))
+                    .withStyle(ChatFormatting.RED);
         }
-        allArgs[0] = new TranslationTextComponent(fileLinkPart).withStyle(TextFormatting.UNDERLINE).withStyle((style) -> {
+        allArgs[0] = Component.translatable(fileLinkPart).withStyle(ChatFormatting.UNDERLINE).withStyle((style) -> {
             return style
                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, path.normalize().toString()))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip));
         });
         
-        return new TranslationTextComponent(message, allArgs).withStyle(TextFormatting.GRAY);
+        return Component.translatable(message, allArgs).withStyle(ChatFormatting.GRAY);
     }
     
     default boolean genJsonFromObj(Object object, ResourceLocation resourcePath, String resourceName, MinecraftServer server) throws JsonWriteException {
@@ -158,7 +156,7 @@ public interface IDataConfig {
     
     
     
-    void syncToClient(ServerPlayerEntity player);
+    void syncToClient(ServerPlayer player);
     
     default Gson getGson() {
         return GSON;

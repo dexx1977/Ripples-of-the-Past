@@ -6,32 +6,32 @@ import java.util.stream.Collectors;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil.HamonAttackProperties;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
 
 public class HamonBlastExplosion extends CustomExplosion {
     private float hamonDamage;
 
-    public HamonBlastExplosion(World pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
+    public HamonBlastExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
         super(pLevel, pToBlowX, pToBlowY, pToBlowZ, pRadius);
     }
     
-    public HamonBlastExplosion(World pLevel, Entity pSource, 
-            ExplosionContext pDamageCalculator, 
+    public HamonBlastExplosion(Level pLevel, Entity pSource, 
+            ExplosionDamageCalculator pDamageCalculator, 
             double pToBlowX, double pToBlowY, double pToBlowZ, 
             float pRadius) {
         super(pLevel, pSource, 
                 null, pDamageCalculator, 
                 pToBlowX, pToBlowY, pToBlowZ, 
-                pRadius, false, Explosion.Mode.NONE);
+                pRadius, false, Explosion.BlockInteraction.NONE);
     }
     
     public void setHamonDamage(float hamonDamage) {
@@ -39,9 +39,9 @@ public class HamonBlastExplosion extends CustomExplosion {
     }
     
     @Override
-    protected List<Entity> getAffectedEntities(AxisAlignedBB area) {
+    protected List<Entity> getAffectedEntities(AABB area) {
         return level.getEntitiesOfClass(LivingEntity.class, area, 
-                EntityPredicates.LIVING_ENTITY_STILL_ALIVE.and(EntityPredicates.NO_SPECTATORS).and(entity -> !entity.is(getExploder())))
+                EntitySelector.LIVING_ENTITY_STILL_ALIVE.and(EntitySelector.NO_SPECTATORS).and(entity -> !entity.is(getExploder())))
                 .stream().collect(Collectors.toList());
     }
     
@@ -51,7 +51,7 @@ public class HamonBlastExplosion extends CustomExplosion {
     }
     
     @Override
-    protected void hurtEntity(Entity entity, float damage, double knockback, Vector3d vecToEntityNorm) {
+    protected void hurtEntity(Entity entity, float damage, double knockback, Vec3 vecToEntityNorm) {
         DamageUtil.dealHamonDamage(entity, damage, getSourceMob(), null, HamonAttackProperties::noSrcEntityHamonMultiplier);
     }
     
@@ -75,14 +75,14 @@ public class HamonBlastExplosion extends CustomExplosion {
     // FIXME hamon blast visuals & sound
     @Override
     protected void playSound() {
-        Vector3d pos = getPosition();
+        Vec3 pos = getPosition();
 //        level.playLocalSound(pos.x, pos.y, pos.z, SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 
 //                4.0F, (1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F) * 0.7F, false);
     }
     
     @Override
     protected void spawnParticles() {
-        Vector3d pos = getPosition();
+        Vec3 pos = getPosition();
 //        if (radius >= 2.0F && blockInteraction != Explosion.Mode.NONE) {
 //            level.addParticle(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y, pos.z, 1.0D, 0.0D, 0.0D);
 //        } else {

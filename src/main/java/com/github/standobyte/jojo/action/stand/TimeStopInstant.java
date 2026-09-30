@@ -21,18 +21,18 @@ import com.github.standobyte.jojo.util.general.ObjectWrapper;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class TimeStopInstant extends StandAction {
     final Supplier<SoundEvent> blinkSound;
@@ -67,32 +67,32 @@ public class TimeStopInstant extends StandAction {
     
     
     @Override
-    protected void perform(World world, LivingEntity user, IStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, IStandPower power, ActionTarget target) {
         playSound(world, user);
 
         int timeStopTicks = getMaxImpliedTicks(power);
         double speed = getDistancePerTick(user);
         double distance = getMaxDistance(user, power, speed, timeStopTicks);
         ObjectWrapper<ActionTarget> targetMutable = new ObjectWrapper<>(target);
-        Vector3d blinkPos = calcBlinkPos(user, targetMutable, distance);
+        Vec3 blinkPos = calcBlinkPos(user, targetMutable, distance);
         target = targetMutable.get();
         distance = user.position().subtract(blinkPos).length();
         
         if (target.getType() == ActionTarget.TargetType.ENTITY) {
             Entity targetEntity = target.getEntity();
-            Vector3d toTarget = targetEntity.position().subtract(blinkPos);
+            Vec3 toTarget = targetEntity.position().subtract(blinkPos);
             user.yRot = MathUtil.yRotDegFromVec(toTarget);
             user.yRotO = user.yRot;
         }
 
-        user.level.getEntitiesOfClass(MobEntity.class, user.getBoundingBox().inflate(8), 
+        user.level.getEntitiesOfClass(Mob.class, user.getBoundingBox().inflate(8), 
                 mob -> mob.getTarget() == user
                 && mob.getLookAngle().dot(mob.getEyePosition(1).subtract(blinkPos)) >= 0)
         .forEach(mob -> {
             MCUtil.loseTarget(mob, user);
         });
         
-        int impliedTicks = MathHelper.clamp(MathHelper.ceil(distance / speed), 0, timeStopTicks);
+        int impliedTicks = Mth.clamp(Mth.ceil(distance / speed), 0, timeStopTicks);
         skipTicksForStandAndUser(power, impliedTicks);
         
         if (!world.isClientSide()) {
@@ -117,7 +117,7 @@ public class TimeStopInstant extends StandAction {
     public int getMaxImpliedTicks(IStandPower power) {
         int timeStopTicks = TimeStop.getTimeStopTicks(power, this);
         if (!StandUtil.standIgnoresStaminaDebuff(power)) {
-            timeStopTicks = MathHelper.clamp(MathHelper.floor((power.getStamina() - getStaminaCost(power)) / getStaminaCostTicking(power)), 5, timeStopTicks);
+            timeStopTicks = Mth.clamp(Mth.floor((power.getStamina() - getStaminaCost(power)) / getStaminaCostTicking(power)), 5, timeStopTicks);
         }
         
         return timeStopTicks;
@@ -132,17 +132,17 @@ public class TimeStopInstant extends StandAction {
         return entity.getAttributeValue(Attributes.MOVEMENT_SPEED) * 2.1585;
     }
     
-    public Vector3d calcBlinkPos(LivingEntity user, IStandPower power, ActionTarget initialTarget) {
+    public Vec3 calcBlinkPos(LivingEntity user, IStandPower power, ActionTarget initialTarget) {
         return calcBlinkPos(user, new ObjectWrapper<>(initialTarget), getMaxDistance(user, power, getDistancePerTick(user), getMaxImpliedTicks(power)));
     }
     
-    public Vector3d calcBlinkPos(LivingEntity user, ObjectWrapper<ActionTarget> initialTarget, double maxDistance) {
-        Vector3d blinkPos = null;
+    public Vec3 calcBlinkPos(LivingEntity user, ObjectWrapper<ActionTarget> initialTarget, double maxDistance) {
+        Vec3 blinkPos = null;
         ActionTarget target = initialTarget.get();
         if (target.getType() == TargetType.EMPTY) {
-            RayTraceResult rayTrace = JojoModUtil.rayTrace(user, maxDistance, 
+            HitResult rayTrace = JojoModUtil.rayTrace(user, maxDistance, 
                     entity -> entity instanceof LivingEntity && !(entity instanceof StandEntity && ((StandEntity) entity).getUser() == user));
-            if (rayTrace.getType() == RayTraceResult.Type.MISS) {
+            if (rayTrace.getType() == HitResult.Type.MISS) {
                 blinkPos = rayTrace.getLocation();
             }
             target = ActionTarget.fromRayTraceResult(rayTrace);
@@ -155,15 +155,15 @@ public class TimeStopInstant extends StandAction {
             break;
         case BLOCK:
             BlockPos blockPosTargeted = target.getBlockPos();
-            blinkPos = Vector3d.atBottomCenterOf(user.level.isEmptyBlock(blockPosTargeted.above()) ? blockPosTargeted.above() : blockPosTargeted.relative(target.getFace()));
+            blinkPos = Vec3.atBottomCenterOf(user.level.isEmptyBlock(blockPosTargeted.above()) ? blockPosTargeted.above() : blockPosTargeted.relative(target.getFace()));
             break;
         default:
-            Vector3d pos = blinkPos;
+            Vec3 pos = blinkPos;
             BlockPos blockPos = new BlockPos(pos);
             while (user.level.isEmptyBlock(blockPos.below()) && blockPos.getY() > 0) {
                 blockPos = blockPos.below();
             }
-            blinkPos = new Vector3d(pos.x, blockPos.getY() > 0 ? blockPos.getY() : user.position().y, pos.z);
+            blinkPos = new Vec3(pos.x, blockPos.getY() > 0 ? blockPos.getY() : user.position().y, pos.z);
             break;
         }
         
@@ -172,21 +172,21 @@ public class TimeStopInstant extends StandAction {
     
     public static final float COOLDOWN_RATIO = 1F / 6F;
     
-    void playSound(World world, Entity entity) {
+    void playSound(Level world, Entity entity) {
         if (blinkSound != null) {
             SoundEvent sound = blinkSound.get();
             if (sound != null) {
-                MCUtil.playSound(world, entity instanceof PlayerEntity ? (PlayerEntity) entity : null, entity.getX(), entity.getY(), entity.getZ(), 
-                        sound, SoundCategory.AMBIENT, 5.0F, 1.0F, TimeStopHandler::canPlayerSeeInStoppedTime);
+                MCUtil.playSound(world, entity instanceof Player ? (Player) entity : null, entity.getX(), entity.getY(), entity.getZ(), 
+                        sound, SoundSource.AMBIENT, 5.0F, 1.0F, TimeStopHandler::canPlayerSeeInStoppedTime);
             }
         }
     }
     
-    protected Vector3d getEntityTargetTeleportPos(Entity user, Entity target) {
-        Vector3d pos;
+    protected Vec3 getEntityTargetTeleportPos(Entity user, Entity target) {
+        Vec3 pos;
         if (teleportBehindEntity) {
             pos = target.position()
-                    .subtract(Vector3d.directionFromRotation(0, target.yRot)
+                    .subtract(Vec3.directionFromRotation(0, target.yRot)
                             .scale(target.getBbWidth() + user.getBbWidth()));
         }
         else {

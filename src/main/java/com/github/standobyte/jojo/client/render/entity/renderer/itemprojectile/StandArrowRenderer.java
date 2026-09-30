@@ -4,14 +4,14 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.itemprojectile.StandArrowEntity;
 
 import net.minecraft.client.renderer.entity.ArrowRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.resources.ResourceLocation;
 
 public class StandArrowRenderer extends ArrowRenderer<StandArrowEntity> {
 
     private static final ResourceLocation STAND_ARROW_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/stand_arrow.png");
 
-    public StandArrowRenderer(EntityRendererManager rendererManager) {
+    public StandArrowRenderer(EntityRenderDispatcher rendererManager) {
         super(rendererManager);
     }
 

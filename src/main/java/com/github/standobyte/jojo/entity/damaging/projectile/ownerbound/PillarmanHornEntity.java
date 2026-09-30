@@ -2,18 +2,18 @@ package com.github.standobyte.jojo.entity.damaging.projectile.ownerbound;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class PillarmanHornEntity extends OwnerBoundProjectileEntity {
 
-    public PillarmanHornEntity(World world, LivingEntity entity) {
+    public PillarmanHornEntity(Level world, LivingEntity entity) {
         super(ModEntityTypes.PILLARMAN_HORN.get(), entity, world);
     }
     
-    public PillarmanHornEntity(EntityType<? extends PillarmanHornEntity> entityType, World world) {
+    public PillarmanHornEntity(EntityType<? extends PillarmanHornEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -62,9 +62,9 @@ public class PillarmanHornEntity extends OwnerBoundProjectileEntity {
         return true;
     }
 
-    private static final Vector3d OFFSET = new Vector3d(0, 0.15F, 0);
+    private static final Vec3 OFFSET = new Vec3(0, 0.15F, 0);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return OFFSET;
     }
 }

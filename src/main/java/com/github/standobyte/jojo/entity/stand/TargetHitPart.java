@@ -3,9 +3,9 @@ package com.github.standobyte.jojo.entity.stand;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 public enum TargetHitPart {
     HEAD,
@@ -33,15 +33,15 @@ public enum TargetHitPart {
         }
     }
 
-    public Vector3d getPartCenter(LivingEntity target) {
+    public Vec3 getPartCenter(LivingEntity target) {
         switch (this) {
         case HEAD:
-            return new Vector3d(target.getX(), target.getY(1.0), target.getZ());
+            return new Vec3(target.getX(), target.getY(1.0), target.getZ());
         case TORSO_ARMS:
-            return new Vector3d(target.getX(), target.getY(0.7), target.getZ())
-                    .add(new Vector3d(target.getBbWidth() * 0.375F, 0, 0).yRot((180 - target.yRot) * MathUtil.DEG_TO_RAD));
+            return new Vec3(target.getX(), target.getY(0.7), target.getZ())
+                    .add(new Vec3(target.getBbWidth() * 0.375F, 0, 0).yRot((180 - target.yRot) * MathUtil.DEG_TO_RAD));
         case LEGS:
-            return new Vector3d(target.getX(), target.getY(0.0), target.getZ());
+            return new Vec3(target.getX(), target.getY(0.0), target.getZ());
         default:
             return null;
         }

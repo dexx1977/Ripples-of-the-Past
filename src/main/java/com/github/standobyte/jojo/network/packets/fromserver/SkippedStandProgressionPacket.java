@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class SkippedStandProgressionPacket {
     
@@ -19,11 +19,11 @@ public class SkippedStandProgressionPacket {
     public static class Handler implements IModPacketHandler<SkippedStandProgressionPacket> {
 
         @Override
-        public void encode(SkippedStandProgressionPacket msg, PacketBuffer buf) {
+        public void encode(SkippedStandProgressionPacket msg, FriendlyByteBuf buf) {
         }
 
         @Override
-        public SkippedStandProgressionPacket decode(PacketBuffer buf) {
+        public SkippedStandProgressionPacket decode(FriendlyByteBuf buf) {
             return new SkippedStandProgressionPacket();
         }
 

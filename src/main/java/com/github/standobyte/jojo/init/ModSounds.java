@@ -6,10 +6,10 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.util.mc.MultiSoundEvent;
 import com.github.standobyte.jojo.util.mc.OstSoundList;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 

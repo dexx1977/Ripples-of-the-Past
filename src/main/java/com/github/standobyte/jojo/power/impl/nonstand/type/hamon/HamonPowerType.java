@@ -22,25 +22,25 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.Character
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterTechniqueHamonSkill;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
 
@@ -174,21 +174,21 @@ public class HamonPowerType extends NonStandPowerType<HamonData> {
     public void tickUser(LivingEntity user, INonStandPower power) {
         super.tickUser(user, power);
         HamonData hamon = power.getTypeSpecificData(this).get();
-        World world = user.level;
+        Level world = user.level;
         hamon.tick();
         if (!world.isClientSide()) {
-            if (user instanceof PlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) user;
+            if (user instanceof Player) {
+                ServerPlayer player = (ServerPlayer) user;
                 if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
-                    if (player.isOnGround() && player.isShiftKeyDown()) {
+                    if (player.onGround() && player.isShiftKeyDown()) {
                         BlockPos pos = player.blockPosition();
                         if (player.level.isEmptyBlock(pos)) {
-                            PlayerInventory inventory = player.inventory;
+                            Inventory inventory = player.inventory;
                             for (int i = 8; i >= 0; i--) {
                                 ItemStack stack = inventory.items.get(i);
                                 if (!stack.isEmpty() && stack.getItem() == Items.STRING) {
-                                    BlockItemUseContext ctx = new BlockItemUseContext(player, Hand.OFF_HAND, stack, 
-                                            new BlockRayTraceResult(Vector3d.atCenterOf(pos), Direction.UP, pos, false));
+                                    BlockPlaceContext ctx = new BlockPlaceContext(player, InteractionHand.OFF_HAND, stack, 
+                                            new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false));
                                     BlockState state = Blocks.TRIPWIRE.getStateForPlacement(ctx);
                                     if (state != null && !ForgeEventFactory.onBlockPlace(player, BlockSnapshot.create(
                                             world.dimension(), world, pos.below()), Direction.UP) && world.setBlock(pos, state, 3) && !player.abilities.instabuild) {
@@ -222,26 +222,26 @@ public class HamonPowerType extends NonStandPowerType<HamonData> {
         if (!world.isClientSide() || user.is(ClientUtil.getClientPlayer())) {
             if (hamon.characterIs(ModHamonSkills.CHARACTER_JOSEPH.get())) {
                 if (user.isSprinting()) {
-                    Vector3d vecBehind = Vector3d.directionFromRotation(0, 180F + user.yRot).scale(8D);
-                    AxisAlignedBB aabb = new AxisAlignedBB(user.position().subtract(0, 2D, 0), user.position().add(vecBehind.x, 2D, vecBehind.z));
+                    Vec3 vecBehind = Vec3.directionFromRotation(0, 180F + user.yRot).scale(8D);
+                    AABB aabb = new AABB(user.position().subtract(0, 2D, 0), user.position().add(vecBehind.x, 2D, vecBehind.z));
                     List<LivingEntity> entitiesBehind = world.getEntitiesOfClass(LivingEntity.class, aabb, entity -> entity != user)
                             .stream().filter(entity -> !(entity instanceof StandEntity)).collect(Collectors.toList());
                     if (!entitiesBehind.isEmpty()) {
                         if (world.isClientSide()) {
-                            if (user instanceof ClientPlayerEntity && ((ClientPlayerEntity) user).sprintTime == 0) {
+                            if (user instanceof LocalPlayer && ((LocalPlayer) user).sprintTime == 0) {
                                 PacketManager.sendToServer(new ClRunAwayPacket());
                             }
                         }
                         else {
-                            EffectInstance speed = user.getEffect(Effects.MOVEMENT_SPEED);
+                            MobEffectInstance speed = user.getEffect(MobEffects.MOVEMENT_SPEED);
                             int speedAmplifier = speed != null && speed.getDuration() > 100 ? speed.getAmplifier() + 2 : 1;
-                            user.addEffect(new EffectInstance(Effects.MOVEMENT_SPEED, 100, speedAmplifier, false, false, true));
+                            user.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 100, speedAmplifier, false, false, true));
                         }
                     }
                 }
             }
-            if (user instanceof PlayerEntity) {
-                hamon.tickExercises((PlayerEntity) user);
+            if (user instanceof Player) {
+                hamon.tickExercises((Player) user);
             }
         }
     }
@@ -254,9 +254,9 @@ public class HamonPowerType extends NonStandPowerType<HamonData> {
     
     @Override
     public void onNewDay(LivingEntity user, INonStandPower power, long prevDay, long day) {
-        if (user instanceof PlayerEntity) {
+        if (user instanceof Player) {
             HamonData hamon = power.getTypeSpecificData(this).get();
-            hamon.breathingTrainingDay((PlayerEntity) user);
+            hamon.breathingTrainingDay((Player) user);
         }
     }
 

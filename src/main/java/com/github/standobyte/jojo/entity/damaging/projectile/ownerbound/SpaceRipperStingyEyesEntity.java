@@ -3,32 +3,32 @@ package com.github.standobyte.jojo.entity.damaging.projectile.ownerbound;
 import com.github.standobyte.jojo.init.ModEntityTypes;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.DoubleNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
-    private static final DataParameter<Float> LENGTH = EntityDataManager.defineId(SpaceRipperStingyEyesEntity.class, DataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> LENGTH = SynchedEntityData.defineId(SpaceRipperStingyEyesEntity.class, EntityDataSerializers.FLOAT);
     private boolean rightEye;
-    private Vector3d detachedOriginPos;
+    private Vec3 detachedOriginPos;
 
-    public SpaceRipperStingyEyesEntity(World world, LivingEntity owner, boolean rightEye) {
+    public SpaceRipperStingyEyesEntity(Level world, LivingEntity owner, boolean rightEye) {
         super(ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get(), owner, world);
         this.rightEye = rightEye;
     }
     
-    public SpaceRipperStingyEyesEntity(EntityType<? extends SpaceRipperStingyEyesEntity> entityType, World world) {
+    public SpaceRipperStingyEyesEntity(EntityType<? extends SpaceRipperStingyEyesEntity> entityType, Level world) {
         super(entityType, world);
     }
     
@@ -59,7 +59,7 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
         if (IS_BOUND_TO_OWNER.equals(dataParameter) && !isBoundToOwner() && getOwner() != null) {
             detachedOriginPos = getOriginPoint();
             setLength((float) position().subtract(detachedOriginPos).length());
@@ -80,21 +80,21 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
         return entityData.get(LENGTH);
     }
     
-    private static final Vector3d OFFSET_LEFT_EYE = new Vector3d(0.09375, -0.2, 0.0);
-    private static final Vector3d OFFSET_RIGHT_EYE = new Vector3d(-OFFSET_LEFT_EYE.x, OFFSET_LEFT_EYE.y, OFFSET_LEFT_EYE.z);
+    private static final Vec3 OFFSET_LEFT_EYE = new Vec3(0.09375, -0.2, 0.0);
+    private static final Vec3 OFFSET_RIGHT_EYE = new Vec3(-OFFSET_LEFT_EYE.x, OFFSET_LEFT_EYE.y, OFFSET_LEFT_EYE.z);
     @Override
-    protected Vector3d getOwnerRelativeOffset() {
+    protected Vec3 getOwnerRelativeOffset() {
         return rightEye ? OFFSET_RIGHT_EYE : OFFSET_LEFT_EYE;
     }
     
-    private static final Vector3d OFFSET_XROT = new Vector3d(0, 0.2, 0.0);
+    private static final Vec3 OFFSET_XROT = new Vec3(0, 0.2, 0.0);
     @Override
-    protected Vector3d getXRotOffset() {
+    protected Vec3 getXRotOffset() {
         return OFFSET_XROT;
     }
     
     @Override
-    public Vector3d getOriginPoint(float partialTick) {
+    public Vec3 getOriginPoint(float partialTick) {
         if (!isBoundToOwner()) {
             if (detachedOriginPos == null) {
                 detachedOriginPos = super.getOriginPoint(partialTick);
@@ -109,7 +109,7 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
         if (isBoundToOwner()) {
             return 50;
         }
-        return MathHelper.floor(getLength() / (float) movementSpeed() * 20F) + 20;
+        return Mth.floor(getLength() / (float) movementSpeed() * 20F) + 20;
     }
     
     @Override
@@ -157,7 +157,7 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundNBT nbt) {
+    protected void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putFloat("Length", getLength());
         nbt.putBoolean("IsRightEye", rightEye);
@@ -167,11 +167,11 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
-        if (nbt.contains("DetachedOrigin", MCUtil.getNbtId(ListNBT.class))) {
-            ListNBT detachedPosList = nbt.getList("DetachedOrigin", MCUtil.getNbtId(DoubleNBT.class));
+    protected void readAdditionalSaveData(CompoundTag nbt) {
+        if (nbt.contains("DetachedOrigin", MCUtil.getNbtId(ListTag.class))) {
+            ListTag detachedPosList = nbt.getList("DetachedOrigin", MCUtil.getNbtId(DoubleTag.class));
             if (detachedPosList.size() >= 3) {
-                detachedOriginPos = new Vector3d(detachedPosList.getDouble(0), detachedPosList.getDouble(1), detachedPosList.getDouble(2));
+                detachedOriginPos = new Vec3(detachedPosList.getDouble(0), detachedPosList.getDouble(1), detachedPosList.getDouble(2));
             }
         }
         super.readAdditionalSaveData(nbt);
@@ -180,13 +180,13 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     }
     
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
         buffer.writeBoolean(rightEye);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
         rightEye = additionalData.readBoolean();
     }

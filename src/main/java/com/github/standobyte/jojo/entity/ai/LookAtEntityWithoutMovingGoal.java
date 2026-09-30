@@ -1,14 +1,14 @@
 package com.github.standobyte.jojo.entity.ai;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.LookAtWithoutMovingGoal;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.InteractGoal;
+import net.minecraft.world.entity.player.Player;
 
-public class LookAtEntityWithoutMovingGoal extends LookAtWithoutMovingGoal {
+public class LookAtEntityWithoutMovingGoal extends InteractGoal {
     
-    public LookAtEntityWithoutMovingGoal(MobEntity mob, LivingEntity lookAtEntity) {
-        super(mob, PlayerEntity.class, 8, 1);
+    public LookAtEntityWithoutMovingGoal(Mob mob, LivingEntity lookAtEntity) {
+        super(mob, Player.class, 8, 1);
         this.lookAt = lookAtEntity;
     }
     

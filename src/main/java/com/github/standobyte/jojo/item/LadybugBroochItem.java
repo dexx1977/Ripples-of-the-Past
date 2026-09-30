@@ -8,15 +8,15 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class LadybugBroochItem extends Item {
     private final DyeColor dye;
@@ -27,7 +27,7 @@ public class LadybugBroochItem extends Item {
     }
     
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         boolean success = player.getCapability(LivingUtilCapProvider.CAPABILITY).map(entity -> {
             return entity.addLadybugBrooch(dye);
@@ -35,13 +35,13 @@ public class LadybugBroochItem extends Item {
         if (success && !world.isClientSide() && !player.abilities.instabuild) {
             itemStack.shrink(1);
         }
-        return success ? ActionResult.consume(itemStack) : ActionResult.fail(itemStack);
+        return success ? InteractionResultHolder.consume(itemStack) : InteractionResultHolder.fail(itemStack);
     }
     
     
     
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         ClientUtil.addItemReferenceQuote(tooltip, this, JojoMod.MOD_ID + ".ladybug_brooch");
         tooltip.add(ClientUtil.donoItemTooltip("Abreolitus"));
     }

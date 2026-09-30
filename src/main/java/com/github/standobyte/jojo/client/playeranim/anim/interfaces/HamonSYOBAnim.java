@@ -1,26 +1,26 @@
 package com.github.standobyte.jojo.client.playeranim.anim.interfaces;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 public interface HamonSYOBAnim {
     
-    public boolean setStartingAnim(PlayerEntity player);
-    public boolean setFinisherAnim(PlayerEntity player);
-    public void stopAnim(PlayerEntity player);
+    public boolean setStartingAnim(Player player);
+    public boolean setFinisherAnim(Player player);
+    public void stopAnim(Player player);
     
     public static class NoPlayerAnimator implements HamonSYOBAnim {
 
         @Override
-        public boolean setStartingAnim(PlayerEntity player) {
+        public boolean setStartingAnim(Player player) {
             return false;
         }
 
         @Override
-        public boolean setFinisherAnim(PlayerEntity player) {
+        public boolean setFinisherAnim(Player player) {
             return false;
         }
 
         @Override
-        public void stopAnim(PlayerEntity player) {}
+        public void stopAnim(Player player) {}
     }
 }

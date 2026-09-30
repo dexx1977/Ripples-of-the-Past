@@ -10,8 +10,8 @@ import com.github.standobyte.jojo.client.render.entity.bb.BlockbenchStandModelHe
 import com.github.standobyte.jojo.client.render.entity.bb.EntityModelUnbaked;
 import com.github.standobyte.jojo.client.resources.models.StandModelOverrides.CustomModelPrepared;
 
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.model.Model;
+import net.minecraft.resources.ResourceLocation;
 
 public class ResourceEntityModels {
     static final Map<ResourceLocation, Consumer<EntityModelUnbaked>> resourceListeners = new HashMap<>();

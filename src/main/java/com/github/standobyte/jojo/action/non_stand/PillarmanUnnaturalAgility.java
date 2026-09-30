@@ -11,13 +11,13 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 public class PillarmanUnnaturalAgility extends PillarmanAction {
@@ -39,13 +39,13 @@ public class PillarmanUnnaturalAgility extends PillarmanAction {
     public static boolean onUserAttacked(LivingAttackEvent event) {
         DamageSource source = event.getSource();
         Entity attacker = source.getDirectEntity();
-        if (!source.isExplosion() && (attacker instanceof LivingEntity || attacker instanceof ProjectileEntity)) {
-            LivingEntity targetLiving = event.getEntityLiving();
+        if (!source.isExplosion() && (attacker instanceof LivingEntity || attacker instanceof Projectile)) {
+            LivingEntity targetLiving = event.getEntity();
             return INonStandPower.getNonStandPowerOptional(targetLiving).map(power -> {
                 Action<?> heldAction = power.getHeldAction(true);
                 if (heldAction == ModPillarmanActions.PILLARMAN_UNNATURAL_AGILITY.get() 
                 		|| heldAction == ModPillarmanActions.PILLARMAN_EVASION.get()) {
-                    World world = attacker.level;
+                    Level world = attacker.level;
                     if (attacker instanceof StandEntity && !canSeeStands(targetLiving)) {
                         return false;
                     }
@@ -57,7 +57,7 @@ public class PillarmanUnnaturalAgility extends PillarmanAction {
                     		&& attacker instanceof LivingEntity && !(attacker instanceof StandEntity)) {
                     	double counterAttack = Math.random();
                     	if (counterAttack < 0.3) {
-                    		attacker.hurt(EntityDamageSource.playerAttack((PlayerEntity) targetLiving), 
+                    		attacker.hurt(EntityDamageSource.playerAttack((Player) targetLiving), 
 	                            (DamageUtil.getDamageWithoutHeldItem(targetLiving) * 0.75F));
                     	}
                     }
@@ -78,12 +78,12 @@ public class PillarmanUnnaturalAgility extends PillarmanAction {
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return ModPlayerAnimations.unnaturalAgility.setAnimEnabled(user, true);
     }
     
     @Override
-    public void clHeldStopAnim(PlayerEntity user) {
+    public void clHeldStopAnim(Player user) {
         ModPlayerAnimations.unnaturalAgility.setAnimEnabled(user, false);
     }
 }

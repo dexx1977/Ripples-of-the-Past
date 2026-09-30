@@ -15,19 +15,19 @@ import com.github.standobyte.jojo.network.packets.fromserver.TrTypeStandInstance
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class StandInstance {
     private final StandType<?> standType;
     private final EnumSet<StandPart> parts = EnumSet.allOf(StandPart.class);
-    private Optional<ITextComponent> customName = Optional.empty();
+    private Optional<Component> customName = Optional.empty();
     private Optional<ResourceLocation> standSkin = Optional.empty();
     private boolean isDirty;
     
@@ -59,12 +59,12 @@ public class StandInstance {
         return parts;
     }
     
-    public void setCustomName(ITextComponent customName) {
+    public void setCustomName(Component customName) {
         isDirty |= this.customName.map(name -> !name.equals(customName)).orElse(customName != null);
         this.customName = Optional.ofNullable(customName);
     }
     
-    public ITextComponent getName() {
+    public Component getName() {
         return customName.orElse(standType.getName());
     }
     
@@ -85,7 +85,7 @@ public class StandInstance {
         return standSkin;
     }
     
-    public void tick(IStandPower standPower, LivingEntity standUser, World world) {
+    public void tick(IStandPower standPower, LivingEntity standUser, Level world) {
         syncIfDirty(standUser);
     }
     
@@ -98,12 +98,12 @@ public class StandInstance {
     
     
 
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         
         nbt.putString("StandType", JojoCustomRegistries.STANDS.getKeyAsString(standType));
         
-        CompoundNBT missingLimbsNbt = new CompoundNBT();
+        CompoundTag missingLimbsNbt = new CompoundTag();
         boolean limbsMissing = false;
         for (StandPart limbs : StandPart.values()) {
             if (!this.parts.contains(limbs)) {
@@ -115,13 +115,13 @@ public class StandInstance {
             nbt.put("MissingLimbs", missingLimbsNbt);
         }
         
-        customName.ifPresent(name -> nbt.putString("CustomName", ITextComponent.Serializer.toJson(name)));
+        customName.ifPresent(name -> nbt.putString("CustomName", Component.Serializer.toJson(name)));
         standSkin.ifPresent(skinId -> nbt.putString("Skin", skinId.toString()));
         
         return nbt;
     }
 
-    public static StandInstance fromNBT(CompoundNBT nbt) {
+    public static StandInstance fromNBT(CompoundTag nbt) {
         String standName = nbt.getString("StandType");
         StandType<?> standType = JojoCustomRegistries.STANDS.getRegistry().getValue(new ResourceLocation(standName));
         if (standType == null) {
@@ -130,8 +130,8 @@ public class StandInstance {
         
         StandInstance instance = new StandInstance(standType);
         
-        if (nbt.contains("MissingLimbs", MCUtil.getNbtId(CompoundNBT.class))) {
-            CompoundNBT missingLimbsNbt = nbt.getCompound("MissingLimbs");
+        if (nbt.contains("MissingLimbs", MCUtil.getNbtId(CompoundTag.class))) {
+            CompoundTag missingLimbsNbt = nbt.getCompound("MissingLimbs");
             for (StandPart limbs : StandPart.values()) {
                 if (missingLimbsNbt.getBoolean(limbs.name())) {
                     instance.parts.remove(limbs);
@@ -139,34 +139,34 @@ public class StandInstance {
             }
         }
 
-        if (nbt.contains("CustomName", MCUtil.getNbtId(StringNBT.class))) {
+        if (nbt.contains("CustomName", MCUtil.getNbtId(StringTag.class))) {
             String name = nbt.getString("CustomName");
             try {
-                instance.setCustomName(ITextComponent.Serializer.fromJson(name));
+                instance.setCustomName(Component.Serializer.fromJson(name));
             } catch (Exception exception) {
                 JojoMod.getLogger().warn("Failed to parse custom Stand name {}", name, exception);
             }
         }
         
-        instance.setCustomSkin(MCUtil.getNbtElement(nbt, "Skin", StringNBT.class)
-                .map(StringNBT::getAsString).map(ResourceLocation::new), 
+        instance.setCustomSkin(MCUtil.getNbtElement(nbt, "Skin", StringTag.class)
+                .map(StringTag::getAsString).map(ResourceLocation::new), 
                 null);
         
         return instance;
     }
     
-    public void toBuf(PacketBuffer buf) {
+    public void toBuf(FriendlyByteBuf buf) {
         buf.writeRegistryId(standType);
         
         Set<StandPart> missingParts = EnumSet.complementOf(parts);
         buf.writeVarInt(missingParts.size());
         missingParts.forEach(part -> buf.writeEnum(part));
         
-        DataSerializers.OPTIONAL_COMPONENT.write(buf, customName);
+        EntityDataSerializers.OPTIONAL_COMPONENT.write(buf, customName);
         NetworkUtil.writeOptional(buf, standSkin, buf::writeResourceLocation);
     }
     
-    public static StandInstance fromBuf(PacketBuffer buf) {
+    public static StandInstance fromBuf(FriendlyByteBuf buf) {
         StandType<?> standType = buf.readRegistryIdSafe(StandType.class);
         StandInstance standInstance = new StandInstance(standType);
         
@@ -175,8 +175,8 @@ public class StandInstance {
             standInstance.parts.remove(buf.readEnum(StandPart.class));
         }
         
-        standInstance.customName = DataSerializers.OPTIONAL_COMPONENT.read(buf);
-        standInstance.standSkin = NetworkUtil.readOptional(buf, PacketBuffer::readResourceLocation);
+        standInstance.customName = EntityDataSerializers.OPTIONAL_COMPONENT.read(buf);
+        standInstance.standSkin = NetworkUtil.readOptional(buf, FriendlyByteBuf::readResourceLocation);
         
         return standInstance;
     }

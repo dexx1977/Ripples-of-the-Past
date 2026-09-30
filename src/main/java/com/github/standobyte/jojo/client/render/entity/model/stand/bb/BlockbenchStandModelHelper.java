@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.github.standobyte.jojo.client.render.entity.bb.EntityModelUnbaked;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 
 /**
  * @deprecated Import the {@link com.github.standobyte.jojo.client.render.entity.bb.BlockbenchStandModelHelper} class instead.
@@ -19,12 +19,12 @@ public class BlockbenchStandModelHelper {
     }
 
     @Deprecated
-    public static void replaceModelParts(EntityModel<?> inModModel, Map<String, ModelRenderer> source) throws IllegalArgumentException, IllegalAccessException {
+    public static void replaceModelParts(EntityModel<?> inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {
         com.github.standobyte.jojo.client.render.entity.bb.BlockbenchStandModelHelper.replaceModelParts(inModModel, source);
     }
 
     @Deprecated
-    public static void replaceCubes(EntityModel<?> inModModel, Map<String, ModelRenderer> source) throws IllegalArgumentException, IllegalAccessException {
+    public static void replaceCubes(EntityModel<?> inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {
         com.github.standobyte.jojo.client.render.entity.bb.BlockbenchStandModelHelper.replaceCubes(inModModel, source);
     }
 

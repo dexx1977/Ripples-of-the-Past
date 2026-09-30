@@ -8,13 +8,12 @@ import com.github.standobyte.jojo.init.power.non_stand.ModPowers;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.KeybindTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonSyncPlayerLearnerPacket {
     private final int teacherId;
@@ -32,14 +31,14 @@ public class TrHamonSyncPlayerLearnerPacket {
     public static class Handler implements IModPacketHandler<TrHamonSyncPlayerLearnerPacket> {
 
         @Override
-        public void encode(TrHamonSyncPlayerLearnerPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonSyncPlayerLearnerPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.teacherId);
             buf.writeInt(msg.learnerId);
             buf.writeBoolean(msg.add);
         }
 
         @Override
-        public TrHamonSyncPlayerLearnerPacket decode(PacketBuffer buf) {
+        public TrHamonSyncPlayerLearnerPacket decode(FriendlyByteBuf buf) {
             return new TrHamonSyncPlayerLearnerPacket(buf.readInt(), buf.readInt(), buf.readBoolean());
         }
 
@@ -51,25 +50,25 @@ public class TrHamonSyncPlayerLearnerPacket {
                 Entity learnerEntity = ClientUtil.getEntityById(msg.learnerId);
                 INonStandPower.getNonStandPowerOptional(teacherPlayer).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.HAMON.get())).ifPresent(hamon -> {
-                    if (learnerEntity instanceof PlayerEntity) {
+                    if (learnerEntity instanceof Player) {
                         if (msg.add) {
-                            hamon.addNewPlayerLearner((PlayerEntity) learnerEntity);
+                            hamon.addNewPlayerLearner((Player) learnerEntity);
                             Entity clientPlayer = ClientUtil.getClientPlayer();
                             if (clientPlayer == teacherPlayer) {
-                                ClientUtil.setOverlayMessage(new TranslationTextComponent(
+                                ClientUtil.setOverlayMessage(Component.translatable(
                                         "jojo.chat.message.new_hamon_learner", 
                                         learnerEntity.getDisplayName(), 
-                                        new KeybindTextComponent(JojoMod.MOD_ID + ".key.hamon_skills_window")));
+                                        Component.keybind(JojoMod.MOD_ID + ".key.hamon_skills_window")));
                             }
                             else if (clientPlayer == learnerEntity) {
-                                ClientUtil.setOverlayMessage(new TranslationTextComponent(
+                                ClientUtil.setOverlayMessage(Component.translatable(
                                         "jojo.chat.message.asked_hamon_teacher", 
                                         teacherPlayer.getDisplayName()));
 
                             }
                         }
                         else {
-                            hamon.removeNewLearner((PlayerEntity) learnerEntity);
+                            hamon.removeNewLearner((Player) learnerEntity);
                         }
                     }
                 });

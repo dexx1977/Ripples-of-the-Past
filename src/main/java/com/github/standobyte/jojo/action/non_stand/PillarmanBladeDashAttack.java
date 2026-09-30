@@ -22,17 +22,17 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.pillarman.PillarmanUt
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayerAction<PillarmanBladeDashAttack.Instance, INonStandPower> {
 
@@ -43,7 +43,7 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
     
     @Override
     protected ActionConditionResult checkSpecificConditions(LivingEntity user, INonStandPower power, ActionTarget target) {
-        return ActionConditionResult.noMessage(user.isOnGround());
+        return ActionConditionResult.noMessage(user.onGround());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
     }
     
     @Override
-    public void startedHolding(World world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
+    public void startedHolding(Level world, LivingEntity user, INonStandPower power, ActionTarget target, boolean requirementsFulfilled) {
         if (requirementsFulfilled && !world.isClientSide()) {
         	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(true);
             /*ClientTickingSoundsHelper.playStoppableEntitySound(user, ModSounds.HAMON_SYO_CHARGE.get(), 
@@ -66,36 +66,36 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
     }
     
     @Override
-    public boolean clHeldStartAnim(PlayerEntity user) {
+    public boolean clHeldStartAnim(Player user) {
         return getPlayerAnim().setWindupAnim(user);
     }
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!user.level.isClientSide()) {
             setPlayerAction(user, power);
         }
-        Vector3d leap = Vector3d.directionFromRotation(MathHelper.clamp(user.xRot, -45F, -18F), user.yRot)
+        Vec3 leap = Vec3.directionFromRotation(Mth.clamp(user.xRot, -45F, -18F), user.yRot)
                 .scale(1 + user.getAttributeValue(Attributes.MOVEMENT_SPEED) * 20);
         user.setDeltaMovement(leap.x, leap.y * 0.05F, leap.z);
     }
     
     @Override
     public Instance createContinuousActionInstance(LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            getPlayerAnim().setAttackAnim((PlayerEntity) user);
+        if (user.level.isClientSide() && user instanceof Player) {
+            getPlayerAnim().setAttackAnim((Player) user);
         }
         return new Instance(user, userCap, power, this, getEnergyCost(power, ActionTarget.EMPTY));
     }
     
     @Override
-    public void stoppedHolding(World world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
+    public void stoppedHolding(Level world, LivingEntity user, INonStandPower power, int ticksHeld, boolean willFire) {
     	if (!willFire) {
             if (!world.isClientSide()) {
             	power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).get().setBladesVisible(false);
             }
-            else if (user instanceof PlayerEntity) {
-                getPlayerAnim().stopAnim((PlayerEntity) user);
+            else if (user instanceof Player) {
+                getPlayerAnim().stopAnim((Player) user);
             }
     	}
     }
@@ -127,12 +127,12 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
                  if (damagedEntities.add(target.getUUID())) {
                      boolean kickDamage = dealPhysicalDamage(user.level, user, target);
                      if (kickDamage) {
-                         Vector3d vecToTarget = target.position().subtract(user.position());
-                         boolean left = MathHelper.wrapDegrees(
+                         Vec3 vecToTarget = target.position().subtract(user.position());
+                         boolean left = Mth.wrapDegrees(
                                  user.yBodyRot - MathUtil.yRotDegFromVec(vecToTarget))
                                  < 0;
                          float knockbackYRot = (60F + user.getRandom().nextFloat() * 30F) * (left ? 1 : -1);
-                         knockbackYRot += (float) -MathHelper.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG;
+                         knockbackYRot += (float) -Mth.atan2(vecToTarget.x, vecToTarget.z) * MathUtil.RAD_TO_DEG;
                          DamageUtil.knockback((LivingEntity) target, 0.75F, knockbackYRot);
                          PillarmanUtil.sparkEffect(target, 60);
                      }
@@ -143,7 +143,7 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
                 if (user.level.isClientSide()) {
                     user.level.playSound(ClientUtil.getClientPlayer(), user.getX(), user.getEyeY(), user.getZ(), 
                             ModSounds.HAMON_SYO_SWING.get(), user.getSoundSource(), 1.0f, 1.0f);
-                    user.swing(Hand.MAIN_HAND, true);
+                    user.swing(InteractionHand.MAIN_HAND, true);
                     pillarman.setBladesVisible(true);
                 }
                 break;
@@ -162,22 +162,22 @@ public class PillarmanBladeDashAttack extends PillarmanAction implements IPlayer
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                getAction().getPlayerAnim().stopAnim((PlayerEntity) user);
+            if (user.level.isClientSide() && user instanceof Player) {
+                getAction().getPlayerAnim().stopAnim((Player) user);
             }
         }
     }
        
-    private static boolean dealPhysicalDamage(World world, LivingEntity user, Entity target) {
-        return target.hurt(new EntityDamageSource(user instanceof PlayerEntity ? "player" : "mob", user), 
+    private static boolean dealPhysicalDamage(Level world, LivingEntity user, Entity target) {
+        return target.hurt(new EntityDamageSource(user instanceof Player ? "player" : "mob", user), 
         		DamageUtil.addArmorPiercing(VampirismClawLacerate.getDamage(world, user) + 1F, 15F, (LivingEntity) target));
     }
     
-    public static AxisAlignedBB slashHitbox(LivingEntity user) {
+    public static AABB slashHitbox(LivingEntity user) {
         float xzAngle = -user.yRot * MathUtil.DEG_TO_RAD;
-        Vector3d lookVec = new Vector3d(Math.sin(xzAngle), 0, Math.cos(xzAngle));
-        Vector3d hitboxXZCenter = user.position().add(lookVec.scale(user.getBbWidth() * 0.75F));
-        return new AxisAlignedBB(hitboxXZCenter, hitboxXZCenter)
+        Vec3 lookVec = new Vec3(Math.sin(xzAngle), 0, Math.cos(xzAngle));
+        Vec3 hitboxXZCenter = user.position().add(lookVec.scale(user.getBbWidth() * 0.75F));
+        return new AABB(hitboxXZCenter, hitboxXZCenter)
                 .inflate(user.getBbWidth() * 1.5F, 0.125, user.getBbWidth() * 1.5F)
                 .expandTowards(0, user.getBbHeight() / 2, 0);
     }

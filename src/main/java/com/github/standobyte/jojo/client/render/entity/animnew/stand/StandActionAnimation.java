@@ -16,7 +16,7 @@ import com.github.standobyte.jojo.client.render.entity.model.stand.StandEntityMo
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class StandActionAnimation {
     public static final float ANIM_SPEED = 1;
@@ -62,7 +62,7 @@ public class StandActionAnimation {
                 float nextPhaseTime = nextPhase != null ? nextPhase.getFloatKey() : anim.lengthInSeconds();
                 switch (curPhase.getValue().timeAnimMode) {
                 case FIT_PHASE_LENGTH:
-                    animTime = MathHelper.lerp(poseData.phaseCompletion, curPhaseTime, nextPhaseTime);
+                    animTime = Mth.lerp(poseData.phaseCompletion, curPhaseTime, nextPhaseTime);
                     break;
                 case PRESERVE_PHASE_LENGTH:
                     animTime = curPhaseTime + poseData.animTime / 20f;

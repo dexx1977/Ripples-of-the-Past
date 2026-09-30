@@ -2,8 +2,8 @@ package com.github.standobyte.jojo.client.render.entity.bb;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.geom.ModelPart;
+import org.joml.Vector3f;
 
 /**
  * The function that fixes the vertex order for mesh faces with 4 vertices in Blockbench format models.
@@ -12,7 +12,7 @@ import net.minecraft.util.math.vector.Vector3f;
  */
 public class MeshVerticesHelper {
     
-    public static void sortVertices(ModelRenderer.PositionTextureVertex[] vertices) {
+    public static void sortVertices(ModelPart.PositionTextureVertex[] vertices) {
         if (vertices.length < 4) return;
 
         if (MeshVerticesHelper.magicFunction(vertices[1].pos, vertices[2].pos, vertices[0].pos, vertices[3].pos)) {

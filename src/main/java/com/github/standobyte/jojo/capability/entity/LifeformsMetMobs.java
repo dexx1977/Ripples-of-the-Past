@@ -19,26 +19,26 @@ import com.github.standobyte.jojo.network.packets.fromserver.ability_specific.Me
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
 import com.github.standobyte.jojo.util.mc.entitysubtype.SubtypeResourceLocation;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntitySpawnPlacementRegistry;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.MobSpawnInfo;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class LifeformsMetMobs {
@@ -62,20 +62,20 @@ public class LifeformsMetMobs {
     public void serverTick() {
         if (nativeMobsUpdateDelay > 0) --nativeMobsUpdateDelay;
         if (nativeMobsUpdateDelay == 0 && nativeMobsUpdatePending != null && nativeMobsUpdatePending.user.isAlive()) {
-            updateNativeMobs((ServerWorld) nativeMobsUpdatePending.user.level, nativeMobsUpdatePending.user, nativeMobsUpdatePending.syncToClient);
+            updateNativeMobs((ServerLevel) nativeMobsUpdatePending.user.level, nativeMobsUpdatePending.user, nativeMobsUpdatePending.syncToClient);
         }
     }
     
     
-    public ListNBT toNBT() {
-        ListNBT metEntities = new ListNBT();
-        metEntityTypesId.forEach(entityTypeId -> metEntities.add(StringNBT.valueOf(entityTypeId.toString())));
+    public ListTag toNBT() {
+        ListTag metEntities = new ListTag();
+        metEntityTypesId.forEach(entityTypeId -> metEntities.add(StringTag.valueOf(entityTypeId.toString())));
         return metEntities;
     }
     
-    public void fromNBT(ListNBT metEntitiesId) {
+    public void fromNBT(ListTag metEntitiesId) {
         metEntitiesId.forEach(idNBT -> {
-            String idString = ((StringNBT) idNBT).getAsString(); 
+            String idString = ((StringTag) idNBT).getAsString(); 
             if (!idString.isEmpty()) {
                 SubtypeResourceLocation registryName = new SubtypeResourceLocation(idString);
                 add(registryName);
@@ -83,23 +83,23 @@ public class LifeformsMetMobs {
         });
     }
     
-    public void syncToClient(ServerPlayerEntity player) {
+    public void syncToClient(ServerPlayer player) {
         PacketManager.sendToClient(new MetEntityTypesPacket(metEntityTypesId), player);
     }
     
     
-    private Map<EntityClassification, List<EntityType<?>>> nativeMobs;
+    private Map<MobCategory, List<EntityType<?>>> nativeMobs;
     private int nativeMobsUpdateDelay;
     @Nullable private PendingUpdate nativeMobsUpdatePending;
     
-    public void updateNativeMobs(ServerWorld world, LivingEntity user, boolean sendToClient) {
+    public void updateNativeMobs(ServerLevel world, LivingEntity user, boolean sendToClient) {
         if (nativeMobs == null) {
-            nativeMobs = new EnumMap<>(EntityClassification.class);
+            nativeMobs = new EnumMap<>(MobCategory.class);
         }
         else if (nativeMobsUpdateDelay > 0) {
             return;
         }
-        if (!(user.isOnGround() || user.isInWater())) {
+        if (!(user.onGround() || user.isInWater())) {
             nativeMobsUpdatePending = new PendingUpdate(user, sendToClient || nativeMobsUpdatePending != null && nativeMobsUpdatePending.syncToClient);
             return;
         }
@@ -113,9 +113,9 @@ public class LifeformsMetMobs {
         Random notRandom = new SpawnRulesCheckNotRandom();
         
         nativeMobs.clear();
-        for (EntityClassification classification : EntityClassification.values()) {
-            List<MobSpawnInfo.Spawners> spawners;
-            if (classification == EntityClassification.MONSTER && structureManager.getStructureAt(pos, false, Structure.NETHER_BRIDGE).isValid()) {
+        for (MobCategory classification : MobCategory.values()) {
+            List<MobSpawnSettings.Spawners> spawners;
+            if (classification == MobCategory.MONSTER && structureManager.getStructureAt(pos, false, Structure.NETHER_BRIDGE).isValid()) {
                 spawners = Structure.NETHER_BRIDGE.getSpecialEnemies();
             }
             else {
@@ -125,40 +125,40 @@ public class LifeformsMetMobs {
                     .map(spawner -> spawner.type)
                     .filter(type -> metBaseEntityTypesId.contains(type.getRegistryName())
                             && GoldExperienceChooseLifeform.isValidLifeform(EntitySubtype.base(type), world)
-                            && ((EntitySpawnPlacementRegistry.getPlacementType(type) == EntitySpawnPlacementRegistry.PlacementType.IN_WATER) == world.getFluidState(pos).is(FluidTags.WATER))
-                            && EntitySpawnPlacementRegistry.checkSpawnRules(type, world, SpawnReason.SPAWNER, pos, notRandom))
+                            && ((SpawnPlacements.getPlacementType(type) == SpawnPlacements.PlacementType.IN_WATER) == world.getFluidState(pos).is(FluidTags.WATER))
+                            && SpawnPlacements.checkSpawnRules(type, world, MobSpawnType.SPAWNER, pos, notRandom))
                     .collect(Collectors.toList()));
         }
         
-        if (sendToClient && user instanceof ServerPlayerEntity) {
-            PacketManager.sendToClient(new GENativeMobsPacket(this), (ServerPlayerEntity) user);
+        if (sendToClient && user instanceof ServerPlayer) {
+            PacketManager.sendToClient(new GENativeMobsPacket(this), (ServerPlayer) user);
         }
     }
     
-    public boolean isMobNativeToPlayerPos(World world, Entity mobInstance, LivingEntity geUser) {
+    public boolean isMobNativeToPlayerPos(Level world, Entity mobInstance, LivingEntity geUser) {
         if (!world.isClientSide()) {
-            updateNativeMobs((ServerWorld) world, geUser, false);
+            updateNativeMobs((ServerLevel) world, geUser, false);
         }
         return nativeMobs != null && nativeMobs.get(mobInstance.getClassification(false)).contains(mobInstance.getType());
     }
     
-    public void nativeMobsToBuf(PacketBuffer buf) {
-        for (EntityClassification classification : EntityClassification.values()) {
+    public void nativeMobsToBuf(FriendlyByteBuf buf) {
+        for (MobCategory classification : MobCategory.values()) {
             List<EntityType<?>> types = nativeMobs.get(classification);
             NetworkUtil.writeCollection(buf, types, 
                     (type, buffer) -> buffer.writeResourceLocation(type.getRegistryName()), false);
         }
     }
     
-    public void nativeMobsFromBuf(PacketBuffer buf) {
+    public void nativeMobsFromBuf(FriendlyByteBuf buf) {
         if (nativeMobs == null) {
-            nativeMobs = new EnumMap<>(EntityClassification.class);
+            nativeMobs = new EnumMap<>(MobCategory.class);
         }
         else {
             nativeMobs.clear();
         }
         
-        for (EntityClassification classification : EntityClassification.values()) {
+        for (MobCategory classification : MobCategory.values()) {
             List<ResourceLocation> typeIds = NetworkUtil.readCollection(buf, buf::readResourceLocation);
             nativeMobs.put(classification, typeIds
                     .stream()

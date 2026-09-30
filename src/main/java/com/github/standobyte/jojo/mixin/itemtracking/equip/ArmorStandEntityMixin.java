@@ -8,23 +8,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack.KnownItemState;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-@Mixin(ArmorStandEntity.class)
+@Mixin(ArmorStand.class)
 public abstract class ArmorStandEntityMixin extends LivingEntity {
     
-    protected ArmorStandEntityMixin(EntityType<? extends MobEntity> type, World world) {
+    protected ArmorStandEntityMixin(EntityType<? extends Mob> type, Level world) {
         super(type, world);
     }
     
     @Inject(method = "setItemSlot", at = @At("TAIL"))
-    public void jojoOnArmorStandItemEquip(EquipmentSlotType pSlot, ItemStack pStack, CallbackInfo ci) {
+    public void jojoOnArmorStandItemEquip(EquipmentSlot pSlot, ItemStack pStack, CallbackInfo ci) {
         if (!level.isClientSide()) {
             TrackerItemStack.getItemTracker(pStack).ifPresent(tracker -> {
                 tracker.setAtEntity(this.getId(), level, KnownItemState.ENTITY_HAS_ITEM);

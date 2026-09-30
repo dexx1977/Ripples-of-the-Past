@@ -3,11 +3,11 @@ package com.github.standobyte.jojo.client.render.entity.model.projectile;
 import com.github.standobyte.jojo.client.render.FlameModelRenderer;
 import com.github.standobyte.jojo.client.render.block.BlockSprites;
 import com.github.standobyte.jojo.entity.damaging.projectile.MRCrossfireHurricaneEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.util.Direction;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.core.Direction;
 
 // Made with Blockbench 3.9.2
 
@@ -39,7 +39,7 @@ public class MRCrossfireHurricaneModel extends EntityModel<MRCrossfireHurricaneE
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         ankh.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }
 }

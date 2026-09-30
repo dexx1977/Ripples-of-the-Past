@@ -3,42 +3,42 @@ package com.github.standobyte.jojo.util.mod;
 import com.github.standobyte.jojo.capability.world.TimeStopHandler;
 import com.github.standobyte.jojo.capability.world.TimeStopInstance;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 
 @Deprecated
 public class TimeUtil {
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static void stopTime(World world, TimeStopInstance instance) {
+    public static void stopTime(Level world, TimeStopInstance instance) {
         TimeStopHandler.stopTime(world, instance);
     }
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static void resumeTime(World world, int instanceId) {
+    public static void resumeTime(Level world, int instanceId) {
         TimeStopHandler.resumeTime(world, instanceId);
     }
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static void resumeTime(World world, TimeStopInstance instance) {
+    public static void resumeTime(Level world, TimeStopInstance instance) {
         TimeStopHandler.resumeTime(world, instance);
     }
     
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static TimeStopInstance getTimeStopInstance(World world, int instanceId) {
+    public static TimeStopInstance getTimeStopInstance(Level world, int instanceId) {
         return TimeStopHandler.getTimeStopInstance(world, instanceId);
     }
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static boolean canPlayerSeeInStoppedTime(PlayerEntity player) {
+    public static boolean canPlayerSeeInStoppedTime(Player player) {
         return TimeStopHandler.canPlayerSeeInStoppedTime(player);
     }
 
@@ -50,7 +50,7 @@ public class TimeUtil {
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static boolean canPlayerMoveInStoppedTime(PlayerEntity player, boolean checkEffect) {
+    public static boolean canPlayerMoveInStoppedTime(Player player, boolean checkEffect) {
         return TimeStopHandler.canPlayerMoveInStoppedTime(player, checkEffect);
     }
 
@@ -62,19 +62,19 @@ public class TimeUtil {
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static boolean isTimeStopped(World world, BlockPos blockPos) {
+    public static boolean isTimeStopped(Level world, BlockPos blockPos) {
         return TimeStopHandler.isTimeStopped(world, blockPos);
     }
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static boolean isTimeStopped(World world, ChunkPos chunkPos) {
+    public static boolean isTimeStopped(Level world, ChunkPos chunkPos) {
         return TimeStopHandler.isTimeStopped(world, chunkPos);
     }
 
     @Deprecated
     /** @deprecated method moved to TimeStopHandler */
-    public static int getTimeStopTicksLeft(World world, ChunkPos chunkPos) {
+    public static int getTimeStopTicksLeft(Level world, ChunkPos chunkPos) {
         return TimeStopHandler.getTimeStopTicksLeft(world, chunkPos);
     }
 }

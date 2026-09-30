@@ -7,8 +7,7 @@ import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.action.non_stand.HamonAction;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
 
 public class BaseHamonSkill extends AbstractHamonSkill {
     private final HamonStat hamonStat;
@@ -55,9 +54,9 @@ public class BaseHamonSkill extends AbstractHamonSkill {
         public static final SkillBranch ATTRACTANT_REPELLENT = new SkillBranch("attractant_repellent");
         public static final SkillBranch BODY_MANIPULATION = new SkillBranch("body_manipulation");
         
-        public final ITextComponent name;
+        public final Component name;
         public SkillBranch(String name) {
-            this.name = new TranslationTextComponent("hamon.skills." + name);
+            this.name = Component.translatable("hamon.skills." + name);
         }
         
         private final List<AbstractHamonSkill> skills = new ArrayList<>();

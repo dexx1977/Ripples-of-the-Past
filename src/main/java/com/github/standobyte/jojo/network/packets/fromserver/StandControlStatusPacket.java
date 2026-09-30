@@ -6,8 +6,8 @@ import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.StandUtil;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandControlStatusPacket {
     private final boolean manualControl;
@@ -23,7 +23,7 @@ public class StandControlStatusPacket {
     public static class Handler implements IModPacketHandler<StandControlStatusPacket> {
 
         @Override
-        public void encode(StandControlStatusPacket msg, PacketBuffer buf) {
+        public void encode(StandControlStatusPacket msg, FriendlyByteBuf buf) {
             byte flags = 0;
             if (msg.manualControl) {
                 flags |= 1;
@@ -35,7 +35,7 @@ public class StandControlStatusPacket {
         }
 
         @Override
-        public StandControlStatusPacket decode(PacketBuffer buf) {
+        public StandControlStatusPacket decode(FriendlyByteBuf buf) {
             byte flags = buf.readByte();
             return new StandControlStatusPacket((flags & 1) > 0, (flags & 2) > 0);
         }

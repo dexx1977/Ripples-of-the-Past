@@ -16,11 +16,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.BaseHamonSkill.HamonStat;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.Level;
 
 public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.Instance, INonStandPower> {
     
@@ -65,7 +65,7 @@ public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.
     
     
     @Override
-    protected void perform(World world, LivingEntity user, INonStandPower power, ActionTarget target) {
+    protected void perform(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {
         if (!world.isClientSide()) {
             setPlayerAction(user, power);
         }
@@ -74,8 +74,8 @@ public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.
     @Override
     public HamonShock.Instance createContinuousActionInstance(
             LivingEntity user, PlayerUtilCap userCap, INonStandPower power) {
-        if (user.level.isClientSide() && user instanceof PlayerEntity) {
-            ModPlayerAnimations.hamonShock.setAnimEnabled((PlayerEntity) user, true);
+        if (user.level.isClientSide() && user instanceof Player) {
+            ModPlayerAnimations.hamonShock.setAnimEnabled((Player) user, true);
         }
         return new Instance(user, userCap, power, this);
     }
@@ -85,7 +85,7 @@ public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.
     public void setCooldownOnUse(INonStandPower power) {}
     
     @Override
-    protected void consumeEnergy(World world, LivingEntity user, INonStandPower power, ActionTarget target) {}
+    protected void consumeEnergy(Level world, LivingEntity user, INonStandPower power, ActionTarget target) {}
     
     
     public static class Instance extends ContinuousActionInstance<HamonShock, INonStandPower> {
@@ -132,7 +132,7 @@ public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.
                         hamon.hamonPointsFromAction(HamonStat.CONTROL, playerPower.getEnergy() * efficiency);
                         playerPower.setEnergy(0);
                         shockedTarget = targetEntity;
-                        targetEntity.addEffect(new EffectInstance(
+                        targetEntity.addEffect(new MobEffectInstance(
                                 ModStatusEffects.HAMON_SHOCK.get(), duration, amplifier, false, false, true));
                         HamonUtil.emitHamonSparkParticles(user.level, null, targetEntity.getBoundingBox().getCenter(), 1.0F);
                     }
@@ -157,8 +157,8 @@ public class HamonShock extends HamonAction implements IPlayerAction<HamonShock.
         @Override
         public void onStop() {
             super.onStop();
-            if (user.level.isClientSide() && user instanceof PlayerEntity) {
-                ModPlayerAnimations.hamonShock.setAnimEnabled((PlayerEntity) user, false);
+            if (user.level.isClientSide() && user instanceof Player) {
+                ModPlayerAnimations.hamonShock.setAnimEnabled((Player) user, false);
             }
         }
         

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.gui.elements.DrawableResource;
@@ -32,7 +32,7 @@ public class JeiStandIconDrawable implements IDrawable {
     }
 
     @Override
-    public void draw(MatrixStack matrixStack, int xOffset, int yOffset) {
+    public void draw(PoseStack matrixStack, int xOffset, int yOffset) {
         if (!standIcons.isEmpty()) {
             IDrawable standIcon = iconsCycle.getCycledItem(standIcons);
             standIcon.draw(matrixStack, xOffset, yOffset);

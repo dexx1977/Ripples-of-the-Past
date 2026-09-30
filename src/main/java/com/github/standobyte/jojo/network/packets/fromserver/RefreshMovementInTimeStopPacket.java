@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.client.ClientTimeStopHandler;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraftforge.network.NetworkEvent;
 
 public class RefreshMovementInTimeStopPacket {
     private final int entityId;
@@ -28,7 +28,7 @@ public class RefreshMovementInTimeStopPacket {
     public static class Handler implements IModPacketHandler<RefreshMovementInTimeStopPacket> {
 
         @Override
-        public void encode(RefreshMovementInTimeStopPacket msg, PacketBuffer buf) {
+        public void encode(RefreshMovementInTimeStopPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
             buf.writeInt(msg.chunkPos.x);
             buf.writeInt(msg.chunkPos.z);;
@@ -36,7 +36,7 @@ public class RefreshMovementInTimeStopPacket {
         }
 
         @Override
-        public RefreshMovementInTimeStopPacket decode(PacketBuffer buf) {
+        public RefreshMovementInTimeStopPacket decode(FriendlyByteBuf buf) {
             return new RefreshMovementInTimeStopPacket(buf.readInt(), new ChunkPos(buf.readInt(), buf.readInt()), buf.readBoolean());
         }
 

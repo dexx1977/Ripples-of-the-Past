@@ -12,11 +12,11 @@ import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 
 public class GEItemMarkEffect extends StandEffectInstance {
     private UUID itemTrackerId = null;
@@ -68,7 +68,7 @@ public class GEItemMarkEffect extends StandEffectInstance {
         if (!world.isClientSide()) {
             TrackerItemStack tracker = getItemTracker(true);
             if (tracker != null) {
-                SidedItemTrackerMap serverItemTracking = SaveFileUtilCapProvider.getSaveFileCap((ServerWorld) world).getItemsTracker();
+                SidedItemTrackerMap serverItemTracking = SaveFileUtilCapProvider.getSaveFileCap((ServerLevel) world).getItemsTracker();
                 serverItemTracking.removeTracker(tracker.getTrackerId());
             }
         }
@@ -80,33 +80,33 @@ public class GEItemMarkEffect extends StandEffectInstance {
     }
     
     @Override
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {
+    protected void writeAdditionalSaveData(CompoundTag nbt) {
         if (itemTrackerId != null) {
             nbt.putUUID("ItemTracker", itemTrackerId);
         }
     }
     
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
         if (nbt.hasUUID("ItemTracker")) {
             itemTrackerId = nbt.getUUID("ItemTracker");
             if (world == null) {
                 throw new IllegalStateException();
             }
-            SidedItemTrackerMap serverItemTracking = SaveFileUtilCapProvider.getSaveFileCap((ServerWorld) world).getItemsTracker();
+            SidedItemTrackerMap serverItemTracking = SaveFileUtilCapProvider.getSaveFileCap((ServerLevel) world).getItemsTracker();
             serverItemTracking.addServerTrackedId(itemTrackerId);
         }
     }
 
     @Override
-    public void writeAdditionalPacketData(PacketBuffer buf, boolean sendingToUser) {
+    public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
         if (sendingToUser) {
             NetworkUtil.writeOptionally(buf, itemTrackerId, buf::writeUUID);
         }
     }
 
     @Override
-    public void readAdditionalPacketData(PacketBuffer buf, boolean clientIsUser) {
+    public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
         if (clientIsUser) {
             itemTrackerId = NetworkUtil.readOptional(buf, buf::readUUID).orElse(null);
         }

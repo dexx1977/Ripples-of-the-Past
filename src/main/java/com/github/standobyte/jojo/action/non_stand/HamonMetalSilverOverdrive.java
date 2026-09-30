@@ -8,11 +8,11 @@ import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
 
 public class HamonMetalSilverOverdrive extends HamonOverdrive {
 
@@ -44,11 +44,11 @@ public class HamonMetalSilverOverdrive extends HamonOverdrive {
         float mult = 1;
         
         for (int i = 0; i < 4; i++) {
-            if (!targetEntity.getItemBySlot(EquipmentSlotType.byTypeAndIndex(EquipmentSlotType.Group.ARMOR, i)).isEmpty()) {
+            if (!targetEntity.getItemBySlot(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Group.ARMOR, i)).isEmpty()) {
                 mult += 0.2F;
             }
         }
-        for (Hand hand : Hand.values()) {
+        for (InteractionHand hand : InteractionHand.values()) {
             ItemStack heldStack = targetEntity.getItemInHand(hand);
             if (MCUtil.isItemWeapon(heldStack)) {
                 mult += 0.2F;

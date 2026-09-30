@@ -7,10 +7,10 @@ import com.github.standobyte.jojo.action.player.ContinuousActionInstance;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrSYOBarrageFinisherPacket {
     private final int entityId;
@@ -24,12 +24,12 @@ public class TrSYOBarrageFinisherPacket {
     public static class Handler implements IModPacketHandler<TrSYOBarrageFinisherPacket> {
 
         @Override
-        public void encode(TrSYOBarrageFinisherPacket msg, PacketBuffer buf) {
+        public void encode(TrSYOBarrageFinisherPacket msg, FriendlyByteBuf buf) {
             buf.writeInt(msg.entityId);
         }
 
         @Override
-        public TrSYOBarrageFinisherPacket decode(PacketBuffer buf) {
+        public TrSYOBarrageFinisherPacket decode(FriendlyByteBuf buf) {
             return new TrSYOBarrageFinisherPacket(buf.readInt());
         }
 

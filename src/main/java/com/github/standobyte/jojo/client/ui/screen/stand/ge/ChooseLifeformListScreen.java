@@ -12,18 +12,17 @@ import com.github.standobyte.jojo.capability.entity.PlayerUtilCap;
 import com.github.standobyte.jojo.capability.entity.PlayerUtilCapProvider;
 import com.github.standobyte.jojo.util.general.GeneralUtil;
 import com.github.standobyte.jojo.util.mc.entitysubtype.EntitySubtype;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 
 public class ChooseLifeformListScreen extends ChooseLifeformScreen {
     private LifeformsList<LifeformEntityTypeEntry> mobList;
     
-    public ChooseLifeformListScreen(KeyBinding keyHeld) {
+    public ChooseLifeformListScreen(KeyMapping keyHeld) {
         super(keyHeld);
     }
     
@@ -81,15 +80,15 @@ public class ChooseLifeformListScreen extends ChooseLifeformScreen {
     }
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 //        renderBackground(matrixStack);
         
         mobList.render(matrixStack, mouseX, mouseY, partialTicks);
-        ITextComponent animalsName = new TranslationTextComponent("gold_experience.lifeforms.animals").withStyle(TextFormatting.BOLD);
+        Component animalsName = Component.translatable("gold_experience.lifeforms.animals").withStyle(ChatFormatting.BOLD);
         minecraft.font.drawShadow(matrixStack, animalsName, mobList.getLeft() + (mobList.getWidth() - minecraft.font.width(animalsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
 
-        ITextComponent plantsName = new TranslationTextComponent("gold_experience.lifeforms.plants").withStyle(TextFormatting.BOLD);
+        Component plantsName = Component.translatable("gold_experience.lifeforms.plants").withStyle(ChatFormatting.BOLD);
         minecraft.font.drawShadow(matrixStack, plantsName, 4 + (135 - minecraft.font.width(plantsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
     }
     

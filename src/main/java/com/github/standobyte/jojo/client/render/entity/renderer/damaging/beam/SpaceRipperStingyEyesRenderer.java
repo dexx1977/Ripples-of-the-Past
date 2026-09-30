@@ -4,26 +4,27 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.SpaceRipperStingyEyesEntity;
 import com.github.standobyte.jojo.util.general.MathUtil;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import com.mojang.math.Axis;
 
 public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperStingyEyesEntity> {
     private static final ResourceLocation BEAM_TEX = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/space_ripper_stingy_eyes.png");
 
-    public SpaceRipperStingyEyesRenderer(EntityRendererManager renderManager) {
+    public SpaceRipperStingyEyesRenderer(EntityRenderDispatcher renderManager) {
         super(renderManager);
     }
 
@@ -33,21 +34,21 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
     }
 
     @Override
-    public void render(SpaceRipperStingyEyesEntity entity, float yRotation, float partialTick, MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight) {
+    public void render(SpaceRipperStingyEyesEntity entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         matrixStack.pushPose();
         packedLight = ClientUtil.MAX_MODEL_LIGHT;
-        Vector3d beamVec = entity.getOriginPoint(partialTick).subtract(entity.getPosition(partialTick));
+        Vec3 beamVec = entity.getOriginPoint(partialTick).subtract(entity.getPosition(partialTick));
         float yRot = MathUtil.yRotDegFromVec(beamVec);
         float xRot = MathUtil.xRotDegFromVec(beamVec);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(-90.0F - yRot));
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(-xRot));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(-90.0F - yRot));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(-xRot));
         float beamWidth = 0.15f;
         matrixStack.scale(1.0F, beamWidth, beamWidth);
         Matrix3f lighting = matrixStack.last().normal();
         lighting.setIdentity();
-        ActiveRenderInfo camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        lighting.mul(Vector3f.XP.rotationDegrees(camera.getXRot()));
-        IVertexBuilder ivertexbuilder = buffer.getBuffer(RenderType.entityTranslucentCull(getTextureLocation(entity)));
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        lighting.mul(Axis.XP.rotationDegrees(camera.getXRot()));
+        VertexConsumer ivertexbuilder = buffer.getBuffer(RenderType.entityTranslucentCull(getTextureLocation(entity)));
         float length = (float) beamVec.length();
         
         renderSide(matrixStack, new Vector3f(0, -1, 0), length, ivertexbuilder, packedLight);
@@ -60,13 +61,13 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
     }
     
     
-    private void renderSide(MatrixStack matrixStack, Vector3f lightNormal, float length, IVertexBuilder ivertexbuilder, int packedLight) {
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+    private void renderSide(PoseStack matrixStack, Vector3f lightNormal, float length, VertexConsumer ivertexbuilder, int packedLight) {
+        matrixStack.mulPose(Axis.XP.rotationDegrees(90.0F));
         matrixStack.pushPose();
         
         matrixStack.translate(0, 0, 0.125f);
 
-        MatrixStack.Entry matrix = matrixStack.last();
+        PoseStack.Entry matrix = matrixStack.last();
         Matrix4f pose = matrix.pose();
         Matrix3f normal = matrix.normal();
         
@@ -83,7 +84,7 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
                 packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1, 
                 0, 1, 0, 0.0F, 1.0F, lightNormal.x(), lightNormal.y(), lightNormal.z());
 
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(180.0F));
+        matrixStack.mulPose(Axis.XP.rotationDegrees(180.0F));
         ClientUtil.vertex(pose, normal, ivertexbuilder, 
                 packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1, 
                 0, -1, 0, 0.0F, 0.0F, -lightNormal.x(), -lightNormal.y(), -lightNormal.z());

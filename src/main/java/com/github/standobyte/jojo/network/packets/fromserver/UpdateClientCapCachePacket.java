@@ -8,8 +8,8 @@ import com.github.standobyte.jojo.client.ControllerSoul;
 import com.github.standobyte.jojo.client.ui.actionshud.ActionsOverlayGui;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class UpdateClientCapCachePacket {
     
@@ -18,10 +18,10 @@ public class UpdateClientCapCachePacket {
     public static class Handler implements IModPacketHandler<UpdateClientCapCachePacket> {
 
         @Override
-        public void encode(UpdateClientCapCachePacket msg, PacketBuffer buf) {}
+        public void encode(UpdateClientCapCachePacket msg, FriendlyByteBuf buf) {}
 
         @Override
-        public UpdateClientCapCachePacket decode(PacketBuffer buf) {
+        public UpdateClientCapCachePacket decode(FriendlyByteBuf buf) {
             return new UpdateClientCapCachePacket();
         }
 

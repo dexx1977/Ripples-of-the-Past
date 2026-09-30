@@ -10,14 +10,14 @@ import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.TrHamonWallClimbingPacket;
 import com.github.standobyte.jojo.util.general.OptionalFloat;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
+public class LivingWallClimbing implements INBTSerializable<CompoundTag> {
     private final LivingEntity entity;
     private boolean wallClimbing = false;
     private OptionalFloat wallClimbBodyRot = OptionalFloat.empty();
@@ -64,8 +64,8 @@ public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
             PacketManager.sendToClientsTrackingAndSelf(new TrHamonWallClimbingPacket(
                     entity.getId(), wallClimbing, hamon, climbSpeed, yBodyRot), entity);
         }
-        else if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        else if (entity instanceof Player) {
+            Player player = (Player) entity;
             if (!value) {
                 if (player.isLocalPlayer()) {
                     ClientUtil.setPlayerHandsBusy(player, false);
@@ -85,8 +85,8 @@ public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
             
             entity.setYBodyRot(climbYRot);
             entity.yBodyRotO = entity.yBodyRot;
-            float f = MathHelper.wrapDegrees(entity.yRot - climbYRot);
-            float f1 = MathHelper.clamp(f, -75, 75);
+            float f = Mth.wrapDegrees(entity.yRot - climbYRot);
+            float f1 = Mth.clamp(f, -75, 75);
             entity.yRotO += f1 - f;
             entity.yRot += f1 - f;
             entity.setYHeadRot(entity.yRot);
@@ -94,7 +94,7 @@ public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
     }
     
     
-    public void syncToPlayer(ServerPlayerEntity tracking) {
+    public void syncToPlayer(ServerPlayer tracking) {
         if (wallClimbing) {
             PacketManager.sendToClient(new TrHamonWallClimbingPacket(
                     entity.getId(), wallClimbing, wallClimbHamon, wallClimbSpeed, wallClimbBodyRot), tracking);
@@ -103,8 +103,8 @@ public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
     
     
     @Override
-    public CompoundNBT serializeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putBoolean("WallClimb", wallClimbing);
         nbt.putBoolean("WallClimbHamon", wallClimbHamon);
         nbt.putFloat("WallClimbSpeed", wallClimbSpeed);
@@ -115,7 +115,7 @@ public class LivingWallClimbing implements INBTSerializable<CompoundNBT> {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         wallClimbing = nbt.getBoolean("WallClimb");
         wallClimbHamon = nbt.getBoolean("WallClimbHamon");
         wallClimbSpeed = nbt.getFloat("WallClimbSpeed");

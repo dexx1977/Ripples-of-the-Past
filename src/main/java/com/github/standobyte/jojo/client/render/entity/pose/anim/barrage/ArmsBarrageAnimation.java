@@ -5,10 +5,10 @@ import com.github.standobyte.jojo.client.render.entity.pose.IModelPose;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
 
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
 
 @Deprecated
 public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends EntityModel<T>> implements IBarrageAnimation<T, M> {
@@ -26,13 +26,13 @@ public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends Ent
 
     @Override
     public void animate(Phase phase, float phaseCompletion, T entity, float ticks, 
-            float yRotOffsetRad, float xRotRad, HandSide side) {
+            float yRotOffsetRad, float xRotRad, HumanoidArm side) {
         float loop = ticks / getLoopLen();
         side = getHandSide(phase, entity, ticks);
         
         switch (phase) {
         case PERFORM:
-            animateSwing(entity, model, MathHelper.frac(loop), side, yRotOffsetRad, xRotRad, 0);
+            animateSwing(entity, model, Mth.frac(loop), side, yRotOffsetRad, xRotRad, 0);
             break;
         case RECOVERY:
             recovery.poseModel(phaseCompletion, entity, ticks, yRotOffsetRad, xRotRad, side);
@@ -42,7 +42,7 @@ public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends Ent
     }
     
     @Override
-    public void addSwings(T entity, HandSide side, float ticks) {
+    public void addSwings(T entity, HumanoidArm side, float ticks) {
         BarrageSwingsHolder<T, M> swings = getBarrageSwingsHolder(entity);
         if (swings != null) {
             float lastLoop = swings.getLoopCount();
@@ -57,11 +57,11 @@ public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends Ent
         }
     }
 
-    protected abstract HandSide getHandSide(Phase phase, T entity, float ticks);
+    protected abstract HumanoidArm getHandSide(Phase phase, T entity, float ticks);
     protected abstract boolean switchesArms();
     
     @Override
-    public void animateSwing(T entity, M model, float loopCompletion, HandSide side, 
+    public void animateSwing(T entity, M model, float loopCompletion, HumanoidArm side, 
             float yRotOffsetRad, float xRotRad, float zRotOffsetRad) {
         loop.poseModel(loopCompletion, entity, 0, yRotOffsetRad, xRotRad, side);
     }
@@ -80,7 +80,7 @@ public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends Ent
 //        }
 //    }
 
-    protected void doAddSwings(T entity, BarrageSwingsHolder<T, M> swings, HandSide side, float hits) {
+    protected void doAddSwings(T entity, BarrageSwingsHolder<T, M> swings, HumanoidArm side, float hits) {
         int swingsToAdd = (int) hits;
         if (entity.getRandom().nextFloat() <= (float) (hits - swingsToAdd)) swingsToAdd++;
         double maxOffset = maxSwingOffset(entity);
@@ -97,7 +97,7 @@ public abstract class ArmsBarrageAnimation<T extends LivingEntity, M extends Ent
     
     protected abstract float swingsToAdd(T entity, float loop, float lastLoop);
     protected abstract double maxSwingOffset(T entity);
-    protected abstract void addSwing(T entity, BarrageSwingsHolder<T, M> swings, HandSide side, float f, double maxOffset);
+    protected abstract void addSwing(T entity, BarrageSwingsHolder<T, M> swings, HumanoidArm side, float f, double maxOffset);
     
     
     

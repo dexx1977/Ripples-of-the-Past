@@ -14,20 +14,20 @@ import com.github.standobyte.jojo.util.mc.damage.DamageUtil;
 import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityPredicate;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.PrioritizedGoal;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 
 public class VampirismUtil {
@@ -42,7 +42,7 @@ public class VampirismUtil {
     }
     
     public static void incSunBurn(LivingEntity entity, int tickUpAmount) {
-        EffectInstance sunBurnEffect = entity.getEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
+        MobEffectInstance sunBurnEffect = entity.getEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
         int duration;
         int amplifier;
         if (sunBurnEffect == null) {
@@ -60,10 +60,10 @@ public class VampirismUtil {
 //    private static final float MAX_SUN_DAMAGE = 10;
 //    private static final float MIN_SUN_DAMAGE = 2;
     private static float getSunDamage(LivingEntity entity) {
-        World world = entity.level;
+        Level world = entity.level;
         if (isSunny(world)) {
             float brightness = entity.getBrightness();
-            BlockPos blockPos = entity.getVehicle() instanceof BoatEntity ? 
+            BlockPos blockPos = entity.getVehicle() instanceof Boat ? 
                     (new BlockPos(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ())).above()
                     : new BlockPos(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ());
             if (brightness > 0.5F && world.canSeeSky(blockPos)) {
@@ -91,7 +91,7 @@ public class VampirismUtil {
         return 0;
     }
     
-    public static boolean isSunny(World world) {
+    public static boolean isSunny(Level world) {
         if (world.isClientSide()) {
             world.updateSkyBrightness();
         }
@@ -104,32 +104,32 @@ public class VampirismUtil {
     
     
     
-    public static void editMobAiGoals(MobEntity mob) {
-        if (mob.getClassification(false) == EntityClassification.MONSTER) {
+    public static void editMobAiGoals(Mob mob) {
+        if (mob.getClassification(false) == MobCategory.MONSTER) {
             VampirismUtil.makeMobNeutralToVampirePlayers(mob);
         }
-        else if (mob instanceof IronGolemEntity) {
-            mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, PlayerEntity.class, 5, false, false, 
-                    target -> target instanceof PlayerEntity && JojoModUtil.isPlayerJojoVampiric((PlayerEntity) target)));
+        else if (mob instanceof IronGolem) {
+            mob.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(mob, Player.class, 5, false, false, 
+                    target -> target instanceof Player && JojoModUtil.isPlayerJojoVampiric((Player) target)));
         }
     }
     
-    private static void makeMobNeutralToVampirePlayers(MobEntity mob) {
+    private static void makeMobNeutralToVampirePlayers(Mob mob) {
         if (JojoModConfig.getCommonConfigInstance(false).vampiresAggroMobs.get()) return;
         
-        Set<PrioritizedGoal> goals = CommonReflection.getGoalsSet(mob.targetSelector);
-        for (PrioritizedGoal prGoal : goals) {
+        Set<WrappedGoal> goals = CommonReflection.getGoalsSet(mob.targetSelector);
+        for (WrappedGoal prGoal : goals) {
             Goal goal = prGoal.getGoal();
             if (goal instanceof NearestAttackableTargetGoal) {
                 NearestAttackableTargetGoal<?> targetGoal = (NearestAttackableTargetGoal<?>) goal;
                 Class<? extends LivingEntity> targetClass = CommonReflection.getTargetClass(targetGoal);
                 
-                if (targetClass == PlayerEntity.class) {
-                    EntityPredicate selector = CommonReflection.getTargetConditions(targetGoal);
+                if (targetClass == Player.class) {
+                    TargetingConditions selector = CommonReflection.getTargetConditions(targetGoal);
                     if (selector != null) {
                         Predicate<LivingEntity> oldPredicate = CommonReflection.getTargetSelector(selector);
                         Predicate<LivingEntity> undeadPredicate = target -> 
-                            target instanceof PlayerEntity && !(
+                            target instanceof Player && !(
 //                                    JojoModUtil.isPlayerUndead((PlayerEntity) target) &&
                                     INonStandPower.getNonStandPowerOptional(target).map(
                                             power -> power.getTypeSpecificData(ModPowers.VAMPIRISM.get())
@@ -139,7 +139,7 @@ public class VampirismUtil {
                                     .map(pillarman -> pillarman.isStoneFormEnabled()).orElse(false)).orElse(false) || 
                                     INonStandPower.getNonStandPowerOptional(target).map(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get())
                                             .map(pillarman -> pillarman.getEvolutionStage() > 1).orElse(false)).orElse(false));
-                        CommonReflection.setTargetConditions(targetGoal, new EntityPredicate().range(CommonReflection.getTargetDistance(targetGoal)).selector(
+                        CommonReflection.setTargetConditions(targetGoal, new TargetingConditions().range(CommonReflection.getTargetDistance(targetGoal)).selector(
                                 oldPredicate != null ? oldPredicate.and(undeadPredicate) : undeadPredicate));
                     }
                 }
@@ -151,7 +151,7 @@ public class VampirismUtil {
     
     public static void onEnchantedGoldenAppleEaten(LivingEntity entity) {
         if (!entity.level.isClientSide()) {
-            EffectInstance weakness = entity.getEffect(Effects.WEAKNESS);
+            MobEffectInstance weakness = entity.getEffect(MobEffects.WEAKNESS);
             if (!(weakness != null && weakness.getAmplifier() >= 4)) {
                 return;
             }
@@ -171,7 +171,7 @@ public class VampirismUtil {
     
     
     public static void consumeEnergyOnHeal(LivingHealEvent event) {
-        LivingEntity entity = event.getEntityLiving();
+        LivingEntity entity = event.getEntity();
         if (entity.isAlive()) {
             INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
                 if (power.getType() == ModPowers.VAMPIRISM.get() 
@@ -194,7 +194,7 @@ public class VampirismUtil {
         }
     }
     
-    public static float healCost(World world) {
+    public static float healCost(Level world) {
         return GeneralUtil.getOrLast(
                 JojoModConfig.getCommonConfigInstance(world.isClientSide()).bloodHealCost.get(), 
                 world.getDifficulty().getId()).floatValue();

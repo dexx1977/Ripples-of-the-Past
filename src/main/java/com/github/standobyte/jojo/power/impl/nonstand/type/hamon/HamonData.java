@@ -77,29 +77,28 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.server.management.PlayerInteractionManager;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -147,7 +146,7 @@ public class HamonData extends TypeSpecificData {
 
     private MainHamonSkillsManager hamonSkills;
     
-    private Set<PlayerEntity> newLearners = new HashSet<>();
+    private Set<Player> newLearners = new HashSet<>();
 
     private int noEnergyDecayTicks = 0;
     private boolean playedEnergySound = false;
@@ -282,7 +281,7 @@ public class HamonData extends TypeSpecificData {
     }
     
     public void setBreathStability(float value, int noIncTicks) {
-        value = MathHelper.clamp(value, 0, getMaxBreathStability());
+        value = Mth.clamp(value, 0, getMaxBreathStability());
         boolean send = this.breathStability != value;
         this.breathStability = value;
         this.prevBreathStability = value;
@@ -314,7 +313,7 @@ public class HamonData extends TypeSpecificData {
             float ticksCanBreatheWithMask = 400 + breathingTrainingLevel * 16;
             float breathMaskHandicap = 0;
             if (breathingTrainingLevel < MAX_BREATHING_LEVEL) {
-                breathMaskHandicap = MathHelper.clamp((ticksCanBreatheWithMask - ticksMaskWithNoHamonBreath) / (ticksCanBreatheWithMask / 2), -1, 1);
+                breathMaskHandicap = Mth.clamp((ticksCanBreatheWithMask - ticksMaskWithNoHamonBreath) / (ticksCanBreatheWithMask / 2), -1, 1);
             }
             boolean canIndicateInHud = user.level.isClientSide() && ClientUtil.getClientPlayer() == user;
             if (canIndicateInHud && breathMaskHandicap == 0) {
@@ -332,7 +331,7 @@ public class HamonData extends TypeSpecificData {
                 float stabLowerCap = 0.2F;
                 boolean stabIsReallyLow = (breathStability + inc) / maxStability < stabLowerCap;
                 if (stabIsReallyLow) {
-                    inc = MathHelper.clamp(inc, stabLowerCap * maxStability - breathStability, 0);
+                    inc = Mth.clamp(inc, stabLowerCap * maxStability - breathStability, 0);
                 }
                 
                 maskNoBreath = true;
@@ -342,7 +341,7 @@ public class HamonData extends TypeSpecificData {
                     if ((ticksMaskWithNoHamonBreath - ticksCanBreatheWithMask > 400 || stabIsReallyLow)
                             && breathStability + inc > 0
                             && ModHamonActions.HAMON_BREATH.get().checkConditions(user, power, ActionTarget.EMPTY).isPositive()) {
-                        ClientUtil.setOverlayMessage(new TranslationTextComponent("hamon.breath_control_mask.restore_stab"));
+                        ClientUtil.setOverlayMessage(Component.translatable("hamon.breath_control_mask.restore_stab"));
                     }
                 }
             }
@@ -354,7 +353,7 @@ public class HamonData extends TypeSpecificData {
         
         // meditation speeding up the recovery (if there's no mask handicap)
         if (inc >= 0 && isMeditating() && breathStabilityIncTicks > 0) {
-            inc *= MathHelper.sqrt((float) Math.min(breathStabilityIncTicks, 100));
+            inc *= Mth.sqrt((float) Math.min(breathStabilityIncTicks, 100));
         }
         
         if (!canBreath) {
@@ -365,7 +364,7 @@ public class HamonData extends TypeSpecificData {
             ticksNoBreathStabilityInc--;
             inc = 0;
         }
-        breathStability = MathHelper.clamp(breathStability + inc, 0, getMaxBreathStability());
+        breathStability = Mth.clamp(breathStability + inc, 0, getMaxBreathStability());
         int air = user.getAirSupply();
         if (!user.level.isClientSide()) {
             if (breathStability == 0 && prevBreathStability > 0 || air == 0 && prevAir > 0) {
@@ -442,8 +441,8 @@ public class HamonData extends TypeSpecificData {
             }
             efficiency *= multiplier;
             
-            if (handSwingTimer && power.getUser() instanceof PlayerEntity) {
-                float swingStrengthScale = ((PlayerEntity) power.getUser()).getAttackStrengthScale(1);
+            if (handSwingTimer && power.getUser() instanceof Player) {
+                float swingStrengthScale = ((Player) power.getUser()).getAttackStrengthScale(1);
                 efficiency *= (0.2F + swingStrengthScale * swingStrengthScale * 0.8F);
             }
             
@@ -529,7 +528,7 @@ public class HamonData extends TypeSpecificData {
     }
     
     private boolean isUserWearingBreathMask() {
-        ItemStack headItem = power.getUser().getItemBySlot(EquipmentSlotType.HEAD);
+        ItemStack headItem = power.getUser().getItemBySlot(EquipmentSlot.HEAD);
         return !headItem.isEmpty() && headItem.getItem() == ModItems.BREATH_CONTROL_MASK.get();
     }
     
@@ -542,7 +541,7 @@ public class HamonData extends TypeSpecificData {
     }
     
     private float reduceEnergyConsumed(float amount, INonStandPower power, LivingEntity user) {
-        if (user.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get()) {
+        if (user.getItemBySlot(EquipmentSlot.HEAD).getItem() == ModItems.SATIPOROJA_SCARF.get()) {
             amount *= 0.6F;
         }
         return amount;
@@ -553,14 +552,14 @@ public class HamonData extends TypeSpecificData {
         LivingEntity user = power.getUser();
         
         float bleeding = 0;
-        EffectInstance bleedingEffect = user.getEffect(ModStatusEffects.BLEEDING.get());
+        MobEffectInstance bleedingEffect = user.getEffect(ModStatusEffects.BLEEDING.get());
         if (bleedingEffect != null) {
             bleeding = Math.min((bleedingEffect.getAmplifier() + 1) * 0.2F, 0.8F);
         }
         efficiency *= (1F - bleeding);
         
         float freeze = 0;
-        EffectInstance freezeEffect = user.getEffect(ModStatusEffects.FREEZE.get());
+        MobEffectInstance freezeEffect = user.getEffect(ModStatusEffects.FREEZE.get());
         if (freezeEffect != null) {
             freeze = Math.min((freezeEffect.getAmplifier() + 1) * 0.25F, 1);
         }
@@ -593,7 +592,7 @@ public class HamonData extends TypeSpecificData {
     
     
     public static int pointsAtLevel(int level) {
-        level = MathHelper.clamp(level, 0, MAX_STAT_LEVEL);
+        level = Mth.clamp(level, 0, MAX_STAT_LEVEL);
         return POINTS_AT_LEVEL[level];
     }
     
@@ -602,10 +601,10 @@ public class HamonData extends TypeSpecificData {
     }
     
     public static int pointsAtLevelFraction(float level) {
-        int lvlFloored = MathHelper.floor(level);
+        int lvlFloored = Mth.floor(level);
         int pointsFullLvls = pointsAtLevel(lvlFloored);
         int pointsNextLvl = pointsAtLevel(lvlFloored + 1);
-        return pointsFullLvls + MathHelper.floor((float) (pointsNextLvl - pointsFullLvls) * MathHelper.frac(level));
+        return pointsFullLvls + Mth.floor((float) (pointsNextLvl - pointsFullLvls) * Mth.frac(level));
     }
     
     public static float levelFractionFromPoints(int points) {
@@ -632,7 +631,7 @@ public class HamonData extends TypeSpecificData {
         if (!allowLesserValue && points <= oldPoints) {
             return;
         }
-        int newPoints = MathHelper.clamp(points, 0, MAX_HAMON_POINTS);
+        int newPoints = Mth.clamp(points, 0, MAX_HAMON_POINTS);
         switch (stat) {
         case STRENGTH:
             hamonStrengthPoints = newPoints;
@@ -746,11 +745,11 @@ public class HamonData extends TypeSpecificData {
         default:
             throw new IllegalArgumentException("Unexpected HamonStat constant: " + stat.name());
         }
-        return MathHelper.clamp(lvl, 0, MAX_STAT_LEVEL) / 5 - spentPoints;
+        return Mth.clamp(lvl, 0, MAX_STAT_LEVEL) / 5 - spentPoints;
     }
     
     public int nextSkillPointLvl(HamonStat stat) {
-        return MathHelper.clamp(getStatLevel(stat), 0, MAX_STAT_LEVEL - 1) / 5 * 5 + 5;
+        return Mth.clamp(getStatLevel(stat), 0, MAX_STAT_LEVEL - 1) / 5 * 5 + 5;
     }
     
     private static final float ENERGY_PER_POINT = 750F;
@@ -778,7 +777,7 @@ public class HamonData extends TypeSpecificData {
     
     public void setBreathingLevel(float level, boolean notifyInUI) {
         float oldLevel = breathingTrainingLevel;
-        breathingTrainingLevel = MathHelper.clamp(level, 0, MAX_BREATHING_LEVEL);
+        breathingTrainingLevel = Mth.clamp(level, 0, MAX_BREATHING_LEVEL);
         LivingEntity user = power.getUser();
         if (oldLevel != breathingTrainingLevel) {
             recalcHamonDamage();
@@ -865,7 +864,7 @@ public class HamonData extends TypeSpecificData {
                 switch (exercise) {
                 case RUNNING:
                     if (!entity.level.isClientSide()) {
-                        ModifiableAttributeInstance attributeInstance = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+                        AttributeInstance attributeInstance = entity.getAttribute(Attributes.MOVEMENT_SPEED);
                         if (attributeInstance != null) {
                             attributeInstance.removeModifier(RUNNING_COMPLETED);
                         }
@@ -873,7 +872,7 @@ public class HamonData extends TypeSpecificData {
                     break;
                 case MINING:
                     if (!entity.level.isClientSide()) {
-                        ModifiableAttributeInstance attributeInstance = entity.getAttribute(Attributes.ATTACK_SPEED);
+                        AttributeInstance attributeInstance = entity.getAttribute(Attributes.ATTACK_SPEED);
                         if (attributeInstance != null) {
                             attributeInstance.removeModifier(MINING_COMPLETED);
                         }
@@ -918,11 +917,11 @@ public class HamonData extends TypeSpecificData {
     private boolean incExerciseLastTick;
     private boolean incExerciseThisTick;
     private boolean exerciseCompleted;
-    private Vector3d prevPos = null;
+    private Vec3 prevPos = null;
     
     private int blocksMiningDelay;
-    public void tickExercises(PlayerEntity user) {
-        Vector3d pos = user.position();
+    public void tickExercises(Player user) {
+        Vec3 pos = user.position();
         boolean positionChanged = prevPos == null || prevPos.x != pos.x || prevPos.y != pos.y;
         this.prevPos = pos;
         incExerciseThisTick = false;
@@ -930,7 +929,7 @@ public class HamonData extends TypeSpecificData {
         
         boolean isMining;
         if (!user.level.isClientSide()) {
-            PlayerInteractionManager gamemode = ((ServerPlayerEntity) user).gameMode;
+            ServerPlayerGameMode gamemode = ((ServerPlayer) user).gameMode;
             boolean isDestroying = gamemode.isDestroyingBlock;
             boolean delayedDestroy = gamemode.hasDelayedDestroy;
             isMining = isDestroying || delayedDestroy;
@@ -952,7 +951,7 @@ public class HamonData extends TypeSpecificData {
             incExerciseTicks(Exercise.SWIMMING, 1, user.level.isClientSide());
         }
         
-        else if (positionChanged && user.isSprinting() && user.isOnGround() && !user.isSwimming()) {
+        else if (positionChanged && user.isSprinting() && user.onGround() && !user.isSwimming()) {
             incExerciseTicks(Exercise.RUNNING, 1, user.level.isClientSide());
         }
         
@@ -978,16 +977,16 @@ public class HamonData extends TypeSpecificData {
         if (breathingTrainingLevel < MAX_BREATHING_LEVEL && exerciseCompleted && exercisesCompleted <= MAX_EXERCISES_NEEDED) {
             updateExerciseAttributes(user);
             serverPlayer.ifPresent(player -> {
-                IFormattableTextComponent message1 = new TranslationTextComponent("hamon.exercise.all.count.message" + (exercisesCompleted >= 4 ? ".4" : ""), 
+                MutableComponent message1 = Component.translatable("hamon.exercise.all.count.message" + (exercisesCompleted >= 4 ? ".4" : ""), 
                         exercisesCompleted, MAX_EXERCISES_NEEDED);
-                IFormattableTextComponent message2 = null;
+                MutableComponent message2 = null;
                 switch (exercisesCompleted) {
                 case 3:
-                    message2 = new TranslationTextComponent("hamon.exercise.all.count.message2.3", 
+                    message2 = Component.translatable("hamon.exercise.all.count.message2.3", 
                             new DecimalFormat("#.##").format(getBreathingIncrease(player, false)));
                     break;
                 case 4:
-                    message2 = new TranslationTextComponent("hamon.exercise.all.count.message2.4", 
+                    message2 = Component.translatable("hamon.exercise.all.count.message2.4", 
                             CAN_SKIP_DAYS);
                     break;
                 }
@@ -1026,11 +1025,11 @@ public class HamonData extends TypeSpecificData {
     
     private void actuallyUpdateBbHeight(EntityEvent.Size event) {
         if (updateHeight) {
-            EntitySize size = event.getNewSize();
+            EntityDimensions size = event.getNewSize();
             float width = size.width;
             float height = size.height * bbHeightMult;
             float heightDiff = size.height - height;
-            size = size.fixed ? EntitySize.fixed(width, height) : EntitySize.scalable(width, height);
+            size = size.fixed ? EntityDimensions.fixed(width, height) : EntityDimensions.scalable(width, height);
             event.setNewSize(size, bbHeightMult == 1);
             if (bbHeightMult != 1) {
                 event.setNewEyeHeight(1.62F - heightDiff);
@@ -1060,8 +1059,8 @@ public class HamonData extends TypeSpecificData {
         if (ticks < maxTicks) {
             int inc = 1;
             if (multiplier > 1F) {
-                inc = MathHelper.floor(multiplier);
-                if (random.nextFloat() < MathHelper.frac(multiplier)) inc++;
+                inc = Mth.floor(multiplier);
+                if (random.nextFloat() < Mth.frac(multiplier)) inc++;
             }
             inc = Math.min(inc, maxTicks - ticks);
             if (ticks + inc == maxTicks) {
@@ -1147,8 +1146,8 @@ public class HamonData extends TypeSpecificData {
         this.canSkipTrainingDays = days;
     }
     
-    public void breathingTrainingDay(PlayerEntity user) {
-        World world = user.level;
+    public void breathingTrainingDay(Player user) {
+        Level world = user.level;
         if (!world.isClientSide()) {
             float lvlInc = getBreathingIncrease(user, true);
             setBreathingLevel(getBreathingLevel() + lvlInc);
@@ -1162,16 +1161,16 @@ public class HamonData extends TypeSpecificData {
         updateExerciseAttributes(user);
     }
     
-    public boolean breathingCanGoDown(PlayerEntity user) {
+    public boolean breathingCanGoDown(Player user) {
         return JojoModConfig.getCommonConfigInstance(false).breathingTrainingDeterioration.get() 
                 && breathingTrainingLevel < MAX_BREATHING_LEVEL;
     }
     
-    public float getBreathingIncrease(PlayerEntity user, boolean newTrainingDay) {
+    public float getBreathingIncrease(Player user, boolean newTrainingDay) {
         float completedExercises = getCompleteExercisesCount() + getMaxIncompleteExercise();
         /* at least 2 exercises to get positive increase, 
            >= 3 exercises give max increase */
-        float lvlInc = MathHelper.clamp(completedExercises - 2, -1, 1);
+        float lvlInc = Mth.clamp(completedExercises - 2, -1, 1);
         float bonusIncrease = lvlInc * 0.25f;
         boolean keepLvlThisDay = canSkipTrainingDays > 0;
         
@@ -1202,7 +1201,7 @@ public class HamonData extends TypeSpecificData {
             }
         }
         
-        lvlInc = MathHelper.clamp(lvlInc, -breathingTrainingLevel, MAX_BREATHING_LEVEL - breathingTrainingLevel);
+        lvlInc = Mth.clamp(lvlInc, -breathingTrainingLevel, MAX_BREATHING_LEVEL - breathingTrainingLevel);
         return lvlInc;
     }
     
@@ -1233,7 +1232,7 @@ public class HamonData extends TypeSpecificData {
                     player.addItem(new ItemStack(ModItems.SATIPOROJA_SCARF.get()));
                 }
                 if (sync) {
-                    PacketManager.sendToClient(new HamonSkillAddPacket(skill), (ServerPlayerEntity) player);
+                    PacketManager.sendToClient(new HamonSkillAddPacket(skill), (ServerPlayer) player);
                 }
             });
             return true;
@@ -1254,12 +1253,12 @@ public class HamonData extends TypeSpecificData {
         }
     }
     
-    public static boolean canResetTab(PlayerEntity user, HamonSkillsTab type) {
+    public static boolean canResetTab(Player user, HamonSkillsTab type) {
         return user.abilities.instabuild;
     }
 
     public void resetHamonSkills(LivingEntity user, HamonSkillsTab type) {
-        if (user instanceof PlayerEntity && !canResetTab((PlayerEntity) user, type)) return;
+        if (user instanceof Player && !canResetTab((Player) user, type)) return;
         
         Stream<? extends AbstractHamonSkill> toReset;
         switch (type) {
@@ -1335,11 +1334,11 @@ public class HamonData extends TypeSpecificData {
     
     
     
-    public boolean playerWantsToLearn(PlayerEntity playerEntity) {
+    public boolean playerWantsToLearn(Player playerEntity) {
         return newLearners.contains(playerEntity);
     }
     
-    public void addNewPlayerLearner(PlayerEntity learnerPlayer) {
+    public void addNewPlayerLearner(Player learnerPlayer) {
         newLearners.add(learnerPlayer);
         LivingEntity user = power.getUser();
         if (!user.level.isClientSide()) {
@@ -1349,15 +1348,15 @@ public class HamonData extends TypeSpecificData {
     }
     
     private void tickNewPlayerLearners(LivingEntity user) {
-        for (Iterator<PlayerEntity> it = newLearners.iterator(); it.hasNext(); ) {
-            PlayerEntity player = it.next();
+        for (Iterator<Player> it = newLearners.iterator(); it.hasNext(); ) {
+            Player player = it.next();
             if (!player.isAlive() || user.distanceToSqr(player) > 64) {
                 it.remove();
             }
         }
     }
     
-    public boolean interactWithNewLearner(PlayerEntity learnerPlayer) {
+    public boolean interactWithNewLearner(Player learnerPlayer) {
         if (newLearners.contains(learnerPlayer)) {
             if (!learnerPlayer.level.isClientSide()) {
                 HamonUtil.startLearningHamon(learnerPlayer.level, learnerPlayer, 
@@ -1372,13 +1371,13 @@ public class HamonData extends TypeSpecificData {
         return false;
     }
     
-    public void removeNewLearner(PlayerEntity player) {
+    public void removeNewLearner(Player player) {
         newLearners.remove(player);
     }
     
     
     
-    private static final Map<HamonAuraColor, Supplier<? extends IParticleData>> PARTICLE_TYPE = Util.make(new HashMap<>(), map -> {
+    private static final Map<HamonAuraColor, Supplier<? extends ParticleOptions>> PARTICLE_TYPE = Util.make(new HashMap<>(), map -> {
         map.put(HamonAuraColor.ORANGE, ModParticles.HAMON_AURA);
         map.put(HamonAuraColor.BLUE, ModParticles.HAMON_AURA_BLUE);
         map.put(HamonAuraColor.YELLOW, ModParticles.HAMON_AURA_YELLOW);
@@ -1411,7 +1410,7 @@ public class HamonData extends TypeSpecificData {
             }
             float particlesPerTick = energy / getMaxBreathStability() * getHamonDamageMultiplier();
             boolean isUserTheCameraEntity = user == ClientUtil.getCameraEntity();
-            IParticleData particleType = PARTICLE_TYPE.get(auraColor).get();
+            ParticleOptions particleType = PARTICLE_TYPE.get(auraColor).get();
             
             GeneralUtil.doFractionTimes(() -> {
                 CustomParticlesHelper.createHamonAuraParticle(particleType, user, 
@@ -1508,14 +1507,14 @@ public class HamonData extends TypeSpecificData {
     
     
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt("StrengthPoints", hamonStrengthPoints);
         nbt.putInt("ControlPoints", hamonControlPoints);
         nbt.putFloat("PointsIncFrac", pointsIncFrac);
         nbt.putFloat("BreathingTechnique", breathingTrainingLevel);
         nbt.put("Skills", hamonSkills.toNBT());
-        CompoundNBT exercises = new CompoundNBT();
+        CompoundTag exercises = new CompoundTag();
         for (Exercise exercise : Exercise.values()) {
             exercises.putInt(exercise.toString(), Math.min(exerciseTicks.get(exercise), exercise.getMaxTicks(this)));
         }
@@ -1531,7 +1530,7 @@ public class HamonData extends TypeSpecificData {
     }
 
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         hamonStrengthPoints = nbt.getInt("StrengthPoints");
         hamonStrengthLevel = levelFromPoints(hamonStrengthPoints);
         hamonControlPoints = nbt.getInt("ControlPoints");
@@ -1540,7 +1539,7 @@ public class HamonData extends TypeSpecificData {
         breathingTrainingLevel = nbt.getFloat("BreathingTechnique");
         recalcHamonDamage();
         hamonSkills.fromNbt(nbt.getCompound("Skills"));
-        CompoundNBT exercises = nbt.getCompound("Exercises");
+        CompoundTag exercises = nbt.getCompound("Exercises");
         int[] exercisesNbt = new int[Exercise.values().length];
         for (Exercise exercise : Exercise.values()) {
             exercisesNbt[exercise.ordinal()] = exercises.getInt(exercise.toString());
@@ -1557,7 +1556,7 @@ public class HamonData extends TypeSpecificData {
     }
     
     @Override
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         giveBreathingTrainingBuffs(user);
         updateExerciseAttributes(user);
         hamonSkills.syncWithUser(user, this);
@@ -1571,7 +1570,7 @@ public class HamonData extends TypeSpecificData {
     }
     
     @Override
-    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity entity) {
+    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayer entity) {
         PacketManager.sendToClient(new TrHamonStatsPacket(
                 user.getId(), false, getHamonStrengthPoints(), getHamonControlPoints(), getBreathingLevel()), entity);
         PacketManager.sendToClient(new TrHamonBreathStabilityPacket(user.getId(), getBreathStability(), ticksNoBreathStabilityInc), entity);
@@ -1600,7 +1599,7 @@ public class HamonData extends TypeSpecificData {
         
         public int getMaxTicks(@Nullable HamonData hamon) {
             float multiplier = hamon != null ? (MAX_BREATHING_LEVEL - hamon.getBreathingLevel()) / MAX_BREATHING_LEVEL * 0.75F + 0.25F : 1;
-            return MathHelper.floor(maxTicks * multiplier);
+            return Mth.floor(maxTicks * multiplier);
         }
         
         public double getBuffPercentage() {
@@ -1618,10 +1617,10 @@ public class HamonData extends TypeSpecificData {
             }
         }
         
-        private ITextComponent tlName;
-        public ITextComponent getName() {
+        private Component tlName;
+        public Component getName() {
             if (tlName == null) {
-                tlName = new TranslationTextComponent("hamon." + name().toLowerCase() + "_exercise");
+                tlName = Component.translatable("hamon." + name().toLowerCase() + "_exercise");
             }
             return tlName;
         }

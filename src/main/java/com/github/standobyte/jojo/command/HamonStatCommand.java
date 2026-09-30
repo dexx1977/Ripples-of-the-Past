@@ -15,19 +15,19 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 
 public class HamonStatCommand {
     private static final DynamicCommandExceptionType SINGLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            player -> new TranslationTextComponent("commands.hamon.failed.single", player));
+            player -> Component.translatable("commands.hamon.failed.single", player));
     private static final DynamicCommandExceptionType MULTIPLE_FAILED_EXCEPTION = new DynamicCommandExceptionType(
-            count -> new TranslationTextComponent("commands.hamon.failed.multiple", count));
+            count -> Component.translatable("commands.hamon.failed.multiple", count));
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("hamonstat").requires(ctx -> ctx.hasPermission(2))
                 .then(Commands.literal("set")
 
@@ -67,25 +67,25 @@ public class HamonStatCommand {
         JojoCommandsCommand.addCommand("hamonstat");
     }
 
-    private static int setHamonStat(CommandSource source, Collection<? extends ServerPlayerEntity> targets, float level, HamonStat stat, boolean ignoreBreathing) throws CommandSyntaxException {
+    private static int setHamonStat(CommandSourceStack source, Collection<? extends ServerPlayer> targets, float level, HamonStat stat, boolean ignoreBreathing) throws CommandSyntaxException {
         return setHamonStat(source, targets, (current, arg) -> arg, level, stat, ignoreBreathing, "");
     }
 
-    private static int addHamonStat(CommandSource source, Collection<? extends ServerPlayerEntity> targets, float level, HamonStat stat, boolean ignoreBreathing) throws CommandSyntaxException {
+    private static int addHamonStat(CommandSourceStack source, Collection<? extends ServerPlayer> targets, float level, HamonStat stat, boolean ignoreBreathing) throws CommandSyntaxException {
         return setHamonStat(source, targets, Float::sum, level, stat, ignoreBreathing, "add.");
     }
 
-    private static int setBreathing(CommandSource source, Collection<? extends ServerPlayerEntity> targets, float level) throws CommandSyntaxException {
+    private static int setBreathing(CommandSourceStack source, Collection<? extends ServerPlayer> targets, float level) throws CommandSyntaxException {
         return setBreathing(source, targets, (current, arg) -> arg, level, "");
     }
 
-    private static int addBreathing(CommandSource source, Collection<? extends ServerPlayerEntity> targets, float level) throws CommandSyntaxException {
+    private static int addBreathing(CommandSourceStack source, Collection<? extends ServerPlayer> targets, float level) throws CommandSyntaxException {
         return setBreathing(source, targets, Float::sum, level, "add.");
     }
 
-    private static int setHamonStat(CommandSource source, Collection<? extends ServerPlayerEntity> targets, BinaryOperator<Float> operation, float level, HamonStat stat, boolean ignoreBreathing, String msg) throws CommandSyntaxException {
+    private static int setHamonStat(CommandSourceStack source, Collection<? extends ServerPlayer> targets, BinaryOperator<Float> operation, float level, HamonStat stat, boolean ignoreBreathing, String msg) throws CommandSyntaxException {
         int success = 0;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             success += INonStandPower.getNonStandPowerOptional(player).map(power -> {
                 Optional<HamonData> hamonOptional = power.getTypeSpecificData(ModPowers.HAMON.get());
                 hamonOptional.ifPresent(hamon -> {
@@ -108,19 +108,19 @@ public class HamonStatCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.single" : "commands.hamon.control." + msg + "success.single", 
+                source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.single" : "commands.hamon.control." + msg + "success.single", 
                         level, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(new TranslationTextComponent(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.multiple" : "commands.hamon.control." + msg + "success.multiple", 
+                source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength." + msg + "success.multiple" : "commands.hamon.control." + msg + "success.multiple", 
                         level, success), true);
             }
             return success;
         }
     }
 
-    private static int setBreathing(CommandSource source, Collection<? extends ServerPlayerEntity> targets, BinaryOperator<Float> operation, float level, String msg) throws CommandSyntaxException {
+    private static int setBreathing(CommandSourceStack source, Collection<? extends ServerPlayer> targets, BinaryOperator<Float> operation, float level, String msg) throws CommandSyntaxException {
         int success = 0;
-        for (ServerPlayerEntity player : targets) {
+        for (ServerPlayer player : targets) {
             success += INonStandPower.getNonStandPowerOptional(player).map(power -> {
                 Optional<HamonData> hamonOptional = power.getTypeSpecificData(ModPowers.HAMON.get());
                 hamonOptional.ifPresent(hamon -> {
@@ -139,20 +139,20 @@ public class HamonStatCommand {
         }
         else {
             if (targets.size() == 1) {
-                source.sendSuccess(new TranslationTextComponent("commands.hamon.breathing." + msg + "success.single", level, targets.iterator().next().getDisplayName()), true);
+                source.sendSuccess(Component.translatable("commands.hamon.breathing." + msg + "success.single", level, targets.iterator().next().getDisplayName()), true);
             } else {
-                source.sendSuccess(new TranslationTextComponent("commands.hamon.breathing." + msg + "success.multiple", level, success), true);
+                source.sendSuccess(Component.translatable("commands.hamon.breathing." + msg + "success.multiple", level, success), true);
             }
             return success;
         }
     }
     
-    private static int getHamonStat(CommandSource source, ServerPlayerEntity target, HamonStat stat) throws CommandSyntaxException {
+    private static int getHamonStat(CommandSourceStack source, ServerPlayer target, HamonStat stat) throws CommandSyntaxException {
         Optional<HamonData> playerHamon = INonStandPower.getNonStandPowerOptional(target).resolve().flatMap(
                 power -> power.getTypeSpecificData(ModPowers.HAMON.get()));
         if (playerHamon.isPresent()) {
             float level = playerHamon.get().getStatLevel(stat);
-            source.sendSuccess(new TranslationTextComponent(stat == HamonStat.STRENGTH ? "commands.hamon.strength.query.success" : "commands.hamon.control.query.success", 
+            source.sendSuccess(Component.translatable(stat == HamonStat.STRENGTH ? "commands.hamon.strength.query.success" : "commands.hamon.control.query.success", 
                     target.getDisplayName(), new DecimalFormat("#.##").format(level)), false);
             return (int) level;
         }
@@ -161,12 +161,12 @@ public class HamonStatCommand {
         }
     }
     
-    private static int getBreathing(CommandSource source, ServerPlayerEntity target) throws CommandSyntaxException {
+    private static int getBreathing(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
         Optional<HamonData> playerHamon = INonStandPower.getNonStandPowerOptional(target).resolve().flatMap(
                 power -> power.getTypeSpecificData(ModPowers.HAMON.get()));
         if (playerHamon.isPresent()) {
             float level = playerHamon.get().getBreathingLevel();
-            source.sendSuccess(new TranslationTextComponent("commands.hamon.breathing.query.success", 
+            source.sendSuccess(Component.translatable("commands.hamon.breathing.query.success", 
                     target.getDisplayName(), new DecimalFormat("#.##").format(level)), false);
             return (int) level;
         }

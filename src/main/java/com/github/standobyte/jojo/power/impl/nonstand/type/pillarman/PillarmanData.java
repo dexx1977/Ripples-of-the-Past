@@ -17,15 +17,15 @@ import com.github.standobyte.jojo.power.impl.nonstand.TypeSpecificData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.NonStandPowerType;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.common.ForgeMod;
 
 public class PillarmanData extends TypeSpecificData {
@@ -116,10 +116,10 @@ public class PillarmanData extends TypeSpecificData {
         }
         if (!user.level.isClientSide()) {
             if (isStoneFormEnabled()) {
-                user.addEffect(new EffectInstance(ModStatusEffects.STUN.get(), 20, 0, false, false, true));
-                user.addEffect(new EffectInstance(Effects.DAMAGE_RESISTANCE, 40, 3, false, false, true));
-                user.addEffect(new EffectInstance(Effects.BLINDNESS, 40, 0, false, false, true));
-                user.addEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 40, 0, false, false, true));
+                user.addEffect(new MobEffectInstance(ModStatusEffects.STUN.get(), 20, 0, false, false, true));
+                user.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 40, 3, false, false, true));
+                user.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0, false, false, true));
+                user.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40, 0, false, false, true));
             }
             if (!eatenTntFuse.isEmpty()) {
                 Iterator<MutableInt> iter = eatenTntFuse.iterator();
@@ -127,7 +127,7 @@ public class PillarmanData extends TypeSpecificData {
                     MutableInt fuseTimer = iter.next();
                     if (fuseTimer.decrementAndGet() <= 0) {
                         user.level.playSound(null, user.getX(), user.getY(), user.getZ(), 
-                                SoundEvents.GENERIC_EXPLODE, SoundCategory.BLOCKS, 
+                                SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, 
                                 0.1f, (1.0F + (user.level.random.nextFloat() - user.level.random.nextFloat()) * 0.2F) * 0.7F);
                         iter.remove();
                     }
@@ -146,8 +146,8 @@ public class PillarmanData extends TypeSpecificData {
     }
 
     @Override
-    public CompoundNBT writeNBT() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag writeNBT() {
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt("PillarmanStage", stage);
         if (mode != null) {
             MCUtil.nbtPutEnum(nbt, "PillarmanMode", mode);
@@ -157,20 +157,20 @@ public class PillarmanData extends TypeSpecificData {
     }
     
     @Override
-    public void readNBT(CompoundNBT nbt) {
+    public void readNBT(CompoundTag nbt) {
         stage = nbt.getInt("PillarmanStage");
         mode = MCUtil.nbtGetEnum(nbt, "PillarmanMode", Mode.class);
         stoneForm = nbt.getBoolean("StoneForm");
     }
     
     @Override
-    public void syncWithUserOnly(ServerPlayerEntity user) {
+    public void syncWithUserOnly(ServerPlayer user) {
         updatePillarmanBuffs(user);
     }
 
     // TODO check the packet
     @Override
-    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayerEntity entity) {
+    public void syncWithTrackingOrUser(LivingEntity user, ServerPlayer entity) {
         PacketManager.sendToClient(new TrPillarmanDataPacket(user.getId(), this), entity);
     }
     
@@ -239,8 +239,8 @@ public class PillarmanData extends TypeSpecificData {
         this.mode = mode;
         LivingEntity user = power.getUser();
         if (!user.level.isClientSide()) {
-        	if (user instanceof ServerPlayerEntity) {
-        	    ServerPlayerEntity player = (ServerPlayerEntity) user;
+        	if (user instanceof ServerPlayer) {
+        	    ServerPlayer player = (ServerPlayer) user;
         	    switch (mode) {
         	    case WIND:
         	        // TODO make a single trigger with a mode predicate for that

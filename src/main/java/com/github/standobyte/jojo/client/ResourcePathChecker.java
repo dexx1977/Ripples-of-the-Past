@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ResourcePathChecker {
     private static final Map<ResourceLocation, ResourcePathChecker> ALL = new HashMap<>();

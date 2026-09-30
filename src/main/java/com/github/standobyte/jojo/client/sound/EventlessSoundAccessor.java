@@ -1,17 +1,17 @@
 package com.github.standobyte.jojo.client.sound;
 
-import net.minecraft.client.audio.ISoundEventAccessor;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEngine;
-import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.sounds.Weighted;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
-public class EventlessSoundAccessor extends SoundEventAccessor {
+public class EventlessSoundAccessor extends WeighedSoundEvents {
     private final Sound sound;
-    private final ITextComponent subtitle;
+    private final Component subtitle;
 
-    public EventlessSoundAccessor(ResourceLocation location, ITextComponent subtitle, Sound sound) {
+    public EventlessSoundAccessor(ResourceLocation location, Component subtitle, Sound sound) {
         super(location, null);
         this.sound = sound;
         this.subtitle = subtitle;
@@ -28,10 +28,10 @@ public class EventlessSoundAccessor extends SoundEventAccessor {
     }
 
     @Override
-    public void addSound(ISoundEventAccessor<Sound> sound) {}
+    public void addSound(Weighted<Sound> sound) {}
     
     @Override
-    public ITextComponent getSubtitle() {
+    public Component getSubtitle() {
         return subtitle;
     }
 

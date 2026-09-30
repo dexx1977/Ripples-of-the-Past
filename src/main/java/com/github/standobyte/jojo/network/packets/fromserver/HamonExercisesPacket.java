@@ -11,8 +11,8 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonData.Exercise;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class HamonExercisesPacket {
     private final int[] exerciseTicks;
@@ -45,7 +45,7 @@ public class HamonExercisesPacket {
     
     public static class Handler implements IModPacketHandler<HamonExercisesPacket> {
 
-        public void encode(HamonExercisesPacket msg, PacketBuffer buf) {
+        public void encode(HamonExercisesPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeIntArray(buf, msg.exerciseTicks);
             buf.writeBoolean(msg.sendBonus);
             if (msg.sendBonus) {
@@ -54,7 +54,7 @@ public class HamonExercisesPacket {
             }
         }
     
-        public HamonExercisesPacket decode(PacketBuffer buf) {
+        public HamonExercisesPacket decode(FriendlyByteBuf buf) {
             int[] exerciseTicks = NetworkUtil.readIntArray(buf);
             boolean readBonus = buf.readBoolean();
             float trainingBonus = readBonus ? buf.readFloat() : 0;

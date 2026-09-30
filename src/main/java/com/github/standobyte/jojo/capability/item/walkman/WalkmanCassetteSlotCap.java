@@ -5,16 +5,15 @@ import javax.annotation.Nonnull;
 import com.github.standobyte.jojo.container.WalkmanItemContainer;
 import com.github.standobyte.jojo.init.ModItems;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class WalkmanCassetteSlotCap extends ItemStackHandler implements INamedContainerProvider {
+public class WalkmanCassetteSlotCap extends ItemStackHandler implements MenuProvider {
     private final ItemStack walkmanItem;
 
     public WalkmanCassetteSlotCap(ItemStack walkmanItem) {
@@ -28,12 +27,12 @@ public class WalkmanCassetteSlotCap extends ItemStackHandler implements INamedCo
     }
 
     @Override
-    public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new WalkmanItemContainer(id, inventory, this, walkmanItem);
     }
 
     @Override
-    public ITextComponent getDisplayName() {
-        return StringTextComponent.EMPTY;
+    public Component getDisplayName() {
+        return Component.empty();
     }
 }

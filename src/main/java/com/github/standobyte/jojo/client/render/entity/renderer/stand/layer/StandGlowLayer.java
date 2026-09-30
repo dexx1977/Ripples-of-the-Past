@@ -9,7 +9,7 @@ import com.github.standobyte.jojo.client.render.entity.renderer.stand.StandEntit
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class StandGlowLayer<T extends StandEntity, M extends StandEntityModel<T>> extends StandModelLayerRenderer<T, M> {
     private final ResourcePathChecker texturePathCheck;

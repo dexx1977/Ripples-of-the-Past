@@ -14,13 +14,13 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.HamonUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Registry;
+import net.minecraftforge.network.NetworkEvent;
 
 public class TrHamonParticlesPacket {
     private final Type type;
@@ -29,26 +29,26 @@ public class TrHamonParticlesPacket {
     
     // fields for emitter
     private final float intensity;
-    private final IParticleData particleType;
+    private final ParticleOptions particleType;
     
     // fields for short sparks
-    private final Vector3d pos;
+    private final Vec3 pos;
     private final boolean followEntity;
     private final int count;
     
     
     
-    public static TrHamonParticlesPacket emitter(int entityId, float intensity, float soundVolumeMultiplier, @Nullable IParticleData particleType) {
+    public static TrHamonParticlesPacket emitter(int entityId, float intensity, float soundVolumeMultiplier, @Nullable ParticleOptions particleType) {
         return new TrHamonParticlesPacket(Type.EMITTER, entityId, intensity, soundVolumeMultiplier, particleType, null, false, -1);
     }
     
-    public static TrHamonParticlesPacket shortSpark(int entityId, Vector3d pos, boolean followEntity, int particleCount, float soundVolume) {
+    public static TrHamonParticlesPacket shortSpark(int entityId, Vec3 pos, boolean followEntity, int particleCount, float soundVolume) {
         return new TrHamonParticlesPacket(Type.SHORT_SPARK, entityId, -1, soundVolume, null, pos, followEntity, particleCount);
     }
     
     private TrHamonParticlesPacket(Type type,
-            int entityId, float intensity, float soundVolume, @Nullable IParticleData particleType,
-            Vector3d pos, boolean followEntity, int count) {
+            int entityId, float intensity, float soundVolume, @Nullable ParticleOptions particleType,
+            Vec3 pos, boolean followEntity, int count) {
         this.type = type;
         this.entityId = entityId;
         this.soundVolume = soundVolume;
@@ -64,7 +64,7 @@ public class TrHamonParticlesPacket {
     public static class Handler implements IModPacketHandler<TrHamonParticlesPacket> {
 
         @Override
-        public void encode(TrHamonParticlesPacket msg, PacketBuffer buf) {
+        public void encode(TrHamonParticlesPacket msg, FriendlyByteBuf buf) {
             buf.writeEnum(msg.type);
             buf.writeInt(msg.entityId);
             switch (msg.type) {
@@ -83,7 +83,7 @@ public class TrHamonParticlesPacket {
         }
 
         @Override
-        public TrHamonParticlesPacket decode(PacketBuffer buf) {
+        public TrHamonParticlesPacket decode(FriendlyByteBuf buf) {
             Type type = buf.readEnum(Type.class);
             int entityId = buf.readInt();
             switch (type) {
@@ -97,12 +97,12 @@ public class TrHamonParticlesPacket {
             }
         }
         
-        private void writeParticle(IParticleData particleData, PacketBuffer buf) {
+        private void writeParticle(ParticleOptions particleData, FriendlyByteBuf buf) {
             buf.writeInt(Registry.PARTICLE_TYPE.getId(particleData.getType()));
             particleData.writeToNetwork(buf);
         }
         
-        private Optional<IParticleData> readParticle(PacketBuffer buf) {
+        private Optional<ParticleOptions> readParticle(FriendlyByteBuf buf) {
             ParticleType<?> particleType = Registry.PARTICLE_TYPE.byId(buf.readInt());
             if (particleType == null) {
                 return Optional.empty();
@@ -110,7 +110,7 @@ public class TrHamonParticlesPacket {
             return Optional.ofNullable(readParticle(buf, particleType));
         }
     
-        private <T extends IParticleData> T readParticle(PacketBuffer buf, ParticleType<T> type) {
+        private <T extends ParticleOptions> T readParticle(FriendlyByteBuf buf, ParticleType<T> type) {
             return type.getDeserializer().fromNetwork(type, buf);
         }
 

@@ -8,10 +8,10 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class BoyIIManStandPartTakenEffect extends StandEffectInstance {
     private StandInstance partsTaken;
@@ -74,7 +74,7 @@ public class BoyIIManStandPartTakenEffect extends StandEffectInstance {
     
 
     @Override
-    public void writeAdditionalPacketData(PacketBuffer buf, boolean sendingToUser) {
+    public void writeAdditionalPacketData(FriendlyByteBuf buf, boolean sendingToUser) {
         buf.writeBoolean(partsTaken != null);
         if (partsTaken != null) {
             partsTaken.toBuf(buf);
@@ -82,20 +82,20 @@ public class BoyIIManStandPartTakenEffect extends StandEffectInstance {
     }
     
     @Override
-    public void readAdditionalPacketData(PacketBuffer buf, boolean clientIsUser) {
+    public void readAdditionalPacketData(FriendlyByteBuf buf, boolean clientIsUser) {
         partsTaken = buf.readBoolean() ? StandInstance.fromBuf(buf) : null;
     }
 
     @Override
-    protected void writeAdditionalSaveData(CompoundNBT nbt) {
+    protected void writeAdditionalSaveData(CompoundTag nbt) {
         if (partsTaken != null) {
             nbt.put("PartsTaken", partsTaken.writeNBT());
         }
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundNBT nbt) {
-        if (nbt.contains("PartsTaken", MCUtil.getNbtId(CompoundNBT.class))) {
+    protected void readAdditionalSaveData(CompoundTag nbt) {
+        if (nbt.contains("PartsTaken", MCUtil.getNbtId(CompoundTag.class))) {
             partsTaken = StandInstance.fromNBT(nbt.getCompound("PartsTaken"));
         }
     }

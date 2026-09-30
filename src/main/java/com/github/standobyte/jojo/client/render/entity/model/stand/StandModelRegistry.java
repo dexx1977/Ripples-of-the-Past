@@ -11,7 +11,7 @@ import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.animnew.stand.GeckoStandAnimator;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class StandModelRegistry {
     private static final Map<ResourceLocation, StandModelRegistryObj> STAND_MODELS = new HashMap<>();

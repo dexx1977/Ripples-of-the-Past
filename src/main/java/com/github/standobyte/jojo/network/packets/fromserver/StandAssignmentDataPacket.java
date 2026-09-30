@@ -13,8 +13,8 @@ import com.github.standobyte.jojo.network.NetworkUtil;
 import com.github.standobyte.jojo.network.packets.IModPacketHandler;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 public class StandAssignmentDataPacket {
     public final Optional<List<StandType<?>>> stands;
@@ -32,13 +32,13 @@ public class StandAssignmentDataPacket {
     public static class Handler implements IModPacketHandler<StandAssignmentDataPacket> {
 
         @Override
-        public void encode(StandAssignmentDataPacket msg, PacketBuffer buf) {
+        public void encode(StandAssignmentDataPacket msg, FriendlyByteBuf buf) {
             NetworkUtil.writeOptional(buf, msg.stands, 
                     list -> NetworkUtil.writeCollection(buf, list, buf::writeRegistryId, false));
         }
 
         @Override
-        public StandAssignmentDataPacket decode(PacketBuffer buf) {
+        public StandAssignmentDataPacket decode(FriendlyByteBuf buf) {
             return new StandAssignmentDataPacket(NetworkUtil.readOptional(buf, 
                     () -> NetworkUtil.readCollection(ArrayList::new, buf, () -> buf.readRegistryIdSafe(StandType.class))));
         }
