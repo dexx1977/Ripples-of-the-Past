@@ -22,10 +22,10 @@ public class ShearsItemMixin {
     @Inject(method = "interactLivingEntity", at = @At(
             value = "INVOKE", remap = false, 
             target = "Lnet/minecraftforge/common/IForgeShearable;onSheared("
-                    + "Lnet/minecraft/entity/player/PlayerEntity;"
-                    + "Lnet/minecraft/item/ItemStack;"
-                    + "Lnet/minecraft/world/World;"
-                    + "Lnet/minecraft/util/math/BlockPos;"
+                    + "Lnet/minecraft/world/entity/player/Player;"
+                    + "Lnet/minecraft/world/item/ItemStack;"
+                    + "Lnet/minecraft/world/level/Level;"
+                    + "Lnet/minecraft/core/BlockPos;"
                     + "I"
                     + ")Ljava/util/List;"), 
             cancellable = true)

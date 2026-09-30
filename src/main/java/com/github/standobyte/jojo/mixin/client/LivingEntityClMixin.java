@@ -45,7 +45,7 @@ public abstract class LivingEntityClMixin extends Entity {
     protected abstract SoundEvent getHurtSound(DamageSource damageSource);
     
     @Redirect(method = "handleEntityEvent", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/LivingEntity;getHurtSound(Lnet/minecraft/util/DamageSource;)Lnet/minecraft/util/SoundEvent;"))
+            target = "Lnet/minecraft/world/entity/LivingEntity;getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;"))
     public SoundEvent jojoCancelClientHurtSound(LivingEntity entity, DamageSource damageSource) {
         if (NoKnockbackOnBlocking.cancelHurtSound((LivingEntity) (Entity) this)) {
             return null;

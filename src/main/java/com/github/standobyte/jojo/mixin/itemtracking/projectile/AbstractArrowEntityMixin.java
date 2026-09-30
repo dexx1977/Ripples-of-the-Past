@@ -21,7 +21,7 @@ public abstract class AbstractArrowEntityMixin extends Projectile {
         super(type, world);
     }
 
-    @Inject(method = "onHitEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setArrowCount(I)V"))
+    @Inject(method = "onHitEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;setArrowCount(I)V"))
     public void jojoOnArrowStuck(EntityHitResult pResult, CallbackInfo ci) {
         SidedItemTrackerMap.getSidedTrackers(level).values().stream()
         .filter(tracker -> tracker.getAtEntity(level) == this)

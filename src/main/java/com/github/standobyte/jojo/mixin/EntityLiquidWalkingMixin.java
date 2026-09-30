@@ -37,7 +37,7 @@ public class EntityLiquidWalkingMixin {
      * @return a new Vector3dd representing the displacement after fluid walking is accounted for
      */
     @ModifyVariable(method = "move", ordinal = 1, index = 3, at = @At(
-            value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/Entity;collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;"))
+            value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/entity/Entity;collide(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 fluidCollision(Vec3 originalDisplacement) {
         // We only support living entities
         //noinspection ConstantConditions

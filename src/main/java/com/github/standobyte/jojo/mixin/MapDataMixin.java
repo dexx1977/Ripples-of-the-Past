@@ -21,8 +21,8 @@ import net.minecraft.world.level.saveddata.maps.MapDecoration;
 
 @Mixin(MapItemSavedData.class)
 public abstract class MapDataMixin implements IMapDataMixin {
-    @Shadow public int x;
-    @Shadow public int z;
+    @Shadow @Final public int centerX;
+    @Shadow @Final public int centerZ;
     @Shadow public ResourceKey<Level> dimension;
     @Shadow public byte scale;
     @Shadow @Final public Map<String, MapDecoration> decorations;
@@ -39,12 +39,12 @@ public abstract class MapDataMixin implements IMapDataMixin {
 
     @Override
     public int x() {
-        return x;
+        return centerX;
     }
 
     @Override
     public int z() {
-        return z;
+        return centerZ;
     }
 
     @Override

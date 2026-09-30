@@ -20,7 +20,7 @@ public abstract class MerchantResultSlotMixin {
     
     @Inject(method = "onTake", at = @At(
             value = "INVOKE", 
-            target = "Lnet/minecraft/entity/player/PlayerEntity;awardStat(Lnet/minecraft/util/ResourceLocation;)V", 
+            target = "Lnet/minecraft/world/entity/player/Player;awardStat(Lnet/minecraft/resources/ResourceLocation;)V", 
             ordinal = 0))
     public void jojoOnVillagerTrade(Player pPlayer, ItemStack pStack, CallbackInfoReturnable<ItemStack> ci) {
         CustomVillagerTrades.onTrade(pPlayer, pStack, slots, slots.getActiveOffer());

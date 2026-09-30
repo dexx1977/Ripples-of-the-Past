@@ -22,16 +22,17 @@ public abstract class JukeboxTileEntityMixin extends BlockEntity {
         super(teType, pos, state);
     }
 
-    @Shadow private ItemStack record;
+    // 1.20.1 keeps the disc in the block entity's container, filled through setItem
+    @Shadow @org.spongepowered.asm.mixin.Final private net.minecraft.core.NonNullList<ItemStack> items;
     
-    @Inject(method = "setRecord", at = @At("HEAD"))
-    public void onSetRecord(ItemStack record, CallbackInfo ci) {
+    @Inject(method = "setItem", at = @At("HEAD"))
+    public void onSetRecord(int index, ItemStack record, CallbackInfo ci) {
         Level world = getLevel();
         if (world != null && !world.isClientSide()) {
             TrackerItemStack.getItemTracker(record, false)
             .ifPresent(tracker -> {
                 tracker.setAtBlockPos(this.getBlockPos(), level, KnownItemState.BLOCK_HAS_ITEM);
-                tracker.setItemStillThereCheck(trackerId -> TrackerItemStack.hasTrackerId(this.record, trackerId));
+                tracker.setItemStillThereCheck(trackerId -> TrackerItemStack.hasTrackerId(this.items.get(0), trackerId));
             });
         }
     }

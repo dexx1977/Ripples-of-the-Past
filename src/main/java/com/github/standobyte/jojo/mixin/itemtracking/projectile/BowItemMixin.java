@@ -28,7 +28,7 @@ public abstract class BowItemMixin extends ProjectileWeaponItem {
     }
     
     @Inject(method = "releaseUsing", at = @At(value = "INVOKE", 
-                target = "Lnet/minecraft/entity/projectile/AbstractArrowEntity;shootFromRotation(Lnet/minecraft/entity/Entity;FFFFF)V"),
+                target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;shootFromRotation(Lnet/minecraft/world/entity/Entity;FFFFF)V"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     public void jojoModifyBowArrow(ItemStack bowItem, Level world, LivingEntity entity, int holdTimeLeft, CallbackInfo ci, 
             Player player, boolean hasAmmo, ItemStack projectileItem, int charge, float arrowPower, boolean infinity, 

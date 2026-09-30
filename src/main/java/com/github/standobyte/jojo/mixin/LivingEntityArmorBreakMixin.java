@@ -24,7 +24,7 @@ public abstract class LivingEntityArmorBreakMixin extends Entity {
     protected abstract void hurtArmor(DamageSource damageSource, float damageAmount);
 
     @Redirect(method = "getDamageAfterArmorAbsorb", at = @At(
-            value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;hurtArmor(Lnet/minecraft/util/DamageSource;F)V"))
+            value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurtArmor(Lnet/minecraft/world/damagesource/DamageSource;F)V"))
     public void jojoBarrageLessArmorBreaking(LivingEntity entity, DamageSource damageSource, float damageAmount) {
         if (!(damageSource instanceof IModdedDamageSource && ((IModdedDamageSource) damageSource).preventsDamagingArmor())) {
             hurtArmor(damageSource, damageAmount);

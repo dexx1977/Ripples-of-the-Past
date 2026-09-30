@@ -26,7 +26,7 @@ public abstract class CrossbowItemMixin extends ProjectileWeaponItem {
     }
     
     @Inject(method = "shootProjectile", at = @At(value = "INVOKE", 
-                target = "Lnet/minecraft/entity/projectile/ProjectileEntity;shoot(DDDFF)V"),
+                target = "Lnet/minecraft/world/entity/projectile/Projectile;shoot(DDDFF)V"),
             locals = LocalCapture.CAPTURE_FAILSOFT)
     private static void jojoModifyCrossbowArrow(Level pLevel, LivingEntity pShooter, InteractionHand arg2, 
             ItemStack pCrossbowStack, ItemStack pAmmoStack, float pSoundPitch, boolean pIsCreativeMode, 

@@ -54,10 +54,10 @@ public abstract class EntityMixin {
     
     @Redirect(method = "updateFluidHeightAndDoFluidPushing", at = @At(
             value = "INVOKE", 
-            target = "Lnet/minecraft/fluid/FluidState;getFlow("
-                    + "Lnet/minecraft/world/IBlockReader;"
-                    + "Lnet/minecraft/util/math/BlockPos;)"
-                    + "Lnet/minecraft/util/math/vector/Vector3d;"))
+            target = "Lnet/minecraft/world/level/material/FluidState;getFlow("
+                    + "Lnet/minecraft/world/level/BlockGetter;"
+                    + "Lnet/minecraft/core/BlockPos;)"
+                    + "Lnet/minecraft/world/phys/Vec3;"))
     public Vec3 jojoTsCancelFluidPush(FluidState fluidState, BlockGetter world, BlockPos blockPos) {
         if (TimeStopHandler.isTimeStopped(level, blockPos)) {
             return Vec3.ZERO;

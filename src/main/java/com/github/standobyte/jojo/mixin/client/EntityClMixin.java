@@ -49,7 +49,7 @@ public class EntityClMixin implements IEntityGlowColor {
     
     
     @Redirect(method = "isInvisibleTo", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;isSpectator()Z"))
+            target = "Lnet/minecraft/world/entity/player/Player;isSpectator()Z"))
     public boolean jojoSpectatorVisibility(Player player) {
         return JojoModUtil.seesInvisibleAsSpectator(player);
     }

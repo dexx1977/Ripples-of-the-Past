@@ -25,7 +25,7 @@ public class MerchantResultSlotMixin {
     @Shadow @Final private Merchant merchant;
 
     @Inject(method = "onTake", at = @At(value = "INVOKE", target = 
-            "Lnet/minecraft/item/MerchantOffer;take(Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;)Z", ordinal = 0))
+            "Lnet/minecraft/world/item/trading/MerchantOffer;take(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z", ordinal = 0))
     public void onTradePerform(Player player, ItemStack item, CallbackInfoReturnable<ItemStack> ci) {
         if (!player.level.isClientSide()) {
             ItemStack playerOfferA = slots.getItem(0);

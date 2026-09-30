@@ -21,7 +21,7 @@ public abstract class FireworkRocketEntityMixin extends Projectile {
         super(p_i231584_1_, p_i231584_2_);
     }
     
-    @Inject(method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/item/ItemStack;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)V", at = @At("RETURN"))
     public void onEntityCreated(Level world, double x, double y, double z, ItemStack stack, CallbackInfo ci) {
         TrackerItemStack.getItemTracker(stack).ifPresent(tracker -> {
             tracker.setAtEntity(this.getId(), level, KnownItemState.ENTITY_IS_ITEM);

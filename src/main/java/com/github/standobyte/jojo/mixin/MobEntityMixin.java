@@ -28,7 +28,7 @@ public abstract class MobEntityMixin extends LivingEntity {
     @Shadow protected abstract void pickUpItem(ItemEntity pItemEntity);
     @Shadow public abstract boolean wantsToPickUp(ItemStack pStack);
 
-    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/IProfiler;pop()V"))
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V"))
     public void looting2(CallbackInfo ci) {
         if (!this.level.isClientSide && this.isAlive() && !this.dead && ForgeEventFactory.getMobGriefingEvent(this.level, this)) {
             List<ItemEntity> markedItems = this.level.getEntitiesOfClass(
