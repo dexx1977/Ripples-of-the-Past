@@ -39,7 +39,7 @@ import net.minecraft.client.player.Input;
 import net.minecraft.util.Mth;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.common.MinecraftForge;
@@ -119,7 +119,7 @@ public class ControllerStand {
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
-    public void onMouseScroll(InputEvent.MouseScrollEvent event) {
+    public void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (isControllingStand()) {
             stand.manualMovementSpeed = Mth.clamp(stand.manualMovementSpeed + 0.025f * (float) event.getScrollDelta(), 0, 1);
         }
@@ -136,7 +136,7 @@ public class ControllerStand {
             ClientUtil.setCameraEntityPreventShaderSwitch(player);
         }
         else {
-            player.connection.send(new ServerboundMovePlayerPacket.PositionRotationPacket(player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.onGround()));
+            player.connection.send(new ServerboundMovePlayerPacket.PosRot(player.getX(), player.getY(), player.getZ(), player.yRot, player.xRot, player.onGround()));
         }
     }
     
@@ -165,7 +165,7 @@ public class ControllerStand {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void cancelBlockOverlayRender(RenderBlockOverlayEvent event) {
+    public void cancelBlockOverlayRender(RenderBlockScreenEffectEvent event) {
         if (isControllingStand()) {
             event.setCanceled(true);
         }
@@ -275,7 +275,7 @@ public class ControllerStand {
 
             for(MobEffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(collection)) {
                 MobEffect effect = effectinstance.getEffect();
-                if (!effectinstance.shouldRenderHUD()) continue;
+                if (!effectinstance.showIcon()) continue;
                 // Rebind in case previous renderHUDEffect changed texture
                 RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
                 if (effectinstance.showIcon()) {
@@ -313,7 +313,7 @@ public class ControllerStand {
                     list.add(() -> {
                         RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
-                        GuiDraw.blit(matrixStack, j1 + 3, k1 + 3, 0, 18, 18, textureatlassprite);
+                        com.github.standobyte.jojo.client.ui.BlitFloat.blitFloat(matrixStack, j1 + 3, k1 + 3, 0, 18, 18, textureatlassprite);
                     });
                     // the effect duration/level text had a public hook in 1.16.5; the
                     // modern port draws the stand's effect icons only

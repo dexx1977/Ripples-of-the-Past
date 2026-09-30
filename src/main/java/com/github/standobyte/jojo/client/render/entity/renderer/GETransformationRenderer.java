@@ -37,7 +37,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ListModel;
-import com.github.standobyte.jojo.client.render.entity.model.net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -101,22 +101,21 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                            Level world = entity.level;
                            if (sourceBlock != world.getBlockState(entity.blockPosition()) && sourceBlock.getRenderShape() != RenderShape.INVISIBLE) {
                               matrixStack.pushPose();
-                              BlockPos blockPos = new BlockPos(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+                              BlockPos blockPos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
                               matrixStack.translate(-0.5, 0, -0.5);
                               BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
                               for (RenderType type : RenderType.chunkBufferLayers()) {
-                                 if (ItemBlockRenderTypes.canRenderInLayer(sourceBlock, type)) {
-                                    ForgeHooksClient.setRenderLayer(type);
+                                 if (ItemBlockRenderTypes.getChunkRenderType(sourceBlock) == type) {
                                     BlockPos startingPos = entity.getTfSourceData().getSourceBlockPos();
                                     if (startingPos == null) startingPos = entity.blockPosition();
-                                    blockRenderer.getModelRenderer().renderModel(world, 
-                                            blockRenderer.getBlockModel(sourceBlock), sourceBlock, blockPos, 
-                                            matrixStack, buffer.getBuffer(type), false, new Random(), 
-                                            sourceBlock.getSeed(startingPos), OverlayTexture.NO_OVERLAY, 
-                                            ModelData.EMPTY);
+                                    blockRenderer.getModelRenderer().renderModel(matrixStack.last(), buffer.getBuffer(type), 
+                                            sourceBlock, blockRenderer.getBlockModel(sourceBlock), 
+                                            1.0F, 1.0F, 1.0F, 
+                                            net.minecraft.client.renderer.LevelRenderer.getLightColor(world, blockPos), 
+                                            OverlayTexture.NO_OVERLAY, ModelData.EMPTY, type);
                                  }
                               }
-                              ForgeHooksClient.setRenderLayer(null);
+                              
                               matrixStack.popPose();
                            }
                         }
@@ -241,7 +240,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     private static Map<net.minecraft.client.model.geom.ModelPart, float[]> createStateZero(Collection<net.minecraft.client.model.geom.ModelPart> modelParts) {
         Map<net.minecraft.client.model.geom.ModelPart, float[]> map = new HashMap<>();
         modelParts.forEach(modelPart -> {
-            ObjectList<net.minecraft.client.model.geom.ModelPart.Cube> boxes = modelPart.cubes;
+            java.util.List<net.minecraft.client.model.geom.ModelPart.Cube> boxes = modelPart.cubes;
             float minX = boxes.stream().map(box -> box.minX).min(Float::compare).orElse(0f);
             float maxX = boxes.stream().map(box -> box.maxX).max(Float::compare).orElse(0f);
             float minY = boxes.stream().map(box -> box.minY).min(Float::compare).orElse(0f);
@@ -397,7 +396,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     private static void addSubPartsAndSelf(Set<net.minecraft.client.model.geom.ModelPart> modelParts, net.minecraft.client.model.geom.ModelPart modelRenderer) {
         modelParts.add(modelRenderer);
-        ObjectList<net.minecraft.client.model.geom.ModelPart> children = modelRenderer.children;
+        java.util.List<net.minecraft.client.model.geom.ModelPart> children = modelRenderer.children;
         children.forEach(child -> addSubPartsAndSelf(modelParts, child));
     }
     
