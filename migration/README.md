@@ -128,10 +128,12 @@ Known remaining work, roughly in the order it should be tackled:
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
 3. Magic damage audit (done): the 1.16.5 sources call setMagic() nowhere; the only
    living reader is bleed(), which skips bleeding for magical damage, plus the
-   wrapper's isMagic() mirror (no callers). Both now ask the mod tag jojo:magic
-   (minecraft:magic, indirect_magic, thorns, and sonic_boom which 1.20.1 classifies the
-   same way) instead of the witch resistant tag, because that tag means "the witch
-   resists this", not "this is magic". No mod damage type sets the flag in 1.16.5, so
+   wrapper's isMagic() mirror (no callers). Both now ask the mod tag jojo:magic, which
+   holds exactly the damage types the magic flagged 1.16.5 sources map to (magic,
+   indirect magic, thorns). The witch resistant tag is not used for this: it means "the
+   witch resists this" and, while it happens to contain those three types, it also
+   contains sonic boom, which did not exist in 1.16.5 - it is a superset of the old
+   flag, not an equivalent of it. No mod damage type sets the flag in 1.16.5, so
    none joins the tag. The bypassMagic flag is a separate idea ("ignores the resistance
    effect") and maps to the bypasses_resistance tag. bypassMagic() means "ignores Resistance", not "is magical", and maps to
    BYPASSES_RESISTANCE. Two call sites were fixed: jojo:mowzie_sun had asked for

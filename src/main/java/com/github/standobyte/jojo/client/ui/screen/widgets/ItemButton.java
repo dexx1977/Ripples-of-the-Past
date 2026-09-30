@@ -24,6 +24,14 @@ public class ItemButton extends CustomButton {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
+            Button.OnPress pOnPress, ITooltipRenderer pOnTooltip) {
+        this(pX, pY, pWidth, pHeight, 
+                item, 
+                pOnPress, pOnTooltip, Component.empty());
+    }
+
+    public ItemButton(int pX, int pY, int pWidth, int pHeight, 
+            ItemStack item, 
             Button.OnPress pOnPress, Tooltip pOnTooltip) {
         this(pX, pY, pWidth, pHeight, 
                 item, 

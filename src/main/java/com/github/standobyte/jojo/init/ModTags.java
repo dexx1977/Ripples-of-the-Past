@@ -12,10 +12,12 @@ public class ModTags {
     /**
      * The damage the 1.16.5 magic flag marked (what DamageSource#isMagic returned).
      *
-     * <p>Mojang translated that flag into the witch resistant tag, so the vanilla
-     * members are the ones that were flagged in 1.16.5 (magic, indirect magic, thorns)
-     * plus sonic boom, which 1.20.1 classifies the same way. It is a mod tag so that a
-     * damage type of this mod or of another mod can join the set.</p>
+     * <p>1.20.1 has no magic flag. Its witch resistant tag happens to contain the
+     * damage types the three magic flagged 1.16.5 sources map to (magic, indirect
+     * magic, thorns), but it also contains sonic boom, which did not exist in 1.16.5,
+     * so that tag is a superset and not an equivalent of the flag. This tag holds
+     * exactly the 1.16.5 set, and being a mod tag it also lets a damage type of this
+     * mod or of another mod join it.</p>
      */
     public static final TagKey<DamageType> MAGIC = TagKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(JojoMod.MOD_ID, "magic"));
 

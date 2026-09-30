@@ -454,7 +454,12 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         
         public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage,
                 Button.OnPress pOnPress) {
-            super(pX, pY, pWidth, pHeight, pMessage, pOnPress, Button.DEFAULT_NARRATION);
+            super(pX, pY, pWidth, pHeight, pMessage, pOnPress);
+        }
+
+        public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, 
+                Button.OnPress pOnPress, ITooltipRenderer pOnTooltip) {
+            super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         }
         
         public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, Button.OnPress pOnPress,
