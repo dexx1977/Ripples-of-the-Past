@@ -55,7 +55,6 @@ public class ImageMutableButton extends CustomButton {
        RenderSystem.enableDepthTest();
        GuiDraw.blit(pMatrixStack, this.x, this.y, (float)this.xTexStart, (float)i, this.width, this.height, this.textureWidth, this.textureHeight);
        if (this.isHovered()) {
-          this.renderToolTip(pMatrixStack, pMouseX, pMouseY);
        }
 
     }

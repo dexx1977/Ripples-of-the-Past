@@ -261,7 +261,7 @@ public class HungryZombieEntity extends Zombie {
                     MobSpawnType.CONVERSION, 
                     new Zombie.GroupData(false, true), 
                     null);
-            zombie.setThrower(owner);
+            zombie.setOwner(owner);
             ForgeEventFactory.onLivingConvert(dead, zombie);
             if (!dead.isSilent()) {
                 world.levelEvent(null, 1026, dead.blockPosition(), 0);

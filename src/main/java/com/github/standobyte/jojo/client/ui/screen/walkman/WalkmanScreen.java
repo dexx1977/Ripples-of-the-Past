@@ -96,7 +96,6 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
         updateButtons();
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderToolTip(matrixStack, mouseX, mouseY);
     }
     
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dragX, double dragY) {

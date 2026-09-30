@@ -89,12 +89,12 @@ public class EntityTypeIcon {
                 ResourceLocation subtypeTex = new ResourceLocation(
                         entityTex.getNamespace(), 
                         path.substring(0, path.length() - 4) + "." + subtypeId + path.substring(path.length() - 4));
-                if (mc.getResourceManager().hasResource(subtypeTex)) {
+                if (mc.getResourceManager().getResource(subtypeTex).isPresent()) {
                     return subtypeTex;
                 }
             }
             
-            if (mc.getResourceManager().hasResource(entityTex)) {
+            if (mc.getResourceManager().getResource(entityTex).isPresent()) {
                 return entityTex;
             }
         }

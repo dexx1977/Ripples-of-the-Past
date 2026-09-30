@@ -475,7 +475,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         Quaternionf quaternion1 = Axis.YP.rotationDegrees(yRot);
         quaternion.mul(quaternion1);
         matrixStack.mulPose(quaternion);
-        EntityRendererProvider.Context context = Minecraft.getInstance().getEntityRenderDispatcher();
+        net.minecraft.client.renderer.entity.EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conj();
         entityrenderermanager.overrideCameraOrientation(quaternion1);
         

@@ -331,7 +331,6 @@ public class ClientUtil {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.shadeModel(GL11.GL_SMOOTH);
         matrixStack.pushPose();
         Matrix4f mat = matrixStack.last().pose();
         
@@ -346,7 +345,6 @@ public class ClientUtil {
         drawGradientRect(mat, zLevel, x - 3, y + height + 2, x + width + 3, y + height + 3, borderColorEnd, borderColorEnd);
 
         matrixStack.popPose();
-        RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
     }
     

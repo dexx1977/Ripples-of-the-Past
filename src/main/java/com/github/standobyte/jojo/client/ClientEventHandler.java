@@ -1322,7 +1322,7 @@ public class ClientEventHandler {
         float partialTick = screen.getMinecraft().getFrameTime();
         if (screen instanceof DeathScreen) {
             Component title = screen.getTitle();
-            if (title instanceof Component && ((Component) title).getKey().endsWith(".hardcore")) {
+            if (title instanceof net.minecraft.network.chat.TranslatableComponent && ((net.minecraft.network.chat.TranslatableComponent) title).getKey().endsWith(".hardcore")) {
                 return;
             }
             renderToBeContinuedArrow(event.getPoseStack(), screen, screen.width, screen.height, partialTick);
