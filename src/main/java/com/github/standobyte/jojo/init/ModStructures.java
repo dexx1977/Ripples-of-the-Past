@@ -1,17 +1,7 @@
 package com.github.standobyte.jojo.init;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-
 import com.github.standobyte.jojo.JojoMod;
-import com.github.standobyte.jojo.JojoModConfig;
-import com.github.standobyte.jojo.util.ForgeBusEventSubscriber;
-import com.github.standobyte.jojo.util.mc.reflection.CommonReflection;
 import com.github.standobyte.jojo.world.gen.ConfiguredFeatureSupplier;
-import com.github.standobyte.jojo.world.gen.ConfiguredStructureSupplier;
 import com.github.standobyte.jojo.world.gen.structures.HamonTemplePieces;
 import com.github.standobyte.jojo.world.gen.structures.HamonTempleStructure;
 import com.github.standobyte.jojo.world.gen.structures.MeteoritePieces;
@@ -19,131 +9,54 @@ import com.github.standobyte.jojo.world.gen.structures.MeteoriteStructure;
 import com.github.standobyte.jojo.world.gen.structures.MrPresidentRoomFeature;
 import com.github.standobyte.jojo.world.gen.structures.PillarmanTemplePieces;
 import com.github.standobyte.jojo.world.gen.structures.PillarmanTempleStructure;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.Registry;
-import net.minecraft.util.registry.WorldGenRegistries;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.gen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.gen.settings.DimensionStructuresSettings;
-import net.minecraft.world.gen.settings.StructureSeparationSettings;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.RegistryObject;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraft.world.level.levelgen.structure.StructureType;
+import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import com.github.standobyte.jojo.util.mc.MCUtil;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * The mod's worldgen entries.
+ *
+ * <p>1.20.1 makes structures data driven: the classes below are only the structure
+ * *types*, while the biome set, generation step, terrain adaptation, the piece
+ * placement (spacing, separation, salt) and the configured feature live in
+ * {@code data/jojo/worldgen}. What used to be
+ * {@code setupMapSpacingAndLand}/{@code registerConfiguredStructure} - including the
+ * reflection into the old dimension settings - is therefore expressed as data, and
+ * the config flags that switched a structure off are checked when the structure
+ * looks for a generation point.</p>
+ */
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModStructures {
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, JojoMod.MOD_ID);
-    public static final DeferredRegister<Structure<?>> STRUCTURES = DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, JojoMod.MOD_ID);
-    
+    public static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES = DeferredRegister.create(Registries.STRUCTURE_TYPE, JojoMod.MOD_ID);
+    public static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES = DeferredRegister.create(Registries.STRUCTURE_PIECE, JojoMod.MOD_ID);
 
-    public static final RegistryObject<Structure<NoneFeatureConfiguration>> HAMON_TEMPLE = STRUCTURES.register("hamon_temple", 
-            () -> (new HamonTempleStructure(NoneFeatureConfiguration.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_HAMON_TEMPLE = new ConfiguredStructureSupplier<>(HAMON_TEMPLE, FeatureConfiguration.NONE);
+    public static final RegistryObject<StructureType<HamonTempleStructure>> HAMON_TEMPLE_TYPE = 
+            STRUCTURE_TYPES.register("hamon_temple", () -> () -> HamonTempleStructure.CODEC);
+    public static final RegistryObject<StructureType<MeteoriteStructure>> METEORITE_TYPE = 
+            STRUCTURE_TYPES.register("meteorite", () -> () -> MeteoriteStructure.CODEC);
+    public static final RegistryObject<StructureType<PillarmanTempleStructure>> PILLARMAN_TEMPLE_TYPE = 
+            STRUCTURE_TYPES.register("pillarman_temple", () -> () -> PillarmanTempleStructure.CODEC);
 
-    public static final RegistryObject<Structure<NoneFeatureConfiguration>> METEORITE = STRUCTURES.register("meteorite", 
-            () -> (new MeteoriteStructure(NoneFeatureConfiguration.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_METEORITE = new ConfiguredStructureSupplier<>(METEORITE, FeatureConfiguration.NONE);
-
-    public static final RegistryObject<PillarmanTempleStructure> PILLARMAN_TEMPLE = STRUCTURES.register("pillarman_temple", 
-            () -> (new PillarmanTempleStructure(NoneFeatureConfiguration.CODEC)));
-    public static final ConfiguredStructureSupplier<?, ?> CONFIGURED_PILLARMAN_TEMPLE = new ConfiguredStructureSupplier<>(PILLARMAN_TEMPLE, FeatureConfiguration.NONE);
-
-    public static final Predicate<BiomeLoadingEvent> HAMON_TEMPLE_BIOMES = biome -> biome.getCategory() == Biome.Category.EXTREME_HILLS;
-    public static final Predicate<BiomeLoadingEvent> METEORITE_BIOMES = biome -> biome.getClimate().precipitation == Biome.RainType.SNOW && biome.getCategory() != Biome.Category.OCEAN;
-    public static final Predicate<BiomeLoadingEvent> PILLARMAN_TEMPLE_BIOMES = biome -> biome.getCategory() == Biome.Category.JUNGLE;
-    
+    public static final RegistryObject<StructurePieceType> HAMON_TEMPLE_PIECE = 
+            STRUCTURE_PIECES.register("hamon_temple", () -> HamonTemplePieces.PIECE_TYPE);
+    public static final RegistryObject<StructurePieceType> METEORITE_PIECE = 
+            STRUCTURE_PIECES.register("meteorite", () -> MeteoritePieces.PIECE_TYPE);
+    public static final RegistryObject<StructurePieceType> PILLARMAN_TEMPLE_PIECE = 
+            STRUCTURE_PIECES.register("pillarman_temple", () -> PillarmanTemplePieces.PIECE_TYPE);
 
     public static final RegistryObject<MrPresidentRoomFeature> MR_PRESIDENT_ROOM = FEATURES.register("mr_president_room", 
             () -> (new MrPresidentRoomFeature(NoneFeatureConfiguration.CODEC)));
-    public static final ConfiguredFeatureSupplier<?, ?> CONFIGURED_MR_PRESIDENT_ROOM = new ConfiguredFeatureSupplier<>(MR_PRESIDENT_ROOM, FeatureConfiguration.NONE);
-    
-    
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static final void afterStructuresRegister(RegistryEvent.Register<Structure<?>> event) {
-        Registry<StructureFeature<?, ?>> registry = WorldGenRegistries.CONFIGURED_STRUCTURE_FEATURE;
 
-        setupMapSpacingAndLand(HAMON_TEMPLE.get(), new StructureSeparationSettings(20, 8, 139567129), true);
-        setupMapSpacingAndLand(METEORITE.get(), new StructureSeparationSettings(40, 12, 286704381), false);
-        setupMapSpacingAndLand(PILLARMAN_TEMPLE.get(), new StructureSeparationSettings(64, 20, 64023956), false);
-
-        HamonTemplePieces.initPieceType();
-        MeteoritePieces.initPieceType();
-        PillarmanTemplePieces.initPieceType();
-
-        registerConfiguredStructure(registry, CONFIGURED_HAMON_TEMPLE.get(), 
-                new ResourceLocation(JojoMod.MOD_ID, "configured_hamon_temple"), HAMON_TEMPLE.get(), 
-                HAMON_TEMPLE_BIOMES.and(b -> JojoModConfig.getCommonConfigInstance(false).hamonTempleSpawn.get()));
-        registerConfiguredStructure(registry, CONFIGURED_METEORITE.get(), 
-                new ResourceLocation(JojoMod.MOD_ID, "configured_meteorite"), METEORITE.get(), 
-                METEORITE_BIOMES.and(b -> JojoModConfig.getCommonConfigInstance(false).meteoriteSpawn.get()));
-        registerConfiguredStructure(registry, CONFIGURED_PILLARMAN_TEMPLE.get(), 
-                new ResourceLocation(JojoMod.MOD_ID, "configured_pillarman_temple"), PILLARMAN_TEMPLE.get(), 
-                PILLARMAN_TEMPLE_BIOMES.and(b -> JojoModConfig.getCommonConfigInstance(false).pillarManTempleSpawn.get()));
-    }
-    
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static final void afterFeaturesRegister(RegistryEvent.Register<Structure<?>> event) {
-        Registry<ConfiguredFeature<?, ?>> registry = WorldGenRegistries.CONFIGURED_FEATURE;
-        
-        Registry.register(registry, new ResourceLocation(JojoMod.MOD_ID, "configured_mr_president_room"), CONFIGURED_MR_PRESIDENT_ROOM.get());
-    }
-    
-    private static <F extends Structure<?>> void setupMapSpacingAndLand(
-            F structure,
-            StructureSeparationSettings structureSeparationSettings,
-            boolean transformSurroundingLand) {
-        Structure.STRUCTURES_REGISTRY.put(MCUtil.id(structure).toString(), structure);
-
-        if (transformSurroundingLand) {
-            Structure.NOISE_AFFECTING_FEATURES = ImmutableList.<Structure<?>>builder()
-                    .addAll(Structure.NOISE_AFFECTING_FEATURES)
-                    .add(structure)
-                    .build();
-        }
-        
-        setMapSpacing(structure, structureSeparationSettings);
-    }
-    
-    public static <F extends Structure<?>> void setMapSpacing(F structure, StructureSeparationSettings structureSeparationSettings) {
-        DimensionStructuresSettings.DEFAULTS = ImmutableMap.<Structure<?>, StructureSeparationSettings>builder()
-                .putAll(DimensionStructuresSettings.DEFAULTS)
-                .put(structure, structureSeparationSettings)
-                .build();
-
-        WorldGenRegistries.NOISE_GENERATOR_SETTINGS.entrySet().forEach(settings -> {
-            Map<Structure<?>, StructureSeparationSettings> structureMap = settings.getValue().structureSettings().structureConfig();
-            
-            if (structureMap instanceof ImmutableMap) {
-                Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(structureMap);
-                tempMap.put(structure, structureSeparationSettings);
-                settings.getValue().structureSettings().structureConfig = tempMap;
-            }
-            else{
-                structureMap.put(structure, structureSeparationSettings);
-            }
-        });
-    }
-    
-    private static void registerConfiguredStructure(Registry<StructureFeature<?, ?>> registry, StructureFeature<?, ?> configured, 
-            ResourceLocation resLoc, Structure<?> structure, @Nullable Predicate<BiomeLoadingEvent> structureBiome) {
-        Registry.register(registry, resLoc, configured);
-        CommonReflection.flatGenSettingsStructures().put(structure, configured);
-        if (structureBiome != null) {
-            ForgeBusEventSubscriber.structureBiomes.put(() -> configured, structureBiome);
-        }
-    }
+    /** Kept so the configured feature can still be built where it is needed. */
+    public static final ConfiguredFeatureSupplier<?, ?> CONFIGURED_MR_PRESIDENT_ROOM = 
+            new ConfiguredFeatureSupplier<>(MR_PRESIDENT_ROOM, FeatureConfiguration.NONE);
 }

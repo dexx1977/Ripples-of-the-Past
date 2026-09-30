@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.world.gen.structures;
 
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.world.gen.LoadMeFeature;
@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -33,8 +34,14 @@ public class MrPresidentRoomFeature extends Feature<NoneFeatureConfiguration> im
     }
     
     @Override
-    public boolean place(WorldGenLevel world, ChunkGenerator chunkGenerator, 
-            Random random, BlockPos blockPos, NoneFeatureConfiguration config) {
+    public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+        // 1.20.1 hands the feature its world, random and origin through the context
+        WorldGenLevel world = context.level();
+        RandomSource random = context.random();
+        BlockPos blockPos = context.origin();
+        if (roomTemplate == null) {
+            roomTemplate = context.level().getLevel().getStructureManager().getOrCreate(roomPath);
+        }
         if (roomTemplate != null) {
             StructurePlaceSettings settings = new StructurePlaceSettings().addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
             BlockPos blockpos1 = roomTemplate.getZeroPositionWithTransform(blockPos.offset(0, 0, 0), Mirror.NONE, Rotation.NONE);

@@ -1,51 +1,41 @@
 package com.github.standobyte.jojo.world.gen.structures;
 
+import com.github.standobyte.jojo.JojoModConfig;
+import java.util.Optional;
+
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 
-public class MeteoriteStructure extends Structure<NoneFeatureConfiguration> {
-    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
-    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+public class MeteoriteStructure extends Structure {
+    public static final Codec<MeteoriteStructure> CODEC = simpleCodec(MeteoriteStructure::new);
 
-
-    public MeteoriteStructure(Codec<NoneFeatureConfiguration> codec) {
-        super(codec);
+    public MeteoriteStructure(StructureSettings settings) {
+        super(settings);
     }
 
     @Override
-    public IStartFactory<NoneFeatureConfiguration> getStartFactory() {
-        return Start::new;
+    public StructureType<?> type() {
+        return com.github.standobyte.jojo.init.ModStructures.METEORITE_TYPE.get();
     }
-    
-    @Override
-    public GenerationStep.Decoration step() {
-        return GenerationStep.Decoration.TOP_LAYER_MODIFICATION;
-    }
-    
-    private static class Start extends StructureStart<NoneFeatureConfiguration> {
-        public Start(Structure<NoneFeatureConfiguration> structure, int chunkPosX, int chunkPosZ, BoundingBox bounds, int references, long seed) {
-            super(structure, chunkPosX, chunkPosZ, bounds, references, seed);
-        }
 
-        @Override
-        public void generatePieces(RegistryAccess dynamicRegistryManager, ChunkGenerator chunkGenerator, 
-                StructureTemplateManager templateManager, int chunkX, int chunkZ, Biome biome, NoneFeatureConfiguration config) {
-            int x = (chunkX << 4) + 7;
-            int z = (chunkZ << 4) + 7;
-            BlockPos blockPos = new BlockPos(x, chunkGenerator.getFirstOccupiedHeight(x, z, Heightmap.Type.WORLD_SURFACE_WG) - 1, z);
-            MeteoritePieces.start(templateManager, blockPos, pieces, random);
-            calculateBoundingBox();
+    @Override
+    protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        // the old biome predicate also carried the config flag that switches this
+        // structure off; the biome part is in the structure json now
+        if (!JojoModConfig.getCommonConfigInstance(false).meteoriteSpawn.get()) {
+            return Optional.empty();
         }
+        ChunkPos chunkPos = context.chunkPos();
+        int centerX = chunkPos.getMiddleBlockX();
+        int centerZ = chunkPos.getMiddleBlockZ();
+        BlockPos blockPos = new BlockPos(centerX, context.chunkGenerator()
+                .getFirstOccupiedHeight(centerX, centerZ, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState()) - 1, centerZ);
+        return Optional.of(new GenerationStub(blockPos, pieces -> 
+                MeteoritePieces.start(context.structureTemplateManager(), blockPos, pieces, context.random())));
     }
 }

@@ -1,69 +1,63 @@
 package com.github.standobyte.jojo.world.gen.structures;
 
+import com.github.standobyte.jojo.JojoModConfig;
+import java.util.Optional;
+
 import com.mojang.serialization.Codec;
 
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 
-public class HamonTempleStructure extends Structure<NoneFeatureConfiguration> {
-    // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
-    protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
+/**
+ * The Hamon temple structure.
+ *
+ * <p>1.20.1 structures are data driven: the biome set, the generation step and the
+ * terrain adaptation come from the structure json, and the placement (spacing,
+ * separation and salt) from the structure set json - see
+ * {@code data/jojo/worldgen} - while the class only decides where in a chunk the
+ * temple starts. The old {@code isFeatureChunk} height check and the piece layout
+ * are unchanged.</p>
+ */
+public class HamonTempleStructure extends Structure {
+    public static final Codec<HamonTempleStructure> CODEC = simpleCodec(HamonTempleStructure::new);
 
-
-    public HamonTempleStructure(Codec<NoneFeatureConfiguration> codec) {
-        super(codec);
+    public HamonTempleStructure(StructureSettings settings) {
+        super(settings);
     }
 
     @Override
-    public IStartFactory<NoneFeatureConfiguration> getStartFactory() {
-        return Start::new;
+    public StructureType<?> type() {
+        return com.github.standobyte.jojo.init.ModStructures.HAMON_TEMPLE_TYPE.get();
     }
-    
+
     @Override
-    public GenerationStep.Decoration step() {
-        return GenerationStep.Decoration.SURFACE_STRUCTURES;
-    }
-    
-    @Override
-    protected boolean isFeatureChunk(ChunkGenerator chunkGenerator, BiomeSource biomeSource, long seed, 
-            WorldgenRandom chunkRandom, int chunkX, int chunkZ, Biome biome, ChunkPos chunkPos, NoneFeatureConfiguration featureConfig) {
-        int x = (chunkX << 4) + 7;
-        int z = (chunkZ << 4) + 7;
-        return chunkGenerator.getFirstOccupiedHeight(x, z, Heightmap.Type.WORLD_SURFACE_WG) >= 90;
-    }
-    
-    private static class Start extends StructureStart<NoneFeatureConfiguration> {
-        public Start(Structure<NoneFeatureConfiguration> structure, int chunkPosX, int chunkPosZ, BoundingBox bounds, int references, long seed) {
-            super(structure, chunkPosX, chunkPosZ, bounds, references, seed);
+    protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
+        // the old biome predicate also carried the config flag that switches this
+        // structure off; the biome part is in the structure json now
+        if (!JojoModConfig.getCommonConfigInstance(false).hamonTempleSpawn.get()) {
+            return Optional.empty();
+        }
+        ChunkPos chunkPos = context.chunkPos();
+        int centerX = chunkPos.getMiddleBlockX();
+        int centerZ = chunkPos.getMiddleBlockZ();
+        if (context.chunkGenerator().getFirstOccupiedHeight(centerX, centerZ, Heightmap.Types.WORLD_SURFACE_WG,
+                context.heightAccessor(), context.randomState()) < 90) {
+            return Optional.empty();
         }
 
-        @Override
-        public void generatePieces(RegistryAccess dynamicRegistryManager, ChunkGenerator chunkGenerator, 
-                StructureTemplateManager templateManager, int chunkX, int chunkZ, Biome biome, NoneFeatureConfiguration config) {
-            int centerX = (chunkX << 4) + 7;
-            int centerZ = (chunkZ << 4) + 7;
-            int minY = Integer.MAX_VALUE;
-            for (int x = centerX - 24; x <= centerX + 24; x += 8) {
-                for (int z = centerZ - 24; z <= centerZ + 24; z += 8) {
-                    minY = Mth.clamp(chunkGenerator.getFirstOccupiedHeight(x, z, Heightmap.Type.WORLD_SURFACE_WG), 80, minY);
-                }
+        int minY = Integer.MAX_VALUE;
+        for (int x = centerX - 24; x <= centerX + 24; x += 8) {
+            for (int z = centerZ - 24; z <= centerZ + 24; z += 8) {
+                minY = Mth.clamp(context.chunkGenerator().getFirstOccupiedHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG,
+                        context.heightAccessor(), context.randomState()), 80, minY);
             }
-            BlockPos blockPos = new BlockPos(centerX, minY - 3, centerZ);
-            HamonTemplePieces.start(templateManager, blockPos, pieces, random);
-            calculateBoundingBox();
         }
+        BlockPos blockPos = new BlockPos(centerX, minY - 3, centerZ);
+        return Optional.of(new GenerationStub(blockPos, pieces -> 
+                HamonTemplePieces.start(context.structureTemplateManager(), blockPos, pieces, context.random())));
     }
 }

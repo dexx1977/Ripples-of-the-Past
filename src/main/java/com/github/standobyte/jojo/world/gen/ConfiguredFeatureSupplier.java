@@ -18,7 +18,7 @@ public class ConfiguredFeatureSupplier<FC extends FeatureConfiguration, F extend
     
     public ConfiguredFeature<FC, ? extends Feature<FC>> get() {
         if (configured == null) {
-            configured = structure.get().configured(config);
+            configured = new ConfiguredFeature<>(structure.get(), config);
         }
         return configured;
     }

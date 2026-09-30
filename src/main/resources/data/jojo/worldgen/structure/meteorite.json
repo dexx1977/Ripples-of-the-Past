@@ -1,0 +1,7 @@
+{
+  "type": "jojo:meteorite",
+  "biomes": "#jojo:meteorite_biomes",
+  "step": "top_layer_modification",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}

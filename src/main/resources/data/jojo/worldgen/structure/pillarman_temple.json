@@ -1,0 +1,7 @@
+{
+  "type": "jojo:pillarman_temple",
+  "biomes": "#minecraft:is_jungle",
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "spawn_overrides": {}
+}
