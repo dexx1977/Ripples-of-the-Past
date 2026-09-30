@@ -22,12 +22,22 @@ import net.minecraft.network.chat.Component;
 public class StandUserDummyRenderer extends HumanoidMobRenderer<StandUserDummyEntity, PlayerModel<StandUserDummyEntity>> {
 
     public StandUserDummyRenderer(EntityRendererProvider.Context context) {
-        super(context, new PlayerModel<>(0, false), 0.5F);
-        this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel<>(0.5F), new HumanoidModel<>(1.0F)));
-        this.addLayer(new ItemInHandLayer<>(this));
-        this.addLayer(new CustomHeadLayer<>(this));
+        super(context, new PlayerModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER), false), 0.5F);
+        this.addLayer(new HumanoidArmorLayer<>(this, 
+                new HumanoidModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER_INNER_ARMOR)), 
+                new HumanoidModel<>(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER_OUTER_ARMOR)), 
+                Minecraft.getInstance().getModelManager()));
+        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
     }
     
+    @Override
+    public net.minecraft.resources.ResourceLocation getTextureLocation(StandUserDummyEntity entity) {
+        // the dummy is rendered like a player without a skin, as the 1.16.5 biped
+        // renderer's default did
+        return net.minecraft.client.resources.DefaultPlayerSkin.getDefaultSkin(entity.getUUID());
+    }
+
     @Override
     public void render(StandUserDummyEntity pEntity, float pEntityYaw, float pPartialTicks, 
             PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {

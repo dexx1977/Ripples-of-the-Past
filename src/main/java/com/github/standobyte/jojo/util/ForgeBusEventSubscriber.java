@@ -76,10 +76,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.DimensionStructuresSettings;
-import net.minecraft.world.level.levelgen.StructureSeparationSettings;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.util.LazyOptional;
@@ -90,7 +87,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimension
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.event.level.BiomeLoadingEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -335,14 +331,14 @@ public class ForgeBusEventSubscriber {
     
     
     @SubscribeEvent
-    public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.level() instanceof Level) {
-            if (event.level() instanceof ServerLevel) {
-                ServerLevel serverWorld = (ServerLevel) event.level();
+    public static void onWorldLoad(LevelEvent.Load event) {
+        if (event.getLevel() instanceof Level) {
+            if (event.getLevel() instanceof ServerLevel) {
+                ServerLevel serverWorld = (ServerLevel) event.getLevel();
             }
-            EntityTypeToInstance.init((Level) event.level());
+            EntityTypeToInstance.init((Level) event.getLevel());
         }
-        EntityTypeToInstance.init((Level) event.level());
+        EntityTypeToInstance.init((Level) event.getLevel());
     }
     
 

@@ -1016,7 +1016,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
     @Override
     public void knockback(double strength, double xRatio, double zRatio) {
-        LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(this, strength, xRatio, zRatio);
+        LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(this, (float) strength, xRatio, zRatio);
         if (event.isCanceled()) return;
         strength = event.getStrength();
         xRatio = event.getRatioX();
@@ -1157,7 +1157,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         return damageSrc instanceof IStandDamageSource
                 || damageSrc instanceof IModdedDamageSource && ((IModdedDamageSource) damageSrc).canHurtStands()
                 || damageSrc.getMsgId().contains("stand")
-                || damageSrc == DamageSource.ON_FIRE;
+                || damageSrc.is(net.minecraft.world.damagesource.DamageTypes.ON_FIRE);
     }
     
     public boolean canBlockDamage(DamageSource dmgSource) {
@@ -1167,8 +1167,6 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     @Override
     public void thunderHit(ServerLevel world, LightningBolt lightningBolt) {}
 
-    @Override
-    protected void lavaHurt() {}
 
     @Override
     public void setSecondsOnFire(int seconds) {
@@ -1883,7 +1881,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
                         targetLiving.setLastHurtByPlayer((Player) user);
                         targetLiving.lastHurtByPlayerTime = 100;
                     }
-                    LivingEntity aggroTo = isFollowingUser() || targetLiving.canSee(user) ? user : 
+                    LivingEntity aggroTo = isFollowingUser() || targetLiving.hasLineOfSight(user) ? user : 
                         StandUtil.isEntityStandUser(targetLiving) ? this : null;
                     if (aggroTo != null) {
                         targetLiving.setLastHurtByMob(aggroTo);
@@ -2106,7 +2104,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
     public boolean canBreakBlock(BlockPos blockPos, BlockState blockState) {
         float blockHardness = StandStatFormulas.getStandBreakBlockHardness(blockState, level, blockPos);
-        return blockHardness >= 0 && canBreakBlock(blockHardness, blockState.getHarvestLevel());
+        return blockHardness >= 0 && canBreakBlock(blockHardness, harvestLevel(blockState));
+    }
+
+    /** 1.20.1 has no harvest level, the requirement lives in the tool tags. */
+    private static int harvestLevel(BlockState state) {
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_DIAMOND_TOOL)) return 3;
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_IRON_TOOL)) return 2;
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_STONE_TOOL)) return 1;
+        return 0;
     }
 
     public boolean canBreakBlock(float blockHardness, int blockHarvestLevel) {
@@ -2386,7 +2392,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
     private void moveWithoutCollision(Vec3 vec) {
         setBoundingBox(getBoundingBox().move(vec));
-        setLocationFromBoundingbox();
+        reapplyPosition();
     }
 
     @Override
@@ -2557,7 +2563,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         if (!level.isClientSide() && !item.isEmpty()) {
             ItemStack heldItem = getItemBySlot(slot);
             if (!heldItem.isEmpty()) {
-                if (heldItem.sameItem(item) && ItemStack.isSameItemSameTags(heldItem, item)) {
+                if (ItemStack.isSameItem(heldItem, item) && ItemStack.isSameItemSameTags(heldItem, item)) {
                     int toMove = Math.min(item.getCount(), heldItem.getMaxStackSize() - heldItem.getCount());
                     item.shrink(toMove);
                     heldItem.grow(toMove);
