@@ -290,8 +290,8 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             move(MoverType.SELF, deltaMovement);
             double inertia = 0.98;
             if (onGround) {
-                inertia = level.getBlockState(new BlockPos(getX(), getY() - 1.0, getZ()))
-                        .getSlipperiness(level, new BlockPos(getX(), getY() - 1.0, getZ()), this) * 0.98;
+                inertia = level.getBlockState(BlockPos.containing(getX(), getY() - 1.0, getZ()))
+                        .getSlipperiness(level, BlockPos.containing(getX(), getY() - 1.0, getZ()), this) * 0.98;
             }
             deltaMovement = deltaMovement.multiply(inertia, 0.98, inertia);
             

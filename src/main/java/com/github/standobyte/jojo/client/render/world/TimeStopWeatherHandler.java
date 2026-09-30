@@ -134,7 +134,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
                                     i1 = 0;
                                     GuiDraw.bind(RAIN_LOCATION);
-                                    bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
+                                    bufferbuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
                                 }
 
                                 int i3 = renderTicks + k1 * k1 * 3121 + k1 * 45238971 + j1 * j1 * 418711 + j1 * 13761 & 31;
@@ -157,7 +157,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
                                     i1 = 1;
                                     GuiDraw.bind(SNOW_LOCATION);
-                                    bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
+                                    bufferbuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
                                 }
 
                                 float f1 = renderTicks + renderPartialTick;

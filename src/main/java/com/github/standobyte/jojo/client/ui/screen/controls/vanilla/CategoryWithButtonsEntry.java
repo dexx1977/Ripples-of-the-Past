@@ -21,10 +21,10 @@ public class CategoryWithButtonsEntry extends KeyBindsList.CategoryEntry {
     
     @Override
     public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
-        super.render(pMatrixStack, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
+        super.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
         for (Button button : buttons) {
             button.y = pTop;
-            button.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+            button.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
         }
     }
     

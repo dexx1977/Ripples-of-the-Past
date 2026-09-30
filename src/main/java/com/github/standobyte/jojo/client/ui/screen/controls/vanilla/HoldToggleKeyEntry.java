@@ -30,9 +30,9 @@ public class HoldToggleKeyEntry extends KeyBindsList.Entry {
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         holdToggleButton.x = pLeft + 105 + changeButton.getWidth() - 1;
         holdToggleButton.y = pTop;
-        holdToggleButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        holdToggleButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
         
-        wrappedEntry.render(pMatrixStack, pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
+        wrappedEntry.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pIndex, pTop, pLeft, pWidth, pHeight, pMouseX, pMouseY, pIsMouseOver, pPartialTicks);
     }
     
     @Override

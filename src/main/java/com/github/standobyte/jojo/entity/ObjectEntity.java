@@ -109,7 +109,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
             this.move(MoverType.SELF, this.getDeltaMovement());
             float f1 = 0.98F;
             if (this.onGround) {
-                f1 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0D, this.getZ())).getSlipperiness(level, new BlockPos(this.getX(), this.getY() - 1.0D, this.getZ()), this) * 0.98F;
+                f1 = this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ())).getSlipperiness(level, BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ()), this) * 0.98F;
             }
 
             this.setDeltaMovement(this.getDeltaMovement().multiply((double)f1, 0.98D, (double)f1));

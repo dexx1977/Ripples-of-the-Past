@@ -133,7 +133,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         defaultRenderTabs(matrixStack, mouseX, mouseY, this);
         
         for (AbstractWidget button : buttons) {
-            button.render(matrixStack, mouseX, mouseY, partialTick);
+            button.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTick);
         }
     }
     
@@ -177,7 +177,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         PoseStack matrixStack = new PoseStack();
         float ticks = tickCount + partialTick;
         if (skinFullView != null) {
-            skinFullView.render(matrixStack, mouseX, mouseY, ticks);
+            skinFullView.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, ticks);
         }
         else {
             matrixStack.translate(0, -scroll, 0);

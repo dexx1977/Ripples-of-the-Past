@@ -757,7 +757,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     
     
     private void renderKeybindsList(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        keybindsList.render(matrixStack, mouseX, mouseY, partialTick);
+        keybindsList.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTick);
     }
     
     private boolean mouseClickedEditingKeybind(int buttonId, KeyModifier keyModifier) {
@@ -1186,7 +1186,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 }
                 
                 for (AbstractWidget button : buttons) {
-                    button.render(matrixStack, mouseX, mouseY, partialTicks);
+                    button.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
                 }
                 
                 renderActionSlot(matrixStack, mouseX, mouseY);
@@ -1246,7 +1246,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
                 addNewKeybindButton.x = left;
                 addNewKeybindButton.y = top;
-                addNewKeybindButton.render(matrixStack, mouseX, mouseY, partialTicks);
+                addNewKeybindButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
             }
         }
     }

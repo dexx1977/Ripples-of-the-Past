@@ -64,8 +64,8 @@ public class VampirismUtil {
         if (isSunny(world)) {
             float brightness = entity.getBrightness();
             BlockPos blockPos = entity.getVehicle() instanceof Boat ? 
-                    (new BlockPos(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ())).above()
-                    : new BlockPos(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ());
+                    (BlockPos.containing(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ())).above()
+                    : BlockPos.containing(entity.getX(), (double)Math.round(entity.getY(1.0)), entity.getZ());
             if (brightness > 0.5F && world.canSeeSky(blockPos)) {
                 return 4;
 //                int time = (int) (world.getDayTime() % 24000L);

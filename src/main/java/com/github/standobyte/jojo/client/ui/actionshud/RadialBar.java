@@ -153,7 +153,7 @@ public class RadialBar {
                     throw new AssertionError();
                 }
                 
-                bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
+                bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
                 bufferBuilder.vertex(matrix, x3, y3, blitOffset).uv(
                         lerpUV(x3, minX, maxX, minU, maxU), 
                         lerpUV(y3, minY, maxY, minV, maxV))

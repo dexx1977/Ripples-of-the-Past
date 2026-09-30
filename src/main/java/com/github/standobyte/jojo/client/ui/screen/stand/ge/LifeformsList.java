@@ -293,7 +293,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             
-            bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             bufferbuilder.vertex((double)i, (double)this.y1, 0.0D).uv(0.0F, 1.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
             bufferbuilder.vertex((double)j, (double)this.y1, 0.0D).uv(1.0F, 1.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
             bufferbuilder.vertex((double)j, (double)this.y0, 0.0D).uv(1.0F, 0.0F).color(0, 0, 0, scrollBarAlpha).endVertex();
@@ -356,7 +356,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             if (expandButton != null) {
                 expandButton.x = pLeft + 29;
                 expandButton.y = pTop;
-                expandButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+                expandButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
             }
         }
         
@@ -421,12 +421,12 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             if (lifeformButton != null) {
                 lifeformButton.x = pLeft + 25;
                 lifeformButton.y = pTop + 1;
-                lifeformButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+                lifeformButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
             }
             if (favoriteButton != null) {
                 favoriteButton.x = pLeft + 2;
                 favoriteButton.y = pTop + 1;
-                favoriteButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+                favoriteButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
             }
         }
         

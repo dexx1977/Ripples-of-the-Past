@@ -451,7 +451,7 @@ public class StandStatsRenderer {
         double x4 = xCenter;                        double y4 = yCenter + r4;
         double x5 = xCenter - r5 * COS_PI_BY_6;     double y5 = yCenter + r5 * SIN_PI_BY_6;
         double x6 = xCenter - r6 * COS_PI_BY_6;     double y6 = yCenter - r6 * SIN_PI_BY_6;
-        bufferBuilder.begin(6, DefaultVertexFormat.POSITION_COLOR);
+        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
         bufferBuilder.vertex(xCenter, yCenter, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x1, y1, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x6, y6, 0.0D).color(red, green, blue, alpha).endVertex();
@@ -463,7 +463,7 @@ public class StandStatsRenderer {
         Tesselator.getInstance().end();
 
         if (r1 > 0 && r6 <= 0 && r2 <= 0) {
-            bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(x1 + 2,                    yCenter + 2,                0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x1 + 2,                    y1,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2,               y1,                         0.0D).color(red, green, blue, alpha).endVertex();
@@ -487,7 +487,7 @@ public class StandStatsRenderer {
             Tesselator.getInstance().end();
         }
         if (r4 > 0 && r3 <= 0 && r5 <= 0) {
-            bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.vertex(xCenter - 2,               yCenter - 2,                0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(xCenter - 2,               y4,                         0.0D).color(red, green, blue, alpha).endVertex();
             bufferBuilder.vertex(x4 + 2,                    y4,                         0.0D).color(red, green, blue, alpha).endVertex();

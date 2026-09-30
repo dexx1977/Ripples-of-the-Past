@@ -313,7 +313,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
         int windowX = getWindowX();
         int windowY = getWindowY();
         
-        volumeWheel.render(matrixStack, mouseX, mouseY, partialTick);
+        volumeWheel.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTick);
         
         GuiDraw.blit(matrixStack, windowX, windowY, 0, 0, imageWidth, imageHeight);
 

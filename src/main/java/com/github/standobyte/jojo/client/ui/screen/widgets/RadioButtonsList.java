@@ -58,7 +58,7 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         for (Button button : radioButtons) {
-            button.render(matrixStack, mouseX, mouseY, partialTicks);
+            button.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
         }
     }
     

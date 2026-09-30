@@ -419,8 +419,8 @@ public class HamonUtil {
             boolean fromBlocks = false;
             
             AABB hitbox = entity.getBoundingBox();
-            BlockPos posMin = new BlockPos(hitbox.minX + 0.001D, hitbox.minY + 0.001D, hitbox.minZ + 0.001D);
-            BlockPos posMax = new BlockPos(hitbox.maxX - 0.001D, hitbox.maxY - 0.001D, hitbox.maxZ - 0.001D);
+            BlockPos posMin = BlockPos.containing(hitbox.minX + 0.001D, hitbox.minY + 0.001D, hitbox.minZ + 0.001D);
+            BlockPos posMax = BlockPos.containing(hitbox.maxX - 0.001D, hitbox.maxY - 0.001D, hitbox.maxZ - 0.001D);
             BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
             if (world.hasChunksAt(posMin, posMax)) {
                 for (int x = posMin.getX(); x <= posMax.getX() && protectedFromDamage; ++x) {

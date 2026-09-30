@@ -88,7 +88,7 @@ public class ChooseLifeformListScreen extends ChooseLifeformScreen {
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
 //        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         
-        mobList.render(matrixStack, mouseX, mouseY, partialTicks);
+        mobList.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
         Component animalsName = Component.translatable("gold_experience.lifeforms.animals").withStyle(ChatFormatting.BOLD);
         GuiDraw.drawString(matrixStack, minecraft.font, animalsName, mobList.getLeft() + (mobList.getWidth() - minecraft.font.width(animalsName)) / 2, mobList.getTop() - 16, 0xFFFFFF);
 

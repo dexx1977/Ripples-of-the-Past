@@ -210,7 +210,7 @@ public abstract class HamonTabGui extends AbstractGui {
     private void renderButtons(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         if (!screen.mouseInsideWindow(mouseX, mouseY)) mouseY = -1;
         for (IExtendedWidget button : getWidgets()) {
-            button.thisAsWidget().render(matrixStack, mouseX, mouseY, partialTick);
+            button.thisAsWidget().render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTick);
         }
     }
     

@@ -221,7 +221,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
     }
     
     public void doTick() {
-        if (this.level.hasChunkAt(new BlockPos(this.getX(), 0.0D, this.getZ()))) {
+        if (this.level.hasChunkAt(BlockPos.containing(this.getX(), 0.0D, this.getZ()))) {
             super.tick();
             this.autoJumpEnabled = this.minecraft.options.autoJump;
         }

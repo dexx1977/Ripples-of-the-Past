@@ -320,10 +320,10 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
 //        chosenLifeformCache = getEntriesUiData(minecraft.player).map(
 //                entityData -> entityData.getGEChosenLifeformType()).orElse(null);
         if (searchField != null) {
-            searchField.render(matrixStack, mouseX, mouseY, partialTicks);
+            searchField.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
         }
         if (filterList != null) {
-            filterList.render(matrixStack, mouseX, mouseY, partialTicks);
+            filterList.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
         }
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         

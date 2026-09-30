@@ -42,8 +42,8 @@ public class MagiciansRedEntity extends StandEntity {
         if (!world.isClientSide() && user.isAlive()
                 && power.isActive() && power.getStandManifestation() instanceof MagiciansRedEntity) {
             AABB userHitbox = user.getBoundingBox();
-            BlockPos pos1 = new BlockPos(userHitbox.minX + 0.001D, userHitbox.minY + 0.001D, userHitbox.minZ + 0.001D);
-            BlockPos pos2 = new BlockPos(userHitbox.maxX - 0.001D, userHitbox.maxY - 0.001D, userHitbox.maxZ - 0.001D);
+            BlockPos pos1 = BlockPos.containing(userHitbox.minX + 0.001D, userHitbox.minY + 0.001D, userHitbox.minZ + 0.001D);
+            BlockPos pos2 = BlockPos.containing(userHitbox.maxX - 0.001D, userHitbox.maxY - 0.001D, userHitbox.maxZ - 0.001D);
             BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
             if (world.hasChunksAt(pos1, pos2)) {
                 for(int x = pos1.getX(); x <= pos2.getX(); ++x) {

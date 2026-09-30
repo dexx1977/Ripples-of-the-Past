@@ -149,7 +149,7 @@ public class GridList<T extends AbstractWidget & GridList.IGridElement> {
         
         for (T element : allElements) {
             if (element.visible) {
-                element.render(matrixStack, mouseX, mouseY, partialTicks);
+                element.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);
             }
         }
         

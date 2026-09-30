@@ -157,8 +157,8 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
             LivingEntity owner = getOwner();
             
             AABB fireAABB = getBoundingBox().move(getDeltaMovement()).inflate(0.5);
-            BlockPos pos1 = new BlockPos(fireAABB.minX, fireAABB.minY, fireAABB.minZ);
-            BlockPos pos2 = new BlockPos(fireAABB.maxX, fireAABB.maxY, fireAABB.maxZ);
+            BlockPos pos1 = BlockPos.containing(fireAABB.minX, fireAABB.minY, fireAABB.minZ);
+            BlockPos pos2 = BlockPos.containing(fireAABB.maxX, fireAABB.maxY, fireAABB.maxZ);
 
             for (int x = pos1.getX(); x <= pos2.getX(); x++) {
                 for (int y = pos1.getY(); y <= pos2.getY(); y++) {

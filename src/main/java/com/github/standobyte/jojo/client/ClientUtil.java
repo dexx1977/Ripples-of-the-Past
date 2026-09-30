@@ -380,7 +380,7 @@ public class ClientUtil {
     }
     
     public static void fillRect(BufferBuilder bufferBuilder, double x, double y, double width, double height, int red, int green, int blue, int alpha) {
-        bufferBuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
+        bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         bufferBuilder.vertex(x + 0 , y + 0, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x + 0 , y + height, 0.0D).color(red, green, blue, alpha).endVertex();
         bufferBuilder.vertex(x + width , y + height, 0.0D).color(red, green, blue, alpha).endVertex();
@@ -401,7 +401,7 @@ public class ClientUtil {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 int[] color = pixelCheck.test(x, y) ? GREEN_PIXEL : RED_PIXEL;
-                bufferBuilder.begin(6, DefaultVertexFormat.POSITION_COLOR);
+                bufferBuilder.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
                 bufferBuilder.vertex(x,   y,   0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
                 bufferBuilder.vertex(x,   y+1, 0.0D).color(color[0], color[1], color[2], color[3]).endVertex();
                 bufferBuilder.vertex(x+1, y+1, 0.0D).color(color[0], color[1], color[2], color[3]).endVertex();

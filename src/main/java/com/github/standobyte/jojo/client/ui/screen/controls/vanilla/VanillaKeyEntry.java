@@ -77,7 +77,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
         this.resetButton.x = pLeft + 190 + 20;
         this.resetButton.y = pTop;
         this.resetButton.active = !this.key.isDefault();
-        this.resetButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        this.resetButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
         this.changeButton.x = pLeft + 105;
         this.changeButton.y = pTop;
         this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
@@ -103,7 +103,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
                     .withStyle(keyCodeModifierConflict ? ChatFormatting.GOLD : ChatFormatting.RED));
         }
 
-        this.changeButton.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        this.changeButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
     }
 
     public List<? extends GuiEventListener> children() {
