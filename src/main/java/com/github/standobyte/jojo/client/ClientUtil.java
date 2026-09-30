@@ -179,7 +179,7 @@ public class ClientUtil {
     }
     
     public static String getCurrentLanguageCode() {
-        return Minecraft.getInstance().getLanguageManager().getSelected().getCode();
+        return Minecraft.getInstance().getLanguageManager().getSelected();
     }
     
     public static boolean isInSinglePlayer() {
@@ -364,7 +364,7 @@ public class ClientUtil {
 
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
+        buffer.begin(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         buffer.vertex(mat, right,    top, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         buffer.vertex(mat,  left,    top, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         buffer.vertex(mat,  left, bottom, zLevel).color(  endRed,   endGreen,   endBlue,   endAlpha).endVertex();
@@ -418,7 +418,7 @@ public class ClientUtil {
         RenderSystem.setShaderTexture(0, playerFace);
 
         GuiDraw.blit(matrixStack, x, y, 16, 16, 16, 16, 128, 128);
-        if (mc.options.getModelParts().contains(PlayerModelPart.HAT)) {
+        if (mc.options.modelParts().contains(PlayerModelPart.HAT)) {
             matrixStack.pushPose();
             matrixStack.translate(x, y, 0);
             matrixStack.scale(9F/8F, 9F/8F, 0);
@@ -433,7 +433,7 @@ public class ClientUtil {
         int backdropColor = mc.options.getBackgroundColor(0.0F);
         if (backdropColor != 0) {
             GuiDraw.fill(matrixStack, x - 2, y - 2, x + width + 2, y + mc.font.lineHeight + 2, 
-                    FastColor.PackedColor.multiply(backdropColor, addAlpha(0xFFFFFF, alpha)));
+                    FastColor.ARGB32.multiply(backdropColor, addAlpha(0xFFFFFF, alpha)));
         }
     }
     
@@ -444,7 +444,7 @@ public class ClientUtil {
     public static void enableGlScissor(float x, float y, float width, float height) {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         Minecraft mc = Minecraft.getInstance();
-        float guiScale = mc.getWindow().calculateScale(mc.options.guiScale, mc.isEnforceUnicode());
+        float guiScale = mc.getWindow().calculateScale(mc.options.guiScale().get(), mc.isEnforceUnicode());
         y = mc.getWindow().getGuiScaledHeight() - y - height;
         
         latestScissorX =        (int) (guiScale * x);

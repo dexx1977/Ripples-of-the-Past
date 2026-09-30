@@ -140,7 +140,13 @@ Known remaining work, roughly in the order it should be tackled:
    source with the explosion flag. 1.20.1 damage properties come from the type and no
    vanilla type is both fire and explosion, so the fire source is kept (same death
    message, still no bleeding) and the explosion flag (blast protection) is lost.
-5. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+5. Removed file: client/render/world/TimeStopWeatherHandler.java (and its now empty
+   directory). It implemented Forge's weather render handlers, which 1.20.1 dropped,
+   but it was already dead code in the 1.16.5 base - the single reference is a
+   commented out field in ClientTimeStopHandler and the class is marked "not used in
+   the code anymore" and deprecated - so no behaviour depended on it and the 1.21.1
+   port no longer has it either. Removal was confirmed with the repository owner.
+6. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
    bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
    change these in 1.20.1, so each call site has to pick a damage type carrying the
    right tags. Still to do.
