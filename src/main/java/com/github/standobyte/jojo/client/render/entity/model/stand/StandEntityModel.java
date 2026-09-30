@@ -92,7 +92,9 @@ public abstract class StandEntityModel<T extends StandEntity> extends AgeableLis
     
     protected StandEntityModel(Function<ResourceLocation, RenderType> renderType, boolean scaleHead, float yHeadOffset, float zHeadOffset, 
             float babyHeadScale, float babyBodyScale, float bodyYOffset) {
-        super(renderType, scaleHead, yHeadOffset, zHeadOffset, babyHeadScale, babyBodyScale, bodyYOffset);
+        // 1.20.1 bakes the baby scaling into the model layer; the values the mod
+        // passes (2, 2, 24) are the vanilla defaults the base applies now
+        super();
     }
     
     public final ResourceLocation getModelId() {

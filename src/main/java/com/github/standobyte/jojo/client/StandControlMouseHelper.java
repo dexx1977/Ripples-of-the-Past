@@ -56,7 +56,7 @@ public class StandControlMouseHelper extends MouseHandler {
             double accumDX = getXVelocity();
             double accumDY = getYVelocity();
             
-            double sensitivity = minecraft.options.sensitivity * 0.6 + 0.2;
+            double sensitivity = minecraft.options.sensitivity().get() * 0.6 + 0.2;
             double velocity = sensitivity * sensitivity * sensitivity * 8.0D;
             double velocityX;
             double velocityY;

@@ -23,7 +23,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 	public final ModelPart bladeLeft;
 
 	public PillarmanBladesModel(boolean slim) {
-		super(0);
+		super(ModelPart.humanoidRoot());
 		texWidth = 16;
 		texHeight = 16;
 

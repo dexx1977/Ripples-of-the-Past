@@ -17,7 +17,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
     public final ModelPart broochBottom;
 
     public LadybugBroochesModel() {
-        super(0);
+        super(ModelPart.humanoidRoot());
         
         texWidth = 64;
         texHeight = 64;

@@ -90,7 +90,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.client.gui.GuiUtils;
 import com.mojang.math.Axis;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
@@ -100,6 +99,11 @@ import com.github.standobyte.jojo.util.mc.MCUtil;
  * otherwise it will crash on dedicated servers
  */
 public class ClientUtil {
+    // the vanilla tooltip colours Forge's GuiUtils used to expose
+    public static final int DEFAULT_BACKGROUND_COLOR = 0xF0100010;
+    public static final int DEFAULT_BORDER_COLOR_START = 0x505000FF;
+    public static final int DEFAULT_BORDER_COLOR_END = 0x5028007F;
+
     // 1.20.1 has no ModelBase, so the texture size the parts are baked
     // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
     protected int texWidth = 64;
@@ -322,7 +326,7 @@ public class ClientUtil {
     
     public static void drawTooltipRectangle(PoseStack matrixStack, int x, int y, int width, int height) {
         drawTooltipRectangle(matrixStack, x, y, width, height, 
-                GuiUtils.DEFAULT_BACKGROUND_COLOR, GuiUtils.DEFAULT_BORDER_COLOR_START, GuiUtils.DEFAULT_BORDER_COLOR_END, 400);
+                DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_COLOR_START, DEFAULT_BORDER_COLOR_END, 400);
     }
 
     @SuppressWarnings("deprecation")

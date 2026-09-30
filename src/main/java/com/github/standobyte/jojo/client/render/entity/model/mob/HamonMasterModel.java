@@ -30,7 +30,7 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
     private final ModelPart lowLeftCape;
     
     public HamonMasterModel(boolean isExtraLayer) {
-        super(0, 0, 64, 64);
+        super(ModelPart.humanoidRoot());
         
         
         // emulating PlayerModel

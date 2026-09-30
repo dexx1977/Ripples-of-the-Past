@@ -149,6 +149,18 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         return this;
     }
 
+    /**
+     * A root part carrying the children a HumanoidModel looks up by name, for the
+     * models that build their own parts and assign them afterwards.
+     */
+    public static ModelPart humanoidRoot() {
+        ModelPart root = new ModelPart((Object) null, 0, 0);
+        for (String name : new String[] {"head", "hat", "body", "right_arm", "left_arm", "right_leg", "left_leg"}) {
+            root.children.put(name, new ModelPart(root, 0, 0));
+        }
+        return root;
+    }
+
     /** Attaches a child to a part of any model, including inherited vanilla parts. */
     public static void addChild(net.minecraft.client.model.geom.ModelPart parent, ModelPart child) {
         parent.children.put("part_" + parent.children.size(), child);

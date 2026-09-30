@@ -1096,28 +1096,28 @@ public class InputHandler {
     @SubscribeEvent
     public void setMouseSensitivity(ClientTickEvent event) {
         if (mc.player == null) {
-            if (mc.options.sensitivity <= ZERO_SENSITIVITY) {
-                mc.options.sensitivity = prevSensitivity;
+            if (mc.options.sensitivity().get() <= ZERO_SENSITIVITY) {
+                mc.options.sensitivity().set(prevSensitivity);
             }
             return;
         }
         
         if (ModStatusEffects.isStunned(mc.player)) {
             if (!wasStunned) {
-                prevSensitivity = mc.options.sensitivity;
+                prevSensitivity = mc.options.sensitivity().get();
                 wasStunned = true;
             }
-            mc.options.sensitivity = ZERO_SENSITIVITY;
+            mc.options.sensitivity().set(ZERO_SENSITIVITY);
             return;
         }
         else if (wasStunned) {
-            mc.options.sensitivity = prevSensitivity;
+            mc.options.sensitivity().set(prevSensitivity);
             wasStunned = false;
         }
         
         boolean invert = mc.player.hasEffect(ModStatusEffects.MISSHAPEN_FACE.get());
-        if (invert ^ mc.options.sensitivity < 0) {
-            mc.options.sensitivity = -mc.options.sensitivity + ZERO_SENSITIVITY * 2;
+        if (invert ^ mc.options.sensitivity().get() < 0) {
+            mc.options.sensitivity().set(-mc.options.sensitivity().get() + ZERO_SENSITIVITY * 2);
         }
     }
     
