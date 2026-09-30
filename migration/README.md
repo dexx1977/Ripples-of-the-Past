@@ -108,6 +108,7 @@ Compilation is the current gate; the counts below are javac errors from
 | Remaining damage sources, isRemoved, texture binding calls | 2,200 |
 | HUD overlays on RegisterGuiOverlaysEvent/RenderGuiOverlayEvent | 2,131 |
 | Walk animation state, child attachment, sound attenuation, texture binds | 2,124 |
+| Custom buttons (renderWidget), widget Tooltips, scene translate calls | 2,073 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
