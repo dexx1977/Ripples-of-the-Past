@@ -130,7 +130,7 @@ public abstract class StandEntityModel<T extends StandEntity> extends AgeableLis
     }
     
     protected void clearAllCubes(ModelPart modelPart) {
-        modelPart.cubes.clear();
+        modelPart.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
         modelPart.children.values().forEach(child -> clearAllCubes((ModelPart) child));
     }
     

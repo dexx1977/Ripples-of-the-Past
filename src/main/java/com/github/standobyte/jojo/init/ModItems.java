@@ -228,7 +228,7 @@ public class ModItems {
             () -> new com.github.standobyte.jojo.item.CustomIconItemBase(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", 
-            () -> new com.github.standobyte.jojo.item.CustomIconItemBase(new Item.Properties().rarity(Rarity.UNCOMMON)));
+            () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON))); // like 1.16.5, only the scrap has a custom icon renderer
 
     public static final RegistryObject<StandArrowItem> STAND_ARROW = ITEMS.register("stand_arrow", 
             () -> new StandArrowItem(new Item.Properties().rarity(Rarity.UNCOMMON).durability(25), 10, false));

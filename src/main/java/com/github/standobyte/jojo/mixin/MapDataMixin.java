@@ -23,8 +23,8 @@ import net.minecraft.world.level.saveddata.maps.MapDecoration;
 public abstract class MapDataMixin implements IMapDataMixin {
     @Shadow @Final public int centerX;
     @Shadow @Final public int centerZ;
-    @Shadow public ResourceKey<Level> dimension;
-    @Shadow public byte scale;
+    @Shadow @Final public ResourceKey<Level> dimension;
+    @Shadow @Final public byte scale;
     @Shadow @Final public Map<String, MapDecoration> decorations;
     
     @Inject(method = "tickCarriedBy", at = @At("TAIL"))

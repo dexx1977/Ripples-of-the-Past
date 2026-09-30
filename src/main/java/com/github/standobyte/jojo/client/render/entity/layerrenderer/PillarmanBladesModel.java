@@ -30,7 +30,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 
 		// the arms are the vanilla humanoid parts, which are already baked with the
 		// skin's texture size; the blades read their size from this model
-		rightArm.cubes.clear();
+		rightArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
 
 		bladeRight = new ModelPart(this);
 		bladeRight.setPos(-0.9F, 9.0F, 5.9F);
@@ -42,7 +42,7 @@ public class PillarmanBladesModel<T extends LivingEntity> extends HumanoidModel<
 		bladeRight.texOffs(6, 11).addBox(0.2F, -3.8F, -7.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
 
 		// see above
-		leftArm.cubes.clear();
+		leftArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
 		
 
 		bladeLeft = new ModelPart(this);

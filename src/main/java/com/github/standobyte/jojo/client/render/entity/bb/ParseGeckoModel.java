@@ -114,8 +114,7 @@ public class ParseGeckoModel {
                             modelCubes.add(cubeParsed.makeModelBox(texWidth, texHeight, this));
                         }
                     }
-                    modelPart.cubes.clear();
-                    modelPart.cubes.addAll(modelCubes);
+                    modelPart.cubes = new java.util.ArrayList<>(modelCubes); // baked cuboid lists are immutable in 1.20.1
                 }
                 
                 return modelPart;

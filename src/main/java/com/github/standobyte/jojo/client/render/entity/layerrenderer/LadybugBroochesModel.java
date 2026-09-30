@@ -22,7 +22,7 @@ public class LadybugBroochesModel<T extends LivingEntity> extends HumanoidModel<
         texWidth = 64;
         texHeight = 64;
 
-        body.cubes.clear();
+        body.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
         
         broochRight = new ModelPart(this);
         broochRight.setPos(-2.85F, 4.625F, -2.4F);

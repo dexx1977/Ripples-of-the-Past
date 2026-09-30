@@ -90,18 +90,18 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
         leftCape.addChild(lowLeftCape);
         
         if (isExtraLayer) {
-            head.cubes.clear();
-            hat.cubes.clear();
-            body.cubes.clear();
-            jacket.cubes.clear();
-            leftArm.cubes.clear();
-            leftSleeve.cubes.clear();
-            rightArm.cubes.clear();
-            rightSleeve.cubes.clear();
-            leftLeg.cubes.clear();
-            leftPants.cubes.clear();
-            rightLeg.cubes.clear();
-            rightPants.cubes.clear();
+            head.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            hat.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            body.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            jacket.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            leftArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            leftSleeve.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            rightArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            rightSleeve.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            leftLeg.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            leftPants.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            rightLeg.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+            rightPants.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
             
 //            body.texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 2.0F, 4.0F, 0.2F, false);
 //            body.texOffs(21, 22).addBox(-3.0F, 1.9F, -2.1F, 6.0F, 3.0F, 0.0F, 0.0F, false);

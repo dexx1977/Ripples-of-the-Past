@@ -28,8 +28,7 @@ public class BreathControlMaskModel extends HumanoidModel<LivingEntity> {
         maskHead.setTexSize(texWidth, texHeight);
         maskHead.texOffs(0, 0).addBox(-4.0F, -3.0F, -4.0F, 8.0F, 3.0F, 3.0F, 0.4F, false);
         maskHead.texOffs(22, 0).addBox(-1.0F, -2.0F, -5.0F, 2.0F, 2.0F, 1.0F, 0.6F, false);
-        head.cubes.clear();
-        head.cubes.addAll(maskHead.cubesMutable());
+        head.cubes = new java.util.ArrayList<>(maskHead.cubesMutable()); // baked cuboid lists are immutable in 1.20.1
         head.setPos(0.0F, 0.0F, 0.0F);
     }
     

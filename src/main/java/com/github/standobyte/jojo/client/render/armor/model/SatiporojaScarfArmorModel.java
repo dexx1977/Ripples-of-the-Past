@@ -25,7 +25,7 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
         super(ModelPart.humanoidRoot(size));
         texWidth = 32;
         texHeight = 32;
-        head.cubes.clear();
+        head.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
         head.setPos(0.0F, 0.5F, 0.0F);
         setRotationAngle(head, 0.0873F, 0.0F, 0.0F);
         // a baked vanilla part has no texture offset setter, so the scarf is built
@@ -35,8 +35,7 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
         scarfHead.texOffs(0, 7).addBox(-4.5F, -1.2F, -2.5F, 9.0F, 1.0F, 5.0F, 0.0F, false);
         scarfHead.texOffs(0, 0).addBox(-4.5F, 0.0F, -2.6F, 9.0F, 2.0F, 5.0F, 0.2F, false);
         scarfHead.texOffs(0, 13).addBox(-4.1F, -0.5F, -3.5F, 3.0F, 11.0F, 1.0F, -0.3F, false);
-        head.cubes.clear();
-        head.cubes.addAll(scarfHead.cubesMutable());
+        head.cubes = new java.util.ArrayList<>(scarfHead.cubesMutable()); // baked cuboid lists are immutable in 1.20.1
     }
 
     @Override

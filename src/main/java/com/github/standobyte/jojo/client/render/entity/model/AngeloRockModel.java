@@ -1014,7 +1014,7 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
             net.minecraft.client.model.geom.ModelPart modelPart = modelPartEntry.getKey();
             if (modelPart.visible) {
                 List<ModelPart.Cube> allCubes = modelPartEntry.getValue();
-                modelPart.cubes.clear();
+                modelPart.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
                 allCubes.stream().filter(visibleCubes::contains).forEach(modelPart.cubes::add);
             }
         }

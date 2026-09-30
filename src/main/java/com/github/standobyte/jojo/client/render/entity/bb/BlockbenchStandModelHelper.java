@@ -110,7 +110,7 @@ public class BlockbenchStandModelHelper {
             field.setAccessible(true);
             ModelPart declaredPartNotInGecko = (ModelPart) field.get(inModModel);
             if (declaredPartNotInGecko != null) {
-                declaredPartNotInGecko.cubes.clear();
+                declaredPartNotInGecko.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
                 declaredPartNotInGecko.children.clear();
             }
         }
@@ -142,8 +142,7 @@ public class BlockbenchStandModelHelper {
                     
                     inModPartField.setAccessible(true);
                     ModelPart inModModelPart = (ModelPart) inModPartField.get(inModModel);
-                    inModModelPart.cubes.clear();
-                    inModModelPart.cubes.addAll(blockbenchPart.cubes);
+                    inModModelPart.cubes = new java.util.ArrayList<>(blockbenchPart.cubes); // baked cuboid lists are immutable in 1.20.1
                     
                     it.remove();
                 }

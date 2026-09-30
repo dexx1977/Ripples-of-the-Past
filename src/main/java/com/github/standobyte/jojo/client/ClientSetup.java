@@ -502,7 +502,8 @@ public class ClientSetup {
     
     
     @SubscribeEvent
-    public static void onModelBake(ModelEvent.BakingCompleted event) {
+    public static void onModelBake(ModelEvent.ModifyBakingResult event) {
+        // 1.20.1 only allows replacing models here, the completed map is read only
         Map<ResourceLocation, BakedModel> registry = event.getModels();
         registerCustomBakedModel(MCUtil.id(ModItems.ROAD_ROLLER.get()), registry,                model -> new RoadRollerBakedModel(model));
         registerCustomBakedModel(MCUtil.id(ModItems.STAND_DISC.get()), registry,                 model -> new StandDiscISTERModel(model));

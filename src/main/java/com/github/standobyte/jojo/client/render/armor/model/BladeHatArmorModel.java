@@ -44,7 +44,7 @@ public class BladeHatArmorModel extends HumanoidModel<LivingEntity> {
         hat.texOffs(0, 0).addBox(-4.0F, 0.0F, -6.0F, 8.0F, 0.0F, 12.0F, 0.0F, false);
         
         // the head is a vanilla baked part; the hat keeps the model texture size
-        head.cubes.clear();
+        head.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
         head.children.put("hat", hat);
 
         cube_r1 = new ModelPart(this);

@@ -628,26 +628,26 @@ public class ClientUtil {
     
     @Deprecated
     public static void clearCubes(ModelPart modelRenderer) {
-        modelRenderer.cubes.clear();
+        modelRenderer.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
     }
     
     public static void clearBipedCubes(HumanoidModel<?> model) {
-        model.head.cubes.clear();
-        model.body.cubes.clear();
-        model.leftArm.cubes.clear();
-        model.rightArm.cubes.clear();
-        model.leftLeg.cubes.clear();
-        model.rightLeg.cubes.clear();
+        model.head.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.body.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.leftArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.rightArm.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.leftLeg.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.rightLeg.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
     }
     
     public static void clearBipedCubes(PlayerModel<?> model) {
         clearBipedCubes((HumanoidModel<?>) model);
-        model.hat.cubes.clear();
-        model.jacket.cubes.clear();
-        model.leftSleeve.cubes.clear();
-        model.rightSleeve.cubes.clear();
-        model.leftPants.cubes.clear();
-        model.rightPants.cubes.clear();
+        model.hat.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.jacket.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.leftSleeve.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.rightSleeve.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.leftPants.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
+        model.rightPants.cubes = new java.util.ArrayList<>(); // baked cuboid lists are immutable in 1.20.1
     }
     
     public static void editLatestCube(ModelPart modelRenderer, Consumer<ModelPart.Cube> edit) {

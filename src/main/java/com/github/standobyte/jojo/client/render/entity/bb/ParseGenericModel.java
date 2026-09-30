@@ -473,8 +473,7 @@ public class ParseGenericModel {
                     for (ModelParsed.BlockbenchObj child : group.children) {
                         addBlockbenchObjectRecursive(model, child, childModelCubes, modelPart, group);
                     }
-                    modelPart.cubes.clear();
-                    modelPart.cubes.addAll(childModelCubes);
+                    modelPart.cubes = new java.util.ArrayList<>(childModelCubes); // baked cuboid lists are immutable in 1.20.1
                 }
             }
             else if (bbObj instanceof ModelParsed.ElementUUID && parent != null) {

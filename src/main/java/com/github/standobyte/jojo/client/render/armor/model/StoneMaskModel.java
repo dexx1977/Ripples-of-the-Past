@@ -27,8 +27,7 @@ public class StoneMaskModel extends HumanoidModel<LivingEntity> {
         ModelPart maskHead = new ModelPart(this);
         maskHead.setTexSize(texWidth, texHeight);
         maskHead.texOffs(2, 2).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 6.0F, 0.55F, false);
-        head.cubes.clear();
-        head.cubes.addAll(maskHead.cubesMutable());
+        head.cubes = new java.util.ArrayList<>(maskHead.cubesMutable()); // baked cuboid lists are immutable in 1.20.1
         head.setPos(0.0F, 0.0F, 0.0F);
     }
     

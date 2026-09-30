@@ -411,13 +411,6 @@ public class ClientReflection {
     }
     
     
-    private static final Field ITEM_OVERRIDE_LIST_OVERRIDES = ObfuscationReflectionHelper.findField(ItemOverrides.class, "f_111735_");
-    public static List<ItemOverride> getOverrides(ItemOverrides itemOverrideList) {
-        return ReflectionUtil.getFieldValue(ITEM_OVERRIDE_LIST_OVERRIDES, itemOverrideList);
-    }
-    
-    private static final Field ITEM_OVERRIDE_LIST_OVERRIDE_MODELS = ObfuscationReflectionHelper.findField(ItemOverrides.class, "f_111735_");
-    public static List<BakedModel> getOverrideModels(ItemOverrides itemOverrideList) {
-        return ReflectionUtil.getFieldValue(ITEM_OVERRIDE_LIST_OVERRIDE_MODELS, itemOverrideList);
-    }
+    // 1.20.1 bakes the item overrides into ItemOverrides$BakedOverride[], so the item
+    // model wrapper resolves through them instead of patching the baked models.
 }

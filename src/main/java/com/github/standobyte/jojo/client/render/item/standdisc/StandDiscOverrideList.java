@@ -52,7 +52,9 @@ public class StandDiscOverrideList extends ItemOverrides {
     
     public static ResourceLocation makeStandSpecificModelPath(StandType<?> standType) {
         ResourceLocation id = standType.getRegistryName();
-        return new ResourceLocation(id.getNamespace(), "item/stand_disc_" + id.getPath());
+        // 1.20.1 resolves an inventory model as models/item/<path>.json, so the
+        // location must not repeat the item folder
+        return new ResourceLocation(id.getNamespace(), "stand_disc_" + id.getPath());
     }
     
 }
