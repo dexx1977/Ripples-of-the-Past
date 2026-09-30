@@ -75,31 +75,31 @@ public class FlameModelRenderer extends ModelPart {
         if (!renderingUI) {
             Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             float cameraXRot = camera.getXRot();
-            lightNormal.mul(-1.0F);
-            Axis.XP.rotationDegrees(cameraXRot).transform(lightNormal);
+            lightNormal.scale(-1.0F);
+            lightNormal.rotate(Axis.XP.rotationDegrees(cameraXRot));
         }
         switch (flameDirection) {
         case UP:
             matrixStack.mulPose(Axis.XP.rotationDegrees(180));
             break;
         case DOWN:
-            Axis.XP.rotationDegrees(180).transform(lightNormal);
+            lightNormal.rotate(Axis.XP.rotationDegrees(180));
             break;
         case NORTH:
             matrixStack.mulPose(Axis.XN.rotationDegrees(90));
-            Axis.XN.rotationDegrees(90).transform(lightNormal);
+            lightNormal.rotate(Axis.XN.rotationDegrees(90));
             break;
         case EAST:
             matrixStack.mulPose(Axis.ZP.rotationDegrees(90));
-            Axis.ZP.rotationDegrees(90).transform(lightNormal);
+            lightNormal.rotate(Axis.ZP.rotationDegrees(90));
             break;
         case SOUTH:
             matrixStack.mulPose(Axis.XP.rotationDegrees(90));
-            Axis.XP.rotationDegrees(90).transform(lightNormal);
+            lightNormal.rotate(Axis.XP.rotationDegrees(90));
             break;
         case WEST:
             matrixStack.mulPose(Axis.ZN.rotationDegrees(90));
-            Axis.ZN.rotationDegrees(90).transform(lightNormal);
+            lightNormal.rotate(Axis.ZN.rotationDegrees(90));
             break;
         }
         
