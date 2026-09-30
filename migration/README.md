@@ -146,7 +146,11 @@ Known remaining work, roughly in the order it should be tackled:
    commented out field in ClientTimeStopHandler and the class is marked "not used in
    the code anymore" and deprecated - so no behaviour depended on it and the 1.21.1
    port no longer has it either. Removal was confirmed with the repository owner.
-6. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+6. Approximation: the stand chat message used ForgeHooks.onServerChatEvent to let other
+   mods rewrite the text. 1.20.1 fires the chat event on the server side instead, and a
+   signed player chat message cannot be forged, so this synthetic message is built and
+   broadcast as a system message with the stand's name.
+7. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
    bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
    change these in 1.20.1, so each call site has to pick a damage type carrying the
    right tags. Still to do.
