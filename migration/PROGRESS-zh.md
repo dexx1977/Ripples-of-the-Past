@@ -129,6 +129,29 @@ say [ROTP-TEST] done
 
 后续可选方案：**用生产 jar 在真实 1.20.1 实例中测试（推荐）**；或在 dev 中把该库放进模块层（如给 modLocator 添加 library jar、或调整 ForgeGradle 的运行类路径）。
 
+## 6.4 客户端实测补充（真实 HMCL 实例 + 产物 jar）
+
+用户在自己的 1.20.1-Forge 实例中加载产物 jar 进入单人世界，暴露并修复了以下（全部为移植回归，非旧版既有问题）：
+
+| 现象 | 根因 | 处理 |
+| --- | --- | --- |
+| 进入世界崩溃：`Failed to create model for jojo:coco_jumbo_turtle` → `NPE: Set.size() ... is null` | 三个自定义立方体（`MeshModelBox`/`SlopeModelBox`/`CustomVerticesModelBox`）向 1.20.1 的 `ModelPart.Cube` 构造器传了 `null` 可见面集合 | 传 `EnumSet.allOf(Direction.class)`；父类 `polygons` 随后仍被 builder 覆盖，自定义网格行为不变 |
+| 同一模型再次崩溃：`UnsupportedOperationException`（`CocoJumboTurtleModel:29`） | 1.20.1 烘焙后的立方体列表不可变，`getCubes(body).set(0, …)` 失败 | 在可变副本中替换第一个立方体后再赋回（保持 1.16.5「替换壳体立方体」语义） |
+
+修复后 dev 客户端单人世界实测：`Preparing spawn` → `[ROTP-TEST] start/done` → `Dev joined the game`，**0 次模组崩溃**、0 次 `Failed to create model`。
+
+## 6.5 资源引用静态审计
+
+新增脚本式审计（扫描全部 `models/**/*.json` 的贴图引用与 `sounds.json` 的音频引用），结果：
+
+| 项目 | 结论 |
+| --- | --- |
+| item 模型引用模组贴图目录（`action/`、`icons/`、`power/`、`hamon/`、`mob_effect/`、`entity/projectiles/`） | **1.20.1 回归**：1.20.1 不再把模型引用的贴图自动并入方块图集。已新增 `assets/minecraft/atlases/blocks.json` 声明这些目录（Forge 会合并各资源包的图集定义，不会覆盖原版） |
+| 9 个 `stand_disc_<stand>.json` 缺失警告 | 这些模型 1.16.5 与 1.21.1 参考版都不附带（设计上由资源包提供）。改为**仅在资源存在时**向模型注册表请求，消除警告且保留资源包支持 |
+| `jojo:item/road_roller`、`jojo:item/squid_ink_pasta`、`jojo:block/mr_president_gem` 贴图缺失 | **1.16.5 基线同样缺失**（非回归），仅记录 |
+| `jojo_clothes:*` 贴图缺失 | 属于外部「衣服」资源包，非本模组资源（非回归） |
+| `cassette_*` 等 29 个声音事件缺音频 | **1.16.5 基线同样没有对应 `sounds.json` 条目与 ogg 文件**（非回归），仅记录 |
+
 ## 7. 本轮修复的运行时缺陷（编译通过后暴露）
 
 | 现象 | 根因 | 处理 |

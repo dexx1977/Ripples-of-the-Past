@@ -94,6 +94,15 @@ the built jar into a real 1.20.1 Forge instance (plus playerAnimator and
 bendy-lib, which the mod declares as optional) instead of running from the dev
 workspace.
 
+A real client run on a user instance with the released jar (case 4) found two
+more crashes, both port regressions: the three custom cube subclasses passed a
+null visible face set to the 1.20.1 cube constructor, and the turtle model then
+mutated an immutable baked cube list. A static asset audit (every model texture
+reference and every sounds.json entry) showed that 1.20.1 no longer adds model
+referenced textures to the block atlas, so the mod now declares its icon
+directories there; the remaining gaps (three textures, the jojo_clothes pack and
+the cassette audio) exist in the 1.16.5 baseline as well.
+
 Runtime defects found and fixed by these runs are listed in
 [`PROGRESS-zh.md`](PROGRESS-zh.md) section 7 (resource location validation,
 dimension data, reflection SRG names, item renderer dispatch, immutable model
