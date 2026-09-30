@@ -126,12 +126,12 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
     }
 
     @Override
-    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float partialTick, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, TransformType type, float partialTick, Vec3f value0) {
         float tick = getPlayerAnimatorLoopTick(partialTick);
         return get3DTransform(modelName, type, (int) tick, tick - (int) tick, value0);
     }
     
-    private Vec3f get3DTransform(String modelName, ItemDisplayContext type, int tick, float partialTick, Vec3f value0) {
+    private Vec3f get3DTransform(String modelName, TransformType type, int tick, float partialTick, Vec3f value0) {
         Vec3f vec;
         BodyPart part = bodyParts.get(modelName);
         if (part == null) return value0;

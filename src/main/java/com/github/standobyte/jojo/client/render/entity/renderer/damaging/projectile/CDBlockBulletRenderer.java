@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
 public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEntity, CDBlockBulletModel> {
 
@@ -50,7 +50,7 @@ public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEnt
     @Nullable
     public static ResourceLocation getBlockTexture(BlockState blockState) {
         BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(blockState);
-        List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, RANDOM, EmptyModelData.INSTANCE);
+        List<BakedQuad> quads = blockModel.getQuads(blockState, Direction.NORTH, RANDOM, ModelData.EMPTY);
         if (!quads.isEmpty()) {
             TextureAtlasSprite sprite = quads.get(0).getSprite();
             return getSpriteTexture(sprite).orElse(null);

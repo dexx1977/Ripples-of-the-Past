@@ -861,7 +861,7 @@ public class MCUtil {
             sound = event.getSound();
             category = event.getSource();
             volume = event.getOriginalVolume();
-            pitch = event.getPitch();
+            pitch = event.getOriginalPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
                             new ClientboundSoundPacket(sound, category, x, y, z, volume, pitch), condition);
@@ -885,7 +885,7 @@ public class MCUtil {
             sound = event.getSound();
             category = event.getSource();
             volume = event.getOriginalVolume();
-            pitch = event.getPitch();
+            pitch = event.getOriginalPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
                     entity.getX(), entity.getY(), entity.getZ(), volume > 1.0F ? (double)(16.0F * volume) : 16.0D, world, 
                             new ClientboundSoundEntityPacket(sound, category, entity, volume, pitch), condition);

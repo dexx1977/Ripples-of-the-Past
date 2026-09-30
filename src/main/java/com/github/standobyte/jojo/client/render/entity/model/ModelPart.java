@@ -78,6 +78,16 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
      * Reads the texture size the owning model declared, like the old
      * {@code ModelRenderer(ModelBase)} constructor did.
      */
+    /** The texture width the owning model declared, or the 64 pixel default. */
+    public static int textureWidthOf(@Nullable Object owner) {
+        return textureSizeOf(owner)[0];
+    }
+
+    /** The texture height the owning model declared, or the 64 pixel default. */
+    public static int textureHeightOf(@Nullable Object owner) {
+        return textureSizeOf(owner)[1];
+    }
+
     private static int[] textureSizeOf(@Nullable Object owner) {
         int width = DEFAULT_TEX_SIZE;
         int height = DEFAULT_TEX_SIZE;

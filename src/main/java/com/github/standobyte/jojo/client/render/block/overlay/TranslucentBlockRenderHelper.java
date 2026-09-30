@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.block.overlay;
 
+import net.minecraftforge.client.model.data.ModelData;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -24,7 +25,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 
 // A helper class for rendering translucent blocks overlay
@@ -71,7 +71,7 @@ public class TranslucentBlockRenderHelper {
             BlockPos pos = block.pos;
             BlockState blockState = block.state;
             IModelData tileData = ModelDataManager.getModelData(mc.level, pos);
-            if (tileData == null) tileData = EmptyModelData.INSTANCE;
+            if (tileData == null) tileData = ModelData.EMPTY;
             IModelData model = renderer.getBlockModel(blockState).getModelData(mc.level, pos, blockState, tileData);
             matrixStack.pushPose();
             matrixStack.translate(

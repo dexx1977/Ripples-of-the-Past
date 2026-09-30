@@ -187,7 +187,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.TickEvent.WorldTickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
@@ -217,9 +217,9 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.ChunkWatchEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.Event.Result;
@@ -291,7 +291,7 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void replaceStrayArrow(EntityJoinWorldEvent event) {
+    public static void replaceStrayArrow(EntityJoinLevelEvent event) {
         Entity newEntity = event.getEntity();
         if (newEntity instanceof Arrow) {
             Arrow arrow = (Arrow) newEntity;
@@ -387,7 +387,7 @@ public class GameplayEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
+    public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && entity instanceof Mob) {
             VampirismUtil.editMobAiGoals((Mob) entity);
@@ -1350,7 +1350,7 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onProjectileShot(EntityJoinWorldEvent event) {
+    public static void onProjectileShot(EntityJoinLevelEvent event) {
         HamonUtil.chargeNewEntity(event.getEntity(), event.getWorld());
     }
     

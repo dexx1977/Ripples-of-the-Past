@@ -395,7 +395,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
         if (event.isCanceled() || event.getSound() == null) return;
         pSound = event.getSound();
         pVolume = event.getOriginalVolume();
-        pPitch = event.getPitch();
+        pPitch = event.getOriginalPitch();
         this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), pSound, this.getSoundSource(), pVolume, pPitch, false);
     }
 

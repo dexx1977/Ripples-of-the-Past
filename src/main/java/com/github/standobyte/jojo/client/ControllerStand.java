@@ -154,7 +154,7 @@ public class ControllerStand {
         player.xBobO = player.xBob;
         player.xBob = (float)((double)player.xBob + (double)(player.xRot - player.xBob) * 0.5D);
         player.yBob = (float)((double)player.yBob + (double)(player.yRot - player.yBob) * 0.5D);
-        PoseStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getPoseStack();
         MultiBufferSource buffer = event.getBuffers();
         float partialTick = event.getPartialTicks();
         int light = mc.getEntityRenderDispatcher().getPackedLightCoords(stand, partialTick);

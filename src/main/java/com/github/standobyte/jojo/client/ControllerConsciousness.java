@@ -161,7 +161,7 @@ public class ControllerConsciousness {
     @SubscribeEvent
     public void checkPlayerFrustum(RenderLevelStageEvent event) {
         if (isControllingConsciousnessEntity()) {
-            getCsnsEntity().checkPlayerFrustum(event.getMatrixStack(), 
+            getCsnsEntity().checkPlayerFrustum(event.getPoseStack(), 
                     event.getProjectionMatrix(), mc.gameRenderer.getMainCamera().getPosition());
         }
     }

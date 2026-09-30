@@ -26,7 +26,7 @@ public class KosmXArmsRotationModifier extends AbstractModifier {
     }
 
     @Override
-    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
         Vec3f transform = super.get3DTransform(modelName, type, tickDelta, value0);
         if (isActive() && type == TransformType.ROTATION && (
                 arms.contains(HumanoidArm.LEFT) && "leftArm".equals(modelName)

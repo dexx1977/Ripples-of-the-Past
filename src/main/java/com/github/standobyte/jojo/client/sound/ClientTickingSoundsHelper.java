@@ -59,7 +59,7 @@ public abstract class ClientTickingSoundsHelper {
         soundEvent = event.getSound();
         category = event.getSource();
         volume = event.getOriginalVolume();
-        pitch = event.getPitch();
+        pitch = event.getOriginalPitch();
 
         SoundInstance sound = new EntityBoundSoundInstance(soundEvent, category, volume, pitch, entity);
         if (entity instanceof AbstractClientPlayer && GeneralUtil.orElseFalse(entity.getCapability(ClientPlayerUtilCapProvider.CAPABILITY), cap -> {
@@ -102,7 +102,7 @@ public abstract class ClientTickingSoundsHelper {
         sound = event.getSound();
         category = event.getSource();
         volume = event.getOriginalVolume();
-        pitch = event.getPitch();
+        pitch = event.getOriginalPitch();
         
         SoundInstance soundPlayed = new StoppableEntityTickableSound<StandEntity>(sound, category, volume, pitch, looping, stand, 
                 e -> e.getCurrentTaskAction() == action && (phase == null || e.getCurrentTaskPhase().map(stPhase -> stPhase == phase).orElse(false)));
@@ -121,7 +121,7 @@ public abstract class ClientTickingSoundsHelper {
         sound = event.getSound();
         category = event.getSource();
         volume = event.getOriginalVolume();
-        pitch = event.getPitch();
+        pitch = event.getOriginalPitch();
         
         StandCrySoundHandler.create(category, volume, pitch, false, stand, 
                 e -> e.getCurrentTaskAction() == action && (phase == null || e.getCurrentTaskPhase().map(stPhase -> stPhase == phase).orElse(false)),
@@ -143,7 +143,7 @@ public abstract class ClientTickingSoundsHelper {
                 sound = event.getSound();
                 category = event.getSource();
                 volume = event.getOriginalVolume();
-                pitch = event.getPitch();
+                pitch = event.getOriginalPitch();
 
                 mc.getSoundManager().play(new StandUnsummonTickableSound(sound, category, volume, pitch, user, stand));
             }

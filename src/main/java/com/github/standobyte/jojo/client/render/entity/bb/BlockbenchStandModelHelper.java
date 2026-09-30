@@ -56,8 +56,8 @@ public class BlockbenchStandModelHelper {
             JojoMod.getLogger().error("Failed to add model parts to {} via Blockbench helper", inModModel.getClass().getName(), e);
         }
         
-        inModModel.texWidth = bbSourceModel.texWidth;
-        inModModel.texHeight = bbSourceModel.texHeight;
+        ModelPart.textureWidthOf(inModModel) = ModelPart.textureWidthOf(bbSourceModel);
+        ModelPart.textureHeightOf(inModModel) = ModelPart.textureHeightOf(bbSourceModel);
     }
     
     public static void replaceModelParts(Model inModModel, Map<String, ModelPart> source) throws IllegalArgumentException, IllegalAccessException {

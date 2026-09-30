@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraftforge.client.model.data.ModelData;
+import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +51,6 @@ import org.joml.Vector3f;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.common.MinecraftForge;
 import com.mojang.math.Axis;
 
@@ -112,7 +113,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                                             blockRenderer.getBlockModel(sourceBlock), sourceBlock, blockPos, 
                                             matrixStack, buffer.getBuffer(type), false, new Random(), 
                                             sourceBlock.getSeed(startingPos), OverlayTexture.NO_OVERLAY, 
-                                            EmptyModelData.INSTANCE);
+                                            ModelData.EMPTY);
                                  }
                               }
                               ForgeHooksClient.setRenderLayer(null);
@@ -196,7 +197,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
                     ResourceLocation blockSprite = getBlockOverlaySprite(transformationEntity);
                     if (blockSprite != null) {
                         RenderType renderTypeItem = CustomRenderType.goldExperienceLifeformOverlay(
-                                blockSprite, targetModel.texWidth / 16F, targetModel.texHeight / 16F);
+                                blockSprite, ModelPart.textureWidthOf(targetModel) / 16F, ModelPart.textureHeightOf(targetModel) / 16F);
                         if (renderTypeItem != null) {
                             VertexConsumer vertexBuilderItem = buffer.getBuffer(renderTypeItem);
                             targetModel.renderToBuffer(matrixStack, vertexBuilderItem, packedLight, overlay, 1.0F, 1.0F, 1.0F, blockOverlayAlpha);

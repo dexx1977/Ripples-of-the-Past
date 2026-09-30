@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.TransformType;
 import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.core.util.Vec3f;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -14,7 +14,7 @@ public class KosmXHandsideMirrorModifier extends KosmXFixedMirrorModifier {
     }
 
     @Override
-    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
         if (player.getMainArm() == HumanoidArm.RIGHT) {
             return anim == null ? value0 : anim.get3DTransform(modelName, type, tickDelta, value0);
         }

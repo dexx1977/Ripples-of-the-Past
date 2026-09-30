@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.hamon;
 
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.TransformType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -61,7 +61,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
             this.mirror = new KosmXFixedMirrorModifier() {
                 
                 @Override
-                public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
+                public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
                     if (isEnabled() && "head".equals(modelName)) {
                         value0 = transformVector(value0, type);
                         value0 = transformVector(value0, type);

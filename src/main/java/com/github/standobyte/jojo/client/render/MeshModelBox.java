@@ -59,7 +59,7 @@ public class MeshModelBox extends ModelPart.Cube {
         }
         
         public Builder(boolean livingEntityRenderHacks, Model model) {
-            this(livingEntityRenderHacks, model.texWidth, model.texHeight);
+            this(livingEntityRenderHacks, ModelPart.textureWidthOf(model), ModelPart.textureHeightOf(model));
         }
         
         public MeshFaceBuilder startFace(Direction lightingDir) {
@@ -102,8 +102,8 @@ public class MeshModelBox extends ModelPart.Cube {
             
             private MeshFaceBuilder(MeshModelBox.Builder boxBuilder, float texWidth, float texHeight) {
                 this.boxBuilder = boxBuilder;
-                this.texWidth = texWidth;
-                this.texHeight = texHeight;
+                ModelPart.textureWidthOf(this) = texWidth;
+                ModelPart.textureHeightOf(this) = texHeight;
             }
             
             public MeshFaceBuilder withVertex(double x, double y, double z, double texU, double texV) {

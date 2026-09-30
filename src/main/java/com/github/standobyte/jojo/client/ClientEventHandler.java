@@ -296,7 +296,7 @@ public class ClientEventHandler {
 //        if (partialTick != changePartialTick) {
 //            event.setCanceled(true);
 //            event.getRenderer().render((T) entity, MathHelper.lerp(changePartialTick, entity.yRotO, entity.yRot), 
-//                    changePartialTick, event.getMatrixStack(), event.getBuffers(), event.getLight());
+//                    changePartialTick, event.getPoseStack(), event.getBuffers(), event.getLight());
 //            return;
 //        }
         
@@ -348,7 +348,7 @@ public class ClientEventHandler {
 
         INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
             if (power.getHeldAction(true) == ModHamonActions.ZEPPELI_TORNADO_OVERDRIVE.get()) {
-                event.getMatrixStack().mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialRenderTick()) * 2F % 360F));
+                event.getPoseStack().mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialRenderTick()) * 2F % 360F));
             }
         });
         
@@ -370,7 +370,7 @@ public class ClientEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public <T extends LivingEntity, M extends EntityModel<T>> void onRenderNameplate(RenderNameplateEvent event) {
         Entity entity = event.getEntity();
-        PoseStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getPoseStack();
         if (entity instanceof LivingEntity) {
             INonStandPower.getNonStandPowerOptional((LivingEntity) entity).ifPresent(power -> {
                 if (power.getHeldAction(true) == ModHamonActions.ZEPPELI_TORNADO_OVERDRIVE.get()) {
@@ -1232,7 +1232,7 @@ public class ClientEventHandler {
                         ModPillarmanActions.PILLARMAN_ERRATIC_BLAZE_KING.get(),
                         ModPillarmanActions.PILLARMAN_DIVINE_SANDSTORM.get())
                         || LivingWallClimbing.getHandler(player).map(cap -> cap.isWallClimbing()).orElse(false)) {
-                    renderHand(InteractionHand.OFF_HAND, event.getMatrixStack(), event.getBuffers(), event.getLight(), 
+                    renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getBuffers(), event.getLight(), 
                             event.getPartialTicks(), event.getInterpolatedPitch(), player);
                     renderOtherHand = false;
                 }
@@ -1241,7 +1241,7 @@ public class ClientEventHandler {
                     InteractionHand handToRender = renderOtherHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
                     if (MCUtil.isHandFree(player, handToRender)) {
                         event.setCanceled(true);
-                        renderHand(handToRender, event.getMatrixStack(), event.getBuffers(), event.getLight(), 
+                        renderHand(handToRender, event.getPoseStack(), event.getBuffers(), event.getLight(), 
                                 event.getPartialTicks(), event.getInterpolatedPitch(), player);
                     }
                 }
@@ -1249,7 +1249,7 @@ public class ClientEventHandler {
             
             if (!item.isEmpty() && item.getItem() == ModItems.PHOTO.get()) {
                 event.setCanceled(true);
-                PolaroidHelper.renderPhotoInHand(event.getMatrixStack(), event.getBuffers(), event.getLight(), 
+                PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getBuffers(), event.getLight(), 
                         event.getEquipProgress(), MCUtil.getHandSide(player, hand), event.getSwingProgress(), item, event.getPartialTicks());
             }
         }
@@ -1324,7 +1324,7 @@ public class ClientEventHandler {
             if (title instanceof Component && ((Component) title).getKey().endsWith(".hardcore")) {
                 return;
             }
-            renderToBeContinuedArrow(event.getMatrixStack(), screen, screen.width, screen.height, partialTick);
+            renderToBeContinuedArrow(event.getPoseStack(), screen, screen.width, screen.height, partialTick);
         }
 
         else if (screen instanceof PauseScreen && ClientReflection.showsPauseMenu((PauseScreen) screen)) {
@@ -1335,7 +1335,7 @@ public class ClientEventHandler {
             int windowHeight = screen.height;
             
             if (doStandStatsRender(screen)) {
-                StandStatsRenderer.renderStandStats(event.getMatrixStack(), mc, 
+                StandStatsRenderer.renderStandStats(event.getPoseStack(), mc, 
                         windowWidth - StandStatsRenderer.statsWidth - 7, windowHeight - StandStatsRenderer.statsHeight - 7, 
                         windowWidth, windowHeight,
                         standStatsTick, partialTick, 
@@ -1372,7 +1372,7 @@ public class ClientEventHandler {
         for (int i = 0; i < lines.size(); i++) {
             FormattedText line = lines.get(i);
             if (line instanceof JojoTextComponentWrapper) {
-                ((JojoTextComponentWrapper) line).tooltipRenderExtra(event.getMatrixStack(), x, y - 0.5f);
+                ((JojoTextComponentWrapper) line).tooltipRenderExtra(event.getPoseStack(), x, y - 0.5f);
             }
             if (i == 0) {
                 y += 2;
@@ -1607,7 +1607,7 @@ public class ClientEventHandler {
     public void renderBlocksOverlay(RenderLevelStageEvent event) {
         ActionsOverlayGui hud = ActionsOverlayGui.getInstance();
         if (hud.showExtraActionHud(ModStandsInit.CRAZY_DIAMOND_RESTORE_TERRAIN.get())) {
-            PoseStack matrixStack = event.getMatrixStack();
+            PoseStack matrixStack = event.getPoseStack();
             IStandPower stand = ActionsOverlayGui.getInstance().standUiMode.getPower();
             Entity entity = CrazyDiamondRestoreTerrain.restorationCenterEntity(mc.player, stand);
             Vec3i pos = CrazyDiamondRestoreTerrain.eyePos(entity);
@@ -1640,7 +1640,7 @@ public class ClientEventHandler {
         prevPause = paused;
         
         Camera camera = mc.gameRenderer.getMainCamera();
-        PoseStack matrixStack = event.getMatrixStack();
+        PoseStack matrixStack = event.getPoseStack();
         Matrix4f projMatrix = event.getProjectionMatrix();
         float partialTick = event.getPartialTicks();
         findEntitiesOnScreen(matrixStack, projMatrix, camera, partialTick);

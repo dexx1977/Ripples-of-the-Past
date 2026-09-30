@@ -5,7 +5,7 @@ public class ItemTrackingEventHandler {
     
     // was replaced by ItemStackMixin#onSetEntityRepresentation
 //    @SubscribeEvent
-//    public static void trackItemInItemEntity(EntityJoinWorldEvent event) {
+//    public static void trackItemInItemEntity(EntityJoinLevelEvent event) {
 //        Entity entity = event.getEntity();
 //        if (!entity.level.isClientSide() && entity instanceof ItemEntity) {
 //            ItemEntity itemEntity = ((ItemEntity) entity);

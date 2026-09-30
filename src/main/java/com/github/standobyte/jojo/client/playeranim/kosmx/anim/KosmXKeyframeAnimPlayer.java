@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim;
 
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.TransformType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +74,7 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
     }
     
     @Override
-    public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
+    public Vec3f get3DTransform(String modelName, TransformType type, float tickDelta, Vec3f value0) {
         BodyPartTransform part = bodyParts.get(modelName);
         if (part == null) return value0;
         
@@ -199,13 +199,13 @@ public class KosmXKeyframeAnimPlayer implements IAnimation {
             }
         }
         
-        public Vec3f get3DTransform(ItemDisplayContext type, int currentTick, float tickDelta, Vec3f value0, KeyframeAnimation emote, boolean isLoopStarted) {
+        public Vec3f get3DTransform(TransformType type, int currentTick, float tickDelta, Vec3f value0, KeyframeAnimation emote, boolean isLoopStarted) {
             return get3DTransform(type, currentTick, tickDelta, value0, 
                     emote.beginTick, emote.returnToTick, emote.endTick, emote.stopTick, 
                     isLoopStarted, emote.isInfinite, emote.isEasingBefore);
         }
         
-        public Vec3f get3DTransform(ItemDisplayContext type, int currentTick, float tickDelta, Vec3f value0, 
+        public Vec3f get3DTransform(TransformType type, int currentTick, float tickDelta, Vec3f value0, 
                 int beginTick, int returnToTick, int endTick, int stopTick, 
                 boolean isLoopStarted, boolean isInfinite, boolean isEasingBefore) {
             switch (type) {

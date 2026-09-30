@@ -152,7 +152,7 @@ public class PolaroidHelper {
                 ClientReflection.setIsDetached(camera, true);
             }
             if (cameraAngle != null) {
-                Vector3f angles = new Vector3f(event.getPitch(), event.getYaw(), event.getRoll());
+                Vector3f angles = new Vector3f(event.getOriginalPitch(), event.getYaw(), event.getRoll());
                 angles = cameraAngle.apply(angles);
                 event.setPitch(angles.x());
                 event.setYaw(angles.y());
