@@ -26,7 +26,11 @@ public class CocoJumboTurtleModel<T extends Turtle> extends TurtleModel<T> {
 
         ParseGenericModel.ModelParsed.ElementMesh meshParsed = ParseGenericModel.GSON.fromJson(COCO_JUMBO_MESH, ParseGenericModel.ModelParsed.ElementMesh.class);
         ModelPart.Cube shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);
-        ClientReflection.getCubes(body).set(0, shellMesh);
+        // 1.20.1 bakes the vanilla parts with an immutable cube list, so the shell
+        // cube is swapped in a mutable copy of it (1.16.5 replaced it in place)
+        java.util.List<ModelPart.Cube> bodyCubes = new java.util.ArrayList<>(ClientReflection.getCubes(body));
+        bodyCubes.set(0, shellMesh);
+        body.cubes = bodyCubes;
         
         mrPresidentKey = new ModelPart(this);
         mrPresidentKey.setPos(0.0F, 11.0F, -10.0F);
