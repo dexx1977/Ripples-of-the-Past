@@ -206,14 +206,14 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
         if (creativeResetButton.visible && creativeResetButton.isMouseOver(
                 mouseX + screen.windowPosX() + WINDOW_THIN_BORDER, 
                 mouseY + screen.windowPosY() + WINDOW_UPPER_BORDER)) {
-            GuiDraw.renderToolTip(matrixStack, creativeResetButtonTooltip, mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, creativeResetButtonTooltip, mouseX, mouseY);
         }
         if (learnButton.visible && !learnButton.active && skillClosedReason != null) {
             int x = mouseX + screen.windowPosX() + WINDOW_THIN_BORDER;
             int y = mouseY + screen.windowPosY() + WINDOW_UPPER_BORDER;
             if (x >= (double)learnButton.x && x < (double)(learnButton.x + learnButton.getWidth())
                     && y >= (double)learnButton.y && y < (double)(learnButton.y + learnButton.getHeight())) {
-                GuiDraw.renderToolTip(matrixStack, skillClosedReason, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, skillClosedReason, mouseX, mouseY);
             }
         }
         if (selectedSkillDesc != null) {

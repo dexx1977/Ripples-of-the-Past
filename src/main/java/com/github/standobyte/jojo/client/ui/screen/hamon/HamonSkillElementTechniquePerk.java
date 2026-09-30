@@ -42,7 +42,7 @@ public class HamonSkillElementTechniquePerk extends HamonSkillGuiElement {
 
     @Override
     void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
-        GuiDraw.renderToolTip(matrixStack, perkDesc, mouseX, mouseY);
+        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, perkDesc, mouseX, mouseY);
     }
     
     

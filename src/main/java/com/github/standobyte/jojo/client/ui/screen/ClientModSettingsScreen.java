@@ -394,7 +394,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     },
                     (button, matrixStack, mouseX, mouseY) -> {
                         if (tooltip != null) {
-                            GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
+                            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                         }
                     })
                     .setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
@@ -436,7 +436,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     },
                     (button, matrixStack, mouseX, mouseY) -> {
                         if (tooltip != null) {
-                            GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
+                            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                         }
                     })
                     .setAlignment(buttonI % 2 == 0 ? Alignment.LEFT : Alignment.RIGHT);
@@ -577,7 +577,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     optionsScreen.getMinecraft().setScreen(new ClientModSettingsScreen(optionsScreen, ClientModSettings.getInstance()));
                 },
                 (button, matrixStack, mouseX, mouseY) -> {
-                    GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                 },
                 tooltip);
     }

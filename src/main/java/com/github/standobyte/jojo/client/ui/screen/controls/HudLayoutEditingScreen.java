@@ -203,7 +203,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 },
                 (button, matrixStack, mouseX, mouseY) -> {
                     Component tooltip = Component.translatable("jojo.screen.edit_hud_layout.hotbars_" + (((ToggleSwitch) button).getState() ? "on" : "off"));
-                    GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, tooltip, mouseX, mouseY);
                 }));
     }
     

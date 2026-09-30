@@ -369,7 +369,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = isExpanded.get() ? Component.translatable("jojo.ui.list_collapse") : Component.translatable("jojo.ui.list_expand");
-                            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+                            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
                         });
                 this.isExpanded = isExpanded;
             }
@@ -439,7 +439,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = ((FavoriteButton) button).isFavorited ? Component.translatable("jojo.ui.favorite_remove") : Component.translatable("jojo.ui.favorite");
-                            GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+                            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
                         });
             }
 

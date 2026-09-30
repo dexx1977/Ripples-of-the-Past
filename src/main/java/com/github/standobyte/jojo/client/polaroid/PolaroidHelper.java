@@ -36,7 +36,7 @@ import org.joml.Matrix4f;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
 import com.mojang.math.Axis;
 
@@ -144,7 +144,7 @@ public class PolaroidHelper {
         RenderSystem.popMatrix();
     }
     
-    public static boolean pictureCameraSetup(EntityViewRenderEvent.CameraSetup event) {
+    public static boolean pictureCameraSetup(ViewportEvent.ComputeCameraAngles event) {
         if (isTakingPhoto()) {
             Camera camera = event.getInfo();
             if (cameraPos != null) {

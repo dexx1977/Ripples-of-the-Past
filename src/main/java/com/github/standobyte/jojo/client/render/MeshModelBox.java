@@ -101,8 +101,7 @@ public class MeshModelBox extends ModelPart.Cube {
             
             private MeshFaceBuilder(MeshModelBox.Builder boxBuilder, float texWidth, float texHeight) {
                 this.boxBuilder = boxBuilder;
-                ModelPart.textureWidthOf(this) = texWidth;
-                ModelPart.textureHeightOf(this) = texHeight;
+                this.setTexSize((int) texWidth, (int) texHeight);
             }
             
             public MeshFaceBuilder withVertex(double x, double y, double z, double texU, double texV) {

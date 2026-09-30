@@ -52,7 +52,7 @@ public class HamonSkillGuiElement {
     }
     
     void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
-        GuiDraw.renderToolTip(matrixStack, name, mouseX, mouseY);
+        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, name, mouseX, mouseY);
     }
     
     public AbstractHamonSkill getHamonSkill() {

@@ -186,7 +186,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.event.ScreenEvent.Opening;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
@@ -297,7 +297,7 @@ public class ClientEventHandler {
 //        if (partialTick != changePartialTick) {
 //            event.setCanceled(true);
 //            event.getRenderer().render((T) entity, MathHelper.lerp(changePartialTick, entity.yRotO, entity.yRot), 
-//                    changePartialTick, event.getPoseStack(), event.getMultiBufferSource(), event.getLight());
+//                    changePartialTick, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
 //            return;
 //        }
         
@@ -740,7 +740,7 @@ public class ClientEventHandler {
 
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public void zoom(EntityViewRenderEvent.FOVModifier event) {
+    public void zoom(ViewportEvent.ComputeFov event) {
         if (isZooming) {
             zoomModifier = Math.min(zoomModifier + mc.getDeltaFrameTime() / 3F, 60);
         }
@@ -748,12 +748,12 @@ public class ClientEventHandler {
             zoomModifier = Math.max(zoomModifier - mc.getDeltaFrameTime() * 2F, 1);
         }
         if (zoomModifier > 1) {
-            event.setFOV(event.getFOV() / zoomModifier);
+            event.setFov(event.getFov() / zoomModifier);
         }
     }
     
     @SubscribeEvent
-    public void cameraSetup(EntityViewRenderEvent.CameraSetup event) {
+    public void cameraSetup(ViewportEvent.ComputeCameraAngles event) {
         if (PolaroidHelper.pictureCameraSetup(event)) {
             return;
         }
@@ -772,9 +772,9 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void photoFOV(EntityViewRenderEvent.FOVModifier event) {
+    public void photoFOV(ViewportEvent.ComputeFov event) {
         if (PolaroidHelper.isTakingPhoto()) {
-            event.setFOV(70);
+            event.setFov(70);
         }
     }
 
@@ -908,9 +908,12 @@ public class ClientEventHandler {
         this.rand.setSeed((long)(ticks * 312871));
 
         int left = width / 2 - 91;
-        int top = height - ForgeGui.left_height;
-        ForgeGui.left_height += (healthRows * rowHeight);
-        if (rowHeight != 10) ForgeGui.left_height += 10 - rowHeight;
+        // the vanilla bars start 39 pixels above the bottom; ForgeGui tracked the
+        // running offset in 1.16.5 and 1.20.1 does not expose it
+        int leftHeight = 39;
+        int top = height - leftHeight;
+        leftHeight += (healthRows * rowHeight);
+        if (rowHeight != 10) leftHeight += 10 - rowHeight;
 
         int regen = -1;
         if (entity.hasEffect(MobEffects.REGENERATION))
@@ -1233,7 +1236,7 @@ public class ClientEventHandler {
                         ModPillarmanActions.PILLARMAN_ERRATIC_BLAZE_KING.get(),
                         ModPillarmanActions.PILLARMAN_DIVINE_SANDSTORM.get())
                         || LivingWallClimbing.getHandler(player).map(cap -> cap.isWallClimbing()).orElse(false)) {
-                    renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
+                    renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), 
                             event.getPartialTick(), event.getInterpolatedPitch(), player);
                     renderOtherHand = false;
                 }
@@ -1242,7 +1245,7 @@ public class ClientEventHandler {
                     InteractionHand handToRender = renderOtherHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
                     if (MCUtil.isHandFree(player, handToRender)) {
                         event.setCanceled(true);
-                        renderHand(handToRender, event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
+                        renderHand(handToRender, event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), 
                                 event.getPartialTick(), event.getInterpolatedPitch(), player);
                     }
                 }
@@ -1250,7 +1253,7 @@ public class ClientEventHandler {
             
             if (!item.isEmpty() && item.getItem() == ModItems.PHOTO.get()) {
                 event.setCanceled(true);
-                PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
+                PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), 
                         event.getEquipProgress(), MCUtil.getHandSide(player, hand), event.getSwingProgress(), item, event.getPartialTick());
             }
         }
@@ -1435,7 +1438,7 @@ public class ClientEventHandler {
                                 Component message = doStandStatsRender(screen) ? 
                                         Component.translatable("jojo.stand_stat.button.hide")
                                         : Component.translatable("jojo.stand_stat.button.show");
-                                GuiDraw.renderToolTip(matrixStack, message, x, y);
+                                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, message, x, y);
                             }, 
                             Component.empty());
                     event.addWidget(standStatsToggleButton);

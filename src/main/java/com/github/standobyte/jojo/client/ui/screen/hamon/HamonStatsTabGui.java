@@ -357,12 +357,12 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (mouseX >= 142 && mouseX <= 149) {
             int y = strengthStatY;
             if (hamonStrengthLimited && mouseY >= y && mouseY <= y + 7) {
-                GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
             }
             else {
                 y = controlStatY;
                 if (hamonControlLimited && mouseY >= y && mouseY <= y + 7) {
-                    GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, statLimitTooltip, mouseX, mouseY);
                 }
             }
         }
@@ -413,7 +413,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         }
         
         else if (mouseX >= 199 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
-            screen.renderToolTip(matrixStack, completedExerciseTooltip(null), mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, completedExerciseTooltip(null), mouseX, mouseY);
         }
         
         else if (mouseX >= 12 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
@@ -446,7 +446,7 @@ public class HamonStatsTabGui extends HamonTabGui {
                 totalExercisesTooltip.add(Component.empty().getVisualOrderText());
                 totalExercisesTooltip.addAll(minecraft.font.split(totalExercises2, 120));
             }
-            GuiDraw.renderToolTip(matrixStack, totalExercisesTooltip, mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, totalExercisesTooltip, mouseX, mouseY);
         }
         
         else {
@@ -455,13 +455,13 @@ public class HamonStatsTabGui extends HamonTabGui {
                 int x = intScrollX + 100 + exercise.ordinal() % 2 * 96;
                 int y = exerciseBarsY[exercise.ordinal() / 2] - 1;
                 if (mouseX >= x && mouseX < x + 8 && mouseY >= y && mouseY < y + 8) {
-                    screen.renderToolTip(matrixStack, completedExerciseTooltip(exercise), mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, completedExerciseTooltip(exercise), mouseX, mouseY);
                     return;
                 }
             }
             
             if (mouseAtMeditationBar(mouseX, mouseY)) {
-                GuiDraw.renderToolTip(matrixStack, meditationTooltip, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, meditationTooltip, mouseX, mouseY);
             }
         }
         

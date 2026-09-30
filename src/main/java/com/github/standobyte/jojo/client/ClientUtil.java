@@ -757,7 +757,7 @@ public class ClientUtil {
     
     public static Tooltip buttonMessageTooltip(Screen screen) {
         return (Button button, PoseStack matrixStack, int x, int y) -> {
-            screen.renderToolTip(matrixStack, button.getMessage(), x, y);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, button.getMessage(), x, y);
         };
     }
     

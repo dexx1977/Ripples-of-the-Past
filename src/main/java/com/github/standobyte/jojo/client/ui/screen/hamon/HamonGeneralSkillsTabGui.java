@@ -149,7 +149,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
         super.drawToolTips(matrixStack, mouseX, mouseY, windowPosX, windowPosY);
         if (getSelectedSkill() == null) {
             if (mouseX >= 193 && mouseX <= 205 && mouseY >= 4 && mouseY <= 12) {
-                GuiDraw.renderToolTip(matrixStack, nextPointHintLines, mouseX, mouseY);
+                com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, nextPointHintLines, mouseX, mouseY);
             }
         }
         

@@ -41,7 +41,7 @@ public class HideScreenPartToggleBox extends ToggleBox {
         Component text = getState() ? 
                 Component.translatable("jojo.ui.spoiler.hide")
                 : Component.translatable("jojo.ui.spoiler.show");
-        GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
+        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
     }
     
     public enum Direction {
