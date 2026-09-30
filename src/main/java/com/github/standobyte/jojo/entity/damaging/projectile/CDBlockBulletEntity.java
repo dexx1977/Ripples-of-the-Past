@@ -201,7 +201,7 @@ public class CDBlockBulletEntity extends ModdedProjectileEntity {
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
         super.readSpawnData(additionalData);
-        NetworkUtil.readOptional(additionalData, () -> additionalData.readRegistryIdSafe(Block.class)).ifPresent(block -> setBlock(block));
+        NetworkUtil.<Block>readOptional(additionalData, () -> additionalData.readRegistryIdSafe(Block.class)).ifPresent(this::setBlock);
         NetworkUtil.readOptional(additionalData, additionalData::readInt).ifPresent(id -> setTarget(level.getEntity(id)));
     }
 }
