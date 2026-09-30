@@ -248,7 +248,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
             CrossfireHurricaneExplosion explosion = new CrossfireHurricaneExplosion(level, this, 
                     dmgSource.setExplosion(), null, 
                     getX(), getY(), getZ(), 
-                    (small ? 1.0F : 3.0F) * getScale(), true, Explosion.BlockInteraction.NONE);
+                    (small ? 1.0F : 3.0F) * getScale(), true, Explosion.Explosion.BlockInteraction.KEEP);
             CustomExplosion.explode(explosion);
         }
     }

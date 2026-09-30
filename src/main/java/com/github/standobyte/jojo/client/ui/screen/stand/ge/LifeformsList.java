@@ -316,7 +316,6 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
 
         this.renderDecorations(pMatrixStack, pMouseX, pMouseY);
         RenderSystem.shadeModel(7424);
-        RenderSystem.enableAlphaTest();
         RenderSystem.disableBlend();
     }
     

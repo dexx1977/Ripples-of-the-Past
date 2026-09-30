@@ -71,7 +71,7 @@ public class NetworkUtil {
     
     public static <T extends RegistryEntry<T>> void writeRegistryIds(IForgeFriendlyByteBuf buf, @Nonnull List<T> entries) {
         Objects.requireNonNull(entries, "Cannot write a null registry entries list!");
-        buf.getBuffer().writeBoolean(!entries.isEmpty());
+        buf.writeBoolean(!entries.isEmpty());
         if (entries.isEmpty()) return;
         IForgeRegistry<T> retrievedRegistry = null;
         for (T entry : entries) {
@@ -86,22 +86,22 @@ public class NetworkUtil {
         }
         ResourceLocation name = retrievedRegistry.getRegistryName();
         ForgeRegistry<T> reg = (ForgeRegistry<T>) retrievedRegistry;
-        buf.getBuffer().writeResourceLocation(name);
-        buf.getBuffer().writeVarInt(entries.size());
+        buf.writeResourceLocation(name);
+        buf.writeVarInt(entries.size());
         for (T entry : entries) {
-            buf.getBuffer().writeVarInt(reg.getID(entry));
+            buf.writeVarInt(reg.getID(entry));
         }
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends RegistryEntry<T>> List<T> readRegistryIds(IForgeFriendlyByteBuf buf) {
-        if (!buf.getBuffer().readBoolean()) return Collections.emptyList();
-        ResourceLocation location = buf.getBuffer().readResourceLocation();
+        if (!buf.readBoolean()) return Collections.emptyList();
+        ResourceLocation location = buf.readResourceLocation();
         ForgeRegistry<T> registry = (ForgeRegistry<T>) (ForgeRegistry<?>) RegistryManager.ACTIVE.getRegistry(location);
-        int size = buf.getBuffer().readVarInt();
+        int size = buf.readVarInt();
         List<T> entries = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            entries.add(registry.getValue(buf.getBuffer().readVarInt()));
+            entries.add(registry.getValue(buf.readVarInt()));
         }
         return entries;
     }

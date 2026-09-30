@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
-import net.minecraft.world.item.ItemDisplayContext;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ public class KosmXArmsRotationModifier extends AbstractModifier {
     @Override
     public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
         Vec3f transform = super.get3DTransform(modelName, type, tickDelta, value0);
-        if (isActive() && type == ItemDisplayContext.ROTATION && (
+        if (isActive() && type == TransformType.ROTATION && (
                 arms.contains(HumanoidArm.LEFT) && "leftArm".equals(modelName)
                 || arms.contains(HumanoidArm.RIGHT) && "rightArm".equals(modelName))) {
             float entityXRot = entity.xRot;

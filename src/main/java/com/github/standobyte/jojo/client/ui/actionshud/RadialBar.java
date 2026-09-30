@@ -171,7 +171,6 @@ public class RadialBar {
                         lerpUV(y0, minY, maxY, minV, maxV))
                 .endVertex();
                 bufferBuilder.end();
-                RenderSystem.enableAlphaTest();
                 BufferUploader.end(bufferBuilder);
             }
         }

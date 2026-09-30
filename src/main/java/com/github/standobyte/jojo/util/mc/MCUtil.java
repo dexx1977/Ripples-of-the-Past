@@ -859,7 +859,7 @@ public class MCUtil {
             PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, sound, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
-            category = event.getCategory();
+            category = event.getSource();
             volume = event.getOriginalVolume();
             pitch = event.getPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 
@@ -883,7 +883,7 @@ public class MCUtil {
             PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(entity, sound, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
             sound = event.getSound();
-            category = event.getCategory();
+            category = event.getSource();
             volume = event.getOriginalVolume();
             pitch = event.getPitch();
             NetworkUtil.broadcastWithCondition(((ServerLevel) world).getServer().getPlayerList().getPlayers(), clientHandled, 

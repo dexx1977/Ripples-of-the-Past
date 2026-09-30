@@ -400,7 +400,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                     stand.getLookAngle(), explosionDmgSource(stand), null, 
                     pos.x, pos.y, pos.z, 
                     calcExplosionRadius(stand), false, 
-                    JojoModUtil.breakingBlocksEnabled(stand.level) ? Explosion.BlockInteraction.BREAK : Explosion.BlockInteraction.NONE)
+                    JojoModUtil.breakingBlocksEnabled(stand.level) ? Explosion.Explosion.BlockInteraction.DESTROY : Explosion.Explosion.BlockInteraction.KEEP)
                     .aoeDamage(calcExplosionDamage(stand))
                     .createBlockShards(stand.getAttackDamage(), stand.getPrecision());
             CustomExplosion.explode(explosion);

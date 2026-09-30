@@ -33,7 +33,6 @@ import com.github.standobyte.jojo.util.mc.damage.explosion.CustomExplosion;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -380,7 +379,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                             HeavyPunchExplosion explosion = new HeavyPunchExplosion(world, attacker, new ActionTarget(hitBlockPos, faceHit.getOpposite()), 
                                     movementVec, explosionDmgSource, null, 
                                     hitPos.x, hitPos.y, hitPos.z, 
-                                    explosionRadius, false, Explosion.BlockInteraction.BREAK)
+                                    explosionRadius, false, Explosion.Explosion.BlockInteraction.DESTROY)
                                     .aoeDamage(explosionDamage)
                                     .entityNoDamage(entity);
                             if (CustomExplosion.explode(explosion)) {

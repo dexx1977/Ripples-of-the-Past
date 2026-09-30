@@ -53,7 +53,7 @@ public class GeckoAnimLoader extends SimplePreparableReloadListener<Map<Resource
             
             try (
                     Resource iresource = pResourceManager.getResource(path);
-                    InputStream inputstream = iresource.getInputStream();
+                    InputStream inputstream = iresource.open();
                     Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                     ) {
                 JsonElement json = GsonHelper.fromJson(this.gson, reader, JsonElement.class);

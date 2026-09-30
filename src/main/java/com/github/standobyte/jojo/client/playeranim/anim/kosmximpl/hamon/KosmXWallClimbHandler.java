@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.hamon;
 
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraft.world.item.ItemDisplayContext;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandler.PerPlayerModifiersLayer<IAnimation>> implements WallClimbAnim {
@@ -142,7 +142,7 @@ public class KosmXWallClimbHandler extends AnimLayerHandler<KosmXWallClimbHandle
     }
     
     @SubscribeEvent
-    public void onRenderFirstPerson(RenderWorldLastEvent event) {
+    public void onRenderFirstPerson(RenderLevelStageEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.getCameraType().isFirstPerson()) {
             Player player = mc.player;

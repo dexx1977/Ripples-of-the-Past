@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.world.item.ItemDisplayContext;
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import com.mojang.math.Axis;
@@ -161,7 +161,6 @@ public abstract class MarkerRenderer {
         
         GuiDraw.bind(TextureAtlas.LOCATION_BLOCKS);
         textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
-        RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -188,8 +187,6 @@ public abstract class MarkerRenderer {
         
         matrixStack.popPose();
         buffer.endBatch();
-        
-        RenderSystem.disableAlphaTest();
     }
     
     protected void renderIconOnBorder(PoseStack matrixStack, MarkerInstance marker, float partialTick) {}
@@ -241,15 +238,20 @@ public abstract class MarkerRenderer {
         }
 
         @SubscribeEvent
-        public static void renderMarkers(RenderWorldLastEvent event) {
+        public static void renderMarkers(RenderLevelStageEvent event) {
+            // the staged event fires once per stage; the markers are drawn last, as
+            // the old RenderWorldLastEvent did
+            if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
+                return;
+            }
             Minecraft mc = Minecraft.getInstance();
             if (!mc.options.hideGui) {
                 RenderSystem.disableDepthTest();
                 if (mc.options.graphicsMode == GraphicsStatus.FABULOUS) { // it just works
                 }
 
-                PoseStack matrixStack = event.getMatrixStack();
-                RENDERERS.forEach(marker -> marker.render(matrixStack, mc.gameRenderer.getMainCamera(), event.getPartialTicks()));
+                PoseStack matrixStack = event.getPoseStack();
+                RENDERERS.forEach(marker -> marker.render(matrixStack, mc.gameRenderer.getMainCamera(), event.getPartialTick()));
                 
                 RenderSystem.enableDepthTest();
             }

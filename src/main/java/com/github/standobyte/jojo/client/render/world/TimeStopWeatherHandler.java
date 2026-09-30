@@ -67,12 +67,10 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
             int k = Mth.floor(z);
             Tesselator tessellator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tessellator.getBuilder();
-            RenderSystem.enableAlphaTest();
             RenderSystem.disableCull();
             RenderSystem.normal3f(0.0F, 1.0F, 0.0F);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.defaultAlphaFunc();
             RenderSystem.enableDepthTest();
             int l = 5;
             if (Minecraft.useFancyGraphics()) {
@@ -192,7 +190,6 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
-            RenderSystem.defaultAlphaFunc();
             RenderSystem.disableAlphaTest();
             lightmap.turnOffLightLayer();
         }

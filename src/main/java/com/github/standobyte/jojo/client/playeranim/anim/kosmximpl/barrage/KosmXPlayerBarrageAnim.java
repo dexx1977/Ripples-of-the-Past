@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.barrage;
 
 import com.github.standobyte.jojo.client.playeranim.kosmx.KosmXBendyLibHelper;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemDisplayContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -115,7 +114,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
         float loopTick = getBarrageEffectLoopingTick(rotationAmount, side);
         int tick = (int) loopTick;
         float partialTick = loopTick - tick;
-        Vec3f rot = get3DTransform("body", ItemDisplayContext.ROTATION, tick, partialTick, Vec3f.ZERO);
+        Vec3f rot = get3DTransform("body", TransformType.ROTATION, tick, partialTick, Vec3f.ZERO);
         matrixStack.mulPose(Axis.YP.rotation(-rot.getY()));
     }
     
@@ -162,7 +161,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
             for (String partName : modelParts.keySet()) {
                 ModelPart part = modelParts.get(partName);
                 if (part != null) {
-                    Vec3f rot = get3DTransform(partName, ItemDisplayContext.ROTATION, tick, partialTick, new Vec3f(part.xRot, part.yRot, part.zRot));
+                    Vec3f rot = get3DTransform(partName, TransformType.ROTATION, tick, partialTick, new Vec3f(part.xRot, part.yRot, part.zRot));
                     
                     float entityXRot = entity.xRot;
                     Vector3f anglesNew = ClientUtil.rotateAngles(rot.getX(), rot.getY(), rot.getZ(), entityXRot * MathUtil.DEG_TO_RAD);
@@ -174,7 +173,7 @@ public class KosmXPlayerBarrageAnim implements IAnimation, IModelPose<AbstractCl
                     
                     net.minecraft.client.model.geom.ModelPart bendablePart = sameModelPartsBendable.get(partName);
                     if (bendablePart != null) {
-                        Vec3f bend = get3DTransform(partName, ItemDisplayContext.BEND, tick, partialTick, Vec3f.ZERO);
+                        Vec3f bend = get3DTransform(partName, TransformType.BEND, tick, partialTick, Vec3f.ZERO);
                         KosmXBendyLibHelper.bend(bendablePart, Direction.UP, bend.getX(), bend.getY());
                     }
                 }

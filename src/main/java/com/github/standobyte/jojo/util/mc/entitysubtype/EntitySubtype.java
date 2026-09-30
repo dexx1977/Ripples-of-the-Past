@@ -76,7 +76,7 @@ public class EntitySubtype<T extends Entity> {
     
     public static Stream<EntitySubtype<?>> values() {
         if (allValuesCache == null) {
-            allValuesCache = ForgeRegistries.ENTITIES.getValues().stream()
+            allValuesCache = ForgeRegistries.ENTITY_TYPES.getValues().stream()
                     .flatMap(entityType -> {
                         Stream<EntitySubtype<?>> base = Stream.of(base(entityType));
                         Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(entityType.getRegistryName());
@@ -93,7 +93,7 @@ public class EntitySubtype<T extends Entity> {
     @Nullable
     public static EntitySubtype<?> getSubtype(SubtypeResourceLocation id) {
         if (id.getSubtypeId() == null) {
-            return base(ForgeRegistries.ENTITIES.getValue(id));
+            return base(ForgeRegistries.ENTITY_TYPES.getValue(id));
         }
         Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(id.withoutSubtype);
         return subtypes != null ? subtypes.get(id.getSubtypeId()) : null;

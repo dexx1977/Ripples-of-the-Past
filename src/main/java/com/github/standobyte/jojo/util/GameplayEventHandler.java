@@ -1315,7 +1315,7 @@ public class GameplayEventHandler {
         PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(player, sound, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
         sound = event.getSound();
-        category = event.getCategory();
+        category = event.getSource();
         volume = event.getOriginalVolume();
         player.connection.send(new ClientboundSoundPacket(sound, category, player.getX(), player.getY(), player.getZ(), volume, pitch));
     }

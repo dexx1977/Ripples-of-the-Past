@@ -489,7 +489,7 @@ public class JojoModUtil {
                 }
                 else {
                     sound = event.getSound();
-                    category = event.getCategory();
+                    category = event.getSource();
                     volume = event.getOriginalVolume();
                     packet = new PlayVoiceLinePacket(sound, category, entity.getId(), volume, pitch, interrupt);
                     triggered = true;

@@ -173,7 +173,6 @@ public class FirstPersonHamonAura {
         
         lightTexture.turnOnLightLayer();
         Runnable enable = () -> {
-            RenderSystem.enableAlphaTest();
             RenderSystem.defaultAlphaFunc();
             RenderSystem.enableDepthTest();
             RenderSystem.enableFog();
@@ -252,7 +251,6 @@ public class FirstPersonHamonAura {
         RenderSystem.depthMask(true);
         RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();
-        RenderSystem.defaultAlphaFunc();
         lightTexture.turnOffLightLayer();
         RenderSystem.disableFog();
     }

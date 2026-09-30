@@ -41,7 +41,7 @@ public class MCRecog {
             new Thread(() -> {
                 try {
                     Socket client = server.accept();
-                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(client.open()));
 
                     // Receive input while the program is running
                     while (true) {

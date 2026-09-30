@@ -163,7 +163,7 @@ public class LifeformsMetMobs {
             List<ResourceLocation> typeIds = NetworkUtil.readCollection(buf, buf::readResourceLocation);
             nativeMobs.put(classification, typeIds
                     .stream()
-                    .flatMap(id -> ForgeRegistries.ENTITIES.containsKey(id) ? Stream.of(ForgeRegistries.ENTITIES.getValue(id)) : Stream.empty())
+                    .flatMap(id -> ForgeRegistries.ENTITY_TYPES.containsKey(id) ? Stream.of(ForgeRegistries.ENTITY_TYPES.getValue(id)) : Stream.empty())
                     .collect(Collectors.toList()));
         }
     }

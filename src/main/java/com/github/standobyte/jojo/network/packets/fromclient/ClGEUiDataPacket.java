@@ -73,15 +73,15 @@ public class ClGEUiDataPacket {
                     break;
                 case FAVORITE_ADDED:
                     msg.resLoc.ifPresent(id -> {
-                        if (ForgeRegistries.ENTITIES.containsKey(id)) {
-                            state.GELifeformAddFav(ForgeRegistries.ENTITIES.getValue(id));
+                        if (ForgeRegistries.ENTITY_TYPES.containsKey(id)) {
+                            state.GELifeformAddFav(ForgeRegistries.ENTITY_TYPES.getValue(id));
                         }
                     });
                     break;
                 case FAVORITE_REMOVED:
                     msg.resLoc.ifPresent(id -> {
-                        if (ForgeRegistries.ENTITIES.containsKey(id)) {
-                            state.GELifeformRemoveFav(ForgeRegistries.ENTITIES.getValue(id));
+                        if (ForgeRegistries.ENTITY_TYPES.containsKey(id)) {
+                            state.GELifeformRemoveFav(ForgeRegistries.ENTITY_TYPES.getValue(id));
                         }
                     });
                     break;

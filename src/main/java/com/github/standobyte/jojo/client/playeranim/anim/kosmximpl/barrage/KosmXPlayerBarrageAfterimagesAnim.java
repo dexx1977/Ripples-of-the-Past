@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.barrage;
 
-import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.action.stand.StandEntityAction.Phase;
 import com.github.standobyte.jojo.client.playeranim.IPlayerBarrageAnimation;
 import com.github.standobyte.jojo.client.render.entity.layerrenderer.barrage.BarrageFistAfterimagesLayer;
@@ -69,7 +68,7 @@ public class KosmXPlayerBarrageAfterimagesAnim extends TwoHandedBarrageAnimation
         if (model instanceof IMutableModel) {
             AnimationProcessor anim = ((IMutableModel) model).getEmoteSupplier().get();
             if (anim != null) {
-                float yRot = anim.get3DTransform("body", ItemDisplayContext.ROTATION, Vec3f.ZERO).getY();
+                float yRot = anim.get3DTransform("body", TransformType.ROTATION, Vec3f.ZERO).getY();
                 matrixStack.mulPose(Axis.YP.rotation(yRot));
             }
         }

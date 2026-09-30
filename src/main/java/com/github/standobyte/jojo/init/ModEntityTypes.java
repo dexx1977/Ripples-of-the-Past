@@ -84,7 +84,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModEntityTypes {
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, JojoMod.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, JojoMod.MOD_ID);
     private static final List<Pair<? extends Supplier<? extends EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier>>> livingAttributesSupplier = new ArrayList<>();
     
 //  public static final RegistryObject<EntityType<___Entity>> ___ = ENTITIES.register("___", 

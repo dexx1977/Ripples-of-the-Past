@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
-import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.util.general.MathUtil;
 
 import dev.kosmx.playerAnim.api.TransformType;
@@ -17,7 +16,7 @@ public abstract class KosmXFixedFadeModifier extends AbstractFadeModifier {
     
     @Override
     public Vec3f get3DTransform(String modelName, ItemDisplayContext type, float tickDelta, Vec3f value0) {
-        if (type == ItemDisplayContext.ROTATION && "head".equals(modelName)) {
+        if (type == TransformType.ROTATION && "head".equals(modelName)) {
             value0 = new Vec3f(value0.getX(), MathUtil.wrapRadians(value0.getY()), value0.getZ());
         }
         return super.get3DTransform(modelName, type, tickDelta, value0);

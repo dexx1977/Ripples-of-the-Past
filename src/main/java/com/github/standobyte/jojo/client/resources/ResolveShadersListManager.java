@@ -55,7 +55,7 @@ public class ResolveShadersListManager extends SimplePreparableReloadListener<Ma
         if (resourceManager.hasResource(location)) {
             try (
                     Resource resource = resourceManager.getResource(location);
-                    Reader reader = new InputStreamReader(resource.getInputStream(), Charsets.UTF_8);) {
+                    Reader reader = new InputStreamReader(resource.open(), Charsets.UTF_8);) {
                 return GsonHelper.getAsJsonArray(GsonHelper.parse(reader), "shaders", null);
             } catch (IOException e) {
                 return null;

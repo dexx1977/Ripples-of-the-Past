@@ -501,7 +501,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 if (isHovered) {
                     switch (alignment) {
                     case LEFT:
-                        font.drawShadow(matrixStack, text, x0, y, color);
+                        GuiDraw.drawString(matrixStack, font, text, x0, y, color);
                         break;
                     case RIGHT:
                         ClientUtil.drawRightAlignedString(matrixStack, font, text, x1, y, color);

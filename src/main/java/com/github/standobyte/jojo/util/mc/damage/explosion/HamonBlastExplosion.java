@@ -31,7 +31,7 @@ public class HamonBlastExplosion extends CustomExplosion {
         super(pLevel, pSource, 
                 null, pDamageCalculator, 
                 pToBlowX, pToBlowY, pToBlowZ, 
-                pRadius, false, Explosion.BlockInteraction.NONE);
+                pRadius, false, Explosion.Explosion.BlockInteraction.KEEP);
     }
     
     public void setHamonDamage(float hamonDamage) {

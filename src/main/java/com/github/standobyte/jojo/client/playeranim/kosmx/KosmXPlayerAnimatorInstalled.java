@@ -1,6 +1,5 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx;
 
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +139,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
         if (model instanceof IMutableModel) {
             AnimationProcessor anim = ((IMutableModel) model).getEmoteSupplier().get();
             if (anim != null && anim.isActive()) {
-                Vec3f pos = anim.get3DTransform("body", ItemDisplayContext.POSITION, Vec3f.ZERO);
+                Vec3f pos = anim.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
                 float yRot = Mth.clamp(partialTick, player.yBodyRotO, player.yBodyRot);
                 yRot = -yRot * MathUtil.DEG_TO_RAD;
                 return new Vec3(-pos.getX(), -pos.getY(), -pos.getZ()).yRot(yRot);
@@ -164,7 +163,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             if(player.playerAnimator_getAnimation().isActive()){
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f data = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftArm" : "rightArm", ItemDisplayContext.BEND, new Vec3f(0f, 0f, 0f));
+                Vec3f data = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftArm" : "rightArm", TransformType.BEND, new Vec3f(0f, 0f, 0f));
 
                 Pair<Float, Float> pair = new Pair<>(data.getX(), data.getY());
 
@@ -189,8 +188,8 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             if (player.playerAnimator_getAnimation().isActive()) {
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f rot = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", ItemDisplayContext.ROTATION, Vec3f.ZERO);
-                Vec3f pos = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", ItemDisplayContext.POSITION, Vec3f.ZERO).scale(1/16f);
+                Vec3f rot = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", TransformType.ROTATION, Vec3f.ZERO);
+                Vec3f pos = anim.get3DTransform(arm == HumanoidArm.LEFT ? "leftItem" : "rightItem", TransformType.POSITION, Vec3f.ZERO).scale(1/16f);
 
                 matrices.translate(pos.getX(), pos.getY(), pos.getZ());
 
@@ -215,7 +214,7 @@ public class KosmXPlayerAnimatorInstalled extends PlayerAnimationHandler.PlayerA
             if (player.playerAnimator_getAnimation().isActive()) {
                 AnimationProcessor anim = player.playerAnimator_getAnimation();
 
-                Vec3f data = anim.get3DTransform(side == HumanoidArm.LEFT ? "leftArm" : "rightArm", ItemDisplayContext.BEND, new Vec3f(0f, 0f, 0f));
+                Vec3f data = anim.get3DTransform(side == HumanoidArm.LEFT ? "leftArm" : "rightArm", TransformType.BEND, new Vec3f(0f, 0f, 0f));
 
                 Pair<Float, Float> pair = new Pair<>(data.getX(), data.getY());
 

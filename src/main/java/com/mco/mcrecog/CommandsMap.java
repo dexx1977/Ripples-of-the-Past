@@ -58,7 +58,7 @@ public class CommandsMap extends SimplePreparableReloadListener<JsonObject> {
                 for(Resource resource : pResourceManager.getResources(new ResourceLocation(namespace, "rotp_vc.json"))) {
 
                     try (
-                            InputStream inputstream = resource.getInputStream();
+                            InputStream inputstream = resource.open();
                             Reader reader = new InputStreamReader(inputstream, StandardCharsets.UTF_8);
                             ) {
                         JsonObject readJson = GsonHelper.fromJson(this.gson, reader, JsonObject.class);

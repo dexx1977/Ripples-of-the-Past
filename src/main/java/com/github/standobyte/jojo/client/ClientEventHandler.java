@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
@@ -194,7 +195,6 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderNameplateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.common.MinecraftForge;
@@ -1604,7 +1604,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void renderBlocksOverlay(RenderWorldLastEvent event) {
+    public void renderBlocksOverlay(RenderLevelStageEvent event) {
         ActionsOverlayGui hud = ActionsOverlayGui.getInstance();
         if (hud.showExtraActionHud(ModStandsInit.CRAZY_DIAMOND_RESTORE_TERRAIN.get())) {
             PoseStack matrixStack = event.getMatrixStack();

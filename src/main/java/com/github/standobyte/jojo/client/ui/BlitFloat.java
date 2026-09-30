@@ -75,7 +75,6 @@ public class BlitFloat {
         bufferbuilder.vertex(pMatrix, pX2, pY1, pBlitOffset).uv(pMaxU, pMinV).endVertex();
         bufferbuilder.vertex(pMatrix, pX1, pY1, pBlitOffset).uv(pMinU, pMinV).endVertex();
         bufferbuilder.end();
-        RenderSystem.enableAlphaTest();
         BufferUploader.end(bufferbuilder);
     }
 }

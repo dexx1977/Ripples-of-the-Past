@@ -36,7 +36,7 @@ public class ModSplashes extends SimplePreparableReloadListener<List<String>> {
     protected List<String> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         try (
                 Resource resource = resourceManager.getResource(location);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open(), StandardCharsets.UTF_8));
                 ) {
             return reader.lines()
                     .map(String::trim)

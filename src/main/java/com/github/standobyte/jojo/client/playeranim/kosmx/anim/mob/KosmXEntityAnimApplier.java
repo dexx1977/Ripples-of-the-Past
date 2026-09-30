@@ -2,7 +2,6 @@ package com.github.standobyte.jojo.client.playeranim.kosmx.anim.mob;
 
 import com.github.standobyte.jojo.client.playeranim.kosmx.KosmXBendyLibHelper;
 import com.github.standobyte.jojo.client.playeranim.PlayerAnimationHandler.BendablePart;
-import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.client.ClientTicking;
 import com.github.standobyte.jojo.client.playeranim.IEntityAnimApplier;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -38,9 +37,9 @@ public abstract class KosmXEntityAnimApplier<T extends LivingEntity, M extends H
             if (pose.isActive()) {
                 
                 //These are additive properties
-                Vec3f vec3d = pose.get3DTransform("body", ItemDisplayContext.POSITION, Vec3f.ZERO);
+                Vec3f vec3d = pose.get3DTransform("body", TransformType.POSITION, Vec3f.ZERO);
                 matrixStack.translate(vec3d.getX(), vec3d.getY() + 0.7, vec3d.getZ());
-                Vec3f vec3f = pose.get3DTransform("body", ItemDisplayContext.ROTATION, Vec3f.ZERO);
+                Vec3f vec3f = pose.get3DTransform("body", TransformType.ROTATION, Vec3f.ZERO);
                 matrixStack.mulPose(Axis.ZP.rotation(vec3f.getZ()));    //roll
                 matrixStack.mulPose(Axis.YP.rotation(vec3f.getY()));    //pitch
                 matrixStack.mulPose(Axis.XP.rotation(vec3f.getX()));    //yaw
@@ -74,11 +73,11 @@ public abstract class KosmXEntityAnimApplier<T extends LivingEntity, M extends H
     }
 
     private void updatePart(AnimationProcessor pose, String partName, net.minecraft.client.model.geom.ModelPart part) {
-        Vec3f pos = pose.get3DTransform(partName, ItemDisplayContext.POSITION, new Vec3f(part.x, part.y, part.z));
+        Vec3f pos = pose.get3DTransform(partName, TransformType.POSITION, new Vec3f(part.x, part.y, part.z));
         part.x = pos.getX();
         part.y = pos.getY();
         part.z = pos.getZ();
-        Vec3f rot = pose.get3DTransform(partName, ItemDisplayContext.ROTATION, new Vec3f(part.xRot, part.yRot, part.zRot));
+        Vec3f rot = pose.get3DTransform(partName, TransformType.ROTATION, new Vec3f(part.xRot, part.yRot, part.zRot));
         part.xRot = rot.getX();
         part.yRot = rot.getY();
         part.zRot = rot.getZ();

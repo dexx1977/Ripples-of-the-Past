@@ -312,7 +312,7 @@ public class ClientUtil {
             }
             
             if (shadow) {
-                font.drawShadow(matrixStack, line, lineX, lineY, color);
+                GuiDraw.drawString(matrixStack, font, line, lineX, lineY, color);
             }
             else {
                 GuiDraw.drawString(matrixStack, font, line, lineX, lineY, color);

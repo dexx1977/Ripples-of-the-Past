@@ -26,7 +26,7 @@ public class CustomTextResource extends SimplePreparableReloadListener<String> {
     protected String prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         try (
                 Resource resource = Minecraft.getInstance().getResourceManager().getResource(location);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open(), StandardCharsets.UTF_8));
                 ) {
             return reader.lines().reduce("", (l1, l2) -> l1 + l2 + "\n");
         } catch (IOException ioexception) {

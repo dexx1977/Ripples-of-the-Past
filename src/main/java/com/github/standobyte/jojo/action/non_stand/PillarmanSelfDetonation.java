@@ -24,7 +24,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Explosion;
@@ -53,7 +52,7 @@ public class PillarmanSelfDetonation extends PillarmanAction {
             PillarmanExplosion explosion = new PillarmanExplosion(world, user, 
                     DamageSource.ON_FIRE.setExplosion(), null, 
                     user.getX(), user.getY(), user.getZ(), 3.0F, 
-                    true, Explosion.BlockInteraction.BREAK);
+                    true, Explosion.Explosion.BlockInteraction.DESTROY);
             CustomExplosion.explode(explosion);
             Player playerentity = user instanceof Player ? (Player)user : null;
             if (playerentity == null || !playerentity.abilities.instabuild) {

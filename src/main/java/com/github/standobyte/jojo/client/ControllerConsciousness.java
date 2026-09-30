@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.JojoMod;
@@ -17,7 +18,6 @@ import net.minecraft.client.Timer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -159,7 +159,7 @@ public class ControllerConsciousness {
 
 
     @SubscribeEvent
-    public void checkPlayerFrustum(RenderWorldLastEvent event) {
+    public void checkPlayerFrustum(RenderLevelStageEvent event) {
         if (isControllingConsciousnessEntity()) {
             getCsnsEntity().checkPlayerFrustum(event.getMatrixStack(), 
                     event.getProjectionMatrix(), mc.gameRenderer.getMainCamera().getPosition());

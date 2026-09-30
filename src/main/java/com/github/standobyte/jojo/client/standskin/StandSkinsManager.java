@@ -122,7 +122,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
                     profiler.push(definition.getSourceName());
 
                     try (
-                            InputStream defInputStream = definition.getInputStream();
+                            InputStream defInputStream = definition.open();
                             Reader defReader = new InputStreamReader(defInputStream, StandardCharsets.UTF_8);
                             ) {
                         profiler.push("parse");
@@ -186,7 +186,7 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
             
             try (
                     Resource resource = resourceManager.getResource(modelFilePath);
-                    InputStream modelInputStream = resource.getInputStream();
+                    InputStream modelInputStream = resource.open();
                     Reader modelReader = new BufferedReader(new InputStreamReader(modelInputStream, StandardCharsets.UTF_8));
                     ) {
                 JsonElement json = PARSER.parse(modelReader);
