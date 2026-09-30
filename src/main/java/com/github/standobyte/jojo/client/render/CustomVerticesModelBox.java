@@ -26,7 +26,7 @@ public class CustomVerticesModelBox extends ModelPart.Cube {
                 builder.maxY - builder.minY, 
                 builder.maxZ - builder.minZ, 
                 0, 0, 0, 
-                mirror, texWidth, texHeight, null);
+                mirror, texWidth, texHeight, java.util.EnumSet.allOf(Direction.class)); // 1.20.1 needs the visible faces
         
         ModelPart.Vertex x0y0z0 = mirror ? builder.vertices[4] : builder.vertices[0];
         ModelPart.Vertex x0y0z1 = mirror ? builder.vertices[5] : builder.vertices[1];

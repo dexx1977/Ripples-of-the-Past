@@ -15,7 +15,7 @@ public class SlopeModelBox extends ModelPart.Cube {
                 pOriginX, pOriginY1, pOriginZ, 
                 pDimensionX, (pOriginY2 - pOriginY1) + pDimensionY, pDimensionZ, 
                 pGrowX, pGrowY, pGrowZ, 
-                pMirror, pTexWidthScaled, pTexHeightScaled, null);
+                pMirror, pTexWidthScaled, pTexHeightScaled, java.util.EnumSet.allOf(Direction.class)); // 1.20.1 needs the visible faces
         
         ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
         float x1 = pOriginX + pDimensionX;
