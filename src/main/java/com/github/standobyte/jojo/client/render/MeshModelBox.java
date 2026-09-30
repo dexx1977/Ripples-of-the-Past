@@ -101,7 +101,8 @@ public class MeshModelBox extends ModelPart.Cube {
             
             private MeshFaceBuilder(MeshModelBox.Builder boxBuilder, float texWidth, float texHeight) {
                 this.boxBuilder = boxBuilder;
-                this.setTexSize((int) texWidth, (int) texHeight);
+                this.texWidth = texWidth;
+                this.texHeight = texHeight;
             }
             
             public MeshFaceBuilder withVertex(double x, double y, double z, double texU, double texV) {
@@ -159,15 +160,15 @@ public class MeshModelBox extends ModelPart.Cube {
                     ClientReflection.setVertices(quad, verticesArr);
                     
                     if (calcNormalFromVertices) {
-                        Vector3f pos0 = verticesArr[0].new Vector3f(pos);
-                        Vector3f vec1 = verticesArr[1].new Vector3f(pos);
-                        Vector3f vec2 = verticesArr[2].new Vector3f(pos);
+                        Vector3f pos0 = new Vector3f(verticesArr[0].pos);
+                        Vector3f vec1 = new Vector3f(verticesArr[1].pos);
+                        Vector3f vec2 = new Vector3f(verticesArr[2].pos);
                         vec1.sub(pos0);
                         vec2.sub(pos0);
                         vec1.cross(vec2);
                         vec1.normalize();
                         if (invertCalcNormal) {
-                            vec1.mul(-1);
+                            vec1.mul(-1.0F);
                         }
                         ClientReflection.setNormal(quad, vec1);
                     }
