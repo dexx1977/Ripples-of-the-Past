@@ -162,7 +162,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
         GuiDraw.setGraphics(guiGraphics);
         updateHoveredElement(mouseX, mouseY);
         entityIconsGrid.renderGrid(matrixStack, mouseX, mouseY, partialTicks);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         entityIconsGrid.getSelected().ifPresent(widget -> renderHoveredTooltip(matrixStack, widget.entityType.getCurrentSubtype(), mouseX, mouseY));
     }
     

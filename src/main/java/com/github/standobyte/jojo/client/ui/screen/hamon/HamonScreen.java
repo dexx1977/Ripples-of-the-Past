@@ -275,7 +275,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
         screenX = x;
         screenY = y;
         tabsWithSkillRequirements.clear();
-        renderBackground(matrixStack);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         renderInside(matrixStack, mouseX, mouseY, x, y, partialTick);
         renderWindow(matrixStack, mouseX, mouseY, x, y);
         renderToolTips(matrixStack, mouseX, mouseY, x, y);

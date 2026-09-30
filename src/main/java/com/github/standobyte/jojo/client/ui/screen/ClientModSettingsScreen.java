@@ -74,21 +74,21 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         
         i += (i % 2 == 1) ? 3 : 2;
         
-        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
-                Component.translatable("jojo.options.client.hud"), 
-                button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage()))));
+        addRenderableWidget(Button.builder(Component.translatable("jojo.options.client.hud"), button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage())))
+                        .pos(calcButtonX(i), calcButtonY(i++) + 6)
+                        .size(150, 20).build());
         
-        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
-                Component.translatable("jojo.options.client.stand"), 
-                button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage()))));
+        addRenderableWidget(Button.builder(Component.translatable("jojo.options.client.stand"), button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage())))
+                        .pos(calcButtonX(i), calcButtonY(i++) + 6)
+                        .size(150, 20).build());
         
-        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
-                Component.translatable("jojo.options.client.hamon"), 
-                button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage()))));
+        addRenderableWidget(Button.builder(Component.translatable("jojo.options.client.hamon"), button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage())))
+                        .pos(calcButtonX(i), calcButtonY(i++) + 6)
+                        .size(150, 20).build());
         
-        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
-                Component.translatable("jojo.options.client.vampirism"), 
-                button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage()))));
+        addRenderableWidget(Button.builder(Component.translatable("jojo.options.client.vampirism"), button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage())))
+                        .pos(calcButtonX(i), calcButtonY(i++) + 6)
+                        .size(150, 20).build());
         
         addBackButton(CommonComponents.GUI_DONE, i);
     }
@@ -99,11 +99,9 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             ++buttonsAdded;
         }
 
-        addRenderableWidget(new Button(
-                this.width / 2 - 100, 
-                calcButtonY(buttonsAdded), 
-                200, 20, 
-                text, button -> minecraft.setScreen(lastScreen)));
+        addRenderableWidget(Button.builder(text, button -> minecraft.setScreen(lastScreen))
+                        .pos(this.width / 2 - 100, calcButtonY(buttonsAdded))
+                        .size(200, 20).build());
     }
     
     
@@ -349,9 +347,9 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
-        renderBackground(pMatrixStack);
+        renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
         GuiDraw.drawCenteredString(pMatrixStack, font, title, width / 2, 15, 0xFFFFFF);
-        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
     }
     
     

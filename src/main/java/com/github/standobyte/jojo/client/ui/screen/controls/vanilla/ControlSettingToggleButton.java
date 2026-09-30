@@ -28,6 +28,6 @@ public class ControlSettingToggleButton extends Button {
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         setMessageFromSetting(settingGetter.get());
-        super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+        super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
     }
 }

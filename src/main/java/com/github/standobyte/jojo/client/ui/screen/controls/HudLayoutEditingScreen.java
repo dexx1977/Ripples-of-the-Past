@@ -1071,7 +1071,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
             ClientUtil.enableGlScissor(x0, y0, x1 - x0, y1 - y0);
-            super.render(pMatrixStack, pMouseX, pMouseY, pPartialTicks);
+            super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
             ClientUtil.disableGlScissor();
         }
         

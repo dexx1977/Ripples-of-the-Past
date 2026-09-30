@@ -221,7 +221,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         // Ctrl + C, Ctrl + V
-        this.renderBackground(pMatrixStack);
+        this.renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
         int i = this.getScrollbarPosition();
         int j = i + 6;
         Tesselator tessellator = Tesselator.getInstance();

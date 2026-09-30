@@ -111,7 +111,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
         int windowY = (height - HEIGHT) / 2;
         renderScreen(matrixStack, windowX, windowY);
         renderElements(matrixStack, windowX, windowY, mouseX, mouseY);
-        super.render(matrixStack, mouseX, mouseY, partialTick);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
         renderCheatIcon(matrixStack, windowX, windowY, mouseX, mouseY);
         renderTooltips(matrixStack, windowX, windowY, mouseX, mouseY);
     }

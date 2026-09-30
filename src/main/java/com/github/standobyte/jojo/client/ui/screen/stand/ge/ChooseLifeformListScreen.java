@@ -85,8 +85,8 @@ public class ChooseLifeformListScreen extends ChooseLifeformScreen {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-//        renderBackground(matrixStack);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+//        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         
         mobList.render(matrixStack, mouseX, mouseY, partialTicks);
         Component animalsName = Component.translatable("gold_experience.lifeforms.animals").withStyle(ChatFormatting.BOLD);

@@ -94,8 +94,8 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
         GuiDraw.setGraphics(guiGraphics);
         updateCassette();
         updateButtons();
-        this.renderBackground(matrixStack);
-        super.render(matrixStack, mouseX, mouseY, partialTick);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderToolTip(matrixStack, mouseX, mouseY);
     }
     

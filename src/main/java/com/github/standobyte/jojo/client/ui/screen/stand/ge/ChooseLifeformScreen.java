@@ -324,7 +324,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         if (filterList != null) {
             filterList.render(matrixStack, mouseX, mouseY, partialTicks);
         }
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         
         if (!holdsButton && mode == ScreenCloseMode.HOLD) {
             chooseHoveredAndClose();
