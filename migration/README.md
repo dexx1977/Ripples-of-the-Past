@@ -126,11 +126,6 @@ Known remaining work, roughly in the order it should be tackled:
 2. Low-level model geometry: `ModelBox`/`TexturedQuad`/`PositionTextureVertex`
    and `ClientReflection`'s SRG reflection, used by the Blockbench parsers and
    the custom cube subclasses (MeshModelBox/SlopeModelBox/CustomVerticesModelBox).
-2. The Hamon Master's bendable clothing geometry. 1.16.5 built it with
-   `IBendHelper.create(part, mirror, supplier).addBendedCuboid(...)`, which the
-   1.20.1 playerAnimator API no longer has; the geometry has to be rebuilt on
-   bendy-lib 4.0.0's `MutableModelPart`/`BendableCuboid.Builder` (the rest of the
-   bend handling is already ported, see KosmXBendyLibHelper).
 3. TemporaryDimensionEffects: 1.16.5 stored sky/cloud/weather renderers on the
    dimension effects object through Forge interfaces. Those interfaces are gone and
    1.20.1's DimensionSpecialEffects is a plain data holder (the drawing lives in

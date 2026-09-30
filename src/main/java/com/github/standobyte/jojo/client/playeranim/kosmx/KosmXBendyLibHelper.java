@@ -60,14 +60,27 @@ public class KosmXBendyLibHelper {
         bend(getPart(model, part), bendDirection(part), bendX, bendY);
     }
 
+    /** Makes a part's geometry bendable in a direction, like the old create call. */
+    public static void initBend(ModelPart part, Direction direction) {
+        if (part != null && PREPARED.add(part)) {
+            IBendHelper.INSTANCE.initBend(part, direction);
+        }
+    }
+
+    /** Copies the bend of one part onto another, as the old copyBend did. */
+    public static void copyBend(ModelPart from, ModelPart to) {
+        float[] bend = getBend(from);
+        if (to != null && (bend[0] != 0 || bend[1] != 0)) {
+            IBendHelper.INSTANCE.bend(to, bend[0], bend[1]);
+        }
+    }
+
     /** Applies a bend, preparing the part the first time it is used. */
     public static void bend(ModelPart part, Direction direction, float bendX, float bendY) {
         if (part == null) {
             return;
         }
-        if (PREPARED.add(part)) {
-            IBendHelper.INSTANCE.initBend(part, direction);
-        }
+        initBend(part, direction);
         IBendHelper.INSTANCE.bend(part, bendX, bendY);
     }
 
