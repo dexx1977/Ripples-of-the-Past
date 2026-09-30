@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
@@ -14,7 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.ScreenEvent.Opening;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -153,7 +154,7 @@ public class ControllerSoul {
     
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void cancelRespawnScreen(GuiOpenEvent event) {
+    public void cancelRespawnScreen(ScreenEvent.Opening event) {
         boolean soul = isCameraEntityPlayerSoul();
         if (event.getGui() instanceof DeathScreen) {
         	if (mc.screen instanceof DeathScreen) {

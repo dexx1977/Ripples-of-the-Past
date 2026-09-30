@@ -162,7 +162,7 @@ public class GoldExperienceHeal extends StandEntityAction {
                     entity.setHealth(entity.getHealth() + 2.0F);
                 }
                 else {
-                    entity.hurt(DamageSource.GENERIC, 0.0001F);
+                    entity.hurt(entity.level().damageSources().generic(), 0.0001F);
                     MobEffect regen = regenEffectFor(entity);
                     int lvl = Math.min(MCUtil.getEffectLevel(entity, regen) + 1, MAX_REGEN_LVL);
                     entity.addEffect(new MobEffectInstance(regen, HamonHealing.updateRegenEffect(entity, 105, lvl, regen), lvl));
@@ -222,7 +222,7 @@ public class GoldExperienceHeal extends StandEntityAction {
             MobEffectInstance newRegen = new MobEffectInstance(regenEffect, duration, lvl, false, true, true, currentRegen);
             entity.addEffect(newRegen);
         }
-        entity.hurt(DamageSource.GENERIC, 0.0001F);
+        entity.hurt(entity.level().damageSources().generic(), 0.0001F);
         
         
         MobEffectInstance bleeding = entity.getEffect(ModStatusEffects.BLEEDING.get());

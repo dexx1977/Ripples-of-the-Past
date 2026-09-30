@@ -901,7 +901,7 @@ public class InputHandler {
     public void mcPlayerAttack() {
         if (mc.hitResult != null && !mc.player.isHandsBusy() && 
                 mc.hitResult.getType() == HitResult.Type.ENTITY && isValidPlayerAttackTarget(mc.hitResult)) {
-            mc.gameMode.attack(mc.player, ((EntityHitResult) mc.hitResult).getEntity());
+            mc.gameMode.attack(mc.player, ((EntityHitResult) mc.hitResult).getOwner());
         }
     }
     

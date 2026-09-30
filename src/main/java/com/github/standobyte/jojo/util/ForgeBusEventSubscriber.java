@@ -295,8 +295,8 @@ public class ForgeBusEventSubscriber {
         ServerPlayer player = (ServerPlayer) event.getEntity();
         SaveFileUtilCapProvider.getSaveFileCap(player).onPlayerLogIn(player);
         JojoModConfig.Common.SyncedValues.syncWithClient(player);
-        syncPowerData(event.getEntity());
-        IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(power -> {
+        syncPowerData(event.getOwner());
+        IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(power -> {
             if (power.hasPower()) {
                 power.getType().unlockNewActions(power);
             }
@@ -305,12 +305,12 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
-        syncPowerData(event.getEntity());
+        syncPowerData(event.getOwner());
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerRespawnEvent event) {
-        syncPowerData(event.getEntity());
+        syncPowerData(event.getOwner());
     }
     
     private static void syncPowerData(Player player) {
@@ -329,7 +329,7 @@ public class ForgeBusEventSubscriber {
     
     @SubscribeEvent
     public static void onPlayerLogout(PlayerLoggedOutEvent event) {
-        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayer) event.getEntity());
+        JojoModConfig.Common.SyncedValues.onPlayerLogout((ServerPlayer) event.getOwner());
     }
     
     

@@ -445,7 +445,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
         this.yBodyRot = p_181013_1_;
     }
 
-    public void lookAt(EntityAnchorArgument.Type p_200602_1_, Vec3 p_200602_2_) {
+    public void lookAt(EntityAnchorArgument.Anchor p_200602_1_, Vec3 p_200602_2_) {
         super.lookAt(p_200602_1_, p_200602_2_);
         this.yHeadRotO = this.yHeadRot;
         this.yBodyRot = this.yHeadRot;

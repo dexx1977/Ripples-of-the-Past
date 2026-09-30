@@ -66,7 +66,7 @@ public class MagiciansRedKick extends StandEntityHeavyAttack {
             if (!world.isClientSide()) {
                 MagiciansRedRedBind.getLandedRedBind(standEntity).ifPresent(redBind -> {
                     if (redBind.isInKickAttack()) {
-                        redBind.remove();
+                        redBind.discard();
                     }
                 });
             }

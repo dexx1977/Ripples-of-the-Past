@@ -206,7 +206,7 @@ public class HamonData extends TypeSpecificData {
             setIsMeditating(user, false);
             
             if (shieldEntity != null) {
-                shieldEntity.remove();
+                shieldEntity.discard();
                 shieldEntity = null;
             }
             hamonProtection = false;

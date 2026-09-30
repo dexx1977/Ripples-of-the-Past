@@ -515,7 +515,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             if (entity instanceof CocoJumboTurtleEntity) { // kill me
                 ((CocoJumboTurtleEntity) entity).dropKey();
             }
-            entity.remove();
+            entity.discard();
         }
     }
     

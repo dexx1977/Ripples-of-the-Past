@@ -112,7 +112,7 @@ public class ClackersItem extends Item {
             if (power < 0.15) {
                 playClackSound(world, entity);
                 if (!world.isClientSide()) {
-                    entity.hurt(entity instanceof Player ? DamageSource.playerAttack((Player) entity) : DamageSource.mobAttack(entity), 1.0F);
+                    entity.hurt(entity instanceof Player ? ((Player) entity).level().damageSources().playerAttack((Player) entity) : entity.level().damageSources().mobAttack((net.minecraft.world.entity.LivingEntity) (entity)), 1.0F);
                     JojoModUtil.sayVoiceLine(entity, ModSounds.JOSEPH_OH_NO.get());
                 }
             }

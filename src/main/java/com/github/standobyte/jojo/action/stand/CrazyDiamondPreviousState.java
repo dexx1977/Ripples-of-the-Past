@@ -154,7 +154,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                                 tntBlock = Blocks.TNT;
                             }
                             BlockPos blockPos = tnt.blockPosition();
-                            tnt.remove();
+                            tnt.discard();
                             if (!tnt.isAlive()) {
                                 replaceOrDropBlock(world, blockPos, tntBlock.defaultBlockState());
                             }
@@ -184,7 +184,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     if (!ModStandsInit.CRAZY_DIAMOND_HEAL.get().healLivingEntity(world, (LivingEntity) targetEntity, standEntity, task)) {
                         if (!world.isClientSide() && standEntity.getRandom().nextFloat() < 0.1F) {
                             BlockPos blockPos = targetEntity.blockPosition();
-                            targetEntity.remove();
+                            targetEntity.discard();
                             if (!targetEntity.isAlive()) {
                                 replaceOrDropBlock(world, blockPos.offset(0, 2, 0), Blocks.CARVED_PUMPKIN.defaultBlockState());
                                 replaceOrDropBlock(world, blockPos, Blocks.SNOW_BLOCK.defaultBlockState());
@@ -212,7 +212,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                         if (!ModStandsInit.CRAZY_DIAMOND_HEAL.get().healLivingEntity(world, (LivingEntity) targetEntity, standEntity, task)) {
                             if (!world.isClientSide() && standEntity.getRandom().nextFloat() < 0.05F) {
                                 BlockPos blockPos = targetEntity.blockPosition();
-                                targetEntity.remove();
+                                targetEntity.discard();
                                 if (!targetEntity.isAlive()) {
                                     replaceOrDropBlock(world, blockPos, Blocks.IRON_BLOCK.defaultBlockState());
                                     replaceOrDropBlock(world, blockPos.offset(0, 2, 0), Blocks.CARVED_PUMPKIN.defaultBlockState());

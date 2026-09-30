@@ -157,7 +157,7 @@ public class HamonOverdriveBarrage extends HamonAction {
                     }
 
                     Vec3 speed = target.getDeltaMovement();
-                    boolean dealtDamage = target.hurt(DamageSource.playerAttack(attacker), damage);
+                    boolean dealtDamage = target.hurt(attacker.level().damageSources().playerAttack(attacker), damage);
                     if (dealtDamage) {
                         if (kbValue > 0) {
                             if (target instanceof LivingEntity) {

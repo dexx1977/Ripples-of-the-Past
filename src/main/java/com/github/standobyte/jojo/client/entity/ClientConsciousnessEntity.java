@@ -276,7 +276,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
                 this.lastHurt = f;
                 this.setHealth(this.getHealth());
                 this.invulnerableTime = 20;
-                this.actuallyHurt(DamageSource.GENERIC, f);
+                this.actuallyHurt(this.level().damageSources().generic(), f);
                 this.hurtDuration = 10;
                 this.hurtTime = this.hurtDuration;
             }

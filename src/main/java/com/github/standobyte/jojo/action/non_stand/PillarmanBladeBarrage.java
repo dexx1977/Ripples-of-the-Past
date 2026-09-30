@@ -126,7 +126,7 @@ public class PillarmanBladeBarrage extends PillarmanAction {
 	                    targetEntity.invulnerableTime = invulTicks;
 	                }
 	                if (!world.isClientSide()) {
-	                    if (DamageUtil.hurtThroughInvulTicks(targetLiving, EntityDamageSource.playerAttack((Player) user), 
+	                    if (DamageUtil.hurtThroughInvulTicks(targetLiving, ((Player) user).level().damageSources().playerAttack((Player) user), 
 	                            (DamageUtil.getDamageWithoutHeldItem(user) * 0.2F))) {
 	                    	PillarmanUtil.sparkEffect(targetLiving, 12);
 	                    }

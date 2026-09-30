@@ -32,7 +32,7 @@ public class ShearsItemMixin {
     public void nuEtoUzheSovsemPizdecKakoiTo(ItemStack stack, Player playerIn, LivingEntity entity, InteractionHand hand, CallbackInfoReturnable<InteractionResult> ci) {
         boolean isGELifeform = StandEffectsTracker.getEffectsTargetedBy(entity, ModStandEffects.GE_CREATED_LIFEFORM.get()).findAny().isPresent();
         if (isGELifeform) {
-            playerIn.hurt(DamageSource.playerAttack(playerIn), 1);
+            playerIn.hurt(playerIn.level().damageSources().playerAttack(playerIn), 1);
             ci.setReturnValue(InteractionResult.SUCCESS);
         }
     }

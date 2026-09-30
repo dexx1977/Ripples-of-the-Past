@@ -74,7 +74,7 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
                     return;
                 }
                 if (!level.isClientSide() && !rippedHurtOwner) {
-                    DamageUtil.hurtThroughInvulTicks(standUser, DamageSource.GENERIC, 0.2F);
+                    DamageUtil.hurtThroughInvulTicks(standUser, standUser.level().damageSources().generic(), 0.2F);
                     rippedHurtOwner = true;
                 }
             }

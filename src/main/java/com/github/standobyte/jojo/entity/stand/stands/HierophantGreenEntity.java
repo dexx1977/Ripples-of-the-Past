@@ -72,7 +72,7 @@ public class HierophantGreenEntity extends StandEntity {
             if (stringToUser == null || !stringToUser.isAlive()) {
                 stringToUser = new HGBarrierEntity(level, this);
                 if (stringFromStand != null && stringFromStand.isAlive()) {
-                    stringFromStand.remove();
+                    stringFromStand.discard();
                 }
                 stringFromStand = stringToUser;
                 stringFromStand.withStandSkin(getStandSkin());
@@ -134,7 +134,7 @@ public class HierophantGreenEntity extends StandEntity {
                 if (speedAttributeInstance.getModifier(SPEED_MODIFIER_RETRACTION_UUID) != null) {
                     speedAttributeInstance.removeModifier(SPEED_MODIFIER_RETRACTION);
                 }
-                stringToUser.remove();
+                stringToUser.discard();
             }
         }
     }

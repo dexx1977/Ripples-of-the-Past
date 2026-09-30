@@ -20,7 +20,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     protected boolean canHurtStands;
 
     public ModdedDamageSourceWrapper(DamageSource dmgSource) {
-        super(dmgSource.typeHolder(), dmgSource.getDirectEntity(), dmgSource.getEntity());
+        super(dmgSource.typeHolder(), dmgSource.getDirectEntity(), dmgSource.getOwner());
         this.dmgSource = dmgSource;
     }
     

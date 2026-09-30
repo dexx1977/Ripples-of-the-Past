@@ -69,7 +69,7 @@ public class KnifeItem extends Item {
         if (!world.isClientSide()) {
             ItemStack headStack = player.getItemBySlot(EquipmentSlot.HEAD);
             if (handStack.getCount() == 1 && headStack.getItem() instanceof StoneMaskItem && BleedingEffect.applyStoneMask(player, headStack)) {
-                player.hurt(DamageSource.playerAttack(player), 1.0F);
+                player.hurt(player.level().damageSources().playerAttack(player), 1.0F);
                 return InteractionResultHolder.consume(handStack);
             }
             

@@ -74,7 +74,7 @@ public class StandArrowItem extends ArrowItem {
         ItemStack stack = player.getItemInHand(hand);
         
         if (!world.isClientSide() && onPiercedByArrow(player, stack, world, Optional.empty())) {
-            player.hurt(DamageSource.playerAttack(player), Math.min(1.0F, Math.max(player.getHealth() - 1.0F, 0)));
+            player.hurt(player.level().damageSources().playerAttack(player), Math.min(1.0F, Math.max(player.getHealth() - 1.0F, 0)));
             stack.hurtAndBreak(1, player, pl -> {});
             return InteractionResultHolder.success(stack);
         }

@@ -146,7 +146,7 @@ public class ProjectileHamonChargeCap {
             
             // add hamon damage on direct hit
             if (target.getType() == HitResult.Type.ENTITY) {
-                dealHamonDamageToTarget(((EntityHitResult) target).getEntity(), getHamonDamage());
+                dealHamonDamageToTarget(((EntityHitResult) target).getOwner(), getHamonDamage());
             }
             
             // memorize charged egg entity to potentially charge the chicken(s) coming out of it

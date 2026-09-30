@@ -56,7 +56,7 @@ public class PillarmanUnnaturalAgility extends PillarmanAction {
                     		&& attacker instanceof LivingEntity && !(attacker instanceof StandEntity)) {
                     	double counterAttack = Math.random();
                     	if (counterAttack < 0.3) {
-                    		attacker.hurt(EntityDamageSource.playerAttack((Player) targetLiving), 
+                    		attacker.hurt(((Player) targetLiving).level().damageSources().playerAttack((Player) targetLiving), 
 	                            (DamageUtil.getDamageWithoutHeldItem(targetLiving) * 0.75F));
                     	}
                     }

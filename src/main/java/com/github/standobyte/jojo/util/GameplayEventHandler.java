@@ -359,7 +359,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelStunnedPlayerInteraction(PlayerInteractEvent event) {
-        if (event.isCancelable() && ModStatusEffects.isStunned(event.getEntity())) {
+        if (event.isCancelable() && ModStatusEffects.isStunned(event.getOwner())) {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }
@@ -367,7 +367,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void cancelItemPickupInStun(EntityItemPickupEvent event) {
-        if (ModStatusEffects.isStunned(event.getEntity())) {
+        if (ModStatusEffects.isStunned(event.getOwner())) {
             event.setCanceled(true);
         }
     }
@@ -393,14 +393,14 @@ public class GameplayEventHandler {
             VampirismUtil.editMobAiGoals((Mob) entity);
         }
 //        else if (entity.getType() == EntityType.PAINTING) {
-//            cutOutHands((PaintingEntity) event.getEntity());
+//            cutOutHands((PaintingEntity) event.getOwner());
 //        }
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onUseItem(PlayerInteractEvent.RightClickItem event) {
         if (ModInteractionUtil.isSquidInkPasta(event.getItemStack())) {
-            InkPastaItem.useWithHamon(event.getLevel(), event.getEntity(), event.getHand()).ifPresent(result -> {
+            InkPastaItem.useWithHamon(event.getLevel(), event.getOwner(), event.getHand()).ifPresent(result -> {
                 event.setCanceled(true);
                 event.setCancellationResult(result.getResult());
             });
@@ -434,7 +434,7 @@ public class GameplayEventHandler {
         LivingEntity entity = event.getEntity();
         ItemStack item = event.getItem();
         if (item.getItem() == Items.ENCHANTED_GOLDEN_APPLE) {
-            VampirismUtil.onEnchantedGoldenAppleEaten(event.getEntity());
+            VampirismUtil.onEnchantedGoldenAppleEaten(event.getOwner());
         }
         else if (ModInteractionUtil.isSquidInkPasta(item)) {
             InkPastaItem.onEaten(entity);
@@ -641,7 +641,7 @@ public class GameplayEventHandler {
             };
         });
         
-        if (HamonUtil.cancelDamageFromBlock(event.getEntity(), event.getSource(), event.getAmount())) {
+        if (HamonUtil.cancelDamageFromBlock(event.getOwner(), event.getSource(), event.getAmount())) {
             event.setCanceled(true);
         }
         if (VampirismFreeze.onUserAttacked(event)) {
@@ -817,9 +817,9 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void resolveOnTakingDamage(LivingDamageEvent event) {
-        IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> {
+        IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(stand -> {
             if (stand.usesResolve()) {
-                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getEntity());
+                stand.getResolveCounter().onGettingAttacked(event.getSource(), event.getAmount(), event.getOwner());
             }
         });
     }
@@ -829,7 +829,7 @@ public class GameplayEventHandler {
         if (event.getSource() == DamageSource.OUT_OF_WORLD) {
             return;
         }
-        float dmgReduction = IStandPower.getStandPowerOptional(event.getEntity()).map(stand -> {
+        float dmgReduction = IStandPower.getStandPowerOptional(event.getOwner()).map(stand -> {
             return stand.getResolveDmgReduction();
         }).orElse(0F);
         if (dmgReduction > 0F) {
@@ -954,7 +954,7 @@ public class GameplayEventHandler {
     public static void changePotionAmplifier(PotionAddedEvent event) {
         MobEffectInstance effectInstance = event.getPotionEffect();
         if (effectInstance.getEffect() == ModStatusEffects.BLEEDING.get()) {
-            int amplifier = BleedingEffect.limitAmplifier(event.getEntity(), effectInstance.getAmplifier());
+            int amplifier = BleedingEffect.limitAmplifier(event.getOwner(), effectInstance.getAmplifier());
             if (amplifier != effectInstance.getAmplifier() && amplifier >= 0) {
                 effectInstance.amplifier = amplifier;
             }
@@ -1012,7 +1012,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionRemoved(PotionRemoveEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getPotion());
+        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getPotion());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && event.getPotionEffect() != null && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
@@ -1023,7 +1023,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionExpired(PotionExpiryEvent event) {
-        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getPotionEffect().getEffect());
+        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getPotionEffect().getEffect());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && ModStatusEffects.isEffectTracked(event.getPotionEffect().getEffect())) {
@@ -1059,7 +1059,7 @@ public class GameplayEventHandler {
                 if (target instanceof PrimedTnt) {
                     PrimedTnt tnt = (PrimedTnt) target;
                     fuse = tnt.getLife();
-                    tnt.remove();
+                    tnt.discard();
                 }
                 else if (target instanceof MinecartTNT) {
                     MinecartTNT tntMinecart = (MinecartTNT) target;
@@ -1070,7 +1070,7 @@ public class GameplayEventHandler {
                         tntMinecart.saveWithoutId(nbt);
                         nbt.putString("id", MCUtil.id(EntityType.MINECART).toString());
                         Entity regularMinecart = EntityType.loadEntityRecursive(nbt, world, e -> e);
-                        tntMinecart.remove();
+                        tntMinecart.discard();
                         world.removeEntity(tntMinecart, false);
                         if (regularMinecart != null) {
                             world.tryAddFreshEntityWithPassengers(regularMinecart);
@@ -1109,7 +1109,7 @@ public class GameplayEventHandler {
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() == Blocks.TRIPWIRE) {
-                    INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> {
+                    INonStandPower.getNonStandPowerOptional(event.getOwner()).ifPresent(power -> {
                         power.getTypeSpecificData(ModPowers.HAMON.get()).ifPresent(hamon -> {
                             if (hamon.isSkillLearned(ModHamonSkills.ROPE_TRAP.get())) {
                                 event.setCanceled(true);
@@ -1135,7 +1135,7 @@ public class GameplayEventHandler {
                 BlockPos pos = event.getHitVec().getBlockPos();
                 BlockState blockState = world.getBlockState(pos);
                 if (blockState.getBlock() instanceof AbstractFurnaceBlock) {
-                    IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(power -> {
+                    IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(power -> {
                         if (power.isActive() && power.getType() == ModStands.MAGICIANS_RED.getStandType()) {
                             BlockEntity tileEntity = world.getBlockEntity(pos);
                             if (tileEntity instanceof AbstractFurnaceBlockEntity) {
@@ -1351,12 +1351,12 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onProjectileShot(EntityJoinLevelEvent event) {
-        HamonUtil.chargeNewEntity(event.getEntity(), event.getLevel());
+        HamonUtil.chargeNewEntity(event.getOwner(), event.getLevel());
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onProjectileHit(ProjectileImpactEvent event) {
-        HamonUtil.onProjectileImpact(event.getEntity(), event.getRayTraceResult());
+        HamonUtil.onProjectileImpact(event.getOwner(), event.getRayTraceResult());
     }
     
     @SubscribeEvent
@@ -1635,8 +1635,8 @@ public class GameplayEventHandler {
     public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
         if (event.getNewGameMode() == GameType.CREATIVE) {
             Player player = event.getEntity();
-            INonStandPower.getNonStandPowerOptional(event.getEntity()).ifPresent(power -> power.resetCooldowns());
-            IStandPower.getStandPowerOptional(event.getEntity()).ifPresent(stand -> stand.resetCooldowns());
+            INonStandPower.getNonStandPowerOptional(event.getOwner()).ifPresent(power -> power.resetCooldowns());
+            IStandPower.getStandPowerOptional(event.getOwner()).ifPresent(stand -> stand.resetCooldowns());
             player.removeEffect(ModStatusEffects.IMMOBILIZE.get());
             player.removeEffect(ModStatusEffects.STUN.get());
             player.removeEffect(ModStatusEffects.HAMON_SHOCK.get());

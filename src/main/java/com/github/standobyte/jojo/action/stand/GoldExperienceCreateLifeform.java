@@ -532,7 +532,7 @@ public class GoldExperienceCreateLifeform extends StandAction {
     
     private void mobFromEntity(GETransformationEntity tf, Entity entity, LivingEntity geUser) {
         MCUtil.cloneEntity(entity).ifPresent(e -> tf.getTfSourceData().withEntitySource(e));
-        entity.remove();
+        entity.discard();
         
         Vec3 pos = entity.position();
         tf.moveTo(pos.x, pos.y, pos.z, entity.yRot, entity.xRot);

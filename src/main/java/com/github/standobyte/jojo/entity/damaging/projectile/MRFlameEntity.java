@@ -80,7 +80,7 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     @Override
     protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
-            if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
+            if (ForgeEventFactory.getMobGriefingEvent(level, getOwner())) {
                 BlockPos blockPos = blockRayTraceResult.getBlockPos();
                 BlockState blockState = level.getBlockState(blockPos);
                 if (!meltIceAndSnow(level, blockState, blockPos) && 

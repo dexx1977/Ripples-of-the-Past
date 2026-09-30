@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -186,7 +187,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.ScreenEvent.Opening;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
 import net.minecraftforge.client.event.RenderArmEvent;
@@ -308,7 +309,7 @@ public class ClientEventHandler {
         }
         
         if (model instanceof PlayerModel) {
-            INonStandPower.getNonStandPowerOptional(event.getEntity()).map(power -> {
+            INonStandPower.getNonStandPowerOptional(event.getOwner()).map(power -> {
                 if (power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()).map(
                         pillarmanData -> pillarmanData.isStoneFormEnabled()).orElse(false)) {
                     PlayerModel<?> playerModel = (PlayerModel<?>) model;
@@ -389,7 +390,7 @@ public class ClientEventHandler {
             event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.limitPlayerHeadRot();
             });
-            ContinuousActionInstance.getCurrentAction(event.getEntity()).ifPresent(action -> action.onPreRender(partialTick));
+            ContinuousActionInstance.getCurrentAction(event.getOwner()).ifPresent(action -> action.onPreRender(partialTick));
         }
         BladeHatArmorModel.modifyOuterLayer(renderer.getModel(), entity);
     }
@@ -1574,7 +1575,7 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onScreenOpened(GuiOpenEvent event) {
+    public void onScreenOpened(ScreenEvent.Opening event) {
         Screen screen = event.getGui();
         if (screen instanceof TitleScreen) {
             String splash = CustomResources.getModSplashes().overrideSplash();
@@ -1593,7 +1594,7 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onScreenOpened2(GuiOpenEvent event) {
+    public void onScreenOpened2(ScreenEvent.Opening event) {
         IJojoScreen.rememberScreenTab(event.getGui());
     }
     

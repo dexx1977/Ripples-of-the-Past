@@ -127,7 +127,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
                     
 //                    Vector3d pos = Vector3d.atCenterOf(target.getBlockPos()).add(Vector3d.atLowerCornerOf(target.getFace().getNormal()).scale(0.6));
 //                    HeavyPunchExplosion explosion = new HeavyPunchExplosion(world, user, target, 
-//                            user.getLookAngle(), (user instanceof PlayerEntity ? DamageSource.playerAttack((PlayerEntity) user) : DamageSource.mobAttack(user)).setExplosion(), null, 
+//                            user.getLookAngle(), (user instanceof PlayerEntity ? ((PlayerEntity) user).level().damageSources().playerAttack((PlayerEntity) user) : (user).level().damageSources().mobAttack((net.minecraft.world.entity.LivingEntity) (user))).setExplosion(), null, 
 //                            pos.x, pos.y, pos.z, 
 //                            1.0f /* stone is way too blast-resistant compared to dirt so it's commented out for now */, false, 
 //                            JojoModUtil.breakingBlocksEnabled(user.level) ? Explosion.Mode.BREAK : Explosion.Mode.NONE);
@@ -142,7 +142,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
                 if (entity instanceof LivingEntity) {
                     LivingEntity targetEntity = (LivingEntity) entity;
                     Player pEntity = (Player) user;
-                    if (entity.hurt(EntityDamageSource.playerAttack(pEntity), getDamage(world, user))) {
+                    if (entity.hurt(pEntity.level().damageSources().playerAttack(pEntity), getDamage(world, user))) {
                         world.playSound(null, targetEntity.getX(), targetEntity.getEyeY(), targetEntity.getZ(), sound, targetEntity.getSoundSource(), volume, pitch);
                         targetEntity.knockback(2F, user.getX() - targetEntity.getX(), user.getZ() - targetEntity.getZ());
                         

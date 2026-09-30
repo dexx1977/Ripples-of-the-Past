@@ -49,7 +49,7 @@ public class MRFireballEntity extends ModdedProjectileEntity implements ItemSupp
     @Override
     protected void afterBlockHit(BlockHitResult blockRayTraceResult, boolean blockDestroyed) {
         if (!level.isClientSide) {
-            if (ForgeEventFactory.getMobGriefingEvent(level, getEntity())) {
+            if (ForgeEventFactory.getMobGriefingEvent(level, getOwner())) {
                 BlockPos blockPos = blockDestroyed ? blockRayTraceResult.getBlockPos() : 
                     blockRayTraceResult.getBlockPos().relative(blockRayTraceResult.getDirection());
                 if (level.isEmptyBlock(blockPos)) {

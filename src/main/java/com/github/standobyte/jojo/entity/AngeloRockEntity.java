@@ -153,7 +153,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     public void playMobResponseSound() {
         if (mob != null) {
             if (useMobHurtSound) {
-                CommonReflection.playHurtSound(mob, DamageSource.GENERIC);
+                CommonReflection.playHurtSound(mob, mob.level().damageSources().generic());
             }
             else {
                 mob.playAmbientSound();
@@ -414,7 +414,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         }).orElse(null);
         this.mob = mobEntity instanceof Mob ? (Mob) mobEntity : null;
         if (mob != null) {
-            mob.isRemoved() = true;
+            mob.discard();
         }
         this.useMobHurtSound = pCompound.getBoolean("NoAmbient");
     }
@@ -458,7 +458,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
             angeloEntity.walkAnimation.speed = 0;
             angeloEntity.walkAnimation.speedOld = 0;
             angeloEntity.addEffect(new MobEffectInstance(ModStatusEffects.IMMOBILIZE.get(), 10, 0, false, false, true));
-            angeloEntity.setPosAndOldPos(getX(), getY(), getZ());
+            angeloEntity.moveTo(getX(), getY(), getZ());
             angeloEntity.setPose(Pose.STANDING);
             if (creationAnimTicks <= 0) {
                 if (!level.isClientSide()) {
