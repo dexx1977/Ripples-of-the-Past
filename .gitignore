@@ -37,3 +37,4 @@ README.txt
 
 # local porting notes, logs and downloaded reference artifacts
 .porting/
+.DS_Store
