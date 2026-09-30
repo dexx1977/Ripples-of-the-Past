@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.hamon;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.item;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import java.util.Map;
-import net.minecraft.world.item.ItemTransforms;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -133,7 +133,7 @@ public class CustomIconItem {
 
         // TODO display transform
         @Override
-        public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+        public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
                 MultiBufferSource renderTypeBuffer, int light, int overlay) {
             if (itemStack.hasTag()) {
                 CompoundTag nbt = itemStack.getTag();

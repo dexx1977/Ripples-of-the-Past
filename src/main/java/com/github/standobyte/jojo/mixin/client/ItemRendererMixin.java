@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.mixin.client;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import org.spongepowered.asm.mixin.Mixin;
-import net.minecraft.world.item.ItemTransforms;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -32,7 +32,7 @@ import net.minecraft.world.entity.HumanoidArm;
 public class ItemRendererMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
-    public void jojoOnItemRender(ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+    public void jojoOnItemRender(ItemStack pItemStack, ItemDisplayContext pTransformType, boolean pLeftHand, 
             PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel, CallbackInfo ci) {
         switch (pTransformType) {
         case FIRST_PERSON_LEFT_HAND:
@@ -48,10 +48,10 @@ public class ItemRendererMixin {
     
     @ModifyVariable(method = "render", at = @At(value = "STORE"))
     public VertexConsumer changeVertexBuilder(VertexConsumer vertexBuilder, 
-            ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+            ItemStack pItemStack, ItemDisplayContext pTransformType, boolean pLeftHand, 
             PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel) {
         boolean flag1;
-        if (pTransformType != ItemTransforms.ItemDisplayContext.GUI && !pTransformType.firstPerson() && pItemStack.getItem() instanceof BlockItem) {
+        if (pTransformType != ItemDisplayContext.GUI && !pTransformType.firstPerson() && pItemStack.getItem() instanceof BlockItem) {
            Block block = ((BlockItem)pItemStack.getItem()).getBlock();
            flag1 = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
         } else {
@@ -73,7 +73,7 @@ public class ItemRendererMixin {
     }
     
     @ModifyVariable(method = "render", remap = false, at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    public int jojoItemHighlight(int pCombinedOverlay, ItemStack pItemStack, ItemTransforms.ItemDisplayContext pTransformType, boolean pLeftHand, 
+    public int jojoItemHighlight(int pCombinedOverlay, ItemStack pItemStack, ItemDisplayContext pTransformType, boolean pLeftHand, 
             PoseStack pMatrixStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlayArg, BakedModel pModel) {
         if (!pItemStack.isEmpty()) {
             float partialTick = Minecraft.getInstance().getDeltaFrameTime();

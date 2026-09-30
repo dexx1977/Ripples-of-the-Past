@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.world.item.ItemTransforms;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -52,7 +51,7 @@ public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLev
     }
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         Item item = itemStack.getItem();
         if (item == this.item.get()) {
@@ -74,7 +73,7 @@ public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLev
         }
     }
     
-    protected void doRender(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    protected void doRender(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         VertexConsumer vertexBuilder = ItemRenderer.getFoilBufferDirect(
                 renderTypeBuffer, model.renderType(texture), false, itemStack.hasFoil());
@@ -87,7 +86,7 @@ public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLev
             MultiBufferSource buffer, int combinedLight, int combinedOverlay, BakedModel itemModel) {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         boolean cull;
-        if (transformType != ItemTransforms.ItemDisplayContext.GUI && !transformType.firstPerson() && itemStack.getItem() instanceof BlockItem) {
+        if (transformType != ItemDisplayContext.GUI && !transformType.firstPerson() && itemStack.getItem() instanceof BlockItem) {
             Block block = ((BlockItem)itemStack.getItem()).getBlock();
             cull = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
         } else {

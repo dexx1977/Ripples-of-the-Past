@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import java.util.ArrayList;
-import net.minecraft.world.item.ItemTransforms;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -181,7 +181,7 @@ public abstract class MarkerRenderer {
 //        RenderSystem.disableCull();
         MultiBufferSource.Impl buffer = mc.renderBuffers().bufferSource();
         // FIXME the item model isn't rendered behind blocks/entities
-        itemRenderer.renderStatic(item, ItemTransforms.ItemDisplayContext.GUI, 
+        itemRenderer.renderStatic(item, ItemDisplayContext.GUI, 
                 ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, matrixStack, buffer);
 //        RenderSystem.enableDepthTest();
 //        RenderSystem.enableCull();

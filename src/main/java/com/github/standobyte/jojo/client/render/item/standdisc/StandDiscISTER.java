@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.standdisc;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
-import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.item.StandDiscItem;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,7 +31,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
     }
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, 
             PoseStack matrixStack, MultiBufferSource buffer, int light, int overlay) {
         ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
         BakedModel pModel = ir.getModel(itemStack, null, null);

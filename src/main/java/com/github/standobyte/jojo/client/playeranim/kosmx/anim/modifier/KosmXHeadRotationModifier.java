@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.layered.modifier.AbstractModifier;
 import dev.kosmx.playerAnim.core.util.Vec3f;

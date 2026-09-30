@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.hamon;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.playeranim.kosmx.anim.KosmXKeyframeAnimPlayer;
 import com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier.KosmXFixedFadeModifier;

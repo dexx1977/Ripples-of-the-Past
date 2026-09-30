@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.tommygun;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.JojoMod;
-import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
 import com.github.standobyte.jojo.init.ModItems;
@@ -31,7 +31,7 @@ public class TommyGunISTER extends CustomModelItemISTER<TommyGunModel> {
     }
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource buffer, int light, int overlay) {
         switch (transformType) {
         case GUI:
@@ -47,7 +47,7 @@ public class TommyGunISTER extends CustomModelItemISTER<TommyGunModel> {
     }
     
     @Override
-    protected void doRender(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    protected void doRender(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         super.doRender(itemStack, transformType, matrixStack, renderTypeBuffer, light, overlay);
         float fire = TommyGunItem.getGunshotTick(itemStack) - ClientUtil.getPartialTick();

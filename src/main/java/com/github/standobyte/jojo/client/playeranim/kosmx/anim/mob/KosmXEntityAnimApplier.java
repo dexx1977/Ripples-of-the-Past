@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.mob;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.client.ClientTicking;
 import com.github.standobyte.jojo.client.playeranim.IEntityAnimApplier;
 import com.mojang.blaze3d.vertex.PoseStack;

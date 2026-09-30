@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

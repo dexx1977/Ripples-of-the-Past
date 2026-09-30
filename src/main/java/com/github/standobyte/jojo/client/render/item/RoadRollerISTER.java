@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.client.render.item;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.Minecraft;
 import com.github.standobyte.jojo.client.render.entity.renderer.RoadRollerRenderer;
-import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.init.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -21,7 +21,7 @@ public class RoadRollerISTER extends BlockEntityWithoutLevelRenderer {
     private final RoadRollerItemModel roadRollerModel = new RoadRollerItemModel();
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         Item item = itemStack.getItem();
         if (item == ModItems.ROAD_ROLLER.get()) {

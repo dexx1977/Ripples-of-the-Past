@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.item.standdisc;
 
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import java.util.List;
 import java.util.Random;
 

@@ -1,8 +1,8 @@
 package com.github.standobyte.jojo.client.render.item;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import javax.annotation.Nullable;
-import net.minecraft.world.item.ItemTransforms;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
@@ -45,7 +45,7 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
 
     private int holdTick = 0;
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource buffer, int light, int overlay) {
         switch (transformType) {
         case FIRST_PERSON_LEFT_HAND:
@@ -63,10 +63,10 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
         }
     }
     
-    private void renderThirdPerson(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    private void renderThirdPerson(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource buffer, int light, int overlay) {
         float partialTick = ClientUtil.getPartialTick();
-        boolean leftHand = transformType == ItemTransforms.ItemDisplayContext.FIRST_PERSON_LEFT_HAND || transformType == ItemTransforms.ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+        boolean leftHand = transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
         HumanoidArm side = leftHand ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
         
         ModelPart clackers = clackersModel.getMainPart();
@@ -185,7 +185,7 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
         clackersModel.renderToBuffer(matrixStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
     
-    private void renderFirstPerson(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    private void renderFirstPerson(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource buffer, int light, int overlay) {
         
     }

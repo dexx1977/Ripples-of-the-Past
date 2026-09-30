@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.anim.kosmximpl.barrage;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.action.stand.StandEntityAction.Phase;
 import com.github.standobyte.jojo.client.playeranim.IPlayerBarrageAnimation;
 import com.github.standobyte.jojo.client.render.entity.layerrenderer.barrage.BarrageFistAfterimagesLayer;

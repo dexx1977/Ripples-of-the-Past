@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.polaroid;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import com.github.standobyte.jojo.JojoMod;
-import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PolaroidHelper;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
@@ -26,7 +26,7 @@ public class PolaroidISTER extends CustomModelItemISTER<PolaroidModel> {
     }
 
     @Override
-    public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         if (!(entity == ClientUtil.getClientPlayer() && PolaroidHelper.isTakingPhoto())) {
             super.renderByItem(itemStack, transformType, matrixStack, renderTypeBuffer, light, overlay);
@@ -34,7 +34,7 @@ public class PolaroidISTER extends CustomModelItemISTER<PolaroidModel> {
     }
     
     @Override
-    protected void doRender(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, PoseStack matrixStack, 
+    protected void doRender(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, 
             MultiBufferSource renderTypeBuffer, int light, int overlay) {
         boolean isHeld = entity != null && (entity.getItemInHand(InteractionHand.MAIN_HAND) == itemStack || entity.getItemInHand(InteractionHand.OFF_HAND) == itemStack);
 //        float ticks = Minecraft.getInstance().player.tickCount + ClientUtil.getPartialTick();

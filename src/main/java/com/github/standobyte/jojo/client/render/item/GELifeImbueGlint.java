@@ -1,7 +1,7 @@
 package com.github.standobyte.jojo.client.render.item;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import javax.annotation.Nullable;
-import net.minecraft.world.item.ItemTransforms;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.action.stand.effect.GEItemMarkEffect;
@@ -78,14 +78,14 @@ public abstract class GELifeImbueGlint extends RenderType {
     
     @Nullable
     public static VertexConsumer overrideVertexBuilder(ItemStack item, PoseStack matrixStack, MultiBufferSource buffer, 
-            RenderType renderType, ItemTransforms.ItemDisplayContext transformType, boolean blockSheet) {
+            RenderType renderType, ItemDisplayContext transformType, boolean blockSheet) {
         VertexConsumer builder = null;
         boolean goldEFoil = GEItemMarkEffect.isItemMarked(item, Minecraft.getInstance().player);
         if (goldEFoil) {
             if (item.getItem() == Items.COMPASS) {
                 matrixStack.pushPose();
                 PoseStack.Entry matrixEntry = matrixStack.last();
-                if (transformType == ItemTransforms.ItemDisplayContext.GUI) {
+                if (transformType == ItemDisplayContext.GUI) {
                     matrixEntry.pose().multiply(0.5F);
                 } else if (transformType.firstPerson()) {
                     matrixEntry.pose().multiply(0.75F);

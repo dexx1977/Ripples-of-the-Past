@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx.anim.modifier;
 
+import net.minecraft.world.item.ItemDisplayContext;
 import java.util.EnumSet;
 import java.util.Set;
 
