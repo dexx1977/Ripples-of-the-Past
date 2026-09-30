@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo;
 
+import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,7 +56,7 @@ public class JojoMod {
     
     @Deprecated
     // Use the field in ModItems
-    public static final CreativeModeTab MAIN_TAB = ModItems.MAIN_TAB;
+    public static final RegistryObject<CreativeModeTab> MAIN_TAB = ModItems.MAIN_TAB;
     
     public static Logger getLogger() {
         return LOGGER;
@@ -67,6 +68,7 @@ public class JojoMod {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        ModItems.CREATIVE_MODE_TABS.register(modEventBus);
         
         JojoCustomRegistries.initCustomRegistries(modEventBus);
         registerVanillaDeferredRegisters(modEventBus);

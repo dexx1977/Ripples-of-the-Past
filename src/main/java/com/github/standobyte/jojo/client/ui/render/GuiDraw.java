@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.render;
 
+import com.github.standobyte.jojo.client.ui.render.AbstractGui;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
 

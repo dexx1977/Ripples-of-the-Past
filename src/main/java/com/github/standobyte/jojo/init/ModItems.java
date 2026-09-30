@@ -49,6 +49,7 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
@@ -61,18 +62,83 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, JojoMod.MOD_ID);
     
-    public static final CreativeModeTab MAIN_TAB = new ModCreativeTab("jojo_tab");
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, JojoMod.MOD_ID);
+    
+    public static final RegistryObject<CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("jojo_tab",
+            () -> ModCreativeTab.create("jojo_tab", ModItems::addMainTabItems));
+    
+    /** The items the mod's tab shows, in the same order they used to declare it. */
+    private static void addMainTabItems(CreativeModeTab.ItemDisplayParameters params, CreativeModeTab.Output output) {
+                output.accept(WOODEN_COFFIN_OAK.get(DyeColor.RED).get());
+                output.accept(IRON_SLEDGEHAMMER.get());
+                output.accept(BLADE_HAT.get());
+                output.accept(STONE_MASK.get());
+                output.accept(BREATH_CONTROL_MASK.get());
+                output.accept(GLOVES.get());
+                output.accept(OIL.get());
+                output.accept(BUBBLE_GLOVES.get());
+                output.accept(SOAP.get());
+                output.accept(LUCK_SWORD.get());
+                output.accept(LUCK_PLUCK_SWORD.get());
+                output.accept(HAMON_MASTER_SPAWN_EGG.get());
+                output.accept(HUNGRY_ZOMBIE_SPAWN_EGG.get());
+                output.accept(AJA_STONE.get());
+                output.accept(SUPER_AJA_STONE.get());
+                output.accept(SATIPOROJA_SCARF.get());
+                output.accept(CLACKERS.get());
+                output.accept(TOMMY_GUN.get());
+                output.accept(MOLOTOV.get());
+                output.accept(LARGE_CROSSBOW.get());
+                output.accept(METAL_BALL.get());
+                output.accept(SQUID_INK_PASTA.get());
+                output.accept(KNIFE.get());
+                output.accept(ROAD_ROLLER.get());
+                output.accept(GOLD_EXPERIENCE_BODY_TISSUE.get());
+                output.accept(ROCK_PAPER_SCISSORS_KID_SPAWN_EGG.get());
+                output.accept(METEORIC_IRON.get());
+                output.accept(METEORITE_ORE.get());
+                output.accept(METEORIC_SCRAP.get());
+                output.accept(METEORIC_INGOT.get());
+                output.accept(STAND_ARROW.get());
+                output.accept(STAND_ARROW_BEETLE.get());
+                output.accept(STAND_ARROW_SHARD.get());
+                output.accept(STAND_DISC.get());
+                output.accept(STAND_REMOVER.get());
+                output.accept(STAND_REMOVER_ONE_TIME.get());
+                output.accept(STAND_EJECT.get());
+                output.accept(STAND_EJECT_ONE_TIME.get());
+                output.accept(STAND_FULL_CLEAR.get());
+                output.accept(STAND_FULL_CLEAR_ONE_TIME.get());
+                output.accept(COCOA_GUM.get());
+                output.accept(WALKMAN.get());
+                output.accept(CASSETTE_BLANK.get());
+                output.accept(CASSETTE_RECORDED.get());
+                output.accept(TAROT_DECK.get());
+                output.accept(POLAROID.get());
+                output.accept(PHOTO.get());
+                output.accept(PHOTO_ALBUM.get());
+                output.accept(PHOTO_FRAME.get());
+                output.accept(NAIL_CLIPPERS.get());
+                output.accept(LIGHTER.get());
+                output.accept(MISTA_REVOLVER.get());
+                output.accept(COCO_JUMBO_SPAWN_EGG.get());
+                output.accept(MR_PRESIDENT_KEY.get());
+                output.accept(MR_PRESIDENT_MASTER_KEY.get());
+                output.accept(MR_PRESIDENT_EXIT.get());
+                output.accept(STONE_PENDANT.get());
+                output.accept(HARPOON.get());
+    }
     
     
     
     public static final RegistryObject<SledgehammerItem> IRON_SLEDGEHAMMER = ITEMS.register("sledgehammer", 
-            () -> new SledgehammerItem(Tiers.IRON, 9, -3.3F, new Item.Properties().tab(MAIN_TAB)));
+            () -> new SledgehammerItem(Tiers.IRON, 9, -3.3F, new Item.Properties()));
     
     public static final RegistryObject<BladeHatItem> BLADE_HAT = ITEMS.register("blade_hat", 
-            () -> new BladeHatItem(ModArmorMaterials.BLACK_CLOTH, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB)));
+            () -> new BladeHatItem(ModArmorMaterials.BLACK_CLOTH, EquipmentSlot.HEAD, new Item.Properties()));
     
     public static final RegistryObject<StoneMaskItem> STONE_MASK = ITEMS.register("stone_mask", 
-            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE), ModBlocks.STONE_MASK.get()));
+            () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlot.HEAD, new Item.Properties().rarity(Rarity.RARE), ModBlocks.STONE_MASK.get()));
     
     public static final RegistryObject<StoneMaskItem> AJA_STONE_MASK = ITEMS.register("aja_stone_mask", 
             () -> new StoneMaskItem(ModArmorMaterials.STONE_MASK, EquipmentSlot.HEAD, new Item.Properties().rarity(Rarity.RARE), ModBlocks.AJA_STONE_MASK.get()));
@@ -80,67 +146,64 @@ public class ModItems {
     public static final Map<DyeColor, RegistryObject<BlockItem>> WOODEN_COFFIN_OAK = register16colorsItem("wooden_coffin_oak", 
             dye -> {
                 Item.Properties builder = new Item.Properties().stacksTo(1);
-                if (dye == DyeColor.RED) {
-                    builder.tab(MAIN_TAB);
-                }
                 return new BlockItem(ModBlocks.WOODEN_COFFIN_OAK.get(dye).get(), builder);
             });
     
     public static final RegistryObject<CustomModelArmorItem> BREATH_CONTROL_MASK = ITEMS.register("breath_control_mask", 
-            () -> new BreathControlMaskItem(new Item.Properties().tab(MAIN_TAB)));
+            () -> new BreathControlMaskItem(new Item.Properties()));
     
     public static final RegistryObject<GlovesItem> GLOVES = ITEMS.register("gloves", 
-            () -> new GlovesItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+            () -> new GlovesItem(new Item.Properties().stacksTo(1)));
     
     public static final RegistryObject<OilItem> OIL = ITEMS.register("oil", 
-            () -> new OilItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+            () -> new OilItem(new Item.Properties().stacksTo(1)));
     
     public static final RegistryObject<GlovesItem> BUBBLE_GLOVES = ITEMS.register("bubble_gloves", 
-            () -> new BubbleGlovesItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1))); 
+            () -> new BubbleGlovesItem(new Item.Properties().stacksTo(1))); 
     
     public static final RegistryObject<SoapItem> SOAP = ITEMS.register("soap", 
-            () -> new SoapItem(new Item.Properties().tab(MAIN_TAB).craftRemainder(Items.GLASS_BOTTLE).stacksTo(1)));
+            () -> new SoapItem(new Item.Properties().craftRemainder(Items.GLASS_BOTTLE).stacksTo(1)));
     
 //    public static final RegistryObject<LuckPluckSwordItem> LUCK_SWORD = ITEMS.register("luck_sword", 
-//            () -> new LuckPluckSwordItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new LuckPluckSwordItem(new Item.Properties().stacksTo(1)));
 //    
 //    public static final RegistryObject<LuckPluckSwordItem> LUCK_PLUCK_SWORD = ITEMS.register("luck_pluck_sword", 
-//            () -> new LuckPluckSwordItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new LuckPluckSwordItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<SpawnEggItem> HAMON_MASTER_SPAWN_EGG = ITEMS.register("hamon_master_spawn_egg", 
-            () -> new ForgeSpawnEggItem(ModEntityTypes.HAMON_MASTER, 0xF8D100, 0x542722, new Item.Properties().tab(MAIN_TAB)));
+            () -> new ForgeSpawnEggItem(ModEntityTypes.HAMON_MASTER, 0xF8D100, 0x542722, new Item.Properties()));
 
     public static final RegistryObject<SpawnEggItem> HUNGRY_ZOMBIE_SPAWN_EGG = ITEMS.register("hungry_zombie_spawn_egg", 
-            () -> new ForgeSpawnEggItem(ModEntityTypes.HUNGRY_ZOMBIE, 0x00AFAF, 0x9B9B9B, new Item.Properties().tab(MAIN_TAB)));
+            () -> new ForgeSpawnEggItem(ModEntityTypes.HUNGRY_ZOMBIE, 0x00AFAF, 0x9B9B9B, new Item.Properties()));
 
     public static final RegistryObject<AjaStoneItem> AJA_STONE = ITEMS.register("aja_stone", 
-            () -> new AjaStoneItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON).stacksTo(16)));
+            () -> new AjaStoneItem(new Item.Properties().rarity(Rarity.UNCOMMON).stacksTo(16)));
 
     public static final RegistryObject<AjaStoneItem> SUPER_AJA_STONE = ITEMS.register("super_aja_stone", 
-            () -> new SuperAjaStoneItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE).durability(640)));
+            () -> new SuperAjaStoneItem(new Item.Properties().rarity(Rarity.RARE).durability(640)));
 
     public static final RegistryObject<SatiporojaScarfItem> SATIPOROJA_SCARF = ITEMS.register("satiporoja_scarf", 
-            () -> new SatiporojaScarfItem(ModArmorMaterials.SATIPOROJA_SCARF, EquipmentSlot.HEAD, new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
+            () -> new SatiporojaScarfItem(ModArmorMaterials.SATIPOROJA_SCARF, EquipmentSlot.HEAD, new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<ClackersItem> CLACKERS = ITEMS.register("clackers",
-            () -> new ClackersItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
+            () -> new ClackersItem(new Item.Properties().stacksTo(1)
                     .setISTER(() -> ClackersISTER::new)));
 
     public static final RegistryObject<TommyGunItem> TOMMY_GUN = ITEMS.register("tommy_gun",
-            () -> new TommyGunItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
+            () -> new TommyGunItem(new Item.Properties().stacksTo(1)
                     .setISTER(() -> TommyGunISTER::new)));
     
     public static final Supplier<Item> MOLOTOV = ITEMS.register("molotov",
-            () -> new MolotovItem(new Item.Properties().tab(MAIN_TAB).stacksTo(16)));
+            () -> new MolotovItem(new Item.Properties().stacksTo(16)));
 
 //    public static final RegistryObject<LargeCrossbowItem> LARGE_CROSSBOW = ITEMS.register("large_crossbow",
-//            () -> new LargeCrossbowItem(new Item.Properties().tab(MAIN_TAB).durability(652)));
+//            () -> new LargeCrossbowItem(new Item.Properties().durability(652)));
 //
 //    public static final RegistryObject<Item> METAL_BALL = ITEMS.register("metal_ball",
-//            () -> new MetalBallItem(new Item.Properties().tab(MAIN_TAB).stacksTo(16)));
+//            () -> new MetalBallItem(new Item.Properties().stacksTo(16)));
 //
 //    public static final RegistryObject<InkPastaItem> SQUID_INK_PASTA = ITEMS.register("squid_ink_pasta",
-//            () -> new InkPastaItem(new Item.Properties().tab(MAIN_TAB).stacksTo(16)
+//            () -> new InkPastaItem(new Item.Properties().stacksTo(16)
 //                    .food(new Food.Builder().nutrition(12).saturationMod(0.9f).build())));
 
     public static final RegistryObject<BlockItem> SLUMBERING_PILLARMAN = ITEMS.register("slumbering_pillarman", 
@@ -150,10 +213,10 @@ public class ModItems {
             () -> new BucketItem(ModFluids.BOILING_BLOOD, new Item.Properties()));
 
     public static final RegistryObject<KnifeItem> KNIFE = ITEMS.register("knife", 
-            () -> new KnifeItem(new Item.Properties().tab(MAIN_TAB).stacksTo(16)));
+            () -> new KnifeItem(new Item.Properties().stacksTo(16)));
 
     public static final RegistryObject<RoadRollerItem> ROAD_ROLLER = ITEMS.register("road_roller", 
-            () -> new RoadRollerItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
+            () -> new RoadRollerItem(new Item.Properties().stacksTo(1)
                     .setISTER(() -> RoadRollerISTER::new)));
 
     public static final RegistryObject<Item> CRAZY_DIAMOND_NON_BLOCK_ANCHOR = ITEMS.register("crazy_diamond_non_block_anchor", 
@@ -163,104 +226,104 @@ public class ModItems {
             () -> new GEBodyTissueItem(new Item.Properties().stacksTo(1)));
 
 //    public static final RegistryObject<SpawnEggItem> ROCK_PAPER_SCISSORS_KID_SPAWN_EGG = ITEMS.register("rps_kid_spawn_egg", 
-//            () -> new ForgeSpawnEggItem(ModEntityTypes.ROCK_PAPER_SCISSORS_KID, 0x563C33, 0xBD8B72, new Item.Properties().tab(MAIN_TAB)));
+//            () -> new ForgeSpawnEggItem(ModEntityTypes.ROCK_PAPER_SCISSORS_KID, 0x563C33, 0xBD8B72, new Item.Properties()));
 
     public static final RegistryObject<BlockItem> METEORIC_IRON = ITEMS.register("meteoric_iron", 
-            () -> new BlockItem(ModBlocks.METEORIC_IRON.get(), new Item.Properties().tab(MAIN_TAB)));
+            () -> new BlockItem(ModBlocks.METEORIC_IRON.get(), new Item.Properties()));
 
     public static final RegistryObject<BlockItem> METEORITE_ORE = ITEMS.register("meteoric_ore", 
-            () -> new BlockItem(ModBlocks.METEORIC_ORE.get(), new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
+            () -> new BlockItem(ModBlocks.METEORIC_ORE.get(), new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<Item> METEORIC_SCRAP = ITEMS.register("meteoric_scrap", 
-            () -> new Item(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON).setISTER(() -> CustomIconItem.DummyIconItemISTER::new)));
+            () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON).setISTER(() -> CustomIconItem.DummyIconItemISTER::new)));
 
     public static final RegistryObject<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", 
-            () -> new Item(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
+            () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<StandArrowItem> STAND_ARROW = ITEMS.register("stand_arrow", 
-            () -> new StandArrowItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON).durability(25), 10, false));
+            () -> new StandArrowItem(new Item.Properties().rarity(Rarity.UNCOMMON).durability(25), 10, false));
 
     public static final RegistryObject<StandArrowItem> STAND_ARROW_BEETLE = ITEMS.register("stand_arrow_beetle", 
-            () -> new StandArrowItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.RARE).durability(250), 25, true));
+            () -> new StandArrowItem(new Item.Properties().rarity(Rarity.RARE).durability(250), 25, true));
 
 //    public static final RegistryObject<StandArrowShardItem> STAND_ARROW_SHARD = ITEMS.register("stand_arrow_shard", 
-//            () -> new StandArrowShardItem(new Item.Properties().tab(MAIN_TAB).rarity(Rarity.UNCOMMON)));
+//            () -> new StandArrowShardItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<StandDiscItem> STAND_DISC = ITEMS.register("stand_disc",
-            () -> new StandDiscItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
+            () -> new StandDiscItem(new Item.Properties().stacksTo(1)
                     .setISTER(() -> StandDiscISTER::new)));
 
     public static final RegistryObject<StandRemoverItem> STAND_REMOVER = ITEMS.register("stand_remover",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1), StandRemoverItem.Mode.REMOVE, false));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(1), StandRemoverItem.Mode.REMOVE, false));
 
     public static final RegistryObject<StandRemoverItem> STAND_REMOVER_ONE_TIME = ITEMS.register("stand_remover_one_time",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(64), StandRemoverItem.Mode.REMOVE, true));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(64), StandRemoverItem.Mode.REMOVE, true));
 
     public static final RegistryObject<StandRemoverItem> STAND_EJECT = ITEMS.register("stand_eject",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1), StandRemoverItem.Mode.EJECT, false));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(1), StandRemoverItem.Mode.EJECT, false));
 
     public static final RegistryObject<StandRemoverItem> STAND_EJECT_ONE_TIME = ITEMS.register("stand_eject_one_time",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(64), StandRemoverItem.Mode.EJECT, true));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(64), StandRemoverItem.Mode.EJECT, true));
 
     public static final RegistryObject<StandRemoverItem> STAND_FULL_CLEAR = ITEMS.register("stand_full_clear",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1), StandRemoverItem.Mode.FULL_CLEAR, false));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(1), StandRemoverItem.Mode.FULL_CLEAR, false));
 
     public static final RegistryObject<StandRemoverItem> STAND_FULL_CLEAR_ONE_TIME = ITEMS.register("stand_full_clear_one_time",
-            () -> new StandRemoverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(64), StandRemoverItem.Mode.FULL_CLEAR, true));
+            () -> new StandRemoverItem(new Item.Properties().stacksTo(64), StandRemoverItem.Mode.FULL_CLEAR, true));
 
 //    public static final RegistryObject<Item> COCOA_GUM = ITEMS.register("cocoa_gum", 
-//            () -> new GumItem(new Item.Properties()/*.tab(MAIN_TAB)*/.food(new Food.Builder().nutrition(2).saturationMod(0.1F).build())));
+//            () -> new GumItem(new Item.Properties()/**/.food(new Food.Builder().nutrition(2).saturationMod(0.1F).build())));
 
     public static final RegistryObject<Item> WALKMAN = ITEMS.register("walkman", 
-            () -> new WalkmanItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+            () -> new WalkmanItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CASSETTE_BLANK = ITEMS.register("cassette_blank", 
-            () -> new CassetteBlankItem(new Item.Properties().tab(MAIN_TAB)));
+            () -> new CassetteBlankItem(new Item.Properties()));
 
     public static final RegistryObject<CassetteRecordedItem> CASSETTE_RECORDED = ITEMS.register("cassette_recorded", 
-            () -> new CassetteRecordedItem(new Item.Properties().stacksTo(1).tab(MAIN_TAB)));
+            () -> new CassetteRecordedItem(new Item.Properties().stacksTo(1)));
     
 //    public static final RegistryObject<TarotDeckItem> TAROT_DECK = ITEMS.register("tarot_deck", 
-//            () -> new TarotDeckItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new TarotDeckItem(new Item.Properties().stacksTo(1)));
 //    
     public static final RegistryObject<PolaroidItem> POLAROID = ITEMS.register("polaroid", 
-            () -> new PolaroidItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)
+            () -> new PolaroidItem(new Item.Properties().stacksTo(1)
                     .setISTER(() -> PolaroidISTER::new)));
     
     public static final RegistryObject<PhotoItem> PHOTO = ITEMS.register("photo", 
             () -> new PhotoItem(new Item.Properties().stacksTo(1)));
     
 //    public static final RegistryObject<PhotoAlbumItem> PHOTO_ALBUM = ITEMS.register("photo_album", 
-//            () -> new PhotoAlbumItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new PhotoAlbumItem(new Item.Properties().stacksTo(1)));
 //    
 //    public static final RegistryObject<PhotoFrameItem> PHOTO_FRAME = ITEMS.register("photo_frame", 
-//            () -> new PhotoFrameItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new PhotoFrameItem(new Item.Properties().stacksTo(1)));
 //    
 //    public static final RegistryObject<NailClippersItem> NAIL_CLIPPERS = ITEMS.register("nail_clippers", 
-//            () -> new NailClippersItem(new Item.Properties().tab(MAIN_TAB).durability(240)));
+//            () -> new NailClippersItem(new Item.Properties().durability(240)));
 //    
 //    public static final Map<DyeColor, RegistryObject<Item>> LADYBUG_BROOCH = register16colorsItem("ladybug_brooch", dye -> {
 //        Item.Properties builder = new Item.Properties();
 //        if (dye == DyeColor.LIGHT_BLUE) {
-//            builder.tab(MAIN_TAB);
+//            builder;
 //        }
 //        return new LadybugBroochItem(builder, dye);
 //    });
 //
 //    public static final RegistryObject<LighterItem> LIGHTER = ITEMS.register("lighter",
-//            () -> new LighterItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new LighterItem(new Item.Properties().stacksTo(1)));
 //
 //    public static final RegistryObject<MistaRevolverItem> MISTA_REVOLVER = ITEMS.register("mista_revolver",
-//            () -> new MistaRevolverItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new MistaRevolverItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<SpawnEggItem> COCO_JUMBO_SPAWN_EGG = ITEMS.register("coco_jumbo_spawn_egg", 
-            () -> new ForgeSpawnEggItem(ModEntityTypes.COCO_JUMBO_TURTLE, 0xE7E7E7, 0x00AFAF, new Item.Properties().tab(MAIN_TAB)));
+            () -> new ForgeSpawnEggItem(ModEntityTypes.COCO_JUMBO_TURTLE, 0xE7E7E7, 0x00AFAF, new Item.Properties()));
     
     public static final RegistryObject<Item> MR_PRESIDENT_KEY = ITEMS.register("mr_president_key", 
-            () -> new MrPresidentKeyItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1), false));
+            () -> new MrPresidentKeyItem(new Item.Properties().stacksTo(1), false));
     
     public static final RegistryObject<Item> MR_PRESIDENT_MASTER_KEY = ITEMS.register("mr_president_master_key", 
-            () -> new MrPresidentKeyItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1), true));
+            () -> new MrPresidentKeyItem(new Item.Properties().stacksTo(1), true));
 
     public static final RegistryObject<BlockItem> COCO_JUMBO_SHELL = ITEMS.register("coco_jumbo_shell", 
             () -> new BlockItem(ModBlocks.COCO_JUMBO_SHELL.get(), new Item.Properties()));
@@ -269,10 +332,10 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.MR_PRESIDENT_EXIT.get(), new Item.Properties()));
 //
 //    public static final RegistryObject<StonePendantItem> STONE_PENDANT = ITEMS.register("stone_pendant", 
-//            () -> new StonePendantItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new StonePendantItem(new Item.Properties().stacksTo(1)));
 //
 //    public static final RegistryObject<HarpoonItem> HARPOON = ITEMS.register("harpoon",
-//            () -> new HarpoonItem(new Item.Properties().tab(MAIN_TAB).stacksTo(1)));
+//            () -> new HarpoonItem(new Item.Properties().stacksTo(1)));
     
     
     
