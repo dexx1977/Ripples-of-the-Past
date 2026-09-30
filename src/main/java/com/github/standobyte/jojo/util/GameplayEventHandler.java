@@ -200,13 +200,13 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -300,7 +300,7 @@ public class GameplayEventHandler {
     }
 
     @SubscribeEvent
-    public static void onWorldTick(WorldTickEvent event) {
+    public static void onWorldTick(TickEvent.LevelTickEvent event) {
         if (event.side == LogicalSide.SERVER /* actually only ticks on server but ok */) {
             ServerLevel world = (ServerLevel) event.world;
             switch (event.phase) {
@@ -342,7 +342,7 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent
-    public static void onWorldLoad(WorldEvent.Load event) {
+    public static void onWorldLoad(LevelEvent.Load event) {
         if (event.level() instanceof ServerLevel) {
             MinecraftServer server = ((ServerLevel) event.level()).getServer();
             for (RegistryObject<? extends Feature<?>> featureSupplier : ModStructures.FEATURES.getEntries()) {
@@ -470,7 +470,7 @@ public class GameplayEventHandler {
                             .orElse(false));
                 if (!KQUsers.isEmpty()) {
                     if (monaLisaFull) {
-                        painting.getVariant().value() = ModPaintings.MONA_LISA_HANDS.get();
+                        painting.setVariant(ModPaintings.MONA_LISA_HANDS.get());
                         double x = painting.getX();
                         double z = painting.getZ();
                         if (x - (int) x != 0 && (int) (x + 0.04) != (int) x) {
@@ -483,7 +483,7 @@ public class GameplayEventHandler {
                     }
                 }
                 else if (monaLisaHands) {
-                    painting.getVariant().value() = PaintingVariant.KEBAB;
+                    painting.setVariant(PaintingVariant.KEBAB);
                 }
             }
         }
@@ -526,7 +526,7 @@ public class GameplayEventHandler {
                 }
             }
         });
-        original.remove(false);
+        original.discard();
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -823,7 +823,7 @@ public class GameplayEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void reduceDamageFromResolve(LivingDamageEvent event) {
-        if (event.getSource() == DamageSource.OUT_OF_WORLD) {
+        if (event.getSource().is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
             return;
         }
         float dmgReduction = IStandPower.getStandPowerOptional(event.getEntity()).map(stand -> {
@@ -897,9 +897,9 @@ public class GameplayEventHandler {
         Level world = target.level;
         if (world.isClientSide()
                 || dmgAmount < 0.98F
-                || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource != DamageSource.FALL
+                || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && !dmgSource.is(net.minecraft.world.damagesource.DamageTypes.FALL)
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_FIRE)
-                || dmgSource.isMagic()
+                || dmgSource.is(net.minecraft.tags.DamageTypeTags.WITCH_RESISTANT_TO)
                 || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_RESISTANCE)
                 || dmgSource.getMsgId().startsWith(DamageUtil.PILLAR_MAN_ABSORPTION.location().getPath())
                 || !JojoModUtil.canBleed(target)) return;
@@ -1009,7 +1009,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void trackedPotionRemoved(MobEffectEvent.Remove event) {
-        EntityStandType.removeEffectSharedWithStand(event.getOwner(), event.getEffect());
+        EntityStandType.removeEffectSharedWithStand(event.getEntity(), event.getEffect());
         
         Entity entity = event.getEntity();
         if (!entity.level.isClientSide() && event.getEffectInstance() != null && ModStatusEffects.isEffectTracked(event.getEffectInstance().getEffect())) {
@@ -1055,7 +1055,7 @@ public class GameplayEventHandler {
                 int fuse = -1;
                 if (target instanceof PrimedTnt) {
                     PrimedTnt tnt = (PrimedTnt) target;
-                    fuse = tnt.getLife();
+                    fuse = tnt.getFuse();
                     tnt.discard();
                 }
                 else if (target instanceof MinecartTNT) {
@@ -1068,7 +1068,7 @@ public class GameplayEventHandler {
                         nbt.putString("id", MCUtil.id(EntityType.MINECART).toString());
                         Entity regularMinecart = EntityType.loadEntityRecursive(nbt, world, e -> e);
                         tntMinecart.discard();
-                        world.removeEntity(tntMinecart, false);
+                        tntMinecart.discard();
                         if (regularMinecart != null) {
                             world.tryAddFreshEntityWithPassengers(regularMinecart);
                         }
@@ -1076,7 +1076,7 @@ public class GameplayEventHandler {
                 }
                 
                 if (fuse > -1) {
-                    Random random = world.random;
+                    net.minecraft.util.RandomSource random = world.random;
                     world.playSound(null, 
                             player.getX(), player.getY(), player.getZ(), 
                             SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 
@@ -1297,10 +1297,10 @@ public class GameplayEventHandler {
             Team team = player.getTeam();
             if (team != null && team.getDeathMessageVisibility() != Team.Visibility.ALWAYS) {
                 if (team.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OTHER_TEAMS) {
-                    player.server.getPlayerList().broadcastToTeam(player, deathMessage);
+                    player.server.getPlayerList().broadcastSystemToTeam(player, deathMessage);
                 }
                 else if (team.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OWN_TEAM) {
-                    player.server.getPlayerList().broadcastToAllExceptTeam(player, deathMessage);
+                    player.server.getPlayerList().broadcastSystemToAllExceptTeam(player, deathMessage);
                 }
             } else {
                 player.server.getPlayerList().broadcastSystemMessage(deathMessage, false);
@@ -1387,7 +1387,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onItemThrown(ItemTossEvent event) {
-        HamonPlantItemInfusion.chargeItemEntity(event.getPlayer(), event.getEntityItem());
+        HamonPlantItemInfusion.chargeItemEntity(event.getPlayer(), event.getEntity());
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -1409,7 +1409,7 @@ public class GameplayEventHandler {
         return PlayerTeam.formatNameForTeam(stand.getTeam(), stand.getName()).withStyle(style -> {
             return style
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, 
-                            new HoverEvent.EntityHover(stand.getType(), stand.getUUID(), 
+                            new HoverEvent.EntityTooltipInfo(stand.getType(), stand.getUUID(), 
                                     Component.translatable("chat.stand_remote_reveal_name", stand.getName(), user.getName()))))
                     .withInsertion(user.getGameProfile().getName());
         });
@@ -1641,7 +1641,7 @@ public class GameplayEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onMobSpawn(LivingSpawnEvent.CheckSpawn event) {
+    public static void onMobSpawn(MobSpawnEvent.PositionCheck event) {
         if (event.getResult() != Event.Result.DENY && event.getEntity().getType() == EntityType.TURTLE
                 && JojoModConfig.getCommonConfigInstance(false).spawnCocoJumboTurtle.get()) {
             CocoJumboTurtleEntity.onRegularTutelSpawn(event);
