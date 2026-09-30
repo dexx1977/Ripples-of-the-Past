@@ -38,7 +38,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.fml.hooks.BasicEventHooks;
 import com.mojang.math.Axis;
 
 public class PolaroidHelper {
@@ -68,7 +67,7 @@ public class PolaroidHelper {
         ClientReflection.setMainRenderTarget(mc, remoteRenderTarget);
         
         renderOnRemoteBuffer(Minecraft.getInstance());
-        NativeImage image = Screenshot.takeScreenshot(width, height, remoteRenderTarget);
+        NativeImage image = Screenshot.takeScreenshot(remoteRenderTarget);
         ClientReflection.setMainRenderTarget(mc, mainBuffer);
         PolaroidHelper.cameraAngle = null;
         PolaroidHelper.cameraPos = null;
@@ -102,11 +101,12 @@ public class PolaroidHelper {
     
     private static void setupRemoteBuffer(Minecraft mc, int width, int height) {
         if (remoteRenderTarget == null) {
-            remoteRenderTarget = new RenderTarget(width, height, true, Minecraft.ON_OSX) {
+            remoteRenderTarget = new RenderTarget(true) {
                 @Override
                 public void blitToScreen(int width, int height, boolean flag) {}
             };
             remoteRenderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+            remoteRenderTarget.createBuffers(width, height, Minecraft.ON_OSX);
         }
         else {
             remoteRenderTarget.resize(width, height, Minecraft.ON_OSX);
@@ -126,7 +126,6 @@ public class PolaroidHelper {
         RenderSystem.enableCull();
         if (!mc.noRender) {
             float partialTick = mc.isPaused() ? ClientReflection.getPausePartialTick(mc) : mc.getFrameTime();
-            BasicEventHooks.onRenderTickStart(partialTick);
             
             RenderSystem.viewport(0, 0, mc.getWindow().getWidth(), mc.getWindow().getHeight());
             if (mc.level != null) {
@@ -138,7 +137,6 @@ public class PolaroidHelper {
                 remoteRenderTarget.bindWrite(true);
             }
             
-            BasicEventHooks.onRenderTickEnd(partialTick);
         }
         
         remoteRenderTarget.unbindWrite();
@@ -147,13 +145,13 @@ public class PolaroidHelper {
     
     public static boolean pictureCameraSetup(ViewportEvent.ComputeCameraAngles event) {
         if (isTakingPhoto()) {
-            Camera camera = event.getInfo();
+            Camera camera = event.getCamera();
             if (cameraPos != null) {
                 ClientReflection.setPosition(camera, cameraPos);
                 ClientReflection.setIsDetached(camera, true);
             }
             if (cameraAngle != null) {
-                Vector3f angles = new Vector3f(event.getOriginalPitch(), event.getYaw(), event.getRoll());
+                Vector3f angles = new Vector3f(event.getPitch(), event.getYaw(), event.getRoll());
                 angles = cameraAngle.apply(angles);
                 event.setPitch(angles.x());
                 event.setYaw(angles.y());

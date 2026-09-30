@@ -216,7 +216,10 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             Entity ownerEntity = owner.getEntity(level);
             if (!ForgeEventFactory.onBlockPlace(ownerEntity, BlockSnapshot.create(level.dimension(), level, blockPos.below()), Direction.UP)) {
                 if (this.isOnFire()) {
-                    blockToPlace.catchFire(level, blockPos, Direction.UP, null);
+                    // BlockState#catchFire is gone; the fire block is placed directly
+        if (blockToPlace.isAir() || net.minecraft.world.level.block.BaseFireBlock.canBePlacedAt(level, blockPos, Direction.UP)) {
+            level.setBlockAndUpdate(blockPos, net.minecraft.world.level.block.BaseFireBlock.getState(level, blockPos));
+        }
                 }
                 else {
                     level.setBlock(blockPos, blockToPlace, 3);
@@ -548,7 +551,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         else if (getVehicle() == this.host.getEntity(level)) {
             stopRiding();
         }
-        this.host.setThrower(hostEntity);
+        this.host.setOwner(hostEntity);
         if (!level.isClientSide()) {
             entityData.set(HOST_ID, hostEntity != null ? OptionalInt.of(hostEntity.getId()) : OptionalInt.empty());
         }
@@ -798,7 +801,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 return sourceBlockState.getBlock().getName(); // oh, look, this returns IFormattableTextComponent!
             }
             
-            return (Component) Component.empty();
+            return Component.empty();
         }
         
         
@@ -855,7 +858,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 sourceEntityNbt = nbt.getCompound("GESourceEntity");
             }
             if (nbt.contains("GESourceBlock", MCUtil.getNbtId(CompoundTag.class))) {
-                sourceBlockState = NbtUtils.readBlockState(nbt.getCompound("GESourceBlock"));
+                sourceBlockState = NbtUtils.readBlockState(level.holderLookup(net.minecraft.core.registries.Registries.BLOCK), nbt.getCompound("GESourceBlock"));
             }
             if (nbt.contains("GESourcePos", MCUtil.getNbtId(CompoundTag.class))) {
                 sourceBlockPos = NbtUtils.readBlockPos(nbt.getCompound("GESourcePos"));
@@ -899,12 +902,11 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 ((IEntityAdditionalSpawnData) entity).writeSpawnData(buffer);
             }
             
-            List<SynchedEntityData.DataValue<?>> entityData = entity.getEntityData().getAll();
-            try {
-                SynchedEntityData.pack(entityData, buffer);
-            } catch (IOException e) {
-                JojoMod.getLogger().error("Failed to write entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
-                e.printStackTrace();
+            // the pack and unpack helpers are gone; the values carry their own format
+            List<SynchedEntityData.DataValue<?>> entityData = entity.getEntityData().getNonDefaultValues();
+            buffer.writeVarInt(entityData.size());
+            for (SynchedEntityData.DataValue<?> value : entityData) {
+                value.write(buffer);
             }
         });
     }
@@ -934,16 +936,12 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 ((IEntityAdditionalSpawnData) entity).readSpawnData(buffer);
             }
             
-            try {
-                List<SynchedEntityData.DataValue<?>> entityData = SynchedEntityData.unpack(buffer);
-                entity.getEntityData().assignValues(entityData);
-            } catch (IOException e) {
-                JojoMod.getLogger().error("Failed to read entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
-                e.printStackTrace();
-            } catch (Exception e) {
-                JojoMod.getLogger().error("Failed to assign entity data for Gold Experience's transformation render for entity of type {}", MCUtil.id(entity.getType()));
-                e.printStackTrace();
+            int dataSize = buffer.readVarInt();
+            List<SynchedEntityData.DataValue<?>> entityData = new java.util.ArrayList<>(dataSize);
+            for (int i = 0; i < dataSize; i++) {
+                entityData.add(SynchedEntityData.DataValue.read(buffer, buffer.readVarInt()));
             }
+            entity.getEntityData().assignValues(entityData);
             
             return entity;
         }).orElse(null);
