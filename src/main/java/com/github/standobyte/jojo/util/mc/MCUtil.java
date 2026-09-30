@@ -460,7 +460,10 @@ public class MCUtil {
         ChunkMap chunkMap = ((ServerLevel) entity.level).getChunkSource().chunkMap;
         Int2ObjectMap<ChunkMap.TrackedEntity> entityMap = chunkMap.entityMap;
         ChunkMap.TrackedEntity tracker = entityMap.get(entity.getId());
-        return tracker != null ? tracker.seenBy : Collections.<net.minecraft.server.level.ServerPlayer>emptySet();
+        // 1.20.1 tracks player connections, the old set held the players themselves
+        return tracker != null 
+                ? tracker.seenBy.stream().map(net.minecraft.server.network.ServerPlayerConnection::getPlayer).collect(java.util.stream.Collectors.toSet())
+                : Collections.emptySet();
     }
     
     
