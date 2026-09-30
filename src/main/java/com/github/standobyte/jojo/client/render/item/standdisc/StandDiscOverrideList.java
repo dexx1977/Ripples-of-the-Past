@@ -45,8 +45,17 @@ public class StandDiscOverrideList extends ItemOverrides {
     }
     
     public static void onModelRegistry(net.minecraftforge.client.event.ModelEvent.RegisterAdditional event) {
+        // 1.20.1 logs a warning for every requested model that does not exist, and the
+        // mod itself only ships the generic disc model. The per stand models are meant
+        // to come from resource packs, so only the ones that exist are requested (the
+        // discs fall back to the generic model through the missing model check).
+        net.minecraft.server.packs.resources.ResourceManager resources = Minecraft.getInstance().getResourceManager();
         for (StandType<?> standType : JojoCustomRegistries.STANDS.getRegistry().getValues()) {
-            event.register(new ModelResourceLocation(makeStandSpecificModelPath(standType), "inventory"));
+            ResourceLocation path = makeStandSpecificModelPath(standType);
+            ResourceLocation modelFile = new ResourceLocation(path.getNamespace(), "models/item/" + path.getPath() + ".json");
+            if (resources.getResource(modelFile).isPresent()) {
+                event.register(new ModelResourceLocation(path, "inventory"));
+            }
         }
     }
     

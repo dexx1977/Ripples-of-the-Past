@@ -1,0 +1,10 @@
+{
+  "sources": [
+    { "type": "minecraft:directory", "source": "action", "prefix": "action/" },
+    { "type": "minecraft:directory", "source": "icons", "prefix": "icons/" },
+    { "type": "minecraft:directory", "source": "power", "prefix": "power/" },
+    { "type": "minecraft:directory", "source": "hamon", "prefix": "hamon/" },
+    { "type": "minecraft:directory", "source": "mob_effect", "prefix": "mob_effect/" },
+    { "type": "minecraft:directory", "source": "entity/projectiles", "prefix": "entity/projectiles/" }
+  ]
+}
