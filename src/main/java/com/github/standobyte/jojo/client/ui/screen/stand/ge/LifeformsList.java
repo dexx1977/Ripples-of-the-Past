@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
 import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.ArrayList;
@@ -443,7 +444,7 @@ public abstract class LifeformsList<V> extends ContainerObjectSelectionList<Life
         }
         
         
-        private static class FavoriteButton extends Button {
+        private static class FavoriteButton extends CustomButton {
             private boolean isFavorited;
 
             public FavoriteButton(int pX, int pY, int pWidth, int pHeight, 

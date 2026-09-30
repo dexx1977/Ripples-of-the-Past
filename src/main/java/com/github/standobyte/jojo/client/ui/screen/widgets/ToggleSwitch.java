@@ -34,6 +34,33 @@ public class ToggleSwitch extends CustomButton {
     
     public static ToggleSwitch create(int x, int y, Orientation orientation, 
             Supplier<Boolean> stateGet, Consumer<Boolean> stateSet, 
+            Button.OnPress onPress, ITooltipRenderer tooltip) {
+        int width;
+        int height;
+        switch (orientation) {
+        case HORIZONTAL:
+            width = 32;
+            height = 16;
+            break;
+        default:
+            width = 16;
+            height = 32;
+            break;
+        }
+        return new ToggleSwitch(x, y, width, height, orientation, stateGet, stateSet, onPress, tooltip);
+    }
+
+    private ToggleSwitch(int x, int y, int width, int height, Orientation orientation, 
+            Supplier<Boolean> stateGet, Consumer<Boolean> stateSet, 
+            Button.OnPress onPress, ITooltipRenderer tooltip) {
+        super(x, y, width, height, Component.empty(), onPress, tooltip);
+        this.orientation = orientation;
+        this.stateGet = stateGet;
+        this.stateSet = stateSet;
+    }
+
+    public static ToggleSwitch create(int x, int y, Orientation orientation, 
+            Supplier<Boolean> stateGet, Consumer<Boolean> stateSet, 
             Button.OnPress onPress, Tooltip tooltip) {
         int width;
         int height;

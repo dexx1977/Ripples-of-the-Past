@@ -1110,7 +1110,12 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         
         
 
-        public abstract class Entry extends ContainerObjectSelectionList.Entry<ActionKeybindsList.Entry> {}
+        public abstract class Entry extends ContainerObjectSelectionList.Entry<ActionKeybindsList.Entry> {
+            @Override
+            public List<? extends net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+                return java.util.Collections.emptyList();
+            }
+        }
         
         public class KeybindUIEntry extends ActionKeybindsList.Entry {
             private final ActionKeybindEntry keybindEntry;
@@ -1135,8 +1140,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             }
             
             @Override
-            public void render(PoseStack matrixStack, int index, int top, int left, 
+            public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int index, int top, int left, 
                     int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
+                PoseStack matrixStack = guiGraphics.pose();
                 KeyMapping keybind = keybindEntry.getKeybind();
                 
                 keybindButton.x = left + 22;
@@ -1242,8 +1248,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             }
 
             @Override
-            public void render(PoseStack matrixStack, int index, int top, int left, int width, int height,
+            public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int index, int top, int left, int width, int height,
                     int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
+                PoseStack matrixStack = guiGraphics.pose();
                 addNewKeybindButton.x = left;
                 addNewKeybindButton.y = top;
                 addNewKeybindButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), mouseX, mouseY, partialTicks);

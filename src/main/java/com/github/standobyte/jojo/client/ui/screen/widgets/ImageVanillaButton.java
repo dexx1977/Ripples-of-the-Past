@@ -109,7 +109,7 @@ public class ImageVanillaButton extends CustomButton {
         RenderSystem.enableDepthTest();
         int iconX = x + (width - iconWidth) / 2;
         int iconY = y + (height - iconHeight) / 2;
-        GuiDraw.blit(pMatrixStack, iconX, iconY, (float)xTexStart, (float)yTexStart, 
+        GuiDraw.blit(pMatrixStack, iconX, iconY, xTexStart, yTexStart, 
                 iconWidth, iconHeight, textureWidth, textureHeight);
     }
 

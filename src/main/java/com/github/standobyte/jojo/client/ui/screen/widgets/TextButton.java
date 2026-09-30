@@ -23,6 +23,12 @@ public class TextButton extends CustomButton {
     }
 
     public TextButton(int pX, int pY, Component pMessage, 
+            Button.OnPress pOnPress, ITooltipRenderer pOnTooltip, Font font) {
+        super(pX, pY, font.width(pMessage), font.lineHeight, pMessage, pOnPress, pOnTooltip);
+        this.font = font;
+    }
+
+    public TextButton(int pX, int pY, Component pMessage, 
             Button.OnPress pOnPress, Font font) {
         this(pX, pY, pMessage, pOnPress, null, font);
     }

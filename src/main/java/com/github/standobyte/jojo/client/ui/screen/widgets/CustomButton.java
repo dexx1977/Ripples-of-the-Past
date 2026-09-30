@@ -21,6 +21,23 @@ public class CustomButton extends Button implements IExtendedWidget {
         this(x, y, width, height, Component.empty(), onPress);
     }
 
+    /** The custom tooltip renderers the 1.16.5 buttons took, which 1.20.1 dropped. */
+    public interface ITooltipRenderer {
+        void renderTooltip(AbstractWidget button, PoseStack poseStack, int mouseX, int mouseY);
+    }
+
+    private ITooltipRenderer customTooltip;
+
+    public CustomButton(int x, int y, int width, int height, Button.OnPress onPress, ITooltipRenderer tooltip) {
+        this(x, y, width, height, Component.empty(), onPress, tooltip);
+    }
+
+    public CustomButton(int x, int y, int width, int height, Component message, Button.OnPress onPress, ITooltipRenderer tooltip) {
+        super(x, y, width, height, message, onPress, Button.DEFAULT_NARRATION);
+        this.customTooltip = tooltip;
+        this.extension = new WidgetExtension(this);
+    }
+
     public CustomButton(int x, int y, int width, int height, Button.OnPress onPress, Tooltip tooltip) {
         this(x, y, width, height, Component.empty(), onPress, tooltip);
     }
@@ -42,6 +59,9 @@ public class CustomButton extends Button implements IExtendedWidget {
         // framework from setTooltip, as it was in 1.16.5
         GuiDraw.setGraphics(guiGraphics);
         renderCustomButton(guiGraphics, mouseX, mouseY, partialTick);
+        if (customTooltip != null && isHoveredOrFocused()) {
+            customTooltip.renderTooltip(this, guiGraphics.pose(), mouseX, mouseY);
+        }
     }
     
     protected void renderCustomButton(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
