@@ -4,9 +4,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.render.item.ClackersISTER;
-import com.github.standobyte.jojo.client.render.item.PolaroidISTER;
+import com.github.standobyte.jojo.client.render.item.polaroid.PolaroidISTER;
 import com.github.standobyte.jojo.client.render.item.RoadRollerISTER;
-import com.github.standobyte.jojo.client.render.item.TommyGunISTER;
+import com.github.standobyte.jojo.client.render.item.tommygun.TommyGunISTER;
 import com.github.standobyte.jojo.client.render.item.CustomIconItem;
 import com.github.standobyte.jojo.client.render.item.standdisc.StandDiscISTER;
 import com.github.standobyte.jojo.init.ModItems;

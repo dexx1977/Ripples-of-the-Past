@@ -104,7 +104,7 @@ public class CustomIconItem {
     public static void registerModelOverride() {
         ItemProperties.register(DUMMY_ITEM.get(), 
                 new ResourceLocation(JojoMod.MOD_ID, "icon"), 
-                (itemStack, clientWorld, livingEntity) -> {
+                (itemStack, clientWorld, livingEntity, seed) -> {
                     return itemStack.getOrCreateTag().getInt("Icon");
                 });
     }
@@ -147,7 +147,7 @@ public class CustomIconItem {
                     }
                 }
             }
-            BakedModel itemModel = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null);
+            BakedModel itemModel = Minecraft.getInstance().getItemRenderer().getModel(itemStack, null, null, 0);
             CustomModelItemISTER.renderItemNormally(matrixStack, itemStack, 
                     transformType, renderTypeBuffer, light, overlay, itemModel);
         }
@@ -169,9 +169,9 @@ public class CustomIconItem {
                 pMatrixStack.scale(0.75f, 0.75f, 0.75f);
                 pMatrixStack.translate(0, 0.5f, 0);
                 Matrix3f lighting = pMatrixStack.last().normal();
-                lighting.mul(Axis.YP.rotationDegrees(-45));
-                lighting.mul(Axis.XP.rotationDegrees(-45));
-                lighting.mul(Axis.ZP.rotationDegrees(45));
+                lighting.rotate(Axis.YP.rotationDegrees(-45));
+                lighting.rotate(Axis.XP.rotationDegrees(-45));
+                lighting.rotate(Axis.ZP.rotationDegrees(45));
                 root.render(pMatrixStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
                 pMatrixStack.popPose();
             }
