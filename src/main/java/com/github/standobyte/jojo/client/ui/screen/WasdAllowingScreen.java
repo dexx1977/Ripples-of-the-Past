@@ -66,11 +66,6 @@ public class WasdAllowingScreen extends Screen {
     
     
     
-    @Override
-    public void tick() {
-        passEvents = acceptsKeyInput();
-    }
-    
     public void tickInput(Minecraft mc, LocalPlayer player, Input input) {
         if (!KeyConflictContext.IN_GAME.isActive() && input instanceof KeyboardInput && acceptsKeyInput()) {
             boolean isMovingSlowly = player.isMovingSlowly();

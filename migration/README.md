@@ -163,7 +163,15 @@ Known remaining work, roughly in the order it should be tackled:
    player passes 0.3, the vanilla sneak value, where 1.16.5 only passed the flag.
    Likewise the suffocation check walks the blocks in its box because the 1.20.1
    collision query no longer takes a block state predicate.
-8. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+8. Compatibility difference: Screen#passEvents (the flag that told the game whether a
+   screen lets key events through) no longer exists in 1.20.1, and there is no general
+   query that replaces it. ROTP's own pass through screens are still recognised - they
+   are WasdAllowingScreen subclasses and rely on their own key handling (keyReleased
+   returning false, a non pausing screen, the search field consuming input while it has
+   focus) - so their behaviour is restored. What cannot be restored without touching
+   other mods is the general case: any vanilla or third party screen that allowed key
+   pass through by setting that field in 1.16.5 is now treated as blocking input, so the
+   mod's key bindings are ignored while such a screen is open. the 1.16.5 setters (setProjectile, setExplosion,
    bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
    change these in 1.20.1, so each call site has to pick a damage type carrying the
    right tags. Still to do.

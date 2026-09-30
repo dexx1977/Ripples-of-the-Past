@@ -326,7 +326,9 @@ public class InputHandler {
     public void handleKeyBindings(ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START && mc.player != null) {
         }
-        // 1.20.1 has no passEvents flag; the mod screens that allow movement implement the interface
+        // 1.20.1 removed the Screen#passEvents field, so only the mod's own pass through
+        // screens are recognised here; a screen that allowed input by setting that field
+        // in 1.16.5 blocks the mod's key handling now (see the porting notes)
         if (mc.overlay != null || (mc.screen != null && !(mc.screen instanceof com.github.standobyte.jojo.client.ui.screen.WasdAllowingScreen))
                 || mc.level == null || standPower == null || nonStandPower == null
                 || actionsOverlay == null || JojoModUtil.tmpSpectatorCantUsePowers(mc.player)) {
