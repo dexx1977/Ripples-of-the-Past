@@ -60,7 +60,7 @@ public class GlovesItem extends Item {
     
     @Override
     public boolean isEnchantable(ItemStack itemStack) {
-        return this.getItemStackLimit(itemStack) == 1;
+        return this.getMaxStackSize() == 1;
     }
     
     @Override

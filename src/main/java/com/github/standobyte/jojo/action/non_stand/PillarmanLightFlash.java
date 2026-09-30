@@ -41,7 +41,7 @@ public class PillarmanLightFlash extends PillarmanAction {
         if (!world.isClientSide()) {
             for (LivingEntity entity : MCUtil.entitiesAround(
                     LivingEntity.class, user, range, false, entity -> 
-                    entity.canSee(user) && !(entity instanceof StandEntity && user.is(((StandEntity) entity).getUser())))) {
+                    entity.hasLineOfSight(user) && !(entity instanceof StandEntity && user.is(((StandEntity) entity).getUser())))) {
                 if (user.distanceTo(entity) < 5) {
                     entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, true, true, false));
                 } else {

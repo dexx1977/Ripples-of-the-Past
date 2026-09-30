@@ -18,11 +18,12 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 public class CassetteCopyRecipe extends CustomRecipe {
     
-    public CassetteCopyRecipe(ResourceLocation id) {
-        super(id);
+    public CassetteCopyRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, CraftingBookCategory.MISC);
     }
 
     @Override
@@ -90,8 +91,8 @@ public class CassetteCopyRecipe extends CustomRecipe {
 
         for(int i = 0; i < items.size(); ++i) {
             ItemStack item = inventory.getItem(i);
-            if (item.hasContainerItem()) {
-                items.set(i, item.getContainerItem());
+            if (item.hasCraftingRemainingItem()) {
+                items.set(i, item.getCraftingRemainingItem());
             } else if (item.getItem() == ModItems.CASSETTE_RECORDED.get()) {
                 ItemStack originalRecordingItem = item.copy();
                 originalRecordingItem.setCount(1);

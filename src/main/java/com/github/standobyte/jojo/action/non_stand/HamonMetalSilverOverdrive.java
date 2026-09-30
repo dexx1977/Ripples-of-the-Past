@@ -44,7 +44,7 @@ public class HamonMetalSilverOverdrive extends HamonOverdrive {
         float mult = 1;
         
         for (int i = 0; i < 4; i++) {
-            if (!targetEntity.getItemBySlot(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Group.ARMOR, i)).isEmpty()) {
+            if (!targetEntity.getItemBySlot(EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, i)).isEmpty()) {
                 mult += 0.2F;
             }
         }

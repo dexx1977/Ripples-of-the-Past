@@ -24,7 +24,7 @@ public class TextTooltipLine implements ITooltipLine {
     public void draw(PoseStack matrixStack, float x, float y, Font font) {
         MultiBufferSource.BufferSource renderType = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         font.drawInBatch(Language.getInstance().getVisualOrder(text), x, y, -1, 
-                true, matrixStack.last().pose(), renderType, false, 0, 0xF000F0);
+                true, matrixStack.last().pose(), renderType, Font.DisplayMode.NORMAL, 0, 0xF000F0);
         renderType.endBatch();
     }
     

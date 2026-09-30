@@ -40,7 +40,7 @@ public class FixedCraftingResultSlot<C extends CraftingContainer, T extends Reci
             if (!itemstack1.isEmpty()) {
                 if (itemstack.isEmpty()) {
                     craftSlots.setItem(i, itemstack1);
-                } else if (ItemStack.isSame(itemstack, itemstack1) && ItemStack.isSameItemSameTags(itemstack, itemstack1)) {
+                } else if (ItemStack.isSameItem(itemstack, itemstack1) && ItemStack.isSameItemSameTags(itemstack, itemstack1)) {
                     itemstack1.grow(itemstack.getCount());
                     craftSlots.setItem(i, itemstack1);
                 } else if (!player.getInventory().add(itemstack1)) {
@@ -48,8 +48,6 @@ public class FixedCraftingResultSlot<C extends CraftingContainer, T extends Reci
                 }
             }
         }
-
-        return pStack;
     }
     
 }

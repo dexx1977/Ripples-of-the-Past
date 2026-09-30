@@ -858,7 +858,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
                 sourceEntityNbt = nbt.getCompound("GESourceEntity");
             }
             if (nbt.contains("GESourceBlock", MCUtil.getNbtId(CompoundTag.class))) {
-                sourceBlockState = NbtUtils.readBlockState(level.holderLookup(net.minecraft.core.registries.Registries.BLOCK), nbt.getCompound("GESourceBlock"));
+                sourceBlockState = NbtUtils.readBlockState(net.minecraft.core.registries.BuiltInRegistries.BLOCK.asLookup(), nbt.getCompound("GESourceBlock"));
             }
             if (nbt.contains("GESourcePos", MCUtil.getNbtId(CompoundTag.class))) {
                 sourceBlockPos = NbtUtils.readBlockPos(nbt.getCompound("GESourcePos"));

@@ -166,7 +166,7 @@ public class HamonOrganismInfusion extends HamonAction {
             return;
         }
         world.getEntitiesOfClass(HamonBlockChargeEntity.class, 
-                new AABB(Vec3.atCenterOf(blockPos), Vec3.atCenterOf(blockPos))).forEach(Entity::remove);
+                new AABB(Vec3.atCenterOf(blockPos), Vec3.atCenterOf(blockPos))).forEach(Entity::discard);
         HamonBlockChargeEntity charge = new HamonBlockChargeEntity(world, blockPos);
         charge.setCharge(hamon.getHamonDamageMultiplier() * hamonEfficiency, chargeTicks, user, getEnergyCost(power, new ActionTarget(blockPos, Direction.UP)));
         world.addFreshEntity(charge);
@@ -177,14 +177,14 @@ public class HamonOrganismInfusion extends HamonAction {
     public static boolean isBlockLiving(BlockState blockState) {
         if (otherLivingBlocksCache == null) {
             exceptionBlocksCache = ForgeRegistries.BLOCKS.getValues().stream()
-                    .map(Block::getRegistryName)
+                    .map(ForgeRegistries.BLOCKS::getKey)
                     .filter(id -> {
                         String blockName = id.getPath();
                         return blockName.contains("dead");
                     })
                     .collect(Collectors.toSet());
             otherLivingBlocksCache = ForgeRegistries.BLOCKS.getValues().stream()
-                    .map(Block::getRegistryName)
+                    .map(ForgeRegistries.BLOCKS::getKey)
                     .filter(id -> {
                         String blockName = id.getPath();
                         return !exceptionBlocksCache.contains(id) && (blockName.contains("mossy") || blockName.contains("coral"));

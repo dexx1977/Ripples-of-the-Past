@@ -8,7 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModPaintings {
-    public static final DeferredRegister<PaintingVariant> PAINTINGS = DeferredRegister.create(ForgeRegistries.PAINTING_TYPES, JojoMod.MOD_ID);
+    public static final DeferredRegister<PaintingVariant> PAINTINGS = DeferredRegister.create(ForgeRegistries.PAINTING_VARIANTS, JojoMod.MOD_ID);
     
     public static final RegistryObject<PaintingVariant> MONA_LISA = PAINTINGS.register("mona_lisa", 
             () -> new PaintingVariant(32, 48));

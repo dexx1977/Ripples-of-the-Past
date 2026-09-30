@@ -232,7 +232,7 @@ public class HamonWallClimbing2 extends HamonAction {
                 player.move(MoverType.SELF, player.getDeltaMovement());
                 movement = player.getDeltaMovement();
                 
-                player.calculateEntityAnimation(player, false);
+                player.calculateEntityAnimation(false);
 
 //                player.checkMovementStatistics(player.getX() - xPrev, player.getY() - yPrev, player.getZ() - zPrev); // doesn't do anything anyway
                 return true;

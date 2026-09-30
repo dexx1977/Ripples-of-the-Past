@@ -31,7 +31,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModStatusEffects {
-    public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.POTIONS, JojoMod.MOD_ID);
+    public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, JojoMod.MOD_ID);
     
     // TODO update invisibility status
     public static final RegistryObject<MobEffect> FULL_INVISIBILITY = EFFECTS.register("full_invisibility", 

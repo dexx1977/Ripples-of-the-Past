@@ -81,6 +81,6 @@ public class SoapItem extends Item {
 
      @Override
      public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
-        return ItemUtils.useDrink(pLevel, pPlayer, pHand);
+        return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
      }
 }

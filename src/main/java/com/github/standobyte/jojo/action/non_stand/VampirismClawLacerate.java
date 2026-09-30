@@ -160,7 +160,7 @@ public class VampirismClawLacerate extends VampirismAction implements IPlayerAct
     }
     
     public static void blockDestroy(Level world, LivingEntity user, INonStandPower power, ActionTarget target, double x, double y, double z) {
-    	BlockPos pos = target.getBlockPos().offset(x, y, z);
+    	BlockPos pos = com.github.standobyte.jojo.util.general.MathUtil.offset(target.getBlockPos(), x, y, z);
         if (!world.isClientSide() && JojoModUtil.canEntityDestroy((ServerLevel) world, pos, world.getBlockState(pos), user)) {
             if (!world.isEmptyBlock(pos)) {
                 BlockState blockState = world.getBlockState(pos);

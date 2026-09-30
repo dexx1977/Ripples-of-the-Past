@@ -93,7 +93,7 @@ public class ModInteractionUtil {
         Entity entity = damageSource.getDirectEntity();
         LivingEntity target = event.getEntity();
         
-        if ("mob".equals(damageSource.msgId) && entity != null) {
+        if ("mob".equals(damageSource.getMsgId()) && entity != null) {
             ResourceLocation damagingEntityId = MCUtil.id(entity.getType());
             if (damagingEntityId.getNamespace().equals("mowziesmobs")) {
                 String entityName = damagingEntityId.getPath();

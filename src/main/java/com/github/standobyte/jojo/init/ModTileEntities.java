@@ -10,7 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ModTileEntities {
-    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, JojoMod.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, JojoMod.MOD_ID);
     
     public static final RegistryObject<BlockEntityType<StoneMaskTileEntity>> STONE_MASK = TILE_ENTITIES.register("stone_mask", 
             () -> BlockEntityType.Builder.of(StoneMaskTileEntity::new, ModBlocks.STONE_MASK.get()).build(null));

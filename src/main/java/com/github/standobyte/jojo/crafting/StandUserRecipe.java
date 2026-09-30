@@ -19,6 +19,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public abstract class StandUserRecipe<R extends CraftingRecipe> extends PlayerPredicateRecipeWrapper<R> {
+
+    @Override
+    public net.minecraft.world.item.crafting.CraftingBookCategory category() {
+        return recipe.category();
+    }
     private final NonNullList<ResourceLocation> standIds;
     private final List<StandType<?>> standTypes;
     private final List<ResourceLocation> missingIds;

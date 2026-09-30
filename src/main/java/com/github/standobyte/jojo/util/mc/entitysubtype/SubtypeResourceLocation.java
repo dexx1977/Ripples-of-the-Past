@@ -13,7 +13,7 @@ public class SubtypeResourceLocation extends ResourceLocation {
     @Nullable private final String variant;
 
     protected SubtypeResourceLocation(String[] elements) {
-        super(elements);
+        super(elements[0], elements[1]);
         this.variant = StringUtils.isEmpty(elements[2]) ? null : elements[2].toLowerCase(Locale.ROOT);
         this.withoutSubtype = new ResourceLocation(elements[0], elements[1]);
     }

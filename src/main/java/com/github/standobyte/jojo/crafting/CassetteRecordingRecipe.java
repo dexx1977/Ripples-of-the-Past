@@ -21,11 +21,12 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 public class CassetteRecordingRecipe extends CustomRecipe {
 
-    public CassetteRecordingRecipe(ResourceLocation id) {
-        super(id);
+    public CassetteRecordingRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, CraftingBookCategory.MISC);
     }
 
     @Override
@@ -103,8 +104,8 @@ public class CassetteRecordingRecipe extends CustomRecipe {
                 recordMaterial.setCount(1);
                 items.set(i, recordMaterial);
             }
-            else if (item.hasContainerItem()) {
-                items.set(i, item.getContainerItem());
+            else if (item.hasCraftingRemainingItem()) {
+                items.set(i, item.getCraftingRemainingItem());
             }
         }
 

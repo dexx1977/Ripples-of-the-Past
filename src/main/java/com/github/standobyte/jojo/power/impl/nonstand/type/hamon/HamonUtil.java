@@ -389,7 +389,7 @@ public class HamonUtil {
                     hamon.setHamonStatPoints(HamonStat.CONTROL, HamonData.MAX_HAMON_POINTS, true, true);
                     hamon.tcsa(false);
                 }
-                player.sendMessage(Component.translatable("jojo.chat.message.learnt_hamon"), Util.NIL_UUID);
+                player.sendSystemMessage(Component.translatable("jojo.chat.message.learnt_hamon"));
                 PlayerUtilCap utilCap = player.getCapability(PlayerUtilCapProvider.CAPABILITY).orElseThrow(() -> new IllegalStateException());
                 utilCap.sendNotification(OneTimeNotification.HAMON_WINDOW, 
                         Component.translatable("jojo.chat.message.hamon_window_hint", Component.keybind("jojo.key.hamon_skills_window")));

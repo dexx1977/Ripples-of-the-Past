@@ -238,8 +238,8 @@ public class HamonHealing extends HamonAction {
     private static List<MobEffect> VENOM_EFFECTS;
     public static void initVenomEffects() {
         VENOM_EFFECTS = VENOM_EFFECTS_INIT.stream()
-                .map(id -> ForgeRegistries.POTIONS.containsKey(id) ? ForgeRegistries.POTIONS.getValue(id) : null)
-                .filter(id -> id != null)
+                .filter(ForgeRegistries.MOB_EFFECTS::containsKey)
+                .map(ForgeRegistries.MOB_EFFECTS::getValue)
                 .collect(Collectors.toList());
     }
     
@@ -320,7 +320,7 @@ public class HamonHealing extends HamonAction {
         } else {
             BlockPos posOffset = pos.relative(face);
             BlockState blockState = world.getBlockState(pos);
-            if (blockState.isFaceSturdy(world, pos, face) && BoneMealItem.growWaterPlant(new ItemStack(null), world, posOffset, face)) {
+            if (blockState.isFaceSturdy(world, pos, face) && BoneMealItem.growWaterPlant(new ItemStack((net.minecraft.world.level.ItemLike) null), world, posOffset, face)) {
                 if (!world.isClientSide()) {
                     world.levelEvent(2005, posOffset, 0);
                 }

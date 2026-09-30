@@ -148,7 +148,7 @@ public class ModSounds {
     public static final RegistryObject<SoundEvent> HAMON_REBUFF_PUNCH = register("hamon_rebuff_punch");
     
     public static final RegistryObject<SoundEvent> BREATH_DEFAULT = SOUNDS.register("player_breath", 
-            () -> new SoundEvent(new ResourceLocation("entity.player.breath")));
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("entity.player.breath")));
     
     public static final RegistryObject<SoundEvent> BREATH_JONATHAN = register("jonathan_breath");
     
@@ -535,6 +535,6 @@ public class ModSounds {
     
     
     private static RegistryObject<SoundEvent> register(String regPath) {
-        return SOUNDS.register(regPath, () -> new SoundEvent(new ResourceLocation(JojoMod.MOD_ID, regPath)));
+        return SOUNDS.register(regPath, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(JojoMod.MOD_ID, regPath)));
     }
 }

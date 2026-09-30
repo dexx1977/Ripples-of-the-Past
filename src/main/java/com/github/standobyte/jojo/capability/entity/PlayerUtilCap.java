@@ -58,7 +58,7 @@ public class PlayerUtilCap {
     
     public int knivesThrewTicks = 0;
     
-    private final Map<Entity, Map<EntityDataAccessor<?>, SynchedEntityData.DataValue<?>>> tsDelayedData = new HashMap<>();
+    private final Map<Entity, Map<Integer, SynchedEntityData.DataValue<?>>> tsDelayedData = new HashMap<>();
     
     private Optional<ContinuousActionInstance<?, ?>> continuousAction = Optional.empty();
     
@@ -238,9 +238,9 @@ public class PlayerUtilCap {
     
     
     public void addDataForTSUnfreeze(Entity entity, Iterable<SynchedEntityData.DataValue<?>> newData) {
-        Map<EntityDataAccessor<?>, SynchedEntityData.DataValue<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
+        Map<Integer, SynchedEntityData.DataValue<?>> data = tsDelayedData.computeIfAbsent(entity, e -> new HashMap<>());
         for (SynchedEntityData.DataValue<?> dataEntry : newData) {
-            data.put(dataEntry.getAccessor(), dataEntry);
+            data.put(dataEntry.id(), dataEntry); // DataValue ids are the accessor ids
         }
     }
     
@@ -333,7 +333,7 @@ public class PlayerUtilCap {
     
     public void sendNotification(OneTimeNotification notification, Component message) {
         if (!sentNotification(notification)) {
-            player.sendMessage(message, Util.NIL_UUID);
+            player.sendSystemMessage(message);
             setSentNotification(notification, true);
         }
     }

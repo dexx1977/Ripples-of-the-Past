@@ -175,7 +175,7 @@ public class GoldExperienceHeal extends StandEntityAction {
             ItemStack offHandItem = user.getOffhandItem();
             if (offHandItem.getItem() instanceof BucketItem) {
                 BucketItem bucketType = (BucketItem) offHandItem.getItem();
-                bucketType.checkExtraContent(world, offHandItem, getControlledEntity(user, userPower).blockPosition());
+                bucketType.checkExtraContent(user instanceof Player ? (Player) user : null, world, offHandItem, getControlledEntity(user, userPower).blockPosition());
             }
             if (!(user instanceof Player && ((Player) user).abilities.instabuild)) {
                 offHandItem.shrink(1);
@@ -219,7 +219,7 @@ public class GoldExperienceHeal extends StandEntityAction {
                 }
             }
             
-            MobEffectInstance newRegen = new MobEffectInstance(regenEffect, duration, lvl, false, true, true, currentRegen);
+            MobEffectInstance newRegen = new MobEffectInstance(regenEffect, duration, lvl, false, true, true, currentRegen, java.util.Optional.empty());
             entity.addEffect(newRegen);
         }
         entity.hurt(entity.level().damageSources().generic(), 0.0001F);

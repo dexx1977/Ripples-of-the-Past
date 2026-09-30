@@ -49,7 +49,7 @@ public class HamonLiquidWalking {
                             if (!entity.level.isClientSide()) {
                                 if (fluidType.is(FluidTags.LAVA) 
                                         && !entity.fireImmune() && !EnchantmentHelper.hasFrostWalker(entity)) {
-                                    entity.hurt(DamageSource.HOT_FLOOR, 1.0F);
+                                    entity.hurt(entity.damageSources().hotFloor(), 1.0F);
                                 }
                                 power.consumeEnergy(hamon.waterWalkingTickCost());
                             }
