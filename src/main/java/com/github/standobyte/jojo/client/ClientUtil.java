@@ -650,26 +650,26 @@ public class ClientUtil {
         model.rightPants.cubes.clear();
     }
     
-    public static void editLatestCube(ModelPart modelRenderer, Consumer<ModelPart.ModelBox> edit) {
-        List<ModelPart.ModelBox> cubes = modelRenderer.cubes;
+    public static void editLatestCube(ModelPart modelRenderer, Consumer<ModelPart.Cube> edit) {
+        List<ModelPart.Cube> cubes = modelRenderer.cubes;
         if (cubes.isEmpty()) return;
-        ModelPart.ModelBox box = cubes.get(cubes.size() - 1);
+        ModelPart.Cube box = cubes.get(cubes.size() - 1);
         edit.accept(box);
     }
     
-    public static void setFaceUv(ModelPart.ModelBox cube, Direction faceDir, float u0, float v0, float u1, float v1, Model model) {
+    public static void setFaceUv(ModelPart.Cube cube, Direction faceDir, float u0, float v0, float u1, float v1, Model model) {
         if (faceDir.getAxis() == Direction.Axis.Y) {
             faceDir = faceDir.getOpposite();
         }
         Vector3f faceNormal = faceDir.step();
-        Optional<ModelPart.TexturedQuad> faceOptional = Arrays.stream(cube.polygons)
+        Optional<ModelPart.Polygon> faceOptional = Arrays.stream(cube.polygons)
                 .filter(quad -> quad.normal.equals(faceNormal)).findFirst();
         if (faceOptional.isPresent()) {
             u0 /= model.texWidth;
             v0 /= model.texHeight;
             u1 /= model.texWidth;
             v1 /= model.texHeight;
-            ModelPart.TexturedQuad face = faceOptional.get();
+            ModelPart.Polygon face = faceOptional.get();
             if (face.vertices[0].u < face.vertices[1].u) {
                 float swap = u0;
                 u0 = u1;

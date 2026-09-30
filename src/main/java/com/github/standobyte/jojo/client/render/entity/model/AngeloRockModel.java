@@ -28,10 +28,10 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
     public final ModelPart upperHalf;
     public final ModelPart lowerHalf;
     public final ModelPart shadow;
-    private final Map<ModelPart, List<ModelPart.ModelBox>> allCubesByParts;
-    private final List<ModelPart.ModelBox> allCubes;
+    private final Map<ModelPart, List<ModelPart.Cube>> allCubesByParts;
+    private final List<ModelPart.Cube> allCubes;
     private float progress;
-    private final Set<ModelPart.ModelBox> visibleCubes;
+    private final Set<ModelPart.Cube> visibleCubes;
 
     public AngeloRockModel() {
         texWidth = 16;
@@ -847,7 +847,7 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
         addCubesFrom(upperHalf);
         addCubesFrom(lowerHalf);
         Random random = new Random();
-        List<ModelPart.ModelBox> cubesShuffled = new ArrayList<>(allCubes);
+        List<ModelPart.Cube> cubesShuffled = new ArrayList<>(allCubes);
         Collections.shuffle(cubesShuffled, random);
         
         
@@ -1008,10 +1008,10 @@ public class AngeloRockModel extends EntityModel<AngeloRockEntity> {
             int renderParts = 1 + (int) (progress * allCubes.size());
             allCubes.stream().limit(renderParts).forEach(visibleCubes::add);
         }
-        for (Map.Entry<ModelPart, List<ModelPart.ModelBox>> modelPartEntry : this.allCubesByParts.entrySet()) {
+        for (Map.Entry<ModelPart, List<ModelPart.Cube>> modelPartEntry : this.allCubesByParts.entrySet()) {
             ModelPart modelPart = modelPartEntry.getKey();
             if (modelPart.visible) {
-                List<ModelPart.ModelBox> allCubes = modelPartEntry.getValue();
+                List<ModelPart.Cube> allCubes = modelPartEntry.getValue();
                 modelPart.cubes.clear();
                 allCubes.stream().filter(visibleCubes::contains).forEach(modelPart.cubes::add);
             }

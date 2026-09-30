@@ -13,7 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import org.joml.Vector3f;
 
-public class MeshModelBox extends ModelPart.ModelBox {
+public class MeshModelBox extends ModelPart.Cube {
     
     // 1.20.1 has no ModelBase, so the texture size the parts are baked
     // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
@@ -31,7 +31,7 @@ public class MeshModelBox extends ModelPart.ModelBox {
                 0, 0, 0, 
                 false, 1, 1);
         
-        ModelPart.TexturedQuad[] quads = builder.quads.toArray(new ModelPart.TexturedQuad[0]);
+        ModelPart.Polygon[] quads = builder.quads.toArray(new ModelPart.Polygon[0]);
         this.polygons = quads;
     }
     
@@ -51,7 +51,7 @@ public class MeshModelBox extends ModelPart.ModelBox {
         private float maxX;
         private float maxY;
         private float maxZ;
-        private final List<ModelPart.TexturedQuad> quads = new ArrayList<>();
+        private final List<ModelPart.Polygon> quads = new ArrayList<>();
         
         public Builder(boolean livingEntityRenderHacks, float texWidth, float texHeight) {
             this.livingEntityRenderHacks = livingEntityRenderHacks;
@@ -145,7 +145,7 @@ public class MeshModelBox extends ModelPart.ModelBox {
                             new ModelPart.Vertex(0, 0, 0, 0, 0),
                             new ModelPart.Vertex(0, 0, 0, 0, 0)
                     };
-                    ModelPart.TexturedQuad quad = new ModelPart.TexturedQuad(verticesDummy, 
+                    ModelPart.Polygon quad = new ModelPart.Polygon(verticesDummy, 
                             0, 0, 0, 0, 1, 1, false, direction != null ? direction : Direction.UP);
                     
                     ModelPart.Vertex[] verticesArr = vertices.toArray(new ModelPart.Vertex[MAX_VERTICES]);

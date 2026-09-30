@@ -88,7 +88,7 @@ public class ModelCubeWeightedList {
         
         List<ModelCube> modelCubes = inModModelParts.values().stream()
                 .flatMap(modelPart -> {
-                    List<ModelPart.ModelBox> cubes = ClientReflection.getCubes(modelPart.modelPart);
+                    List<ModelPart.Cube> cubes = ClientReflection.getCubes(modelPart.modelPart);
                     return cubes.stream().map(cube -> new ModelCube(cube, modelPart));
                 })
                 .collect(Collectors.toList());
@@ -127,11 +127,11 @@ public class ModelCubeWeightedList {
     
     
     public static class ModelCube {
-        public final ModelPart.ModelBox cube;
+        public final ModelPart.Cube cube;
         private final float area;
         private final ModelPartParents modelPart;
         
-        private ModelCube(ModelPart.ModelBox cube, ModelPartParents modelPart) {
+        private ModelCube(ModelPart.Cube cube, ModelPartParents modelPart) {
             this.cube = cube;
             float x = cube.maxX - cube.minX;
             float y = cube.maxY - cube.minY;
@@ -140,7 +140,7 @@ public class ModelCubeWeightedList {
             this.modelPart = modelPart;
         }
         
-        public ModelPart.ModelBox cube() {
+        public ModelPart.Cube cube() {
             return cube;
         }
         

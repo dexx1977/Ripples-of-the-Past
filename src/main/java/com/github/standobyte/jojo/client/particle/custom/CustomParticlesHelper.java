@@ -189,9 +189,9 @@ public abstract class CustomParticlesHelper {
             ResourceLocation texture = renderer.getTextureLocation(standEntity);
             if (texture == null) return;
             
-            ModelPart.TexturedQuad polygon = HumanoidStandModel.getRandomQuad(model.getRandomCubeAt(humanoidPart));
+            ModelPart.Polygon polygon = HumanoidStandModel.getRandomQuad(model.getRandomCubeAt(humanoidPart));
             if (polygon != null) {
-                ModelPart.PositionTextureVertex[] vertices = polygon.vertices;
+                ModelPart.Vertex[] vertices = polygon.vertices;
                 if (vertices.length > 0) {
                     float u0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.u).min().getAsDouble();
                     float v0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.v).min().getAsDouble();

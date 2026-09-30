@@ -68,7 +68,7 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         Vector3f normalVec = new Vector3f(0, 0, -1);
         normalVec.transform(matrix3f);
 
-        for (ModelPart.PositionTextureVertex vertex : VERTICES) {
+        for (ModelPart.Vertex vertex : VERTICES) {
             float vertexX = vertex.pos.x();
             float vertexY = vertex.pos.y();
             float vertexZ = vertex.pos.z();
@@ -85,10 +85,10 @@ public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
         }
     }
     
-    private static final ModelPart.PositionTextureVertex[] VERTICES = new ModelPart.PositionTextureVertex[] {
-            new ModelPart.PositionTextureVertex(0, 1, 0, 1, 0),
-            new ModelPart.PositionTextureVertex(1, 1, 0, 0, 0),
-            new ModelPart.PositionTextureVertex(1, 0, 0, 0, 1),
-            new ModelPart.PositionTextureVertex(0, 0, 0, 1, 1)
+    private static final ModelPart.Vertex[] VERTICES = new ModelPart.Vertex[] {
+            new ModelPart.Vertex(0, 1, 0, 1, 0),
+            new ModelPart.Vertex(1, 1, 0, 0, 0),
+            new ModelPart.Vertex(1, 0, 0, 0, 1),
+            new ModelPart.Vertex(0, 0, 0, 1, 1)
     };
 }

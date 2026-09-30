@@ -139,18 +139,18 @@ public class ClientReflection {
     
     @Deprecated private static final Field MODEL_RENDERER_CUBES = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104212_");
     @Deprecated
-    public static void setCubes(ModelPart modelRenderer, ObjectList<ModelPart.ModelBox> cubes) {
+    public static void setCubes(ModelPart modelRenderer, ObjectList<ModelPart.Cube> cubes) {
         ReflectionUtil.setFieldValue(MODEL_RENDERER_CUBES, modelRenderer, cubes);
     }
     
     @Deprecated
-    public static void addCube(ModelPart modelRenderer, ModelPart.ModelBox cube) {
-        List<ModelPart.ModelBox> cubes = ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
+    public static void addCube(ModelPart modelRenderer, ModelPart.Cube cube) {
+        List<ModelPart.Cube> cubes = ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
         cubes.add(cube);
     }
     
     @Deprecated
-    public static ObjectList<ModelPart.ModelBox> getCubes(ModelPart modelRenderer) {
+    public static ObjectList<ModelPart.Cube> getCubes(ModelPart modelRenderer) {
         return ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
     }
     
@@ -193,25 +193,25 @@ public class ClientReflection {
     }
     
     
-    @Deprecated private static final Field MODEL_BOX_POLYGONS = ObfuscationReflectionHelper.findField(ModelPart.ModelBox.class, "f_104341_");
+    @Deprecated private static final Field MODEL_BOX_POLYGONS = ObfuscationReflectionHelper.findField(ModelPart.Cube.class, "f_104341_");
     @Deprecated
-    public static ModelPart.TexturedQuad[] getPolygons(ModelPart.ModelBox modelBox) {
+    public static ModelPart.Polygon[] getPolygons(ModelPart.Cube modelBox) {
         return ReflectionUtil.getFieldValue(MODEL_BOX_POLYGONS, modelBox);
     }
     
     @Deprecated
-    public static void setPolygons(ModelPart.ModelBox modelBox, ModelPart.TexturedQuad[] polygons) {
+    public static void setPolygons(ModelPart.Cube modelBox, ModelPart.Polygon[] polygons) {
         ReflectionUtil.setFieldValue(MODEL_BOX_POLYGONS, modelBox, polygons);
     }
     
     
-    private static final Field TEXTURED_QUAD_VERTICES = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "f_104359_");
-    public static void setVertices(ModelPart.TexturedQuad quad, ModelPart.PositionTextureVertex[] vertices) {
+    private static final Field TEXTURED_QUAD_VERTICES = ObfuscationReflectionHelper.findField(ModelPart.Polygon.class, "f_104359_");
+    public static void setVertices(ModelPart.Polygon quad, ModelPart.Vertex[] vertices) {
         ReflectionUtil.setFieldValue(TEXTURED_QUAD_VERTICES, quad, vertices);
     }
     
-    private static final Field TEXTURED_QUAD_NORMAL = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "f_104360_");
-    public static void setNormal(ModelPart.TexturedQuad quad, Vector3f normal) {
+    private static final Field TEXTURED_QUAD_NORMAL = ObfuscationReflectionHelper.findField(ModelPart.Polygon.class, "f_104360_");
+    public static void setNormal(ModelPart.Polygon quad, Vector3f normal) {
         ReflectionUtil.setFieldValue(TEXTURED_QUAD_NORMAL, quad, normal);
     }
     

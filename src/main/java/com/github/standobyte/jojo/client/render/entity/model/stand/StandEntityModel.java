@@ -424,7 +424,7 @@ public abstract class StandEntityModel<T extends StandEntity> extends AgeableLis
     
     
     @Nullable
-    public ModelPart.ModelBox getRandomCubeAt(TargetHitPart entityPart) {
+    public ModelPart.Cube getRandomCubeAt(TargetHitPart entityPart) {
         return null;
     }
     

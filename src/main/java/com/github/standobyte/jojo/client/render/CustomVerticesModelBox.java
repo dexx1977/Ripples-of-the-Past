@@ -10,7 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 
 @Deprecated
-public class CustomVerticesModelBox extends ModelPart.ModelBox {
+public class CustomVerticesModelBox extends ModelPart.Cube {
     
     // 1.20.1 has no ModelBase, so the texture size the parts are baked
     // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
@@ -28,55 +28,55 @@ public class CustomVerticesModelBox extends ModelPart.ModelBox {
                 0, 0, 0, 
                 mirror, texWidth, texHeight);
         
-        ModelPart.PositionTextureVertex x0y0z0 = mirror ? builder.vertices[4] : builder.vertices[0];
-        ModelPart.PositionTextureVertex x0y0z1 = mirror ? builder.vertices[5] : builder.vertices[1];
-        ModelPart.PositionTextureVertex x0y1z0 = mirror ? builder.vertices[6] : builder.vertices[2];
-        ModelPart.PositionTextureVertex x0y1z1 = mirror ? builder.vertices[7] : builder.vertices[3];
-        ModelPart.PositionTextureVertex x1y0z0 = mirror ? builder.vertices[0] : builder.vertices[4];
-        ModelPart.PositionTextureVertex x1y0z1 = mirror ? builder.vertices[1] : builder.vertices[5];
-        ModelPart.PositionTextureVertex x1y1z0 = mirror ? builder.vertices[2] : builder.vertices[6];
-        ModelPart.PositionTextureVertex x1y1z1 = mirror ? builder.vertices[3] : builder.vertices[7];
+        ModelPart.Vertex x0y0z0 = mirror ? builder.vertices[4] : builder.vertices[0];
+        ModelPart.Vertex x0y0z1 = mirror ? builder.vertices[5] : builder.vertices[1];
+        ModelPart.Vertex x0y1z0 = mirror ? builder.vertices[6] : builder.vertices[2];
+        ModelPart.Vertex x0y1z1 = mirror ? builder.vertices[7] : builder.vertices[3];
+        ModelPart.Vertex x1y0z0 = mirror ? builder.vertices[0] : builder.vertices[4];
+        ModelPart.Vertex x1y0z1 = mirror ? builder.vertices[1] : builder.vertices[5];
+        ModelPart.Vertex x1y1z0 = mirror ? builder.vertices[2] : builder.vertices[6];
+        ModelPart.Vertex x1y1z1 = mirror ? builder.vertices[3] : builder.vertices[7];
         
-        ModelPart.TexturedQuad[] polygons = new ModelPart.TexturedQuad[6];
+        ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
         Builder.UvInfo uv;
         
         uv = builder.uv.get(Direction.DOWN);
-        polygons[2] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[2] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z1, 
                 x0y0z1,
                 x0y0z0, 
                 x1y0z0}, 
                 uv.u0, uv.v0, uv.u1, uv.v1, texWidth, texHeight, mirror, Direction.DOWN);
         uv = builder.uv.get(Direction.UP);
-        polygons[3] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[3] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y1z0,
                 x0y1z0,
                 x0y1z1,
                 x1y1z1}, 
                 uv.u0, uv.v1, uv.u1, uv.v0, texWidth, texHeight, mirror, Direction.UP);
         uv = builder.uv.get(Direction.WEST);
-        polygons[1] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[1] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x0y0z0, 
                 x0y0z1, 
                 x0y1z1, 
                 x0y1z0}, 
                 uv.u0, uv.v0, uv.u1, uv.v1, texWidth, texHeight, mirror, Direction.WEST);
         uv = builder.uv.get(Direction.NORTH);
-        polygons[4] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[4] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z0,
                 x0y0z0, 
                 x0y1z0, 
                 x1y1z0}, 
                 uv.u0, uv.v0, uv.u1, uv.v1, texWidth, texHeight, mirror, Direction.NORTH);
         uv = builder.uv.get(Direction.EAST);
-        polygons[0] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[0] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z1, 
                 x1y0z0, 
                 x1y1z0, 
                 x1y1z1}, 
                 uv.u0, uv.v0, uv.u1, uv.v1, texWidth, texHeight, mirror, Direction.EAST);
         uv = builder.uv.get(Direction.SOUTH);
-        polygons[5] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[5] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x0y0z1, 
                 x1y0z1, 
                 x1y1z1, 
@@ -91,7 +91,7 @@ public class CustomVerticesModelBox extends ModelPart.ModelBox {
     @Deprecated
     public static class Builder {
         private final boolean livingEntityRenderHacks;
-        private final ModelPart.PositionTextureVertex[] vertices = new ModelPart.PositionTextureVertex[8];
+        private final ModelPart.Vertex[] vertices = new ModelPart.Vertex[8];
         private final Map<Direction, UvInfo> uv = new EnumMap<>(Direction.class);
         private byte init = 0;
         private float minX;
@@ -135,7 +135,7 @@ public class CustomVerticesModelBox extends ModelPart.ModelBox {
             }
             init |= (1 << index);
             
-            ModelPart.PositionTextureVertex vertex = new ModelPart.PositionTextureVertex(
+            ModelPart.Vertex vertex = new ModelPart.Vertex(
                     x, y, z, yPositive ? 8 : 0, xPositive ? 8 : 0);
             vertices[index] = vertex;
             

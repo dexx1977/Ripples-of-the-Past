@@ -71,25 +71,25 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
         float x1 = 7;
         float y1 = 11;
         float z1 = 8.502F;
-        ModelPart.PositionTextureVertex vertex7 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex7 = new ModelPart.Vertex(
                 x0, y0, z0, 0.0F, 0.0F);
-        ModelPart.PositionTextureVertex vertex = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex = new ModelPart.Vertex(
                 x1, y0, z0, 0.0F, 8.0F);
-        ModelPart.PositionTextureVertex vertex1 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex1 = new ModelPart.Vertex(
                 x1, y1, z0, 8.0F, 8.0F);
-        ModelPart.PositionTextureVertex vertex2 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex2 = new ModelPart.Vertex(
                 x0, y1, z0, 8.0F, 0.0F);
-        ModelPart.PositionTextureVertex vertex3 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex3 = new ModelPart.Vertex(
                 x0, y0, z1, 0.0F, 0.0F);
-        ModelPart.PositionTextureVertex vertex4 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex4 = new ModelPart.Vertex(
                 x1, y0, z1, 0.0F, 8.0F);
-        ModelPart.PositionTextureVertex vertex5 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex5 = new ModelPart.Vertex(
                 x1, y1, z1, 8.0F, 8.0F);
-        ModelPart.PositionTextureVertex vertex6 = new ModelPart.PositionTextureVertex(
+        ModelPart.Vertex vertex6 = new ModelPart.Vertex(
                 x0, y1, z1, 8.0F, 0.0F);
         
         QUAD_FRONT = new ModelPart.Polygon(
-                new ModelPart.PositionTextureVertex[]{
+                new ModelPart.Vertex[]{
                         vertex2, 
                         vertex1,
                         vertex, 
@@ -99,7 +99,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
                 16, 16, false, Direction.NORTH);
         
         QUAD_BACK = new ModelPart.Polygon(
-                new ModelPart.PositionTextureVertex[]{ 
+                new ModelPart.Vertex[]{ 
                         vertex5, 
                         vertex6,
                         vertex3, 
@@ -122,7 +122,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
         float z = normal.z();
 
         for (int i = 0; i < quad.vertices.length; ++i) {
-            ModelPart.PositionTextureVertex vertex = quad.vertices[i];
+            ModelPart.Vertex vertex = quad.vertices[i];
             float vertexX = vertex.pos.x() / 16.0F;
             float vertexY = vertex.pos.y() / 16.0F;
             float vertexZ = vertex.pos.z() / 16.0F;

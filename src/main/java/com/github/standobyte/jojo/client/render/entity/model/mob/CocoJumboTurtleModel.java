@@ -25,7 +25,7 @@ public class CocoJumboTurtleModel<T extends Turtle> extends TurtleModel<T> {
         super(inflate);
 
         ParseGenericModel.ModelParsed.ElementMesh meshParsed = ParseGenericModel.GSON.fromJson(COCO_JUMBO_MESH, ParseGenericModel.ModelParsed.ElementMesh.class);
-        ModelPart.ModelBox shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);
+        ModelPart.Cube shellMesh = meshParsed.makeCube(new float[] { body.x, body.y + 2, body.z }, texWidth, texHeight);
         ClientReflection.getCubes(body).set(0, shellMesh);
         
         mrPresidentKey = new ModelPart(this);

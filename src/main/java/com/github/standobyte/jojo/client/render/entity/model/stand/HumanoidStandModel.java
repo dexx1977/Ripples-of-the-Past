@@ -409,13 +409,13 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         List<ModelPart> allModelParts = new ArrayList<>();
         addChildren(mainPart, allModelParts);
         ModelPart randomPart = allModelParts.get(random.nextInt(allModelParts.size()));
-        ObjectList<ModelPart.ModelBox> cubes = randomPart.cubes;
+        ObjectList<ModelPart.Cube> cubes = randomPart.cubes;
         if (!cubes.isEmpty()) {
-            ModelPart.ModelBox cube = cubes.get(random.nextInt(cubes.size()));
-            ModelPart.TexturedQuad[] polygons = cube.polygons;
-            ModelPart.TexturedQuad polygon = polygons[random.nextInt(polygons.length)];
+            ModelPart.Cube cube = cubes.get(random.nextInt(cubes.size()));
+            ModelPart.Polygon[] polygons = cube.polygons;
+            ModelPart.Polygon polygon = polygons[random.nextInt(polygons.length)];
             if (polygon != null) {
-                ModelPart.PositionTextureVertex[] vertices = polygon.vertices;
+                ModelPart.Vertex[] vertices = polygon.vertices;
                 if (vertices.length > 0) {
                     float u0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.u).min().getAsDouble();
                     float v0 = (float) Arrays.stream(vertices).mapToDouble(vertex -> vertex.v).min().getAsDouble();
@@ -927,13 +927,13 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
     }
     
     
-    protected Map<TargetHitPart, List<ModelPart.ModelBox>> cubesCache;
+    protected Map<TargetHitPart, List<ModelPart.Cube>> cubesCache;
     @Override
-    public ModelPart.ModelBox getRandomCubeAt(TargetHitPart entityPart) {
+    public ModelPart.Cube getRandomCubeAt(TargetHitPart entityPart) {
         if (cubesCache == null) {
             cacheCubes();
         }
-        List<ModelPart.ModelBox> cubes = cubesCache.get(entityPart);
+        List<ModelPart.Cube> cubes = cubesCache.get(entityPart);
         if (cubes != null && !cubes.isEmpty()) {
             return cubes.get(RANDOM.nextInt(cubes.size()));
         }
@@ -963,18 +963,18 @@ public class HumanoidStandModel<T extends StandEntity> extends StandEntityModel<
         }
     }
     
-    public static List<ModelPart.ModelBox> allCubes(List<ModelPart> modelParts) {
-        List<ModelPart.ModelBox> cubes = modelParts.stream()
+    public static List<ModelPart.Cube> allCubes(List<ModelPart> modelParts) {
+        List<ModelPart.Cube> cubes = modelParts.stream()
                 .flatMap(modelPart -> modelPart.cubes.stream())
                 .collect(Collectors.toList());
         return cubes;
     }
     
     // TODO select quads with weight depending on their size
-    public static ModelPart.TexturedQuad getRandomQuad(ModelPart.ModelBox cube) {
+    public static ModelPart.Polygon getRandomQuad(ModelPart.Cube cube) {
         if (cube == null) return null;
-        ModelPart.TexturedQuad[] polygons = cube.polygons;
-        ModelPart.TexturedQuad polygon = polygons[RANDOM.nextInt(polygons.length)];
+        ModelPart.Polygon[] polygons = cube.polygons;
+        ModelPart.Polygon polygon = polygons[RANDOM.nextInt(polygons.length)];
         return polygon;
     }
     

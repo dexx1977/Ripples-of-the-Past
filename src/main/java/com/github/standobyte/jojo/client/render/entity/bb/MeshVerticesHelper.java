@@ -12,7 +12,7 @@ import org.joml.Vector3f;
  */
 public class MeshVerticesHelper {
     
-    public static void sortVertices(ModelPart.PositionTextureVertex[] vertices) {
+    public static void sortVertices(ModelPart.Vertex[] vertices) {
         if (vertices.length < 4) return;
 
         if (MeshVerticesHelper.magicFunction(vertices[1].pos, vertices[2].pos, vertices[0].pos, vertices[3].pos)) {

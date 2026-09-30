@@ -103,7 +103,7 @@ public class ParseGeckoModel {
                 
                 
                 if (cubes != null) {
-                    ObjectList<ModelPart.ModelBox> modelCubes = new ObjectArrayList<>();
+                    ObjectList<ModelPart.Cube> modelCubes = new ObjectArrayList<>();
                     for (CubeParsed cubeParsed : cubes) {
                         Optional<BoneParsed> cubeRotated = cubeParsed.convertRotated(this);
                         if (cubeRotated.isPresent()) {
@@ -156,14 +156,14 @@ public class ParseGeckoModel {
                 return Optional.empty();
             }
             
-            ModelPart.ModelBox makeModelBox(float texWidth, float texHeight, BoneParsed parentBone) {
+            ModelPart.Cube makeModelBox(float texWidth, float texHeight, BoneParsed parentBone) {
                 Vector3f originJ = new Vector3f(
                           origin[0] - parentBone.pivot[0],
                         -(origin[1] - parentBone.pivot[1]) - size[1],
                           origin[2] - parentBone.pivot[2]
                         );
                 
-                ModelPart.ModelBox box = new ModelPart.ModelBox(
+                ModelPart.Cube box = new ModelPart.Cube(
                         0, 0, 
                         originJ.x(), originJ.y(), originJ.z(), 
                         size[0], size[1], size[2], 
@@ -184,16 +184,16 @@ public class ParseGeckoModel {
                         x0 = swap;
                     }
                     
-                    ModelPart.PositionTextureVertex x0y0z0 = new ModelPart.PositionTextureVertex(x0, y0, z0, 0.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x1y0z0 = new ModelPart.PositionTextureVertex(x1, y0, z0, 0.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x1y1z0 = new ModelPart.PositionTextureVertex(x1, y1, z0, 8.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x0y1z0 = new ModelPart.PositionTextureVertex(x0, y1, z0, 8.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x0y0z1 = new ModelPart.PositionTextureVertex(x0, y0, z1, 0.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x1y0z1 = new ModelPart.PositionTextureVertex(x1, y0, z1, 0.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x1y1z1 = new ModelPart.PositionTextureVertex(x1, y1, z1, 8.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x0y1z1 = new ModelPart.PositionTextureVertex(x0, y1, z1, 8.0F, 0.0F);
+                    ModelPart.Vertex x0y0z0 = new ModelPart.Vertex(x0, y0, z0, 0.0F, 0.0F);
+                    ModelPart.Vertex x1y0z0 = new ModelPart.Vertex(x1, y0, z0, 0.0F, 8.0F);
+                    ModelPart.Vertex x1y1z0 = new ModelPart.Vertex(x1, y1, z0, 8.0F, 8.0F);
+                    ModelPart.Vertex x0y1z0 = new ModelPart.Vertex(x0, y1, z0, 8.0F, 0.0F);
+                    ModelPart.Vertex x0y0z1 = new ModelPart.Vertex(x0, y0, z1, 0.0F, 0.0F);
+                    ModelPart.Vertex x1y0z1 = new ModelPart.Vertex(x1, y0, z1, 0.0F, 8.0F);
+                    ModelPart.Vertex x1y1z1 = new ModelPart.Vertex(x1, y1, z1, 8.0F, 8.0F);
+                    ModelPart.Vertex x0y1z1 = new ModelPart.Vertex(x0, y1, z1, 8.0F, 0.0F);
 
-                    ModelPart.TexturedQuad[] polygons = new ModelPart.TexturedQuad[6];
+                    ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
                     int[] boxUV0 = ((BoxUV) uv).uv;
                     int texCoordU = boxUV0[0];
                     int texCoordV = boxUV0[1];
@@ -210,32 +210,32 @@ public class ParseGeckoModel {
                     float f11 = texCoordV + sizeZ;
                     float f12 = texCoordV + sizeZ + sizeY;
                     
-                    polygons[2] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[2] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x1y0z1, 
                             x0y0z1, 
                             x0y0z0, 
                             x1y0z0}, f5, f10, f6, f11, texWidth, texHeight, mirror, Direction.DOWN);
-                    polygons[3] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[3] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x1y1z0, 
                             x0y1z0, 
                             x0y1z1, 
                             x1y1z1}, f6, f11, f7, f10, texWidth, texHeight, mirror, Direction.UP);
-                    polygons[1] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[1] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x0y0z0, 
                             x0y0z1, 
                             x0y1z1, 
                             x0y1z0}, f4, f11, f5, f12, texWidth, texHeight, mirror, Direction.WEST);
-                    polygons[4] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[4] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x1y0z0, 
                             x0y0z0, 
                             x0y1z0, 
                             x1y1z0}, f5, f11, f6, f12, texWidth, texHeight, mirror, Direction.NORTH);
-                    polygons[0] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[0] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x1y0z1, 
                             x1y0z0, 
                             x1y1z0, 
                             x1y1z1}, f6, f11, f8, f12, texWidth, texHeight, mirror, Direction.EAST);
-                    polygons[5] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+                    polygons[5] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                             x0y0z1, 
                             x1y0z1, 
                             x1y1z1, 
@@ -244,7 +244,7 @@ public class ParseGeckoModel {
                 }
                 
                 else if (uv instanceof PerFaceUV) {
-                    ModelPart.TexturedQuad[] polygons = new ModelPart.TexturedQuad[6];
+                    ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
                     float x0 = originJ.x() - inflate;
                     float y0 = originJ.y() - inflate;
                     float z0 = originJ.z() - inflate;
@@ -252,42 +252,42 @@ public class ParseGeckoModel {
                     float y1 = originJ.y() + inflate + size[1];
                     float z1 = originJ.z() + inflate + size[2];
                     
-                    ModelPart.PositionTextureVertex x0y0z0 = new ModelPart.PositionTextureVertex(x0, y0, z0, 0.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x1y0z0 = new ModelPart.PositionTextureVertex(x1, y0, z0, 0.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x1y1z0 = new ModelPart.PositionTextureVertex(x1, y1, z0, 8.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x0y1z0 = new ModelPart.PositionTextureVertex(x0, y1, z0, 8.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x0y0z1 = new ModelPart.PositionTextureVertex(x0, y0, z1, 0.0F, 0.0F);
-                    ModelPart.PositionTextureVertex x1y0z1 = new ModelPart.PositionTextureVertex(x1, y0, z1, 0.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x1y1z1 = new ModelPart.PositionTextureVertex(x1, y1, z1, 8.0F, 8.0F);
-                    ModelPart.PositionTextureVertex x0y1z1 = new ModelPart.PositionTextureVertex(x0, y1, z1, 8.0F, 0.0F);
+                    ModelPart.Vertex x0y0z0 = new ModelPart.Vertex(x0, y0, z0, 0.0F, 0.0F);
+                    ModelPart.Vertex x1y0z0 = new ModelPart.Vertex(x1, y0, z0, 0.0F, 8.0F);
+                    ModelPart.Vertex x1y1z0 = new ModelPart.Vertex(x1, y1, z0, 8.0F, 8.0F);
+                    ModelPart.Vertex x0y1z0 = new ModelPart.Vertex(x0, y1, z0, 8.0F, 0.0F);
+                    ModelPart.Vertex x0y0z1 = new ModelPart.Vertex(x0, y0, z1, 0.0F, 0.0F);
+                    ModelPart.Vertex x1y0z1 = new ModelPart.Vertex(x1, y0, z1, 0.0F, 8.0F);
+                    ModelPart.Vertex x1y1z1 = new ModelPart.Vertex(x1, y1, z1, 8.0F, 8.0F);
+                    ModelPart.Vertex x0y1z1 = new ModelPart.Vertex(x0, y1, z1, 8.0F, 0.0F);
                     
-                    Map<Direction, ModelPart.PositionTextureVertex[]> faceVertices = new EnumMap<>(Direction.class);
-                    faceVertices.put(Direction.DOWN, new ModelPart.PositionTextureVertex[]{
+                    Map<Direction, ModelPart.Vertex[]> faceVertices = new EnumMap<>(Direction.class);
+                    faceVertices.put(Direction.DOWN, new ModelPart.Vertex[]{
                             x1y0z1, 
                             x0y0z1, 
                             x0y0z0, 
                             x1y0z0});
-                    faceVertices.put(Direction.UP, new ModelPart.PositionTextureVertex[]{
+                    faceVertices.put(Direction.UP, new ModelPart.Vertex[]{
                             x1y1z0, 
                             x0y1z0, 
                             x0y1z1, 
                             x1y1z1});
-                    faceVertices.put(Direction.WEST, new ModelPart.PositionTextureVertex[]{
+                    faceVertices.put(Direction.WEST, new ModelPart.Vertex[]{
                             x0y0z0, 
                             x0y0z1, 
                             x0y1z1, 
                             x0y1z0});
-                    faceVertices.put(Direction.NORTH, new ModelPart.PositionTextureVertex[]{
+                    faceVertices.put(Direction.NORTH, new ModelPart.Vertex[]{
                             x1y0z0, 
                             x0y0z0, 
                             x0y1z0, 
                             x1y1z0});
-                    faceVertices.put(Direction.EAST, new ModelPart.PositionTextureVertex[]{
+                    faceVertices.put(Direction.EAST, new ModelPart.Vertex[]{
                             x1y0z1, 
                             x1y0z0, 
                             x1y1z0, 
                             x1y1z1});
-                    faceVertices.put(Direction.SOUTH, new ModelPart.PositionTextureVertex[]{
+                    faceVertices.put(Direction.SOUTH, new ModelPart.Vertex[]{
                             x0y0z1, 
                             x1y0z1, 
                             x1y1z1, 
@@ -300,7 +300,7 @@ public class ParseGeckoModel {
                         Direction uvPart = direction.getAxis() == Axis.Z ? direction : direction.getOpposite();
                         if (perFaceUv.containsKey(uvPart)) {
                             PerFaceUV.FaceUV uv = perFaceUv.get(uvPart);
-                            polygons[polygonsCount++] = new ModelPart.TexturedQuad(faceVertices.get(direction), 
+                            polygons[polygonsCount++] = new ModelPart.Polygon(faceVertices.get(direction), 
                                     uv.uv[0], uv.uv[1], 
                                     uv.uv[0] + uv.uv_size[0], uv.uv[1] + uv.uv_size[1], 
                                     texWidth, texHeight, false, direction);

@@ -4,7 +4,7 @@ import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.core.Direction;
 
 @Deprecated
-public class SlopeModelBox extends ModelPart.ModelBox {
+public class SlopeModelBox extends ModelPart.Cube {
 
     public SlopeModelBox(int pTexCoordU, int pTexCoordV, 
             float pOriginX, float pOriginY1, float pOriginY2, float pOriginZ, 
@@ -17,7 +17,7 @@ public class SlopeModelBox extends ModelPart.ModelBox {
                 pGrowX, pGrowY, pGrowZ, 
                 pMirror, pTexWidthScaled, pTexHeightScaled);
         
-        ModelPart.TexturedQuad[] polygons = new ModelPart.TexturedQuad[6];
+        ModelPart.Polygon[] polygons = new ModelPart.Polygon[6];
         float x1 = pOriginX + pDimensionX;
         float y11 = pOriginY1 + pDimensionY;
         float y12 = pOriginY2 + pDimensionY2;
@@ -36,14 +36,14 @@ public class SlopeModelBox extends ModelPart.ModelBox {
             pOriginX = f3;
         }
         
-        ModelPart.PositionTextureVertex x0y0z0 = new ModelPart.PositionTextureVertex(pOriginX, pOriginY1, pOriginZ, 0.0F, 0.0F);
-        ModelPart.PositionTextureVertex x1y0z0 = new ModelPart.PositionTextureVertex(x1, pOriginY1, pOriginZ, 0.0F, 8.0F);
-        ModelPart.PositionTextureVertex x1y1z0 = new ModelPart.PositionTextureVertex(x1, y11, pOriginZ, 8.0F, 8.0F);
-        ModelPart.PositionTextureVertex x0y1z0 = new ModelPart.PositionTextureVertex(pOriginX, y11, pOriginZ, 8.0F, 0.0F);
-        ModelPart.PositionTextureVertex x0y0z1 = new ModelPart.PositionTextureVertex(pOriginX, pOriginY2, z1, 0.0F, 0.0F);
-        ModelPart.PositionTextureVertex x1y0z1 = new ModelPart.PositionTextureVertex(x1, pOriginY2, z1, 0.0F, 8.0F);
-        ModelPart.PositionTextureVertex x1y1z1 = new ModelPart.PositionTextureVertex(x1, y12, z1, 8.0F, 8.0F);
-        ModelPart.PositionTextureVertex x0y1z1 = new ModelPart.PositionTextureVertex(pOriginX, y12, z1, 8.0F, 0.0F);
+        ModelPart.Vertex x0y0z0 = new ModelPart.Vertex(pOriginX, pOriginY1, pOriginZ, 0.0F, 0.0F);
+        ModelPart.Vertex x1y0z0 = new ModelPart.Vertex(x1, pOriginY1, pOriginZ, 0.0F, 8.0F);
+        ModelPart.Vertex x1y1z0 = new ModelPart.Vertex(x1, y11, pOriginZ, 8.0F, 8.0F);
+        ModelPart.Vertex x0y1z0 = new ModelPart.Vertex(pOriginX, y11, pOriginZ, 8.0F, 0.0F);
+        ModelPart.Vertex x0y0z1 = new ModelPart.Vertex(pOriginX, pOriginY2, z1, 0.0F, 0.0F);
+        ModelPart.Vertex x1y0z1 = new ModelPart.Vertex(x1, pOriginY2, z1, 0.0F, 8.0F);
+        ModelPart.Vertex x1y1z1 = new ModelPart.Vertex(x1, y12, z1, 8.0F, 8.0F);
+        ModelPart.Vertex x0y1z1 = new ModelPart.Vertex(pOriginX, y12, z1, 8.0F, 0.0F);
         float f4 = (float)pTexCoordU;
         float f5 = (float)pTexCoordU + pDimensionZ;
         float f6 = (float)pTexCoordU + pDimensionZ + pDimensionX;
@@ -53,37 +53,37 @@ public class SlopeModelBox extends ModelPart.ModelBox {
         float f10 = (float)pTexCoordV;
         float f11 = (float)pTexCoordV + pDimensionZ;
         float f12 = (float)pTexCoordV + pDimensionZ + pDimensionY;
-        polygons[2] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[2] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z1, 
                 x0y0z1, 
                 x0y0z0, 
                 x1y0z0}, 
                 f5, f10, f6, f11, pTexWidthScaled, pTexHeightScaled, pMirror, Direction.DOWN);
-        polygons[3] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[3] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y1z0, 
                 x0y1z0, 
                 x0y1z1, 
                 x1y1z1}, 
                 f6, f11, f7, f10, pTexWidthScaled, pTexHeightScaled, pMirror, Direction.UP);
-        polygons[1] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[1] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x0y0z0, 
                 x0y0z1, 
                 x0y1z1, 
                 x0y1z0}, 
                 f4, f11, f5, f12, pTexWidthScaled, pTexHeightScaled, pMirror, Direction.WEST);
-        polygons[4] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[4] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z0,
                 x0y0z0, 
                 x0y1z0, 
                 x1y1z0}, 
                 f5, f11, f6, f12, pTexWidthScaled, pTexHeightScaled, pMirror, Direction.NORTH);
-        polygons[0] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[0] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x1y0z1, 
                 x1y0z0, 
                 x1y1z0, 
                 x1y1z1}, 
                 f6, f11, f8, f12, pTexWidthScaled, pTexHeightScaled, pMirror, Direction.EAST);
-        polygons[5] = new ModelPart.TexturedQuad(new ModelPart.PositionTextureVertex[]{
+        polygons[5] = new ModelPart.Polygon(new ModelPart.Vertex[]{
                 x0y0z1, 
                 x1y0z1, 
                 x1y1z1, 

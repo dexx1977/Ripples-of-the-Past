@@ -58,7 +58,7 @@ public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>
                     ModelCubeWeightedList.ModelCube modelCube = modelCubes.getRandomCube(random);
                     pMatrixStack.pushPose();
                     modelCube.translateAndRotate(pMatrixStack);
-                    ModelPart.ModelBox modelBox = modelCube.cube();
+                    ModelPart.Cube modelBox = modelCube.cube();
                     float minX = modelBox.minX;
                     float maxX = modelBox.maxX;
                     float minY = modelBox.minY;

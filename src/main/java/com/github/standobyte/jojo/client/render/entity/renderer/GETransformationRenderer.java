@@ -240,7 +240,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     private static Map<ModelPart, float[]> createStateZero(Collection<ModelPart> modelParts) {
         Map<ModelPart, float[]> map = new HashMap<>();
         modelParts.forEach(modelPart -> {
-            ObjectList<ModelPart.ModelBox> boxes = modelPart.cubes;
+            ObjectList<ModelPart.Cube> boxes = modelPart.cubes;
             float minX = boxes.stream().map(box -> box.minX).min(Float::compare).orElse(0f);
             float maxX = boxes.stream().map(box -> box.maxX).max(Float::compare).orElse(0f);
             float minY = boxes.stream().map(box -> box.minY).min(Float::compare).orElse(0f);
