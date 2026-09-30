@@ -179,8 +179,7 @@ public class FirstPersonHamonAura {
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
         };
-        GuiDraw.pushMatrix();
-        // the pose stack is passed to the draws in 1.20.1, no global matrix needed
+        pMatrixStack.pushPose(); // the hand render path has no GuiGraphics, so the event's pose stack is used
 
         enable.run();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -247,7 +246,7 @@ public class FirstPersonHamonAura {
             renderType.end(tessellator);
         }
         
-        GuiDraw.popMatrix();
+        pMatrixStack.popPose();
         RenderSystem.depthMask(true);
         RenderSystem.depthFunc(515);
         RenderSystem.disableBlend();

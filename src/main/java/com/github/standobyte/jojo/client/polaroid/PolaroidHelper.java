@@ -119,7 +119,8 @@ public class PolaroidHelper {
     
     @SuppressWarnings("deprecation")
     private static void renderOnRemoteBuffer(Minecraft mc) {
-        GuiDraw.pushMatrix();
+        // 1.16.5 pushed the global RenderSystem matrix here; 1.20.1 draws with the
+        // pose stack that is created below, so there is nothing global to push
         RenderSystem.clear(16640, Minecraft.ON_OSX);
         remoteRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
@@ -140,7 +141,6 @@ public class PolaroidHelper {
         }
         
         remoteRenderTarget.unbindWrite();
-        GuiDraw.popMatrix();
     }
     
     public static boolean pictureCameraSetup(ViewportEvent.ComputeCameraAngles event) {
