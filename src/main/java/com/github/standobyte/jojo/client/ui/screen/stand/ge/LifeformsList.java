@@ -40,6 +40,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
 public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList.LifeformsListEntry> {
+    // the entry type refers to itself, as the 1.20.1 list requires
     private static final Set<String> COLLAPSED_MOD_NAMES = new HashSet<>();
     
     protected ChooseLifeformListScreen screen;
@@ -48,7 +49,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
     private Map<String, List<LifeformEntry>> allVisibleEntries = new HashMap<>();
     
     public LifeformsList(Minecraft mc, int width, int height, int y0, int y1, int itemHeight, ChooseLifeformListScreen screen) {
-        super(mc, width, height, y0, y1, itemHeight, Button.DEFAULT_NARRATION);
+        super(mc, width, height, y0, y1, itemHeight, DEFAULT_NARRATION);
         this.screen = screen;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
@@ -221,7 +222,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         // Ctrl + C, Ctrl + V
-        this.renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
+        this.screen.renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
         int i = this.getScrollbarPosition();
         int j = i + 6;
         Tesselator tessellator = Tesselator.getInstance();
@@ -312,9 +313,9 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         }
 
         // moved it lower to render tooltips on top of the scroll bar
-        this.renderList(pMatrixStack, j1, k, pMouseX, pMouseY, pPartialTicks);
+        this.renderList(guiGraphics, pMouseX, pMouseY, pPartialTicks);
 
-        this.renderDecorations(pMatrixStack, pMouseX, pMouseY);
+        this.renderDecorations(guiGraphics, pMouseX, pMouseY);
         RenderSystem.disableBlend();
     }
     

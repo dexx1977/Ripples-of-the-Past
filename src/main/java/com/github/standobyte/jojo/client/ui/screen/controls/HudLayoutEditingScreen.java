@@ -133,7 +133,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     scrollCtrlListTo = entry -> {
                         if (entry instanceof KeyBindsList.CategoryEntry) {
                             Component categoryName = ClientReflection.getName((KeyBindsList.CategoryEntry) entry);
-                            return InputHandler.MAIN_CATEGORY.equals(((net.minecraft.network.chat.TranslatableComponent) categoryName).getKey());
+                            return categoryName.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents && InputHandler.MAIN_CATEGORY.equals(contents.getKey());
                         }
                         
                         return false;
@@ -218,7 +218,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         GuiDraw.setGraphics(guiGraphics);
         if (!works()) return;
         renderAfterScissor = null;
-        renderBackground(matrixStack, 0);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         hoveredAction = getSlotAt(mouseX, mouseY);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         renderWindow(matrixStack);
@@ -458,7 +458,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         hintX += getWindowX();
         hintY += getWindowY();
         if (mouseX >= hintX && mouseX <= hintX + 11 && mouseY >= hintY && mouseY <= hintY + 11) {
-            renderToolTip(matrixStack, Minecraft.getInstance().font.split(Component.translatable(tooltipTlKey), 200), mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Minecraft.getInstance().font.split(Component.translatable(tooltipTlKey), 200), mouseX, mouseY);
         }
     }
     
@@ -1008,13 +1008,13 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         private final Iterable<KeyMapping> conflictKeys = Iterables.concat(vanillaKeys, entryKeys);
         private Optional<ActionKeybindEntry> hoveredKeybindSlot = Optional.empty();
         @Override
-        protected void renderList(net.minecraft.client.gui.GuiGraphics guiGraphics, int pX, int pY, int pMouseX, int pMouseY, float pPartialTicks) {
+        protected void renderList(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
             entryKeys.clear();
             for (ActionKeybindsList.KeybindUIEntry entry : keybindsMap.values()) {
                 entryKeys.add(entry.keybindEntry.getKeybind());
             }
             hoveredKeybindSlot = Optional.empty();
-            super.renderList(guiGraphics, pX, pY, pMouseX, pMouseY, pPartialTicks);
+            super.renderList(guiGraphics, pMouseX, pMouseY, pPartialTicks);
         }
         
         public void addKeybindEntry(ActionKeybindsList.KeybindUIEntry entry) {
@@ -1052,7 +1052,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                         screen.markLayoutEdited();
                     }, 
                     (button, matrixStack, x, y) -> {
-                        screen.com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.add_keybind"), x, y);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("jojo.screen.edit_hud_layout.add_keybind"), x, y);
                     }) {
                 
                 @Override
