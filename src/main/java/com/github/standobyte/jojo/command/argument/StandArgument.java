@@ -20,7 +20,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.arguments.ArgumentSerializer;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import com.github.standobyte.jojo.init.power.RegistryEntry;
 
 public class StandArgument implements ArgumentType<StandType<?>> {
@@ -45,7 +44,7 @@ public class StandArgument implements ArgumentType<StandType<?>> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT;
+        boolean isClientSide = net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT;
         return ArgumentUtil.suggestIterable(StandUtil.availableStands(isClientSide).map(RegistryEntry::getRegistryName), builder);
     }
 

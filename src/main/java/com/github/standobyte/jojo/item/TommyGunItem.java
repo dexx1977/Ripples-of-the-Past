@@ -203,13 +203,11 @@ public class TommyGunItem extends Item {
         return 1 - ((double) getAmmo(stack) / (double) MAX_AMMO);
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if (this.allowdedIn(group)) {
-            ItemStack stack = new ItemStack(this);
-            stack.getOrCreateTag().putInt("Ammo", MAX_AMMO);
-            items.add(stack);
-        }
+    /** The gun the mod's tab showed, with a full clip. */
+    public void addToCreativeTab(CreativeModeTab.Output output) {
+        ItemStack stack = new ItemStack(this);
+        stack.getOrCreateTag().putInt("Ammo", MAX_AMMO);
+        output.accept(stack);
     }
 
     @Override

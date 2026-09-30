@@ -84,13 +84,11 @@ public class BubbleGlovesItem extends GlovesItem {
         return 1 - ((double) TommyGunItem.getAmmo(stack) / (double) MAX_AMMO);
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if (this.allowdedIn(group)) {
-            ItemStack stack = new ItemStack(this);
-            stack.getOrCreateTag().putInt("Ammo", MAX_AMMO);
-            items.add(stack);
-        }
+    /** The gloves the mod's tab showed, with a full clip. */
+    public void addToCreativeTab(CreativeModeTab.Output output) {
+        ItemStack stack = new ItemStack(this);
+        stack.getOrCreateTag().putInt("Ammo", MAX_AMMO);
+        output.accept(stack);
     }
     
 }

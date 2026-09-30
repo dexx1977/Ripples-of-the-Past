@@ -511,13 +511,12 @@ public abstract class StandType<T extends StandStats> implements IPowerType<ISta
     
     public static interface IStandPool {
         
-        default boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
+        default boolean addToCreativeTab(Item item, StandType<?> standType, boolean clientSide) {
             return false;
         }
         
-        @Deprecated
-        default boolean addToCreativeTab(StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
-            return addToCreativeTab(ModItems.STAND_DISC.get(), standType, creativeTab, clientSide);
+        default boolean addToCreativeTab(StandType<?> standType, boolean clientSide) {
+            return addToCreativeTab(ModItems.STAND_DISC.get(), standType, clientSide);
         }
         
         default boolean accessibleToPlayer(StandType<?> standType, boolean clientSide) {
@@ -528,8 +527,8 @@ public abstract class StandType<T extends StandStats> implements IPowerType<ISta
     public static enum StandSurvivalGameplayPool implements IStandPool {
         PLAYER_ARROW {
             @Override
-            public boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
-                return MCUtil.itemAllowedIn(item, creativeTab) && !StandUtil.isStandBanned(standType, clientSide);
+            public boolean addToCreativeTab(Item item, StandType<?> standType, boolean clientSide) {
+                return !StandUtil.isStandBanned(standType, clientSide);
             }
             
             @Override
@@ -539,8 +538,8 @@ public abstract class StandType<T extends StandStats> implements IPowerType<ISta
         },
         NON_ARROW { // Requiems, C-Moon, Made in Heaven, Acts depending on their implementation, etc.
             @Override
-            public boolean addToCreativeTab(Item item, StandType<?> standType, CreativeModeTab creativeTab, boolean clientSide) {
-                return MCUtil.itemAllowedIn(item, creativeTab) && !StandUtil.isStandBanned(standType, clientSide);
+            public boolean addToCreativeTab(Item item, StandType<?> standType, boolean clientSide) {
+                return !StandUtil.isStandBanned(standType, clientSide);
             }
         },
         NPC_ENCOUNTER,

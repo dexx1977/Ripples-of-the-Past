@@ -69,10 +69,10 @@ public class CassetteRecordedItem extends Item {
         tooltip.add(ClientUtil.donoItemTooltip("Кхъ"));
     }
     
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if (group != CreativeModeTab.TAB_SEARCH && this.allowdedIn(group)) {
-//            boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT; // nope
+    /** The cassettes the mod's tab showed, one per dye that has tracks. */
+    public void addToCreativeTab(CreativeModeTab.Output output) {
+        {
+//            boolean isClientSide = net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT; // nope
             boolean isClientSide = true;
             if (isClientSide) {
                 for (DyeColor dye : DyeColor.values()) {
@@ -85,7 +85,7 @@ public class CassetteRecordedItem extends Item {
                             cap.addDyeCraftHint();
                             cap.recordTracks(Collections.singletonList(source));
                         });
-                        items.add(cassette);
+                        output.accept(cassette);
                     }
                 }
             }

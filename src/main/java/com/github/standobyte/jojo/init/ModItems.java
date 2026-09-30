@@ -73,10 +73,13 @@ public class ModItems {
                 output.accept(IRON_SLEDGEHAMMER.get());
                 output.accept(BLADE_HAT.get());
                 output.accept(STONE_MASK.get());
+                STONE_MASK.get().addToCreativeTab(output);
+                AJA_STONE_MASK.get().addToCreativeTab(output);
                 output.accept(BREATH_CONTROL_MASK.get());
                 output.accept(GLOVES.get());
                 output.accept(OIL.get());
                 output.accept(BUBBLE_GLOVES.get());
+                BUBBLE_GLOVES.get().addToCreativeTab(output);
                 output.accept(SOAP.get());
                 output.accept(LUCK_SWORD.get());
                 output.accept(LUCK_PLUCK_SWORD.get());
@@ -87,6 +90,7 @@ public class ModItems {
                 output.accept(SATIPOROJA_SCARF.get());
                 output.accept(CLACKERS.get());
                 output.accept(TOMMY_GUN.get());
+                TOMMY_GUN.get().addToCreativeTab(output);
                 output.accept(MOLOTOV.get());
                 output.accept(LARGE_CROSSBOW.get());
                 output.accept(METAL_BALL.get());
@@ -103,6 +107,7 @@ public class ModItems {
                 output.accept(STAND_ARROW_BEETLE.get());
                 output.accept(STAND_ARROW_SHARD.get());
                 output.accept(STAND_DISC.get());
+                STAND_DISC.get().addToCreativeTab(output);
                 output.accept(STAND_REMOVER.get());
                 output.accept(STAND_REMOVER_ONE_TIME.get());
                 output.accept(STAND_EJECT.get());
@@ -113,6 +118,7 @@ public class ModItems {
                 output.accept(WALKMAN.get());
                 output.accept(CASSETTE_BLANK.get());
                 output.accept(CASSETTE_RECORDED.get());
+                CASSETTE_RECORDED.get().addToCreativeTab(output);
                 output.accept(TAROT_DECK.get());
                 output.accept(POLAROID.get());
                 output.accept(PHOTO.get());

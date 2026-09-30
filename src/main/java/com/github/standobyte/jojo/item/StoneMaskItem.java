@@ -232,12 +232,11 @@ public class StoneMaskItem extends CustomModelArmorItem {
         return this.getBlock().getDescriptionId();
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
-        if (this.allowdedIn(tab)) {
-            this.getBlock().fillItemCategory(tab, stacks);
+    /** The mask block the mod's tab showed next to the mask item. */
+    public void addToCreativeTab(CreativeModeTab.Output output) {
+        if (this.getBlock() != null) {
+            output.accept(this.getBlock());
         }
-
     }
 
     @Override

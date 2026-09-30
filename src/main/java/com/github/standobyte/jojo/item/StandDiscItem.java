@@ -37,7 +37,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.minecraftforge.forgespi.language.IConfigurable;
 
 public class StandDiscItem extends Item {
@@ -104,20 +103,20 @@ public class StandDiscItem extends Item {
         return InteractionResultHolder.fail(stack);
     }
     
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> items) {
-        if (this.allowdedIn(group)) {
-            boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT;
+    /** The discs the mod's tab showed, one per stand that is available. */
+    public void addToCreativeTab(CreativeModeTab.Output output) {
+        {
+            boolean isClientSide = net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT;
             List<StandType<?>> legalStands = new ArrayList<>();
             for (StandType<?> standType : JojoCustomRegistries.STANDS.getRegistry()) {
-                if (standType.getSurvivalGameplayPool().addToCreativeTab(this, standType, group, isClientSide)) {
+                if (standType.getSurvivalGameplayPool().addToCreativeTab(this, standType, isClientSide)) {
                     legalStands.add(standType);
                 }
             }
             
             legalStands.stream()
             .sorted(Comparator.comparing(StandType::getPartName, StoryPart.partNamesComparator()))
-            .forEach(stand -> items.add(withStand(new ItemStack(this), new StandInstance(stand))));
+            .forEach(stand -> output.accept(withStand(new ItemStack(this), new StandInstance(stand))));
         }
     }
     

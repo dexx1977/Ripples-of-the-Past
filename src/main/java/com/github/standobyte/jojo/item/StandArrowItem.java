@@ -49,7 +49,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 
 public class StandArrowItem extends ArrowItem {
     private final int enchantability;
@@ -262,7 +261,7 @@ public class StandArrowItem extends ArrowItem {
     
     @Override
     public int getMaxDamage(ItemStack stack) {
-        boolean isClientSide = Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT;
+        boolean isClientSide = net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT;
         JojoModConfig.Common config = JojoModConfig.getCommonConfigInstance(isClientSide);
         ForgeConfigSpec.IntValue configOption = higherDurability ? config.arrowDurabilityBeetle : config.arrowDurability;
         return configOption.get();
