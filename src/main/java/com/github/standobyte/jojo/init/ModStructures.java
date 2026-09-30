@@ -35,6 +35,14 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
  */
 @EventBusSubscriber(modid = JojoMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModStructures {
+    /** The data driven structures, which the map trades point at. */
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.structure.Structure> METEORITE = 
+            net.minecraft.resources.ResourceKey.create(Registries.STRUCTURE, new ResourceLocation(JojoMod.MOD_ID, "meteorite"));
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.structure.Structure> HAMON_TEMPLE = 
+            net.minecraft.resources.ResourceKey.create(Registries.STRUCTURE, new ResourceLocation(JojoMod.MOD_ID, "hamon_temple"));
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.levelgen.structure.Structure> PILLARMAN_TEMPLE = 
+            net.minecraft.resources.ResourceKey.create(Registries.STRUCTURE, new ResourceLocation(JojoMod.MOD_ID, "pillarman_temple"));
+
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, JojoMod.MOD_ID);
     public static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES = DeferredRegister.create(Registries.STRUCTURE_TYPE, JojoMod.MOD_ID);
     public static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES = DeferredRegister.create(Registries.STRUCTURE_PIECE, JojoMod.MOD_ID);

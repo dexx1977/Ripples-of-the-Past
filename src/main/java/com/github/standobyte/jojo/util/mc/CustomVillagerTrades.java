@@ -286,14 +286,14 @@ public class CustomVillagerTrades {
         // the VillagerTrades.ITrade implementation classes are package private in the vanilla code
         public static class EmeraldForMapTrade implements VillagerTrades.ItemListing {
             private final int emeraldCost;
-            private final Supplier<? extends Structure<?>> destination;
+            private final net.minecraft.resources.ResourceKey<Structure> destination;
             private final ResourceLocation iconPath;
             private final OptionalInt customColor;
             private final int maxUses;
             private final int villagerXp;
             private MapTrade destinationType;
 
-            public EmeraldForMapTrade(int pEmeraldCost, Supplier<? extends Structure<?>> pDestination, 
+            public EmeraldForMapTrade(int pEmeraldCost, net.minecraft.resources.ResourceKey<Structure> pDestination, 
                     ResourceLocation iconPath, OptionalInt customColor, int pMaxUses, int pVillagerXp) {
                 this.emeraldCost = pEmeraldCost;
                 this.destination = pDestination;
@@ -304,12 +304,14 @@ public class CustomVillagerTrades {
             }
 
             @Nullable
-            public MerchantOffer getOffer(Entity pTrader, Random pRand) {
+            public MerchantOffer getOffer(Entity pTrader, net.minecraft.util.RandomSource pRand) {
                 if (!(pTrader.level instanceof ServerLevel)) {
                     return null;
                 } else {
                     ServerLevel serverworld = (ServerLevel)pTrader.level;
-                    Structure<?> structure = destination.get();
+                    // the structures live in the level's registry in 1.20.1
+                    Structure structure = serverworld.registryAccess()
+                            .registryOrThrow(net.minecraft.core.registries.Registries.STRUCTURE).get(destination);
                     ItemStack itemstack = CustomTargetIconMap.createMap(serverworld, structure, pTrader.blockPosition(), 
                             customColor, destinationType.name.toLowerCase(), iconPath);
                     if (itemstack != null) {

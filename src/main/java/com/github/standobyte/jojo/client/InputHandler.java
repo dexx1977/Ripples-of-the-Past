@@ -325,10 +325,9 @@ public class InputHandler {
     @SubscribeEvent
     public void handleKeyBindings(ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START && mc.player != null) {
-            invertMovementInput(mc.player, mc.player.input);
-            onInputUpdate(mc.player, mc.player.input);
         }
-        if (mc.overlay != null || (mc.screen != null && !mc.screen.passEvents)
+        // 1.20.1 has no passEvents flag; the mod screens that allow movement implement the interface
+        if (mc.overlay != null || (mc.screen != null && !(mc.screen instanceof com.github.standobyte.jojo.client.ui.screen.WasdAllowingScreen))
                 || mc.level == null || standPower == null || nonStandPower == null
                 || actionsOverlay == null || JojoModUtil.tmpSpectatorCantUsePowers(mc.player)) {
             return;
@@ -1041,8 +1040,9 @@ public class InputHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    /** Was an InputUpdateEvent handler in 1.16.5; runs on the client tick now. */
-    public void invertMovementInput(LocalPlayer player, Input input) {
+    public void invertMovementInput(net.minecraftforge.client.event.MovementInputUpdateEvent event) {
+        net.minecraft.world.entity.player.Player player = event.getEntity();
+        Input input = event.getInput();
         if (player == mc.player && mc.screen instanceof WasdAllowingScreen) {
             ((WasdAllowingScreen) mc.screen).tickInput(mc, mc.player, input);
         }
@@ -1072,7 +1072,7 @@ public class InputHandler {
             return;
         }
         
-        if (event.getPlayer().hasEffect(ModStatusEffects.MISSHAPEN_LEGS.get())) {
+        if (event.getEntity().hasEffect(ModStatusEffects.MISSHAPEN_LEGS.get())) {
             input.forwardImpulse *= -1;
             input.leftImpulse *= -1;
             
@@ -1158,8 +1158,10 @@ public class InputHandler {
     }
     
     
-    /** Was a second InputUpdateEvent handler in 1.16.5; runs on the client tick now. */
-    public void onInputUpdate(LocalPlayer player, Input input) {
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onInputUpdate(net.minecraftforge.client.event.MovementInputUpdateEvent event) {
+        net.minecraft.world.entity.player.Player player = event.getEntity();
+        Input input = event.getInput();
         if (INonStandPower.getNonStandPowerOptional(player).resolve()
                 .flatMap(power -> power.getTypeSpecificData(ModPowers.PILLAR_MAN.get()))
                 .map(PillarmanData::isStoneFormEnabled).orElse(false)) {

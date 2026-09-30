@@ -96,8 +96,9 @@ public class ControllerStand {
     
     
 
-    /** Called from the client input hook, which is where 1.20.1 hands the input over. */
-    public void onInputUpdate(net.minecraft.client.player.LocalPlayer player, Input input) {
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onInputUpdate(net.minecraftforge.client.event.MovementInputUpdateEvent event) {
+        Input input = event.getInput();
         if (isControllingStand()) {
             stand.moveStandManually(input.leftImpulse, input.forwardImpulse, input.jumping, input.shiftKeyDown);
             // FIXME do not reset deltaMovement in manual control
@@ -106,7 +107,6 @@ public class ControllerStand {
         }
         else {
             if ((mc.getCameraEntity() == mc.player || mc.getCameraEntity() == null) && ModStatusEffects.isStunned(mc.player)) {
-                Input input = event.getMovementInput();
                 input.forwardImpulse = 0;
                 input.leftImpulse = 0;
                 input.jumping = false;

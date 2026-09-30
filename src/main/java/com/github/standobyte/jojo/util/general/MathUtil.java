@@ -26,7 +26,7 @@ public class MathUtil {
     }
     
     public static float xRotDegFromVec(Vec3 vec) {
-        return (float) -Mth.atan2(vec.y, Mth.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG;
+        return (float) (-Mth.atan2(vec.y, Mth.sqrt(vec.x * vec.x + vec.z * vec.z)) * RAD_TO_DEG);
     }
     
     /**
@@ -211,9 +211,9 @@ public class MathUtil {
         Vector3f res = new Vector3f();
         float w;
         Matrix4fAccessor matrixAccess = (Matrix4fAccessor) (Object) matrix;
-        res.setX(getM(matrixAccess, 0, 0) * pointF.x() + getM(matrixAccess, 0, 1) * pointF.y() + getM(matrixAccess, 0, 2) * pointF.z() + getM(matrixAccess, 0, 3));
-        res.setY(getM(matrixAccess, 1, 0) * pointF.x() + getM(matrixAccess, 1, 1) * pointF.y() + getM(matrixAccess, 1, 2) * pointF.z() + getM(matrixAccess, 1, 3));
-        res.setZ(getM(matrixAccess, 2, 0) * pointF.x() + getM(matrixAccess, 2, 1) * pointF.y() + getM(matrixAccess, 2, 2) * pointF.z() + getM(matrixAccess, 2, 3));
+        res.x = getM(matrixAccess, 0, 0) * pointF.x() + getM(matrixAccess, 0, 1) * pointF.y() + getM(matrixAccess, 0, 2) * pointF.z() + getM(matrixAccess, 0, 3);
+        res.y = getM(matrixAccess, 1, 0) * pointF.x() + getM(matrixAccess, 1, 1) * pointF.y() + getM(matrixAccess, 1, 2) * pointF.z() + getM(matrixAccess, 1, 3);
+        res.z = getM(matrixAccess, 2, 0) * pointF.x() + getM(matrixAccess, 2, 1) * pointF.y() + getM(matrixAccess, 2, 2) * pointF.z() + getM(matrixAccess, 2, 3);
         w = getM(matrixAccess, 3, 0) * pointF.x() + getM(matrixAccess, 3, 1) * pointF.y() + getM(matrixAccess, 3, 2) * pointF.z() + getM(matrixAccess, 3, 3);
         
         w = 1F / w;
@@ -297,10 +297,10 @@ public class MathUtil {
         private float m33;
         
         public Matrix4ZYX(Quaternionf q) {
-            float f = q.i();
-            float f1 = q.j();
-            float f2 = q.k();
-            float f3 = q.r();
+            float f = q.x();
+            float f1 = q.y();
+            float f2 = q.z();
+            float f3 = q.w();
             float f4 = 2.0F * f * f;
             float f5 = 2.0F * f1 * f1;
             float f6 = 2.0F * f2 * f2;
