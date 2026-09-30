@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.itemtracking.itemcap.TrackerItemStack;
 public class TrackerItemStackStorage {
 
     public static CompoundTag writeNBT(TrackerItemStack instance) {
-        return instance.toNBT();
+        return (CompoundTag) instance.toNBT(); // the power interface declares Tag, the data is a compound
     }
 
     public static void readNBT(TrackerItemStack instance, CompoundTag nbt) {

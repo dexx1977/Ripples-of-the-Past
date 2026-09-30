@@ -450,7 +450,7 @@ public class TimeStopHandler {
             cap.tick();
         });
         if (event.level.dimension() == Level.OVERWORLD) {
-            event.world.getCapability(SaveFileUtilCapProvider.CAPABILITY).ifPresent(cap -> {
+            event.level.getCapability(SaveFileUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.tick();
             });
         }

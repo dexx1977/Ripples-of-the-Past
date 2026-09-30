@@ -52,7 +52,7 @@ public class TreeLeavesDecay {
     }
     
     public static boolean isTreeStemBlock(Block block) {
-        return BlockTags.LOGS.contains(block) || block == Blocks.MUSHROOM_STEM;
+        return block.builtInRegistryHolder().is(BlockTags.LOGS) || block == Blocks.MUSHROOM_STEM;
     }
     
     @Nullable

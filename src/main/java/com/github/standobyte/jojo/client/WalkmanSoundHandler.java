@@ -243,7 +243,7 @@ public class WalkmanSoundHandler {
                     };
                     
                     boolean walkmanRemoved = MCUtil.findInInventory(mc.player.inventory, walkmanPlaying).isEmpty()
-                            && !walkmanPlaying.test(mc.player.inventory.getCarried());
+                            && !walkmanPlaying.test(mc.player.containerMenu.getCarried());
                     
                     if (walkmanRemoved) {
                         clearPlaylist();
@@ -473,7 +473,7 @@ public class WalkmanSoundHandler {
             return list.stream().flatMap(sound -> unpackSoundsRecursive(soundManager, soundEvent, sound));
         }
         if (accessor instanceof Sound) {
-            return Stream.of(Pair.of(soundEvent, accessor.getSound()));
+            return Stream.of(Pair.of(soundEvent, accessor.getSound(net.minecraft.util.RandomSource.create())));
         }
         
         if ("net.minecraft.client.audio.SoundHandler$Loader$1".equals(accessor.getClass().getName())) {
@@ -493,6 +493,6 @@ public class WalkmanSoundHandler {
             }
         }
         
-        return Stream.of(Pair.of(soundEvent, accessor.getSound()));
+        return Stream.of(Pair.of(soundEvent, accessor.getSound(net.minecraft.util.RandomSource.create())));
     }
 }

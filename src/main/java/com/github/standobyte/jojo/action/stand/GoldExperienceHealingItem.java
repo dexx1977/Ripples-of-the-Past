@@ -44,7 +44,7 @@ public class GoldExperienceHealingItem extends StandEntityAction {
             ItemStack offHandItem = user.getOffhandItem();
             if (offHandItem.getItem() instanceof BucketItem) {
                 BucketItem bucketType = (BucketItem) offHandItem.getItem();
-                bucketType.checkExtraContent(world, offHandItem, getControlledEntity(user, userPower).blockPosition());
+                bucketType.checkExtraContent(user instanceof Player ? (Player) user : null, world, offHandItem, getControlledEntity(user, userPower).blockPosition());
             }
             if (!(user instanceof Player && ((Player) user).abilities.instabuild)) {
                 offHandItem.shrink(1);

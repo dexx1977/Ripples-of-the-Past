@@ -371,7 +371,7 @@ public class PacketManager {
     
     
     public static void sendGloballyWithCondition(Object msg, @Nullable ResourceKey<Level> dimension, Predicate<ServerPlayer> condition) {
-        MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
+        MinecraftServer server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if ((dimension == null || player.level.dimension() == dimension) && condition.test(player)) {
                 serverChannel.send(PacketDistributor.PLAYER.with(() -> player), msg);

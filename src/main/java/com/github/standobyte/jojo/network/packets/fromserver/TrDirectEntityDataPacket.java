@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraftforge.network.NetworkEvent;
+import java.util.ArrayList;
 
 // a custom class, because SEntityMetadataPacket does not accept a list of data entries
 // and can only read either all entries, or the ones marked as dirty

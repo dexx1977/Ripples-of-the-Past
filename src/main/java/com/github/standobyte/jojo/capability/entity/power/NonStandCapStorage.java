@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 public class NonStandCapStorage {
 
     public static CompoundTag writeNBT(INonStandPower instance) {
-        return instance.writeNBT();
+        return (CompoundTag) instance.writeNBT(); // the power interface declares Tag, the data is a compound
     }
 
     public static void readNBT(INonStandPower instance, CompoundTag nbt) {

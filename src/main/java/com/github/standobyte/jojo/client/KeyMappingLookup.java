@@ -18,7 +18,10 @@ public class KeyMappingLookup {
 
     public List<KeyMapping> lookupAll(InputConstants.Key key) {
         List<KeyMapping> mappings = new ArrayList<>();
-        for (KeyMapping mapping : Minecraft.getInstance().options.keyMappings) {
+        // 1.16.5 read Forge's KeyBindingMap, which is KeyMapping.ALL in 1.20.1
+        java.util.Map<String, KeyMapping> all = com.github.standobyte.jojo.util.mc.reflection.ClientReflection.getAllKeybindingMap();
+        Iterable<KeyMapping> mappingsToCheck = all != null ? all.values() : java.util.Arrays.asList(Minecraft.getInstance().options.keyMappings);
+        for (KeyMapping mapping : mappingsToCheck) {
             if (key.equals(mapping.getKey())) {
                 mappings.add(mapping);
             }

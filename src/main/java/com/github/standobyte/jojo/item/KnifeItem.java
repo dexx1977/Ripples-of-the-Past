@@ -37,6 +37,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ToolActions;
+import com.github.standobyte.jojo.util.mc.MCUtil;
 
 public class KnifeItem extends Item {
     // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.

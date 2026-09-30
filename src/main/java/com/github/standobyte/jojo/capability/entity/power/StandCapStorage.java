@@ -13,7 +13,7 @@ import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 public class StandCapStorage {
 
     public static CompoundTag writeNBT(IStandPower instance) {
-        return instance.writeNBT();
+        return (CompoundTag) instance.writeNBT(); // the power interface declares Tag, the data is a compound
     }
 
     public static void readNBT(IStandPower instance, CompoundTag nbt) {
