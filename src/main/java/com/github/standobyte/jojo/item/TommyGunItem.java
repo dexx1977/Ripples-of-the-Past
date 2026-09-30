@@ -48,6 +48,11 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeMod;
 
 public class TommyGunItem extends Item {
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        com.github.standobyte.jojo.client.ClientItemRenderers.initialize(this, consumer);
+    }
+
 
     private Multimap<Attribute, AttributeModifier> attributeModifiers;
     

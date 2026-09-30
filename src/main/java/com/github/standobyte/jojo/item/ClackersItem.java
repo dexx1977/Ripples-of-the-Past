@@ -30,6 +30,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
 public class ClackersItem extends Item {
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        com.github.standobyte.jojo.client.ClientItemRenderers.initialize(this, consumer);
+    }
+
     // 1.16.5's Item exposed a shared Random; 1.20.1 items carry their own.
     protected static final net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
 

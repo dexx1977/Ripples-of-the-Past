@@ -14,6 +14,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.Level;
 
 public class RoadRollerItem extends Item {
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        com.github.standobyte.jojo.client.ClientItemRenderers.initialize(this, consumer);
+    }
+
 
     public RoadRollerItem(Properties properties) {
         super(properties);

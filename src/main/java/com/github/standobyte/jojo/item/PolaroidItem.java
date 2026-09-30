@@ -22,6 +22,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
 public class PolaroidItem extends Item {
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        com.github.standobyte.jojo.client.ClientItemRenderers.initialize(this, consumer);
+    }
+
 
     public PolaroidItem(Properties properties) {
         super(properties);

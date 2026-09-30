@@ -40,6 +40,11 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IConfigurable;
 
 public class StandDiscItem extends Item {
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        com.github.standobyte.jojo.client.ClientItemRenderers.initialize(this, consumer);
+    }
+
     private static final String STAND_TAG = "Stand";
     public static final String WS_TAG = "WSPutOut";
 

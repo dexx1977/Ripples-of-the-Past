@@ -81,8 +81,6 @@ public class ModItems {
                 output.accept(BUBBLE_GLOVES.get());
                 BUBBLE_GLOVES.get().addToCreativeTab(output);
                 output.accept(SOAP.get());
-                output.accept(LUCK_SWORD.get());
-                output.accept(LUCK_PLUCK_SWORD.get());
                 output.accept(HAMON_MASTER_SPAWN_EGG.get());
                 output.accept(HUNGRY_ZOMBIE_SPAWN_EGG.get());
                 output.accept(AJA_STONE.get());
@@ -92,20 +90,15 @@ public class ModItems {
                 output.accept(TOMMY_GUN.get());
                 TOMMY_GUN.get().addToCreativeTab(output);
                 output.accept(MOLOTOV.get());
-                output.accept(LARGE_CROSSBOW.get());
-                output.accept(METAL_BALL.get());
-                output.accept(SQUID_INK_PASTA.get());
                 output.accept(KNIFE.get());
                 output.accept(ROAD_ROLLER.get());
                 output.accept(GOLD_EXPERIENCE_BODY_TISSUE.get());
-                output.accept(ROCK_PAPER_SCISSORS_KID_SPAWN_EGG.get());
                 output.accept(METEORIC_IRON.get());
                 output.accept(METEORITE_ORE.get());
                 output.accept(METEORIC_SCRAP.get());
                 output.accept(METEORIC_INGOT.get());
                 output.accept(STAND_ARROW.get());
                 output.accept(STAND_ARROW_BEETLE.get());
-                output.accept(STAND_ARROW_SHARD.get());
                 output.accept(STAND_DISC.get());
                 STAND_DISC.get().addToCreativeTab(output);
                 output.accept(STAND_REMOVER.get());
@@ -114,25 +107,16 @@ public class ModItems {
                 output.accept(STAND_EJECT_ONE_TIME.get());
                 output.accept(STAND_FULL_CLEAR.get());
                 output.accept(STAND_FULL_CLEAR_ONE_TIME.get());
-                output.accept(COCOA_GUM.get());
                 output.accept(WALKMAN.get());
                 output.accept(CASSETTE_BLANK.get());
                 output.accept(CASSETTE_RECORDED.get());
                 CASSETTE_RECORDED.get().addToCreativeTab(output);
-                output.accept(TAROT_DECK.get());
                 output.accept(POLAROID.get());
                 output.accept(PHOTO.get());
-                output.accept(PHOTO_ALBUM.get());
-                output.accept(PHOTO_FRAME.get());
-                output.accept(NAIL_CLIPPERS.get());
-                output.accept(LIGHTER.get());
-                output.accept(MISTA_REVOLVER.get());
                 output.accept(COCO_JUMBO_SPAWN_EGG.get());
                 output.accept(MR_PRESIDENT_KEY.get());
                 output.accept(MR_PRESIDENT_MASTER_KEY.get());
                 output.accept(MR_PRESIDENT_EXIT.get());
-                output.accept(STONE_PENDANT.get());
-                output.accept(HARPOON.get());
     }
     
     
@@ -164,7 +148,7 @@ public class ModItems {
     public static final RegistryObject<OilItem> OIL = ITEMS.register("oil", 
             () -> new OilItem(new Item.Properties().stacksTo(1)));
     
-    public static final RegistryObject<GlovesItem> BUBBLE_GLOVES = ITEMS.register("bubble_gloves", 
+    public static final RegistryObject<BubbleGlovesItem> BUBBLE_GLOVES = ITEMS.register("bubble_gloves", 
             () -> new BubbleGlovesItem(new Item.Properties().stacksTo(1))); 
     
     public static final RegistryObject<SoapItem> SOAP = ITEMS.register("soap", 
@@ -193,11 +177,11 @@ public class ModItems {
 
     public static final RegistryObject<ClackersItem> CLACKERS = ITEMS.register("clackers",
             () -> new ClackersItem(new Item.Properties().stacksTo(1)
-                    .setISTER(() -> ClackersISTER::new)));
+                    ));
 
     public static final RegistryObject<TommyGunItem> TOMMY_GUN = ITEMS.register("tommy_gun",
             () -> new TommyGunItem(new Item.Properties().stacksTo(1)
-                    .setISTER(() -> TommyGunISTER::new)));
+                    ));
     
     public static final Supplier<Item> MOLOTOV = ITEMS.register("molotov",
             () -> new MolotovItem(new Item.Properties().stacksTo(16)));
@@ -223,7 +207,7 @@ public class ModItems {
 
     public static final RegistryObject<RoadRollerItem> ROAD_ROLLER = ITEMS.register("road_roller", 
             () -> new RoadRollerItem(new Item.Properties().stacksTo(1)
-                    .setISTER(() -> RoadRollerISTER::new)));
+                    ));
 
     public static final RegistryObject<Item> CRAZY_DIAMOND_NON_BLOCK_ANCHOR = ITEMS.register("crazy_diamond_non_block_anchor", 
             () -> new Item(new Item.Properties()));
@@ -241,10 +225,10 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.METEORIC_ORE.get(), new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<Item> METEORIC_SCRAP = ITEMS.register("meteoric_scrap", 
-            () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON).setISTER(() -> CustomIconItem.DummyIconItemISTER::new)));
+            () -> new com.github.standobyte.jojo.item.CustomIconItemBase(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<Item> METEORIC_INGOT = ITEMS.register("meteoric_ingot", 
-            () -> new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+            () -> new com.github.standobyte.jojo.item.CustomIconItemBase(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     public static final RegistryObject<StandArrowItem> STAND_ARROW = ITEMS.register("stand_arrow", 
             () -> new StandArrowItem(new Item.Properties().rarity(Rarity.UNCOMMON).durability(25), 10, false));
@@ -257,7 +241,7 @@ public class ModItems {
 
     public static final RegistryObject<StandDiscItem> STAND_DISC = ITEMS.register("stand_disc",
             () -> new StandDiscItem(new Item.Properties().stacksTo(1)
-                    .setISTER(() -> StandDiscISTER::new)));
+                    ));
 
     public static final RegistryObject<StandRemoverItem> STAND_REMOVER = ITEMS.register("stand_remover",
             () -> new StandRemoverItem(new Item.Properties().stacksTo(1), StandRemoverItem.Mode.REMOVE, false));
@@ -294,7 +278,7 @@ public class ModItems {
 //    
     public static final RegistryObject<PolaroidItem> POLAROID = ITEMS.register("polaroid", 
             () -> new PolaroidItem(new Item.Properties().stacksTo(1)
-                    .setISTER(() -> PolaroidISTER::new)));
+                    ));
     
     public static final RegistryObject<PhotoItem> PHOTO = ITEMS.register("photo", 
             () -> new PhotoItem(new Item.Properties().stacksTo(1)));
