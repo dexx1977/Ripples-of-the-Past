@@ -223,7 +223,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
     public void doTick() {
         if (this.level.hasChunkAt(BlockPos.containing(this.getX(), 0.0D, this.getZ()))) {
             super.tick();
-            this.autoJumpEnabled = this.minecraft.options.autoJump;
+            this.autoJumpEnabled = this.minecraft.options.autoJump().get();
         }
         tickPlayerRenderCancel();
     }
@@ -318,7 +318,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
     }
 
     private void moveTowardsClosestSpace(double pX, double pZ) {
-        BlockPos blockpos = new BlockPos(pX, this.getY(), pZ);
+        BlockPos blockpos = BlockPos.containing(pX, this.getY(), pZ);
         if (this.suffocatesAt(blockpos)) {
             double d0 = pX - (double)blockpos.getX();
             double d1 = pZ - (double)blockpos.getZ();
@@ -350,9 +350,18 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
     private boolean suffocatesAt(BlockPos pPos) {
         AABB axisalignedbb = this.getBoundingBox();
         AABB axisalignedbb1 = (new AABB((double)pPos.getX(), axisalignedbb.minY, (double)pPos.getZ(), (double)pPos.getX() + 1.0D, axisalignedbb.maxY, (double)pPos.getZ() + 1.0D)).deflate(1.0E-7D);
-        return !this.level.noBlockCollision(this, axisalignedbb1, (p_243494_1_, p_243494_2_) -> {
-            return p_243494_1_.isSuffocating(this.level, p_243494_2_);
-        });
+        // 1.20.1 has no state predicate on the collision query, so the blocks in the
+        // box are checked directly
+        for (BlockPos pos : BlockPos.betweenClosed(
+                BlockPos.containing(axisalignedbb1.minX, axisalignedbb1.minY, axisalignedbb1.minZ), 
+                BlockPos.containing(axisalignedbb1.maxX, axisalignedbb1.maxY, axisalignedbb1.maxZ))) {
+            net.minecraft.world.level.block.state.BlockState state = this.level.getBlockState(pos);
+            if (state.isSuffocating(this.level, pos) 
+                    && state.getCollisionShape(this.level, pos).bounds().move(pos).intersects(axisalignedbb1)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -377,7 +386,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
      * Send a chat message to the CommandSender
      */
     @Override
-    public void sendMessage(Component pComponent, UUID pSenderUUID) {
+    public void sendSystemMessage(Component pComponent) {
         this.minecraft.gui.getChat().addMessage(pComponent);
     }
 
@@ -391,9 +400,10 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
 
     @Override
     public void playSound(SoundEvent pSound, float pVolume, float pPitch) {
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(this, pSound, this.getSoundSource(), pVolume, pPitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(pSound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(this, soundHolder, this.getSoundSource(), pVolume, pPitch);
         if (event.isCanceled() || event.getSound() == null) return;
-        pSound = event.getSound();
+        pSound = event.getSound().value();
         pVolume = event.getOriginalVolume();
         pPitch = event.getOriginalPitch();
         this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), pSound, this.getSoundSource(), pVolume, pPitch, false);
@@ -467,8 +477,8 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
     }
 
     @Override
-    public void openTextEdit(SignBlockEntity pSignTile) {
-        this.minecraft.setScreen(new SignEditScreen(pSignTile));
+    public void openTextEdit(SignBlockEntity pSignTile, boolean isFrontText) {
+        this.minecraft.setScreen(new SignEditScreen(pSignTile, isFrontText, false));
     }
 
     @Override
@@ -562,8 +572,8 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
         boolean flag1 = this.input.shiftKeyDown;
         boolean flag2 = this.hasEnoughImpulseToStartSprinting();
         this.crouching = !this.abilities.flying && !this.isSwimming() && this.canEnterPose(Pose.CROUCHING) && (this.isShiftKeyDown() || !this.isSleeping() && !this.canEnterPose(Pose.STANDING));
-        this.input.tick(this.isMovingSlowly());
-        net.minecraftforge.client.ForgeHooksClient.onInputUpdate(this, this.input);
+        this.input.tick(this.isMovingSlowly(), 0.3F);
+        net.minecraftforge.client.ForgeHooksClient.onMovementInputUpdate(this, this.input);
         this.minecraft.getTutorial().onInput(this.input);
         if (this.isUsingItem() && !this.isPassenger()) {
             this.input.leftImpulse *= 0.2F;
@@ -811,13 +821,13 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
                 }
             }
 
-            float f12 = Mth.fastInvSqrt(f1);
+            float f12 = (float) Mth.fastInvSqrt(f1);
             Vec3 vector3d12 = vector3d2.scale((double)f12);
             Vec3 vector3d13 = this.getForward();
             float f13 = (float)(vector3d13.x * vector3d12.x + vector3d13.z * vector3d12.z);
             if (!(f13 < -0.15F)) {
                 CollisionContext iselectioncontext = CollisionContext.of(this);
-                BlockPos blockpos = new BlockPos(this.getX(), this.getBoundingBox().maxY, this.getZ());
+                BlockPos blockpos = BlockPos.containing(this.getX(), this.getBoundingBox().maxY, this.getZ());
                 BlockState blockstate = this.level.getBlockState(blockpos);
                 if (blockstate.getCollisionShape(this.level, blockpos, iselectioncontext).isEmpty()) {
                     blockpos = blockpos.above();
@@ -841,11 +851,12 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
                         Vec3 vector3d8 = vector3d4.subtract(vector3d6);
                         Vec3 vector3d9 = lvt_19_1_.add(vector3d6);
                         Vec3 vector3d10 = vector3d4.add(vector3d6);
-                        Iterator<AABB> iterator = this.level.getCollisions(this, axisalignedbb, (p_239205_0_) -> {
-                            return true;
-                        }).flatMap((p_212329_0_) -> {
-                            return p_212329_0_.toAabbs().stream();
-                        }).iterator();
+                        // 1.20.1 returns the block collision shapes, which are turned
+                        // into their boxes like the old query did
+                        Iterator<AABB> iterator = java.util.stream.StreamSupport
+                                .stream(this.level.getBlockCollisions(this, axisalignedbb).spliterator(), false)
+                                .flatMap(shape -> shape.toAabbs().stream())
+                                .iterator();
                         float f11 = Float.MIN_VALUE;
 
                         while(iterator.hasNext()) {
@@ -853,7 +864,7 @@ public class ClientConsciousnessEntity extends AbstractClientPlayer {
                             if (axisalignedbb1.intersects(vector3d7, vector3d8) || axisalignedbb1.intersects(vector3d9, vector3d10)) {
                                 f11 = (float)axisalignedbb1.maxY;
                                 Vec3 vector3d11 = axisalignedbb1.getCenter();
-                                BlockPos blockpos1 = new BlockPos(vector3d11);
+                                BlockPos blockpos1 = BlockPos.containing(vector3d11);
 
                                 for(int i = 1; (float)i < f7; ++i) {
                                     BlockPos blockpos2 = blockpos1.above(i);
