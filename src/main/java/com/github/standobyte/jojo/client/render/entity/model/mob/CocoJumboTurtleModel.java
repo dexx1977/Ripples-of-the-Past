@@ -58,7 +58,7 @@ public class CocoJumboTurtleModel<T extends Turtle> extends TurtleModel<T> {
     }
     
     @Override
-    protected Iterable<ModelPart> bodyParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return Iterables.concat(super.bodyParts(), ImmutableList.of(mrPresidentKey));
     }
 

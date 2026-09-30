@@ -33,7 +33,7 @@ public class BreathControlMaskModel extends HumanoidModel<LivingEntity> {
     }
     
     @Override
-    protected Iterable<ModelPart> bodyParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return Collections.emptyList();
     }
 

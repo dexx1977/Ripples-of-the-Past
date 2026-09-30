@@ -476,7 +476,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     }
 
     @Override
-    public boolean causeFallDamage(float distance, float damageMultiplier) {
+    public boolean causeFallDamage(float distance, float damageMultiplier, net.minecraft.world.damagesource.DamageSource source) {
         return false;
     }
 

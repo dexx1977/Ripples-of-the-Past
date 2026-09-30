@@ -39,12 +39,12 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
     }
 
     @Override
-    protected Iterable<ModelPart> headParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> headParts() {
         return Collections.emptyList();
     }
     
     @Override
-    protected Iterable<ModelPart> bodyParts() {
+    protected Iterable<net.minecraft.client.model.geom.ModelPart> bodyParts() {
         return ImmutableList.of(head);
     }
     
