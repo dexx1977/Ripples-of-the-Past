@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class HamonSkillElementTechniquePerk extends HamonSkillGuiElement {
 
     @Override
     void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
-        hamonScreen.renderTooltip(matrixStack, perkDesc, mouseX, mouseY);
+        GuiDraw.renderToolTip(matrixStack, perkDesc, mouseX, mouseY);
     }
     
     

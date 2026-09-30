@@ -339,40 +339,11 @@ public class ForgeBusEventSubscriber {
         if (event.level() instanceof Level) {
             if (event.level() instanceof ServerLevel) {
                 ServerLevel serverWorld = (ServerLevel) event.level();
-                addDimensionalSpacing(serverWorld);
             }
             EntityTypeToInstance.init((Level) event.level());
         }
         EntityTypeToInstance.init((Level) event.level());
     }
     
-    private static void addDimensionalSpacing(ServerLevel serverWorld) {
-        ResourceLocation cgRL = BuiltInRegistries.CHUNK_GENERATOR.getKey(CommonReflection.getCodec(serverWorld.getChunkSource().getGenerator()));
-        if (cgRL != null && cgRL.getNamespace().equals("terraforged")) {
-            return;
-        }
-        
-        if (serverWorld.getChunkSource().getGenerator() instanceof FlatLevelSource && serverWorld.dimension().equals(Level.OVERWORLD)) {
-            return;
-        }
 
-        Map<Structure<?>, StructureSeparationSettings> tempMap = new HashMap<>(
-                serverWorld.getChunkSource().getGenerator().getSettings().structureConfig());
-        for (RegistryObject<Structure<?>> structure : ModStructures.STRUCTURES.getEntries()) {
-            tempMap.putIfAbsent(structure.get(), DimensionStructuresSettings.DEFAULTS.get(structure.get()));
-        }
-        serverWorld.getChunkSource().getGenerator().getSettings().structureConfig = tempMap;
-    }
-
-    public static final Map<Supplier<StructureFeature<?, ?>>, Predicate<BiomeLoadingEvent>> structureBiomes = new HashMap<>();
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void onBiomeLoading(BiomeLoadingEvent event) {
-        List<Supplier<StructureFeature<?, ?>>> structureStarts = event.getGeneration().getStructures();
-        
-        for (Map.Entry<Supplier<StructureFeature<?, ?>>, Predicate<BiomeLoadingEvent>> entry : structureBiomes.entrySet()) {
-            if (entry.getValue() != null && entry.getValue().test(event)) {
-                structureStarts.add(entry.getKey());
-            }
-        }
-    }
 }

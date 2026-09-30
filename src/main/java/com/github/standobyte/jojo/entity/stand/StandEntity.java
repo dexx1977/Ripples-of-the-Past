@@ -992,7 +992,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         LivingEntity user = getUser();
         if (user == null || user.is(this)) return dmgAmount;
 
-        if (user.hasEffect(MobEffects.DAMAGE_RESISTANCE) && dmgSource != DamageSource.OUT_OF_WORLD) {
+        if (user.hasEffect(MobEffects.DAMAGE_RESISTANCE) && !dmgSource.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
             int j = 25 - (user.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier() + 1) * 5;
             float f = dmgAmount * (float)j;
             float f1 = dmgAmount;
@@ -1133,7 +1133,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     
     @Override
     public boolean isInvulnerableTo(DamageSource damageSrc) {
-        if (damageSrc == DamageSource.OUT_OF_WORLD) {
+        if (damageSrc.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
             return false;
         }
         if (this.is(damageSrc.getEntity())

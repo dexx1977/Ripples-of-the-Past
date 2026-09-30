@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.AbstractHamonSkill;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -51,7 +52,7 @@ public class HamonSkillGuiElement {
     }
     
     void drawTooltip(HamonScreen hamonScreen, PoseStack matrixStack, int mouseX, int mouseY) {
-        hamonScreen.renderTooltip(matrixStack, name, mouseX, mouseY);
+        GuiDraw.renderToolTip(matrixStack, name, mouseX, mouseY);
     }
     
     public AbstractHamonSkill getHamonSkill() {

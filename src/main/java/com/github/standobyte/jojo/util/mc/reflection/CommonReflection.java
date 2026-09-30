@@ -110,10 +110,6 @@ public class CommonReflection {
         return ReflectionUtil.invokeMethod(CHUNK_GENERATOR_CODEC, chunkGenerator);
     }
     
-    private static final Field FLAT_GENERATION_SETTING_STRUCTURE_FEATURES = ObfuscationReflectionHelper.findField(FlatLevelGeneratorSettings.class, "field_202247_j");
-    public static Map<Structure<?>, StructureFeature<?, ?>> flatGenSettingsStructures() {
-        return ReflectionUtil.getFieldValue(FLAT_GENERATION_SETTING_STRUCTURE_FEATURES, null);
-    }
     
     
     

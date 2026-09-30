@@ -225,16 +225,20 @@ public class ControllerStand {
     }
     
     private void renderCameraStandHealth(PoseStack matrixStack, Gui gui, int width, int height) {
+        // the vanilla bars start at 39 pixels from the bottom (ForgeGui tracked the
+        // running offset; 1.20.1 does not expose it)
+        int leftHeight = 39;
         LivingEntity entity = StandUtil.getStandUser(stand);
         ClientEventHandler.getInstance().renderHealthWithBleeding(entity, matrixStack, gui, event, width, height);
     }
 
     private void renderCameraStandArmor(PoseStack matrixStack, Gui gui, int width, int height) {
+        int leftHeight = 39 + 10;
         mc.getProfiler().push("armor");
 
         RenderSystem.enableBlend();
         int left = width / 2 - 91;
-        int top = height - ForgeGui.left_height;
+        int top = height - leftHeight;
 
         int level = stand.getArmorValue();
         for (int i = 1; level > 0 && i < 20; i += 2)
@@ -253,7 +257,6 @@ public class ControllerStand {
             }
             left += 8;
         }
-        ForgeGui.left_height += 10;
 
         RenderSystem.disableBlend();
         mc.getProfiler().pop();

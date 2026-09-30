@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.action.stand;
 
+import net.minecraft.world.level.block.SoundType;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
