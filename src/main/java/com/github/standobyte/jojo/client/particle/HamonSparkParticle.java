@@ -27,7 +27,7 @@ public class HamonSparkParticle extends CritParticle {
     }
 
 
-    public static class HamonParticleFactory extends CritParticle.Factory {
+    public static class HamonParticleFactory extends CritParticle.Provider {
         private final SpriteSet sprite;
 
         public HamonParticleFactory(SpriteSet sprite) {

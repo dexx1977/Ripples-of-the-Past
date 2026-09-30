@@ -231,7 +231,7 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        Minecraft mc = event.getMinecraftSupplier().get();
+        Minecraft mc = Minecraft.getInstance();
         
         registerRenderer(ModEntityTypes.BLADE_HAT.get(), BladeHatRenderer::new);
         registerRenderer(ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get(), SpaceRipperStingyEyesRenderer::new);
@@ -275,8 +275,8 @@ public class ClientSetup {
         registerRenderer(ModEntityTypes.MR_DETECTOR.get(), MRDetectorRenderer::new);
         registerRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), CDBloodCutterRenderer::new);
         registerRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), CDBlockBulletRenderer::new);
-        registerRenderer(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
-        registerRenderer(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager, Minecraft.getInstance().getItemRenderer()));
+        registerRenderer(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, 1.0F, true));
+        registerRenderer(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager));
         registerRenderer(ModEntityTypes.ANGELO_ROCK.get(), AngeloRockRenderer::new);
         registerRenderer(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), GETransformationRenderer::new);
         registerRenderer(ModEntityTypes.HUNGRY_ZOMBIE.get(), HungryZombieRenderer::new);
