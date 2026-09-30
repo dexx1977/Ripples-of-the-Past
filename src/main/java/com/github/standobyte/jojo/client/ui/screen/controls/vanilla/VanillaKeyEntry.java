@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.controls.KeyBindsList;
 import net.minecraft.client.KeyMapping;
@@ -32,9 +32,35 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
 //    private final Consumer<KeyBinding> setSelectedKey;
     
     public VanillaKeyEntry(KeyMapping key, 
-            ControlsScreen controlsScreen, KeyBindsList controlsList) {
-        this(key, () -> controlsScreen.selectedKey, k -> controlsScreen.selectedKey = k, 
+            KeyBindsScreen keyBindsScreen, KeyBindsList controlsList) {
+        // 1.20.1 moved the key list screen to KeyBindsScreen, where selectedKey is public
+        this(key, () -> keyBindsScreen.selectedKey, k -> keyBindsScreen.selectedKey = k, 
                 ClientReflection.getMaxNameWidth(controlsList));
+    }
+
+    @Override
+    public void refreshEntry() {
+        this.changeButton.setMessage(this.key.getTranslatedKeyMessage());
+        this.resetButton.active = !this.key.isDefault();
+        boolean hasCollision = false;
+        MutableComponent duplicates = Component.empty();
+        if (!this.key.isUnbound()) {
+            for (KeyMapping other : mc.options.keyMappings) {
+                if (other != this.key && this.key.same(other)) {
+                    if (hasCollision) duplicates.append(", ");
+                    hasCollision = true;
+                    duplicates.append(other.getTranslatedKeyMessage());
+                }
+            }
+        }
+        if (hasCollision) {
+            this.changeButton.setMessage(Component.translatable("controls.keybinds.duplicateKeybinds", duplicates));
+        }
+        if (getSelectedKey.get() == this.key) {
+            this.changeButton.setMessage(Component.literal("> ")
+                    .append(this.changeButton.getMessage().copy().withStyle(ChatFormatting.YELLOW))
+                    .append(" <").withStyle(ChatFormatting.YELLOW));
+        }
     }
 
     public VanillaKeyEntry(KeyMapping key, 
@@ -68,8 +94,10 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
         };
     }
 
-    public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
+    @Override
+    public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
         boolean isSelected = getSelectedKey.get() == this.key;
         GuiDraw.drawString(pMatrixStack, mc.font, name, 
                 (float)(pLeft + 90 - maxNameWidth), (float)(pTop + pHeight / 2 - 9 / 2), 

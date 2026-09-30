@@ -26,7 +26,12 @@ public class HoldToggleKeyEntry extends KeyBindsList.Entry {
     }
     
     @Override
-    public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
+    public void refreshEntry() {
+        wrappedEntry.refreshEntry();
+    }
+
+    @Override
+    public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, 
             int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
         holdToggleButton.x = pLeft + 105 + changeButton.getWidth() - 1;
         holdToggleButton.y = pTop;

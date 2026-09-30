@@ -257,7 +257,7 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
     private static void enderEyeFlight(LivingEntity entity, ItemStack item, LivingEntity user) {
         if (!entity.level.isClientSide()) {
             ServerLevel world = (ServerLevel) entity.level;
-            BlockPos strongholdPos = world.getChunkSource().getGenerator().findNearestMapFeature(world, Structure.STRONGHOLD, entity.blockPosition(), 100, false);
+            BlockPos strongholdPos = world.getChunkSource().getGenerator().findNearestMapStructure(world, net.minecraft.tags.StructureTags.EYE_OF_ENDER_LOCATED, entity.blockPosition(), 100, false);
             if (strongholdPos != null) {
                 EyeOfEnder eyeOfEnder = new EyeOfEnderInsideEntity(entity.level, entity);
 

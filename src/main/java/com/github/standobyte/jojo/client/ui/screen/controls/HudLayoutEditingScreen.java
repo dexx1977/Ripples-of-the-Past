@@ -128,7 +128,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         // vanilla controls settings
         addRenderableWidget(new CustomButton(getWindowX() - 24, getWindowY() + WINDOW_HEIGHT - 120, 22, 22, 
                 button -> {
-                    ControlsScreen mcControlsScreen = new ControlsScreen(this, minecraft.options);
+                    net.minecraft.client.gui.screens.controls.KeyBindsScreen mcControlsScreen = new net.minecraft.client.gui.screens.controls.KeyBindsScreen(this, minecraft.options);
                     
                     scrollCtrlListTo = entry -> {
                         if (entry instanceof KeyBindsList.CategoryEntry) {

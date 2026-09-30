@@ -24,7 +24,7 @@ import net.minecraft.client.sounds.WeighedSoundEvents;
 import com.mojang.blaze3d.audio.Channel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.screens.controls.ControlsScreen;
+import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.components.Button;
@@ -332,27 +332,27 @@ public class ClientReflection {
     }
     
     
-    private static final Field CONTROLS_SCREEN_CONTROL_LIST = ObfuscationReflectionHelper.findField(ControlsScreen.class, "field_146494_r");
-    public static KeyBindsList getControlList(ControlsScreen screen) {
+    private static final Field CONTROLS_SCREEN_CONTROL_LIST = ObfuscationReflectionHelper.findField(KeyBindsScreen.class, "f_193977_");
+    public static KeyBindsList getControlList(KeyBindsScreen screen) {
         return ReflectionUtil.getFieldValue(CONTROLS_SCREEN_CONTROL_LIST, screen);
     }
     
-    private static final Field KEY_BINDING_LIST_MAX_NAME_WIDTH = ObfuscationReflectionHelper.findField(KeyBindsList.class, "field_148188_n");
+    private static final Field KEY_BINDING_LIST_MAX_NAME_WIDTH = ObfuscationReflectionHelper.findField(KeyBindsList.class, "f_193859_");
     public static int getMaxNameWidth(KeyBindsList keyBindingList) {
         return ReflectionUtil.getIntFieldValue(KEY_BINDING_LIST_MAX_NAME_WIDTH, keyBindingList);
     }
     
-    private static final Field KEY_BINDING_LIST_KEY_ENTRY_CHANGE_BUTTON = ObfuscationReflectionHelper.findField(KeyBindsList.KeyEntry.class, "field_148280_d");
+    private static final Field KEY_BINDING_LIST_KEY_ENTRY_CHANGE_BUTTON = ObfuscationReflectionHelper.findField(KeyBindsList.KeyEntry.class, "f_193912_");
     public static Button getChangeButton(KeyBindsList.KeyEntry keyEntry) {
         return ReflectionUtil.getFieldValue(KEY_BINDING_LIST_KEY_ENTRY_CHANGE_BUTTON, keyEntry);
     }
     
-    private static final Field KEY_BINDING_LIST_KEY_ENTRY_KEY = ObfuscationReflectionHelper.findField(KeyBindsList.KeyEntry.class, "field_148282_b");
+    private static final Field KEY_BINDING_LIST_KEY_ENTRY_KEY = ObfuscationReflectionHelper.findField(KeyBindsList.KeyEntry.class, "f_193910_");
     public static KeyMapping getKey(KeyBindsList.KeyEntry keyEntry) {
         return ReflectionUtil.getFieldValue(KEY_BINDING_LIST_KEY_ENTRY_KEY, keyEntry);
     }
     
-    private static final Field KEY_BINDING_LIST_CATEGORY_ENTRY_NAME = ObfuscationReflectionHelper.findField(KeyBindsList.CategoryEntry.class, "field_148285_b");
+    private static final Field KEY_BINDING_LIST_CATEGORY_ENTRY_NAME = ObfuscationReflectionHelper.findField(KeyBindsList.CategoryEntry.class, "f_193882_");
     public static Component getName(KeyBindsList.CategoryEntry categoryEntry) {
         return ReflectionUtil.getFieldValue(KEY_BINDING_LIST_CATEGORY_ENTRY_NAME, categoryEntry);
     }

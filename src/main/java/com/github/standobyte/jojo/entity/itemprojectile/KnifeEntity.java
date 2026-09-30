@@ -132,7 +132,7 @@ public class KnifeEntity extends ItemProjectileEntity {
     @Override
     protected boolean hurtTarget(Entity target, Entity thrower) {
         float dmgAmount = getActualDamage();
-        DamageSource damagesource = DamageSource.arrow(this, thrower == null ? this : thrower);
+        DamageSource damagesource = damageSources().arrow(this, thrower == null ? this : thrower);
         return DamageUtil.hurtThroughInvulTicks(target, damagesource, dmgAmount);
     }
     

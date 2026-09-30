@@ -116,7 +116,7 @@ public class RockPaperScissorsKidEntity extends Villager implements IMobStandUse
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, 
             @Nullable SpawnGroupData additionalData, @Nullable CompoundTag nbt) {
         standPower.givePower(ModStandsInit.BOY_II_MAN.get());
-        AgeableMob.AgeableData ageableData = new AgeableMob.AgeableData(1);
+        AgeableMob.AgeableMobGroupData ageableData = new AgeableMob.AgeableMobGroupData(1);
         ageableData.increaseGroupSizeByOne();
         additionalData = ageableData;
         
@@ -201,7 +201,7 @@ public class RockPaperScissorsKidEntity extends Villager implements IMobStandUse
                         MobSpawnType.CONVERSION, 
                         null, 
                         null);
-                RPSkid.setVillagerData(RPSkid.getVillagerData().setType(VillagerType.byBiome(world.getBiomeName(RPSkid.blockPosition()))));
+                RPSkid.setVillagerData(RPSkid.getVillagerData().setType(VillagerType.byBiome(world.getBiome(RPSkid.blockPosition()))));
                 ForgeEventFactory.onLivingConvert(villagerKid, RPSkid);
             }
         }

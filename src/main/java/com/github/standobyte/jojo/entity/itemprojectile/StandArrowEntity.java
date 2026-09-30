@@ -134,10 +134,10 @@ public class StandArrowEntity extends AbstractArrow {
         Entity shooter = getOwner();
         DamageSource damageSource;
         if (shooter == null) {
-            damageSource = DamageSource.arrow(this, this);
+            damageSource = damageSources().arrow(this, this);
         }
         else {
-            damageSource = DamageSource.arrow(this, shooter);
+            damageSource = damageSources().arrow(this, shooter);
             if (shooter instanceof LivingEntity) {
                 ((LivingEntity) shooter).setLastHurtMob(target);
             }
@@ -158,7 +158,7 @@ public class StandArrowEntity extends AbstractArrow {
         }
         
         if (shooter != null) {
-            arrowItem.hurtAndBreak(1, (LivingEntity) shooter, entity -> remove());
+            arrowItem.hurtAndBreak(1, (LivingEntity) shooter, entity -> discard());
         }
         
         if (target.hurt(damageSource, (float) damage)) {

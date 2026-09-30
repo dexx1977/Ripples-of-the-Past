@@ -152,7 +152,7 @@ public class HungryZombieEntity extends Zombie {
     }
     
     @Override
-    protected int getExperienceReward() {
+    public int getExperienceReward() {
         // 1.20.1 does not hand the killer to this method
         Player player = this.lastHurtByPlayer;
         return player != null && isEntityOwner(player) ? 0 : super.getExperienceReward();
@@ -263,7 +263,7 @@ public class HungryZombieEntity extends Zombie {
                     world, 
                     world.getCurrentDifficultyAt(zombie.blockPosition()), 
                     MobSpawnType.CONVERSION, 
-                    new Zombie.GroupData(false, true), 
+                    new Zombie.ZombieGroupData(false, true), 
                     null);
             zombie.setOwner(owner);
             ForgeEventFactory.onLivingConvert(dead, zombie);

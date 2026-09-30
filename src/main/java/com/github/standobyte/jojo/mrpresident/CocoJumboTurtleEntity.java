@@ -53,7 +53,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPassengerMixinReposition {
@@ -348,7 +348,7 @@ public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPas
     
     @Override
     public boolean isInvulnerableTo(DamageSource pDamageSource) {
-        return pDamageSource == DamageSource.IN_WALL || super.isInvulnerableTo(pDamageSource);
+        return pDamageSource.is(net.minecraft.world.damagesource.DamageTypes.IN_WALL) || super.isInvulnerableTo(pDamageSource);
     }
     
     
@@ -394,14 +394,15 @@ public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPas
                         Mob extraTurtle = ModEntityTypes.COCO_JUMBO_TURTLE.get().create(spawnRegion.getLevel());
 
                         extraTurtle.moveTo(x, y, z, turtle.getRandom().nextFloat() * 360.0F, 0.0F);
-                        if (ForgeHooks.canEntitySpawn(extraTurtle, spawnRegion, x, y, z, null, spawnReason) != -1
-                                && extraTurtle.checkSpawnRules(spawnRegion, spawnReason) && extraTurtle.checkSpawnObstruction(spawnRegion)) {
+                        // 1.20.1 replaced ForgeHooks.canEntitySpawn with this helper, which fires the
+                        // PositionCheck event and runs the same spawn rule/obstruction checks
+                        if (ForgeEventFactory.checkSpawnPosition(extraTurtle, spawnRegion, spawnReason)) {
                             SpawnGroupData entityData = null;
                             entityData = extraTurtle.finalizeSpawn(spawnRegion, 
                                     spawnRegion.getCurrentDifficultyAt(extraTurtle.blockPosition()), 
                                     spawnReason, entityData, null);
                             spawnRegion.addFreshEntityWithPassengers(extraTurtle);
-                            lastSpawnTime = event.level().dayTime();
+                            lastSpawnTime = event.getLevel().dayTime();
                         }
                     }
                 }

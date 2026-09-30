@@ -1459,8 +1459,8 @@ public class ClientEventHandler {
             addWidgetToScreen(event, ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
         }
         
-        else if (screen instanceof ControlsScreen) {
-            KeyBindsList controlList = ClientReflection.getControlList((ControlsScreen) screen);
+        else if (screen instanceof net.minecraft.client.gui.screens.controls.KeyBindsScreen) {
+            KeyBindsList controlList = ClientReflection.getControlList((net.minecraft.client.gui.screens.controls.KeyBindsScreen) screen);
             List<KeyBindsList.Entry> keyEntries = controlList.children();
             
             ListIterator<KeyBindsList.Entry> entriesIter = keyEntries.listIterator();
