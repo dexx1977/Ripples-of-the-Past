@@ -99,7 +99,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         
         angeloRock.creationAnimTicks = CREATION_ANIM_LEN;
         if (entity instanceof LivingEntity) {
-            angeloRock.angeloEntity.setThrower(entity);
+            angeloRock.angeloEntity.setOwner(entity);
         }
         
         if (angeloRockBlocks != null) {
@@ -475,7 +475,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                     }
                 }
                 entityData.set(CREATION_COMPLETE, true);
-                this.angeloEntity.setThrower(null);
+                this.angeloEntity.setOwner(null);
             }
         }
         
@@ -498,7 +498,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         }
 
         if (attachPos != null) {
-            setPosAndOldPos(attachPos.getX() + 0.5, attachPos.getY(), attachPos.getZ() + 0.5);
+            moveTo(attachPos.getX() + 0.5, attachPos.getY(), attachPos.getZ() + 0.5);
 //            if (isAddedToWorld() && level instanceof ServerWorld) {
 //                ((ServerWorld)level).updateChunkPos(this); // Forge - Process chunk registration after moving.
 //            }
@@ -540,7 +540,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
 //            if (this.isAddedToWorld() && this.level instanceof ServerWorld) {
 //                ((ServerWorld) level).updateChunkPos(this); // Forge - Process chunk registration after moving.
 //            }
-            Optional<BlockPos> optional1 = Optional.of(new BlockPos(pX, pY, pZ));
+            Optional<BlockPos> optional1 = Optional.of(BlockPos.containing(pX, pY, pZ));
             if (!optional1.equals(optional)) {
                 this.entityData.set(DATA_ATTACH_POS_ID, optional1);
                 this.hasImpulse = true;
@@ -555,7 +555,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
             if (level.isClientSide && !isPassenger()) {
                 BlockPos blockpos = getAttachPosition();
                 if (blockpos != null) {
-                    setPosAndOldPos(blockpos.getX() + 0.5, blockpos.getY(), blockpos.getZ() + 0.5);
+                    moveTo(blockpos.getX() + 0.5, blockpos.getY(), blockpos.getZ() + 0.5);
                 }
             }
         }
@@ -609,7 +609,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity angeloEntity = NetworkUtil.readOptional(additionalData, buf -> ClientUtil.getEntityById(buf.readInt())).orElse(null);
         if (angeloEntity instanceof LivingEntity) {
-            this.angeloEntity.setThrower(angeloEntity);
+            this.angeloEntity.setOwner(angeloEntity);
         }
         creationAnimTicks = additionalData.readVarInt();
         angeloRockBlocks.clear();

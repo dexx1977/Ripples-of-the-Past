@@ -52,7 +52,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
         this.mc = Minecraft.getInstance();
         this.changeButton = new Button(0, 0, 75 + 20, 20, name, button -> {
             setSelectedKey.accept(key);
-        }, Button.DEFAULT_NARRATION) {
+        }, narration -> narration.get()) {
             protected MutableComponent createNarrationMessage() {
                 return key.isUnbound() ? Component.translatable("narrator.controls.unbound", name) : Component.translatable("narrator.controls.bound", name, super.createNarrationMessage());
             }
@@ -61,7 +61,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
             key.setToDefault();
             mc.options.setKey(key, key.getDefaultKey());
             KeyMapping.resetMapping();
-        }, Button.DEFAULT_NARRATION) {
+        }, narration -> narration.get()) {
             protected MutableComponent createNarrationMessage() {
                 return Component.translatable("narrator.controls.reset", name);
             }
@@ -87,7 +87,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
             for(KeyMapping keybinding : mc.options.keyMappings) {
                 if (keybinding != this.key && this.key.same(keybinding)) {
                     isConflicting = true;
-                    keyCodeModifierConflict &= keybinding.hasKeyCodeModifierConflict(this.key);
+                    keyCodeModifierConflict &= keybinding.getKeyModifier() != this.key.getKeyModifier();
                 }
             }
         }
@@ -104,6 +104,11 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
         }
 
         this.changeButton.render(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), pMouseX, pMouseY, pPartialTicks);
+    }
+
+    @Override
+    public List<? extends net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+        return java.util.List.of(this.changeButton, this.resetButton);
     }
 
     public List<? extends GuiEventListener> children() {
