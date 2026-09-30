@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -138,7 +138,7 @@ public class StandCrySoundHandler<T extends Entity> {
         return soundInstance;
     }
     
-    private static final Random RANDOM = new Random();
+    private static final RandomSource RANDOM = RandomSource.create();
     protected Sound pickNextSound(List<Sound> pickFrom) {
         if (notPlayed.isEmpty()) {
             notPlayed.addAll(soundsInfo.allSounds);
@@ -154,7 +154,7 @@ public class StandCrySoundHandler<T extends Entity> {
                 rand -= sound.getWeight();
                 if (rand < 0) {
                     ++soundsPlayed;
-                    return sound.getSound();
+                    return sound.getSound(RANDOM);
                 }
             }
         }

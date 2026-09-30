@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundSource;
 public class WalkmanRewindSound extends AbstractTickableSoundInstance {
 
     public WalkmanRewindSound() {
-        super(ModSounds.WALKMAN_REWIND.get(), SoundSource.MASTER);
+        super(ModSounds.WALKMAN_REWIND.get(), SoundSource.MASTER, SoundInstance.createUnseededRandom());
         looping = true;
         x = 0;
         y = 0;

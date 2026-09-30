@@ -9,6 +9,7 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.client.resources.sounds.SoundInstance;
 
 public class ResolvedLocationSimpleSound extends AbstractSoundInstance {
     protected final Component subtitle;
@@ -18,7 +19,7 @@ public class ResolvedLocationSimpleSound extends AbstractSoundInstance {
     }
 
     public ResolvedLocationSimpleSound(Sound sound, SoundSource source, @Nullable Component subtitle) {
-        super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source);
+        super((sound != null ? sound : SoundManager.EMPTY_SOUND).getLocation(), source, SoundInstance.createUnseededRandom());
         this.sound = sound != null ? sound : SoundManager.EMPTY_SOUND;
         this.subtitle = subtitle;
     }

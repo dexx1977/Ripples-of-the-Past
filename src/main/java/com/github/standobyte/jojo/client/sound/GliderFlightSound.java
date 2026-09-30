@@ -16,7 +16,7 @@ public class GliderFlightSound extends AbstractTickableSoundInstance {
     private float trueVolume;
     
     public GliderFlightSound(LeavesGliderEntity glider) {
-        super(ModSounds.GLIDER_FLIGHT.get(), SoundSource.AMBIENT);
+        super(ModSounds.GLIDER_FLIGHT.get(), SoundSource.AMBIENT, SoundInstance.createUnseededRandom());
         this.glider = glider;
         this.looping = true;
         this.delay = 0;

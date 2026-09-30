@@ -6,12 +6,13 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
+import net.minecraft.client.resources.sounds.SoundInstance;
 
 public class MRDetectorSound extends AbstractTickableSoundInstance {
     private final MRDetectorEntity detector;
 
     public MRDetectorSound(MRDetectorEntity detector) {
-        super(SoundEvents.FIRE_AMBIENT, detector.getSoundSource());
+        super(SoundEvents.FIRE_AMBIENT, detector.getSoundSource(), SoundInstance.createUnseededRandom());
         this.detector = detector;
         this.looping = true;
         this.delay = 0;

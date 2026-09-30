@@ -23,7 +23,7 @@ public class StandOstSound extends AbstractTickableSoundInstance implements Tick
     private final float musicVolume;
 
     public StandOstSound(SoundEvent sound, Minecraft mc) {
-        super(sound, SoundSource.RECORDS);
+        super(sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom());
         this.volume = 1.0F;
         this.pitch = 1.0F;
         this.x = 0;
@@ -37,7 +37,8 @@ public class StandOstSound extends AbstractTickableSoundInstance implements Tick
         Options options = mc.options;
         this.musicVolume = options.getSoundSourceVolume(SoundSource.MUSIC);
         try {
-            options.setSoundCategoryVolume(SoundSource.MUSIC, 0);
+            // 1.20.1 sets a sound source volume through its option instance
+            options.getSoundSourceOptionInstance(SoundSource.MUSIC).set(0.0D);
         }
         catch (ConcurrentModificationException e) {
             JojoMod.getLogger().warn("Failed setting Minecraft music volume to 0 when playing OST.");
@@ -61,7 +62,7 @@ public class StandOstSound extends AbstractTickableSoundInstance implements Tick
     private void stopOst() {
         stop();
         if (options != null) {
-            options.setSoundCategoryVolume(SoundSource.MUSIC, musicVolume);
+            options.getSoundSourceOptionInstance(SoundSource.MUSIC).set((double) musicVolume);
         }
     }
     

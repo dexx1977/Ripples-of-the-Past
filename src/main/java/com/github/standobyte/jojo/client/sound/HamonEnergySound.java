@@ -8,6 +8,7 @@ import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.resources.sounds.SoundInstance;
 
 public class HamonEnergySound extends AbstractTickableSoundInstance {
     private final LivingEntity entity;
@@ -17,7 +18,7 @@ public class HamonEnergySound extends AbstractTickableSoundInstance {
     private boolean stoppedBreath = false;
 
     public HamonEnergySound(LivingEntity entity, float volume, float pitch, Action<?> action) {
-        super(ModSounds.HAMON_CONCENTRATION.get(), entity.getSoundSource());
+        super(ModSounds.HAMON_CONCENTRATION.get(), entity.getSoundSource(), SoundInstance.createUnseededRandom());
         this.entity = entity;
         this.volume = volume;
         this.pitch = pitch;

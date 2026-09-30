@@ -19,6 +19,7 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.client.sounds.Weighted;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.SoundEngine;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import com.mojang.blaze3d.audio.Channel;
 import net.minecraft.client.player.LocalPlayer;
@@ -407,6 +408,12 @@ public class ClientReflection {
     private static final Field SOUND_ENGINE_SOUND_BUFFERS = ObfuscationReflectionHelper.findField(SoundEngine.class, "f_120222_");
     public static SoundBufferLibrary getSoundBuffers(SoundEngine soundEngine) {
         return ReflectionUtil.getFieldValue(SOUND_ENGINE_SOUND_BUFFERS, soundEngine);
+    }
+
+    // 1.16.5 reached the sound manager from the engine, 1.20.1 only the other way round
+    private static final Field SOUND_MANAGER_SOUND_ENGINE = ObfuscationReflectionHelper.findField(SoundManager.class, "f_120349_");
+    public static SoundEngine getSoundEngine(SoundManager soundManager) {
+        return ReflectionUtil.getFieldValue(SOUND_MANAGER_SOUND_ENGINE, soundManager);
     }
     
     

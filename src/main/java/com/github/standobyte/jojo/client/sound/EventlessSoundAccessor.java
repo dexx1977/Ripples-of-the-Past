@@ -23,7 +23,7 @@ public class EventlessSoundAccessor extends WeighedSoundEvents {
     }
 
     @Override
-    public Sound getSound() {
+    public Sound getSound(net.minecraft.util.RandomSource random) {
         return sound;
     }
 

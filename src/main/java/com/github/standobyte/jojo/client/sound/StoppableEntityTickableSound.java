@@ -7,6 +7,7 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.client.resources.sounds.SoundInstance;
 
 public class StoppableEntityTickableSound<T extends Entity> extends AbstractTickableSoundInstance {
     protected final T entity;
@@ -23,7 +24,7 @@ public class StoppableEntityTickableSound<T extends Entity> extends AbstractTick
     
     public StoppableEntityTickableSound(SoundEvent sound, SoundSource category, 
             float volume, float pitch, boolean looping, T entity, Predicate<T> playWhile) {
-        super(sound, category);
+        super(sound, category, SoundInstance.createUnseededRandom());
         this.entity = entity;
         this.playWhile = playWhile;
         this.volume = volume;

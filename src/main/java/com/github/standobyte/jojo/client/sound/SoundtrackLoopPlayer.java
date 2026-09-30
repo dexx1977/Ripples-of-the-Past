@@ -63,20 +63,20 @@ public class SoundtrackLoopPlayer {
     
     protected void onSoundSourceEvent(SoundSourceEvent event) {
         if (!queuedMain && startingSound != null && event.getSound() == startingSound) {
-            SoundManager soundEngine = Minecraft.getInstance().getSoundManager();
+            SoundManager soundManager = Minecraft.getInstance().getSoundManager();
             Channel startSoundSource = event.getChannel();
 
             SoundInstance iMainSound = new SimpleSoundInstance(main.getLocation(), startingSound.getSource(), 
                     startingSound.getVolume(), startingSound.getPitch(), net.minecraft.util.RandomSource.create(), true, 0, startingSound.getAttenuation(), 
                     startingSound.getX(), startingSound.getY(), startingSound.getZ(), startingSound.isRelative());
-            WeighedSoundEvents mainSoundAccessor = iMainSound.resolve(soundEngine.soundManager);
+            WeighedSoundEvents mainSoundAccessor = iMainSound.resolve(soundManager);
             if (mainSoundAccessor != null) {
                 Sound mainSound = iMainSound.getSound();
                 if (mainSound != SoundManager.EMPTY_SOUND) {
                     ResourceLocation mainSoundPath = mainSound.getPath();
 //                    boolean isStartSoundStream = event instanceof PlayStreamingSourceEvent;
 //                    boolean isMainSoundStream = mainSound.shouldStream();
-                    SoundBufferLibrary soundBuffers = ClientReflection.getSoundBuffers(soundEngine); // TODO cache this
+                    SoundBufferLibrary soundBuffers = ClientReflection.getSoundBuffers(ClientReflection.getSoundEngine(soundManager)); // TODO cache this
                     
 //                    if (!isMainSoundStream) {
                         soundBuffers.getCompleteBuffer(startingSound.getSound().getPath()).thenAccept(startingAudioStream -> 
