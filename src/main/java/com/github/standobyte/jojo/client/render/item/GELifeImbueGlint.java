@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 public abstract class GELifeImbueGlint extends RenderType {
     private static final ResourceLocation GLINT_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/item_imbued_with_life.png");
     
-    private static final RenderType GLINT_TRANSLUCENT = create("glint_translucent", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GLINT_TRANSLUCENT = create("glint_translucent", DefaultVertexFormat.POSITION_TEX, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -32,7 +32,7 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTexturingState(GLINT_TEXTURING)
             .setOutputState(ITEM_ENTITY_TARGET)
             .createCompositeState(false));
-    private static final RenderType GLINT = create("glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GLINT = create("glint", DefaultVertexFormat.POSITION_TEX, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -41,7 +41,7 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTransparencyState(GLINT_TRANSPARENCY)
             .setTexturingState(GLINT_TEXTURING)
             .createCompositeState(false));
-    private static final RenderType GLINT_DIRECT = create("glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType GLINT_DIRECT = create("glint_direct", DefaultVertexFormat.POSITION_TEX, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -50,7 +50,7 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setTransparencyState(GLINT_TRANSPARENCY)
             .setTexturingState(GLINT_TEXTURING)
             .createCompositeState(false));
-    private static final RenderType ENTITY_GLINT = create("entity_glint", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType ENTITY_GLINT = create("entity_glint", DefaultVertexFormat.POSITION_TEX, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -60,7 +60,7 @@ public abstract class GELifeImbueGlint extends RenderType {
             .setOutputState(ITEM_ENTITY_TARGET)
             .setTexturingState(ENTITY_GLINT_TEXTURING)
             .createCompositeState(false));
-    private static final RenderType ENTITY_GLINT_DIRECT = create("entity_glint_direct", DefaultVertexFormat.POSITION_TEX, 7, 256, 
+    private static final RenderType ENTITY_GLINT_DIRECT = create("entity_glint_direct", DefaultVertexFormat.POSITION_TEX, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 256, false, false, 
             RenderType.CompositeState.builder()
             .setTextureState(new RenderStateShard.TextureStateShard(GLINT_LOCATION, true, false))
             .setWriteMaskState(COLOR_WRITE)
@@ -71,7 +71,7 @@ public abstract class GELifeImbueGlint extends RenderType {
             .createCompositeState(false));
     
     private GELifeImbueGlint() {
-        super(null, null, 0, 0, false, false, null, null);
+        super(null, null, com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS, 0, false, false, null, null);
     }
     
     
@@ -85,9 +85,9 @@ public abstract class GELifeImbueGlint extends RenderType {
                 matrixStack.pushPose();
                 PoseStack.Pose matrixEntry = matrixStack.last();
                 if (transformType == ItemDisplayContext.GUI) {
-                    matrixEntry.pose().multiply(0.5F);
+                    matrixEntry.pose().scale(0.5F);
                 } else if (transformType.firstPerson()) {
-                    matrixEntry.pose().multiply(0.75F);
+                    matrixEntry.pose().scale(0.75F);
                 }
 
                 if (blockSheet) {

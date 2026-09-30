@@ -51,17 +51,18 @@ public abstract class ClientTickingSoundsHelper {
         
         Minecraft mc = Minecraft.getInstance();
         
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, soundEvent, category, volume, pitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, soundHolder, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) {
             voiceLineNotTriggered(entity);
             return false;
         }
-        soundEvent = event.getSound();
+        soundEvent = event.getSound().value();
         category = event.getSource();
         volume = event.getOriginalVolume();
         pitch = event.getOriginalPitch();
 
-        SoundInstance sound = new EntityBoundSoundInstance(soundEvent, category, volume, pitch, entity);
+        SoundInstance sound = new EntityBoundSoundInstance(soundEvent, category, volume, pitch, entity, entity.level().getRandom().nextLong());
         if (entity instanceof AbstractClientPlayer && GeneralUtil.orElseFalse(entity.getCapability(ClientPlayerUtilCapProvider.CAPABILITY), cap -> {
             boolean alreadyPlaying = !interrupt && cap.isVoiceLinePlaying();
             if (alreadyPlaying) {
@@ -97,9 +98,10 @@ public abstract class ClientTickingSoundsHelper {
         }
         
         SoundSource category = stand.getSoundSource();
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, soundHolder, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
-        sound = event.getSound();
+        sound = event.getSound().value();
         category = event.getSource();
         volume = event.getOriginalVolume();
         pitch = event.getOriginalPitch();
@@ -116,9 +118,10 @@ public abstract class ClientTickingSoundsHelper {
         }
         
         SoundSource category = stand.getSoundSource();
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, soundHolder, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
-        sound = event.getSound();
+        sound = event.getSound().value();
         category = event.getSource();
         volume = event.getOriginalVolume();
         pitch = event.getOriginalPitch();
@@ -138,9 +141,10 @@ public abstract class ClientTickingSoundsHelper {
                 }
 
                 SoundSource category = stand.getSoundSource();
-                PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, sound, category, volume, pitch);
+                net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(stand, soundHolder, category, volume, pitch);
                 if (event.isCanceled() || event.getSound() == null) return;
-                sound = event.getSound();
+                sound = event.getSound().value();
                 category = event.getSource();
                 volume = event.getOriginalVolume();
                 pitch = event.getOriginalPitch();
@@ -157,12 +161,13 @@ public abstract class ClientTickingSoundsHelper {
         
         Minecraft mc = Minecraft.getInstance();
         SoundSource category = entity.getSoundSource();
-        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, sound, category, volume, pitch);
+        net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
+        PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(mc.player, soundHolder, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
-        sound = event.getSound();
+        sound = event.getSound().value();
         category = event.getSource();
         volume = event.getOriginalVolume();
-        mc.getSoundManager().play(new EntityBoundSoundInstance(sound, category, volume, pitch, entity));
+        mc.getSoundManager().play(new EntityBoundSoundInstance(sound, category, volume, pitch, entity, entity.level().getRandom().nextLong()));
     }
     
     public static void playHeldActionSound(SoundEvent sound, float volume, float pitch, boolean looping, 
@@ -220,7 +225,7 @@ public abstract class ClientTickingSoundsHelper {
     public static void playItemUseSound(LivingEntity entity, SoundEvent sound, float volume, float pitch, boolean looping, ItemStack stack) {
         Minecraft.getInstance().getSoundManager().play(new StoppableEntityTickableSound<LivingEntity>(sound, 
                 entity.getSoundSource(), volume, pitch, looping, entity, 
-                e -> e.isUsingItem() && e.getUseItem().sameItem(stack)));
+                e -> e.isUsingItem() && net.minecraft.world.item.ItemStack.isSameItem(e.getUseItem(), stack)));
     }
     
     public static void playMagiciansRedDetectorSound(MRDetectorEntity entity) {
