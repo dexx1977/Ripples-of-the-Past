@@ -99,10 +99,11 @@ Compilation is the current gate; the counts below are javac errors from
 | Client registration, widgets, render state calls | 3,181 |
 | GUI/HUD drawing through GuiGraphics (GuiDraw), tooltips | 2,747 |
 | Creative tab on the 1.20.1 builder API | 2,719 |
-| Small API batch (input keys, sound events, item RNG, font draws) | 2,642 |
+| Small API batches (input keys, sound events, item RNG, font draws, getEntity) | 2,580 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
-networking, materials/blocks, model layer, client registration/widgets.
+networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
+drawing (GuiDraw over GuiGraphics), creative tab, and the small API batches.
 
 Known remaining work, roughly in the order it should be tackled:
 
