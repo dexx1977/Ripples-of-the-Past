@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
 import java.util.function.Consumer;
 import java.util.List;
@@ -276,7 +277,9 @@ public class ClientSetup {
         registerRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), CDBloodCutterRenderer::new);
         registerRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), CDBlockBulletRenderer::new);
         registerRenderer(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, 1.0F, true));
-        registerRenderer(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager));
+        // the mod's firework is a vanilla firework, so the vanilla renderer (typed to
+        // the parent class) can render it
+        registerRenderer((net.minecraft.world.entity.EntityType) ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager));
         registerRenderer(ModEntityTypes.ANGELO_ROCK.get(), AngeloRockRenderer::new);
         registerRenderer(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), GETransformationRenderer::new);
         registerRenderer(ModEntityTypes.HUNGRY_ZOMBIE.get(), HungryZombieRenderer::new);
@@ -292,7 +295,7 @@ public class ClientSetup {
         
         EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
         xxd = new ConsciousnessRenderer(new EntityRendererProvider.Context(dispatcher, mc.getItemRenderer(), 
-                mc.getBlockRenderer(), dispatcher.getItemInHandRenderer(), mc.getResourceManager(), 
+                mc.getBlockRenderer(), mc.gameRenderer.itemInHandRenderer, mc.getResourceManager(), 
                 mc.getEntityModels(), mc.font));
         
         registerRenderer(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
@@ -371,10 +374,6 @@ public class ClientSetup {
             FirstPersonHamonAura.init();
             TemporaryDimensionEffects.init();
             
-            Map<String, PlayerRenderer> skinMap = mc.getEntityRenderDispatcher().getSkinMap();
-            addLayers(skinMap.get("default"), false);
-            addLayers(skinMap.get("slim"), true);
-            mc.getEntityRenderDispatcher().renderers.values().forEach(ClientSetup::addLayersToEntities);
             
             MarkerRenderer.registerMarkers(mc);
             
@@ -398,6 +397,26 @@ public class ClientSetup {
 //        Map<String, PlayerRenderer> skinMap = event.getMinecraftSupplier().get().getEntityRenderDispatcher().getSkinMap();
 //    }
 
+    @SubscribeEvent
+    public static void registerLayers(net.minecraftforge.client.event.EntityRenderersEvent.AddLayers event) {
+        PlayerRenderer defaultSkin = event.getSkin("default");
+        if (defaultSkin != null) {
+            addLayers(defaultSkin, false);
+        }
+        PlayerRenderer slimSkin = event.getSkin("slim");
+        if (slimSkin != null) {
+            addLayers(slimSkin, true);
+        }
+        // the mod added its living layers to every entity renderer; 1.20.1 offers
+        // them per entity type, so the registered types are walked
+        for (net.minecraft.world.entity.EntityType<?> entityType : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValues()) {
+            EntityRenderer<?> renderer = event.getEntityRenderer((net.minecraft.world.entity.EntityType) entityType);
+            if (renderer != null) {
+                addLayersToEntities(renderer);
+            }
+        }
+    }
+    
     private static void addLayers(PlayerRenderer renderer, boolean slim) {
         renderer.addLayer(new KnifeLayer<>(renderer));
         renderer.addLayer(new TornadoOverdriveEffectLayer<>(renderer));
@@ -458,7 +477,7 @@ public class ClientSetup {
             if (layer != 1) return -1;
 
             Optional<DyeColor> dye = CassetteRecordedItem.getCassetteData(stack).map(cap -> cap.getDye());
-            return dye.isPresent() ? dye.get().getColorValue() : 0xeff0e0;
+            return dye.isPresent() ? dye.get().getTextColor() : 0xeff0e0;
         }, ModItems.CASSETTE_RECORDED.get());
     }
     
@@ -521,7 +540,7 @@ public class ClientSetup {
         event.registerSpriteSet(ModParticles.HAMON_AURA_SILVER.get(),    HamonAuraParticle.Factory::new);
         event.registerSpriteSet(ModParticles.HAMON_AURA_GREEN.get(),     HamonAuraParticle.Factory::new);
         event.registerSpriteSet(ModParticles.HAMON_AURA_RAINBOW.get(),   HamonAuraParticle.Factory::new);
-        event.registerSpriteSet(ModParticles.BOILING_BLOOD_POP.get(),    LavaParticle.Factory::new);
+        event.registerSpriteSet(ModParticles.BOILING_BLOOD_POP.get(),    LavaParticle.Provider::new);
         event.registerSpriteSet(ModParticles.METEORITE_VIRUS.get(),      MeteoriteVirusParticle.Factory::new);
         event.registerSpriteSet(ModParticles.MENACING.get(),             OnomatopoeiaParticle.GoFactory::new);
         event.registerSpriteSet(ModParticles.RESOLVE.get(),              OnomatopoeiaParticle.DoFactory::new);
