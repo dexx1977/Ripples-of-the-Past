@@ -15,12 +15,25 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ResourceEntityModels {
     static final Map<ResourceLocation, Consumer<EntityModelUnbaked>> resourceListeners = new HashMap<>();
+    /** The models of the last reload, for renderers that are only created later. */
+    private static final Map<ResourceLocation, CustomModelPrepared> preparedModels = new HashMap<>();
     
     
     static void loadEntityModel(ResourceLocation listenerId, CustomModelPrepared readJson) {
-        if (resourceListeners.containsKey(listenerId)) {
-            EntityModelUnbaked modelOverride = readJson.createModel(listenerId);
-            resourceListeners.get(listenerId).accept(modelOverride);
+        preparedModels.put(listenerId, readJson);
+        notifyListener(listenerId, readJson);
+    }
+    
+    private static void notifyListener(ResourceLocation modelId, CustomModelPrepared readJson) {
+        Consumer<EntityModelUnbaked> listener = resourceListeners.get(modelId);
+        if (listener == null) {
+            return;
+        }
+        try {
+            listener.accept(readJson.createModel(modelId));
+        }
+        catch (Exception e) {
+            JojoMod.getLogger().error("Failed to load model {}", modelId, e);
         }
     }
     
@@ -38,5 +51,11 @@ public class ResourceEntityModels {
     
     public static void addListener(ResourceLocation id, Consumer<EntityModelUnbaked> onLoad) {
         resourceListeners.put(id, onLoad);
+        // item renderers are constructed lazily, possibly after the resource reload
+        // that parsed the model, so the stored model is handed over right away
+        CustomModelPrepared prepared = preparedModels.get(id);
+        if (prepared != null) {
+            notifyListener(id, prepared);
+        }
     }
 }
