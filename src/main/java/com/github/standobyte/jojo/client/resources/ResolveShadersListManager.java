@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 import javax.annotation.Nullable;
@@ -52,16 +53,15 @@ public class ResolveShadersListManager extends SimplePreparableReloadListener<Ma
     @Nullable
     private JsonArray readArray(ResourceManager resourceManager, ResourceLocation location) {
         location = new ResourceLocation(location.getNamespace(), "shaders/resolve/" + location.getPath() + ".json");
-        if (resourceManager.hasResource(location)) {
-            try (
-                    Resource resource = resourceManager.getResource(location);
-                    Reader reader = new InputStreamReader(resource.open(), Charsets.UTF_8);) {
-                return GsonHelper.getAsJsonArray(GsonHelper.parse(reader), "shaders", null);
-            } catch (IOException e) {
-                return null;
-            }
+        // 1.20.1 replaced hasResource with an Optional from getResource
+        Optional<Resource> optionalResource = resourceManager.getResource(location);
+        if (optionalResource.isEmpty()) {
+            return null;
         }
-        else {
+        try (
+                Reader reader = new InputStreamReader(optionalResource.get().open(), Charsets.UTF_8);) {
+            return GsonHelper.getAsJsonArray(GsonHelper.parse(reader), "shaders", null);
+        } catch (IOException e) {
             return null;
         }
     }

@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -34,9 +35,13 @@ public class ModSplashes extends SimplePreparableReloadListener<List<String>> {
 
     @Override
     protected List<String> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+        // 1.16.5's getResource threw when the file was absent; 1.20.1 returns an empty Optional
+        Optional<Resource> optionalResource = resourceManager.getResource(location);
+        if (optionalResource.isEmpty()) {
+            return Collections.emptyList();
+        }
         try (
-                Resource resource = resourceManager.getResource(location);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open(), StandardCharsets.UTF_8));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(optionalResource.get().open(), StandardCharsets.UTF_8));
                 ) {
             return reader.lines()
                     .map(String::trim)

@@ -66,13 +66,15 @@ public class StandModelOverrides extends SimplePreparableReloadListener<Map<Stan
     
     protected void addEntries(String directory, String pathPostfix, ResourceManager pResourceManager, 
             Format format, ModelType modelType, Map<ResourceLocation, CustomModelPrepared> entriesMap) {
-        for (ResourceLocation path : pResourceManager.listResources(directory, p -> p.endsWith(pathPostfix))) {
+        for (Map.Entry<ResourceLocation, Resource> resourceEntry : pResourceManager.listResources(directory, p -> p.getPath().endsWith(pathPostfix)).entrySet()) {
+            ResourceLocation path = resourceEntry.getKey();
             String fileName = path.getPath();
             fileName = fileName.substring(directory.length() + 1, fileName.length() - pathPostfix.length());
             ResourceLocation preparedPath = new ResourceLocation(path.getNamespace(), fileName);
             
+            // 1.20.1's Resource is not AutoCloseable, only the streams it opens are
+            Resource iresource = resourceEntry.getValue();
             try (
-                    Resource iresource = pResourceManager.getResource(path);
                     InputStream inputstream = iresource.open();
                     Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                     ) {

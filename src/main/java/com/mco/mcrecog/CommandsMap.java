@@ -55,7 +55,8 @@ public class CommandsMap extends SimplePreparableReloadListener<JsonObject> {
         for (String namespace : pResourceManager.getNamespaces()) {
             
             try {
-                for(Resource resource : pResourceManager.getResources(new ResourceLocation(namespace, "rotp_vc.json"))) {
+                // 1.20.1 replaced getResources(location) with getResourceStack(location)
+                for(Resource resource : pResourceManager.getResourceStack(new ResourceLocation(namespace, "rotp_vc.json"))) {
 
                     try (
                             InputStream inputstream = resource.open();

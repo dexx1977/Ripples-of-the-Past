@@ -46,13 +46,15 @@ public class GeckoAnimLoader extends SimplePreparableReloadListener<Map<Resource
     protected Map<ResourceLocation, JsonElement> prepare(ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
         
-        for (ResourceLocation path : pResourceManager.listResources(DIRECTORY, p -> p.endsWith(SUFFIX))) {
+        for (Map.Entry<ResourceLocation, Resource> resourceEntry : pResourceManager.listResources(DIRECTORY, p -> p.getPath().endsWith(SUFFIX)).entrySet()) {
+            ResourceLocation path = resourceEntry.getKey();
             String fileName = path.getPath();
             fileName = fileName.substring(DIRECTORY.length() + 1, fileName.length() - SUFFIX.length());
             ResourceLocation preparedPath = new ResourceLocation(path.getNamespace(), fileName);
             
+            // 1.20.1's Resource is not AutoCloseable, only the streams it opens are
+            Resource iresource = resourceEntry.getValue();
             try (
-                    Resource iresource = pResourceManager.getResource(path);
                     InputStream inputstream = iresource.open();
                     Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
                     ) {

@@ -187,8 +187,9 @@ public class StandSkinsManager extends SimplePreparableReloadListener<Map<Resour
             fileName = fileName.substring(directory.length() + 1, fileName.length() - pathSuffix.length());
             modelResLoc = new ResourceLocation(modelResLoc.getNamespace(), fileName);
             
+            // 1.20.1's Resource is not AutoCloseable, only the streams it opens are
+            Resource resource = resourceManager.getResource(modelFilePath).orElseThrow();
             try (
-                    Resource resource = resourceManager.getResource(modelFilePath).orElseThrow();
                     InputStream modelInputStream = resource.open();
                     Reader modelReader = new BufferedReader(new InputStreamReader(modelInputStream, StandardCharsets.UTF_8));
                     ) {
