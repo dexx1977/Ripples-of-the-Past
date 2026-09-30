@@ -69,7 +69,7 @@ public class SpaceRipperStingyEyesEntity extends OwnerBoundProjectileEntity {
     
     @Override
     public void setOwner(Entity owner) {
-        super.setOwner(owner);
+        super.setThrower(owner);
     }
     
     private void setLength(float length) {

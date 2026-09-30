@@ -71,7 +71,7 @@ public class HamonSkillElementLearnable extends HamonSkillGuiElement {
             }
         }
         
-        hamonScreen.renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY);
+        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, net.minecraft.client.Minecraft.getInstance().font, tooltip, mouseX, mouseY);
     }
     
     enum State {

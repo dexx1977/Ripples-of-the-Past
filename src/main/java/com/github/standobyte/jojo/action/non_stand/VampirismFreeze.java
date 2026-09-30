@@ -144,7 +144,7 @@ public class VampirismFreeze extends VampirismAction {
                 && world.isUnobstructed(ICE, blockPos, CollisionContext.empty())
                 && !ForgeEventFactory.onBlockPlace(vampireEntity, BlockSnapshot.create(world.dimension(), world, blockPos), Direction.UP)) {
             world.setBlockAndUpdate(blockPos, ICE);
-            world.getBlockTicks().scheduleTick(blockPos, Blocks.FROSTED_ICE, Mth.nextInt(vampireEntity.getRandom(), 20, 40));
+            world.scheduleTick(blockPos, Blocks.FROSTED_ICE, Mth.nextInt(vampireEntity.getRandom(), 20, 40));
         }
     }
 

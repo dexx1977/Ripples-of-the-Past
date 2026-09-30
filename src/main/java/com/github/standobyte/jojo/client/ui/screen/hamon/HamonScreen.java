@@ -139,8 +139,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
 
     public void removeButton(AbstractWidget button) {
-        buttons.remove(button);
-        children.remove(button);
+        removeWidget(button);
     }
 
     @Override

@@ -521,7 +521,7 @@ public class MCUtil {
         else {
             ItemEntity itemEntity = new ItemEntity(entity.level, entity.getX(), entity.getEyeY() - 0.3, entity.getZ(), item);
             itemEntity.setNoPickUpDelay();
-            itemEntity.setOwner(entity.getUUID());
+            itemEntity.setThrower(entity.getUUID());
             return itemEntity;
         }
     }

@@ -432,7 +432,7 @@ public class JojoModUtil {
     
     public static boolean isTargetBlocking(LivingEntity target) {
         ItemStack usedItem = target.getUseItem();
-        if (!usedItem.isEmpty() && usedItem.isShield(target)) {
+        if (!usedItem.isEmpty() && target.isBlocking()) {
             return true;
         }
         if (target instanceof StandEntity) {

@@ -99,7 +99,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
         
         angeloRock.creationAnimTicks = CREATION_ANIM_LEN;
         if (entity instanceof LivingEntity) {
-            angeloRock.angeloEntity.setOwner(entity);
+            angeloRock.angeloEntity.setThrower(entity);
         }
         
         if (angeloRockBlocks != null) {
@@ -475,7 +475,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                     }
                 }
                 entityData.set(CREATION_COMPLETE, true);
-                this.angeloEntity.setOwner(null);
+                this.angeloEntity.setThrower(null);
             }
         }
         
@@ -609,7 +609,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
     public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity angeloEntity = NetworkUtil.readOptional(additionalData, buf -> ClientUtil.getEntityById(buf.readInt())).orElse(null);
         if (angeloEntity instanceof LivingEntity) {
-            this.angeloEntity.setOwner(angeloEntity);
+            this.angeloEntity.setThrower(angeloEntity);
         }
         creationAnimTicks = additionalData.readVarInt();
         angeloRockBlocks.clear();

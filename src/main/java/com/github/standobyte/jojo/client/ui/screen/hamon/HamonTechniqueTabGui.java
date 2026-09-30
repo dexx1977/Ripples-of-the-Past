@@ -342,7 +342,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
                     lines.add(Component.literal(" "));
                     lines.add(Component.translatable("hamon.technique.no_reset_warning").withStyle(ChatFormatting.ITALIC, ChatFormatting.RED));
                     lines.add(Component.translatable("hamon.technique.no_reset_warning.2_tmp").withStyle(ChatFormatting.ITALIC, ChatFormatting.RED));
-                    screen.renderComponentTooltip(matrixStack, lines, mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderTooltipWrapped(matrixStack, net.minecraft.client.Minecraft.getInstance().font, lines, mouseX, mouseY);
                     break;
                 }
             }

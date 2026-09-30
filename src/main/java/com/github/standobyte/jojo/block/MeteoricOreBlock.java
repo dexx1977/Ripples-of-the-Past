@@ -51,7 +51,7 @@ public class MeteoricOreBlock extends DropExperienceBlock {
                 entity.hurt(DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS_METEORITE), 4.0F);
             }
         }
-        world.getBlockTicks().scheduleTick(pos, this, 10);
+        world.scheduleTick(pos, this, 10);
     }
 
     @Override
@@ -65,13 +65,13 @@ public class MeteoricOreBlock extends DropExperienceBlock {
     @Deprecated
     @Override
     public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos currentPos, BlockPos facingPos) {
-        world.getBlockTicks().scheduleTick(currentPos, this, 10);
+        world.scheduleTick(currentPos, this, 10);
         return super.updateShape(state, facing, facingState, world, currentPos, facingPos);
     }
 
     @Override
     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
-        world.getBlockTicks().scheduleTick(pos, this, 10);
+        world.scheduleTick(pos, this, 10);
     }
 
     @Override

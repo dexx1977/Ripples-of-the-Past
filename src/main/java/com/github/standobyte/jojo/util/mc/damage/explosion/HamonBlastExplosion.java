@@ -52,7 +52,7 @@ public class HamonBlastExplosion extends CustomExplosion {
     
     @Override
     protected void hurtEntity(Entity entity, float damage, double knockback, Vec3 vecToEntityNorm) {
-        DamageUtil.dealHamonDamage(entity, damage, getSourceMob(), null, HamonAttackProperties::noSrcEntityHamonMultiplier);
+        DamageUtil.dealHamonDamage(entity, damage, getIndirectSourceEntity(), null, HamonAttackProperties::noSrcEntityHamonMultiplier);
     }
     
     @Override

@@ -110,7 +110,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
     }
     
     public GETransformationEntity withOwner(LivingEntity user) {
-        this.owner.setOwner(user);
+        this.owner.setThrower(user);
         return this;
     }
     
@@ -547,7 +547,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         else if (getVehicle() == this.host.getEntity(level)) {
             stopRiding();
         }
-        this.host.setOwner(hostEntity);
+        this.host.setThrower(hostEntity);
         if (!level.isClientSide()) {
             entityData.set(HOST_ID, hostEntity != null ? OptionalInt.of(hostEntity.getId()) : OptionalInt.empty());
         }

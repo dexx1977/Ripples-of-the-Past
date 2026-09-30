@@ -121,7 +121,7 @@ public abstract class DamagingEntity extends Projectile implements IEntityAdditi
     
     @Override
     public void setOwner(Entity owner) {
-        super.setOwner(owner);
+        super.setThrower(owner);
         userStandPower = LazyOptional.empty();
         userNonStandPower = LazyOptional.empty();
     }

@@ -206,9 +206,9 @@ public class EntityUtilCap {
             if (entity instanceof ServerPlayer) {
                 ((ServerPlayer) entity).connection.send(
                         new ClientboundPlayerPositionPacket(pos.x, pos.y, pos.z, 
-                                0, 0, Util.make(EnumSet.noneOf(ClientboundPlayerPositionPacket.Flags.class), set -> {
-                                    set.add(ClientboundPlayerPositionPacket.Flags.X_ROT);
-                                    set.add(ClientboundPlayerPositionPacket.Flags.Y_ROT);
+                                0, 0, Util.make(EnumSet.noneOf(ClientboundPlayerPositionPacket.RelativeArgument.class), set -> {
+                                    set.add(ClientboundPlayerPositionPacket.RelativeArgument.X_ROT);
+                                    set.add(ClientboundPlayerPositionPacket.RelativeArgument.Y_ROT);
                                 }), -1));
             }
         }

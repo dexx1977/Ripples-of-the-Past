@@ -120,15 +120,15 @@ public final class GuiDraw {
     }
 
     public static void renderTooltip(PoseStack poseStack, Font font, List<? extends FormattedCharSequence> lines, int mouseX, int mouseY) {
-        GuiDraw.renderToolTip(font, lines, mouseX, mouseY);
+        graphics.renderTooltip(font, lines, mouseX, mouseY);
     }
 
     public static void renderTooltip(PoseStack poseStack, Font font, Component text, int mouseX, int mouseY) {
-        GuiDraw.renderToolTip(font, text, mouseX, mouseY);
+        graphics.renderTooltip(font, text, mouseX, mouseY);
     }
 
     public static void renderTooltip(PoseStack poseStack, Font font, ItemStack stack, int mouseX, int mouseY) {
-        GuiDraw.renderToolTip(font, stack, mouseX, mouseY);
+        graphics.renderTooltip(font, stack, mouseX, mouseY);
     }
 
     /** The mod's 1.16.5 helpers used the vanilla Screen methods with this shape. */

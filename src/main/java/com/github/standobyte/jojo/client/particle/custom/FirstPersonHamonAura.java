@@ -173,7 +173,6 @@ public class FirstPersonHamonAura {
         
         lightTexture.turnOnLightLayer();
         Runnable enable = () -> {
-            RenderSystem.defaultAlphaFunc();
             RenderSystem.enableDepthTest();
             RenderSystem.enableFog();
             RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);

@@ -1295,11 +1295,11 @@ public class GameplayEventHandler {
     private static void sendMemeDeathMessage(ServerPlayer player, Component deathMessage) {
         if (player.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
             Team team = player.getTeam();
-            if (team != null && team.getDeathMessageVisibility() != Team.Visible.ALWAYS) {
-                if (team.getDeathMessageVisibility() == Team.Visible.HIDE_FOR_OTHER_TEAMS) {
+            if (team != null && team.getDeathMessageVisibility() != Team.Visibility.ALWAYS) {
+                if (team.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OTHER_TEAMS) {
                     player.server.getPlayerList().broadcastToTeam(player, deathMessage);
                 }
-                else if (team.getDeathMessageVisibility() == Team.Visible.HIDE_FOR_OWN_TEAM) {
+                else if (team.getDeathMessageVisibility() == Team.Visibility.HIDE_FOR_OWN_TEAM) {
                     player.server.getPlayerList().broadcastToAllExceptTeam(player, deathMessage);
                 }
             } else {

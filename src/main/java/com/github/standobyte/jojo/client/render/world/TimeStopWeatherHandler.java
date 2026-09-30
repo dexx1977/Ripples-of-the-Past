@@ -190,7 +190,6 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
-            RenderSystem.disableAlphaTest();
             lightmap.turnOffLightLayer();
         }
     }

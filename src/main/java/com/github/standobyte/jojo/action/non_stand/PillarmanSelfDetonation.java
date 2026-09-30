@@ -88,7 +88,7 @@ public class PillarmanSelfDetonation extends PillarmanAction {
         
         @Override
         protected void filterEntities(List<Entity> entities) {
-            LivingEntity acdc = getSourceMob();
+            LivingEntity acdc = getIndirectSourceEntity();
             if (acdc != null) {
                 Iterator<Entity> iter = entities.iterator();
                 while (iter.hasNext()) {
@@ -102,7 +102,7 @@ public class PillarmanSelfDetonation extends PillarmanAction {
         
         @Override
         protected void spawnFire() {
-            LivingEntity acdc = getSourceMob();
+            LivingEntity acdc = getIndirectSourceEntity();
             if (acdc == null || ForgeEventFactory.getMobGriefingEvent(level, acdc)) {
                 for (BlockPos pos : getToBlow()) {
                     if (level.isEmptyBlock(pos)) {

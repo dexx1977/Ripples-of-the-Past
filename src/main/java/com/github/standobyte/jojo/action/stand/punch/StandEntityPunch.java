@@ -227,7 +227,7 @@ public class StandEntityPunch implements IPunch {
             boolean isTargetBlocking = targetAsLiving.isBlocking();
             if (isTargetBlocking) {
                 ItemStack targetShield = targetAsLiving.getUseItem();
-                if (targetShield.isShield(targetAsLiving) && damage < 3.0F && targetAsLiving instanceof Player) {
+                if (targetAsLiving.isBlocking() && damage < 3.0F && targetAsLiving instanceof Player) {
                     int shieldItemDamage = MathUtil.fractionRandomInc(damage * 0.5F);
                     targetShield.hurtAndBreak(shieldItemDamage, targetAsLiving, e -> {
                         e.broadcastBreakEvent(targetAsLiving.getUsedItemHand());

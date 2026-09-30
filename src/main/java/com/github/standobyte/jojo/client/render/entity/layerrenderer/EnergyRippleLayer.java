@@ -168,7 +168,6 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
         
         Minecraft mc = Minecraft.getInstance();
         Camera camera = mc.gameRenderer.getMainCamera();
-        RenderSystem.defaultAlphaFunc();
         RenderSystem.enableDepthTest();
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
         RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);

@@ -79,7 +79,7 @@ public class StandDiscGiveCommand {
                 ItemEntity itemEntity = player.drop(discItem, false);
                 if (itemEntity != null) {
                     itemEntity.setNoPickUpDelay();
-                    itemEntity.setOwner(player.getUUID());
+                    itemEntity.setThrower(player.getUUID());
                 }
             }
             

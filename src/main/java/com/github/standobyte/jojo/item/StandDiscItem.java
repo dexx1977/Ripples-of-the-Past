@@ -79,7 +79,7 @@ public class StandDiscItem extends Item {
                     previousDiscStand.ifPresent(prevStand -> {
                         ItemEntity discItemEntity = player.drop(withStand(new ItemStack(this), prevStand), false);
                         discItemEntity.setPickUpDelay(5);
-                        discItemEntity.setOwner(player.getUUID());
+                        discItemEntity.setThrower(player.getUUID());
                     });
                 }
                 else {
