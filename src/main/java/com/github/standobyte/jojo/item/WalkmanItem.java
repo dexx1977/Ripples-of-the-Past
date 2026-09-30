@@ -44,7 +44,7 @@ public class WalkmanItem extends Item {
             editWalkmanData(stack, data -> data.initId((ServerLevel) world));
             stack.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(cap -> {
                 if (cap instanceof WalkmanCassetteSlotCap) {
-                    NetworkHooks.openGui((ServerPlayer) player, (WalkmanCassetteSlotCap) cap, 
+                    NetworkHooks.openScreen((ServerPlayer) player, (WalkmanCassetteSlotCap) cap, 
                             buf -> WalkmanItemContainer.writeAdditionalData(buf, stack));
                 }
             });

@@ -1,18 +1,22 @@
 package com.github.standobyte.jojo.capability.item.walkman;
 
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
 
-public class WalkmanCassetteSlotProvider implements ICapabilitySerializable<Tag> {
-    private LazyOptional<WalkmanCassetteSlotCap> instance;
+public class WalkmanCassetteSlotProvider implements ICapabilitySerializable<CompoundTag> {
+    private final WalkmanCassetteSlotCap cassetteSlot;
+    // 1.16.5 exposed the handler through LazyOptional<IItemHandler>, as does 1.20.1.
+    private final LazyOptional<IItemHandler> instance;
 
     public WalkmanCassetteSlotProvider(ItemStack itemStack) {
-        this.instance = LazyOptional.of(() -> new WalkmanCassetteSlotCap(itemStack));
+        this.cassetteSlot = new WalkmanCassetteSlotCap(itemStack);
+        this.instance = LazyOptional.of(() -> this.cassetteSlot);
     }
 
     @Override
@@ -22,17 +26,15 @@ public class WalkmanCassetteSlotProvider implements ICapabilitySerializable<Tag>
     }
 
     @Override
-    public Tag serializeNBT() {
-        return WalkmanCassetteSlotStorage.writeNBT(instance.orElseThrow(
-                () -> new IllegalArgumentException("Walkman item capability LazyOptional is not attached.")));
+    public CompoundTag serializeNBT() {
+        return WalkmanCassetteSlotStorage.writeNBT(cassetteSlot);
     }
 
     @Override
-    public void deserializeNBT(Tag nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         if (nbt == null) return;
 
-        WalkmanCassetteSlotStorage.readNBT(instance.orElseThrow(
-                () -> new IllegalArgumentException("Walkman item capability LazyOptional is not attached.")), nbt);
+        WalkmanCassetteSlotStorage.readNBT(cassetteSlot, nbt);
     }
 
 }

@@ -2,20 +2,21 @@ package com.github.standobyte.jojo.tileentity;
 
 import com.github.standobyte.jojo.init.ModTileEntities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-public class PillarmanBossTileEntity extends BlockEntity implements ITickableTileEntity {
+public class PillarmanBossTileEntity extends BlockEntity {
     private int absorbedLife;
     
-    public PillarmanBossTileEntity() {
-        super(ModTileEntities.SLUMBERING_PILLARMAN.get());
+    public PillarmanBossTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.SLUMBERING_PILLARMAN.get(), pos, state);
     }
 
-    protected PillarmanBossTileEntity(BlockEntityType<?> tileEntityType) {
-        super(tileEntityType);
+    protected PillarmanBossTileEntity(BlockEntityType<?> tileEntityType, BlockPos pos, BlockState state) {
+        super(tileEntityType, pos, state);
     }
     
     @Override
@@ -28,10 +29,9 @@ public class PillarmanBossTileEntity extends BlockEntity implements ITickableTil
     protected void saveAdditional(CompoundTag compound) {
         super.saveAdditional(compound);
         compound.putInt("AbsorbedLife", absorbedLife);
-        return compound;
     }
 
-        public void tick() {
+    public void tick() {
     }
     
     public void incAbsorbed() {

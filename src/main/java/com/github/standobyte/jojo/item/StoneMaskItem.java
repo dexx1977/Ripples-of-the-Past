@@ -185,7 +185,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
     protected boolean canPlace(BlockPlaceContext context, BlockState state) {
         Player playerentity = context.getPlayer();
         CollisionContext iselectioncontext = playerentity == null ? CollisionContext.empty() : CollisionContext.of(playerentity);
-        return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.level().isUnobstructed(state, context.getClickedPos(), iselectioncontext);
+        return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.getLevel().isUnobstructed(state, context.getClickedPos(), iselectioncontext);
     }
 
     protected boolean mustSurvive() {
@@ -209,14 +209,11 @@ public class StoneMaskItem extends CustomModelArmorItem {
                         return false;
                     }
 
-                    CompoundTag compoundnbt1 = tileentity.save(new CompoundTag());
+                    CompoundTag compoundnbt1 = tileentity.saveWithoutMetadata();
                     CompoundTag compoundnbt2 = compoundnbt1.copy();
                     compoundnbt1.merge(compoundnbt);
-                    compoundnbt1.putInt("x", pos.getX());
-                    compoundnbt1.putInt("y", pos.getY());
-                    compoundnbt1.putInt("z", pos.getZ());
                     if (!compoundnbt1.equals(compoundnbt2)) {
-                        tileentity.load(world.getBlockState(pos), compoundnbt1);
+                        tileentity.load(compoundnbt1);
                         tileentity.setChanged();
                         return true;
                     }
@@ -246,7 +243,8 @@ public class StoneMaskItem extends CustomModelArmorItem {
     }
 
     public Block getBlock() {
-        return this.getBlockRaw() == null ? null : this.getBlockRaw().delegate.get();
+        // the 1.16.5 code unwrapped a RegistryObject here; the field is a plain block reference now
+        return this.getBlockRaw();
     }
 
     private Block getBlockRaw() {

@@ -65,14 +65,13 @@ public enum ModArmorMaterials implements ArmorMaterial {
         return MAX_DAMAGE_ARRAY[slotIndex(type)] * maxDamageFactor;
     }
 
-    /** The old arrays were indexed by EquipmentSlot#getIndex. */
+    /** The old arrays were indexed by EquipmentSlot#getIndex. 1.20.1 has no BODY armor type yet. */
     private static int slotIndex(net.minecraft.world.item.ArmorItem.Type type) {
         return switch (type) {
             case BOOTS -> 0;
             case LEGGINGS -> 1;
             case CHESTPLATE -> 2;
             case HELMET -> 3;
-            case BODY -> 2;
         };
     }
 

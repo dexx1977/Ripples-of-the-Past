@@ -116,11 +116,14 @@ public class VampirismFreeze extends VampirismAction {
     private void frostWalkerImitation(LivingEntity entity, Level world, BlockPos entityPos, float radius) {
         if (entity.onGround()) {
             BlockPos.MutableBlockPos posMutable = new BlockPos.MutableBlockPos();
-            for (BlockPos blockPos : BlockPos.betweenClosed(entityPos.offset(-radius, -1.0, -radius), entityPos.offset(radius, -1.0, radius))) {
-                if (blockPos.closerThan(entity.position(), (double) radius)) {
+            // 1.20.1 removed Vec3i#offset(double,double,double) and BlockPos#closerThan(Vec3,double)
+            BlockPos minCorner = offsetBy(entityPos, -radius, -1.0, -radius);
+            BlockPos maxCorner = offsetBy(entityPos, radius, -1.0, radius);
+            for (BlockPos blockPos : BlockPos.betweenClosed(minCorner, maxCorner)) {
+                if (Vec3.atCenterOf(blockPos).distanceToSqr(entity.position()) < (double) radius * (double) radius) {
                     posMutable.set(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ());
                     BlockState blockState = world.getBlockState(posMutable);
-                    if (blockState.getBlock().isAir()) {
+                    if (blockState.isAir()) {
                         freezeWaterBlock(world, blockPos, entity);
                     }
                 }
@@ -134,6 +137,11 @@ public class VampirismFreeze extends VampirismAction {
         if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
             freezeWaterBlock(world, ((BlockHitResult) rayTraceResult).getBlockPos(), entity);
         }
+    }
+
+    /** The Vec3i#offset(double,double,double) that 1.20.1 dropped. */
+    private static BlockPos offsetBy(BlockPos pos, double dx, double dy, double dz) {
+        return new BlockPos((int) ((double) pos.getX() + dx), (int) ((double) pos.getY() + dy), (int) ((double) pos.getZ() + dz));
     }
 
     private static final BlockState ICE = Blocks.FROSTED_ICE.defaultBlockState();

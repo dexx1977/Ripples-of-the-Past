@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.capability.item.walkman;
 
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * 1.20.1 removed Capability.IStorage, so the walkman slot's read/write logic
@@ -10,11 +10,11 @@ import net.minecraft.nbt.Tag;
  */
 public class WalkmanCassetteSlotStorage {
 
-    public static Tag writeNBT(WalkmanCassetteSlotCap instance) {
+    public static CompoundTag writeNBT(WalkmanCassetteSlotCap instance) {
         return instance.serializeNBT();
     }
 
-    public static void readNBT(WalkmanCassetteSlotCap instance, Tag nbt) {
+    public static void readNBT(WalkmanCassetteSlotCap instance, CompoundTag nbt) {
         instance.deserializeNBT(nbt);
     }
 }

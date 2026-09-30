@@ -67,14 +67,14 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
         super.tick();
         if (user == null || !user.isAlive() || !level.isClientSide() && 
                 (power == null || power.getHeldAction() != ModHamonActions.HAMON_PROJECTILE_SHIELD.get() || hamon == null)) {
-            if (!level.isClientSide()) remove();
+            if (!level.isClientSide()) discard();
             return;
         }
         updateShieldPos();
         
         level.getEntitiesOfClass(Projectile.class, getBoundingBox().inflate(24), 
                 entity -> entity.isAlive()).forEach(projectile -> {
-                    HitResult rayTrace = ProjectileUtil.getHitResult(projectile, 
+                    HitResult rayTrace = ProjectileUtil.getHitResultOnMoveVector(projectile, 
                             target -> target != this && !target.isSpectator() && target.isAlive() && !target.is(projectile.getOwner()));
                     if (rayTrace.getType() != HitResult.Type.BLOCK) {
                         Vec3 intersectionPoint = shieldPlane.projectileIsPassing(projectile);
@@ -108,11 +108,6 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
         this.setPosRaw(pX, pY, pZ);
         AABB aabb = this.getDimensions(null).makeBoundingBox(pX, pY, pZ);
         this.setBoundingBox(aabb);
-    }
-    
-    @Override
-    public void setBoundingBox(AABB aabb) {
-        super.setBoundingBox(aabb);
         Vec3 center = aabb.getCenter();
         this.shieldPlane = PlaneRectangle.create(center, xRot, yRot, width, height);
     }

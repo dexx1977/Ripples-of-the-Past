@@ -100,7 +100,7 @@ public class HamonMasterEntity extends Mob implements Npc, IMobPowerUser, IEntit
     }
 
     @Override
-    protected void lavaHurt() {}
+    public void lavaHurt() {} // Entity#lavaHurt is public in 1.20.1
     
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType reason, 
@@ -157,8 +157,6 @@ public class HamonMasterEntity extends Mob implements Npc, IMobPowerUser, IEntit
     public void writeSpawnData(FriendlyByteBuf buffer) {
         restoreHamon();
     }
-
-    @Deprecated
 
     @Deprecated
     @Override
