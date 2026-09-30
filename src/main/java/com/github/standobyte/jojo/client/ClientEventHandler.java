@@ -188,8 +188,7 @@ import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.event.ScreenEvent.Opening;
-import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
-import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.event.RenderArmEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -255,12 +254,12 @@ public class ClientEventHandler {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPlaySound(PlaySoundEvent event) {
-        SoundInstance sound = event.getResultSound();
+        SoundInstance sound = event.getSound();
         
         ClientTimeStopHandler ts = ClientTimeStopHandler.getInstance();
         if (ts != null) {
             if (ts.shouldCancelSound(sound)) {
-                event.setResultSound(null);
+                event.setSound(null);
             }
         }
         
@@ -292,7 +291,7 @@ public class ClientEventHandler {
             return;
         }
         
-//        float partialTick = event.getPartialRenderTick();
+//        float partialTick = event.getPartialTick();
 //        float changePartialTick = ClientTimeStopHandler.getInstance().getConstantEntityPartialTick(entity, partialTick);
 //        if (partialTick != changePartialTick) {
 //            event.setCanceled(true);
@@ -349,7 +348,7 @@ public class ClientEventHandler {
 
         INonStandPower.getNonStandPowerOptional(entity).ifPresent(power -> {
             if (power.getHeldAction(true) == ModHamonActions.ZEPPELI_TORNADO_OVERDRIVE.get()) {
-                event.getPoseStack().mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialRenderTick()) * 2F % 360F));
+                event.getPoseStack().mulPose(Axis.YP.rotation((power.getHeldActionTicks() + event.getPartialTick()) * 2F % 360F));
             }
         });
         
@@ -386,7 +385,7 @@ public class ClientEventHandler {
         Player entity = event.getEntity();
         PlayerRenderer renderer = event.getRenderer();
         if (mc.player != entity) {
-            float partialTick = event.getPartialRenderTick();
+            float partialTick = event.getPartialTick();
             event.getEntity().getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(cap -> {
                 cap.limitPlayerHeadRot();
             });
@@ -627,8 +626,8 @@ public class ClientEventHandler {
                 IStandPower.getStandPowerOptional(player).ifPresent(power -> {
                     if (ModStandsInit.GOLD_EXPERIENCE_CHOOSE_LIFEFORM.get().isUnlocked(power)) {
                         Minecraft mc = Minecraft.getInstance();
-                        mc.getSoundManager().play(new SimpleSoundInstance(SoundEvents.UI_BUTTON_CLICK, 
-                                SoundSource.MASTER, 0.5F, 2.0F, 
+                        mc.getSoundManager().play(new SimpleSoundInstance(SoundEvents.UI_BUTTON_CLICK.value(), 
+                                SoundSource.MASTER, 0.5F, 2.0F, net.minecraft.util.RandomSource.create(), 
                                 entity.getX(), entity.getY(0.5), entity.getZ()));
                         MetEntityTypeToast.addOrUpdate(mc.getToasts(), entity.getType());
                     }
@@ -748,7 +747,7 @@ public class ClientEventHandler {
             zoomModifier = Math.max(zoomModifier - mc.getDeltaFrameTime() * 2F, 1);
         }
         if (zoomModifier > 1) {
-            event.setFov(event.getFov() / zoomModifier);
+            event.setFOV(event.getFOV() / zoomModifier);
         }
     }
     
@@ -762,7 +761,7 @@ public class ClientEventHandler {
             cameraRoll.ifPresent(roll -> {
                 event.setRoll(roll);
                 
-                Camera camera = event.getInfo();
+                Camera camera = event.getCamera();
                 Vec3 look = new Vec3(camera.getLookVector());
                 look = look.scale(1.25 * Math.abs(roll) / dodgeCameraRollMaxAngle);
                 look = look.yRot(dodgeCameraRollSide == HumanoidArm.LEFT ? (float)-Math.PI / 2 : (float)Math.PI / 2);
@@ -774,7 +773,7 @@ public class ClientEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void photoFOV(ViewportEvent.ComputeFov event) {
         if (PolaroidHelper.isTakingPhoto()) {
-            event.setFov(70);
+            event.setFOV(70);
         }
     }
 
@@ -1002,9 +1001,10 @@ public class ClientEventHandler {
         final int HALF = MARGIN + 45;
         final int FULL = MARGIN + 36;
 
+        int rightHeight = 39;
         for (int heart = 0; hearts > 0; heart += 20)
         {
-            int top = height - ForgeGui.right_height;
+            int top = height - rightHeight;
 
             int rowCount = Math.min(hearts, 10);
             hearts -= rowCount;
@@ -1027,7 +1027,7 @@ public class ClientEventHandler {
                 }
             }
 
-            ForgeGui.right_height += 10;
+            rightHeight += 10;
         }
         RenderSystem.disableBlend();
     }
@@ -1261,7 +1261,7 @@ public class ClientEventHandler {
     
     private void renderHand(InteractionHand hand, PoseStack matrixStack, MultiBufferSource buffer, int light,
             float partialTick, float interpolatedPitch, LivingEntity entity) {
-        ItemInHandRenderer renderer = mc.getItemInHandRenderer();
+        ItemInHandRenderer renderer = mc.gameRenderer.itemInHandRenderer;
         LocalPlayer player = mc.player;
         InteractionHand swingingArm = MoreObjects.firstNonNull(player.swingingArm, InteractionHand.MAIN_HAND);
         float swingProgress = swingingArm == hand ? player.getAttackAnim(partialTick) : 0.0F;
@@ -1320,12 +1320,12 @@ public class ClientEventHandler {
     
     
     @SubscribeEvent
-    public void afterScreenRender(DrawScreenEvent.Post event) {
-        Screen screen = event.getGui();
+    public void afterScreenRender(ScreenEvent.Render.Post event) {
+        Screen screen = event.getScreen();
         float partialTick = screen.getMinecraft().getFrameTime();
         if (screen instanceof DeathScreen) {
             Component title = screen.getTitle();
-            if (title instanceof net.minecraft.network.chat.TranslatableComponent && ((net.minecraft.network.chat.TranslatableComponent) title).getKey().endsWith(".hardcore")) {
+            if (title.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents && ((net.minecraft.network.chat.contents.TranslatableContents) title.getContents()).getKey().endsWith(".hardcore")) {
                 return;
             }
             renderToBeContinuedArrow(event.getPoseStack(), screen, screen.width, screen.height, partialTick);
@@ -1369,14 +1369,19 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent
-    public void onTooltipRender(RenderTooltipEvent.PostText event) {
-        List<? extends FormattedText> lines = event.getLines();
+    // 1.20.1 has no post text tooltip event; the extras are drawn while the tooltip
+    // colours are chosen, which still runs with the tooltip position available
+    public void onTooltipRender(RenderTooltipEvent.Color event) {
+        List<? extends FormattedText> lines = event.getTooltipElements().stream()
+                .map(element -> element.left().orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
         int x = event.getX();
         int y = event.getY();
         for (int i = 0; i < lines.size(); i++) {
             FormattedText line = lines.get(i);
             if (line instanceof JojoTextComponentWrapper) {
-                ((JojoTextComponentWrapper) line).tooltipRenderExtra(event.getPoseStack(), x, y - 0.5f);
+                ((JojoTextComponentWrapper) line).tooltipRenderExtra(GuiDraw.graphics().pose(), x, y - 0.5f);
             }
             if (i == 0) {
                 y += 2;
@@ -1386,8 +1391,8 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
-    public void addToScreen(InitGuiEvent.Post event) {
-        Screen screen = event.getGui();
+    public void addToScreen(ScreenEvent.Init.Post event) {
+        Screen screen = event.getScreen();
         if (screen instanceof PauseScreen && ClientReflection.showsPauseMenu((PauseScreen) screen)) {
             IStandPower.getStandPowerOptional(mc.player).ifPresent(power -> {
                 if (power.hasPower()) {
@@ -1447,7 +1452,7 @@ public class ClientEventHandler {
         }
         
         else if (screen instanceof OptionsScreen) {
-            event.addWidget(ClientModSettingsScreen.addSettingsButton(screen, event.getWidgetList()));
+            event.addWidget(ClientModSettingsScreen.addSettingsButton(screen, event.getScreen().renderables));
         }
         
         else if (screen instanceof ControlsScreen) {
@@ -1579,7 +1584,7 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onScreenOpened(ScreenEvent.Opening event) {
-        Screen screen = event.getGui();
+        Screen screen = event.getScreen();
         if (screen instanceof TitleScreen) {
             String splash = CustomResources.getModSplashes().overrideSplash();
             if (splash != null) {
@@ -1598,7 +1603,7 @@ public class ClientEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onScreenOpened2(ScreenEvent.Opening event) {
-        IJojoScreen.rememberScreenTab(event.getGui());
+        IJojoScreen.rememberScreenTab(event.getScreen());
     }
     
     private void onScreenClosed() {
@@ -1762,7 +1767,7 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void dyingBodyLostVision(EntityViewRenderEvent.FogDensity event) {
+    public void dyingBodyLostVision(net.minecraftforge.client.event.ViewportEvent.RenderFog event) {
         if (mc.player != null) {
             mc.player.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(player -> {
                 if (player.isDyingBody() && !mc.player.isSpectator() && !mc.player.isDeadOrDying()) {
@@ -1770,13 +1775,16 @@ public class ClientEventHandler {
                     if (timeLeft > 0) {
                         --timeLeft;
                         if (timeLeft <= 20) {
-                            float lerp = (20 - timeLeft + (float) event.getRenderPartialTicks()) / 20.0F;
-                            event.setDensity(Mth.lerp(lerp, event.getDensity(), 1));
+                            float lerp = (20 - timeLeft + (float) event.getPartialTick()) / 20.0F;
+                            // 1.16.5 changed the fog density; 1.20.1 changes the fog
+                            // planes, so the visible range collapses towards the near plane
+                            float near = event.getNearPlaneDistance();
+                            event.setFarPlaneDistance(Mth.lerp(lerp, event.getFarPlaneDistance(), near));
+                            event.setNearPlaneDistance(near);
                             event.setCanceled(true);
                         }
                     }
                     else {
-                        event.setDensity(1);
                         event.setCanceled(true);
                     }
                 }
@@ -1785,7 +1793,7 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void dyingBodyVisionDark(EntityViewRenderEvent.FogColors event) {
+    public void dyingBodyVisionDark(net.minecraftforge.client.event.ViewportEvent.ComputeFogColor event) {
         if (mc.player != null) {
             mc.player.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(player -> {
                 if (player.isDyingBody() && !mc.player.isSpectator() && !mc.player.isDeadOrDying() && player.getDyingBodyTicksLeft() <= 21) {
@@ -1921,13 +1929,13 @@ public class ClientEventHandler {
     }
     
     @SubscribeEvent
-    public void clientLoggedIn(ClientPlayerNetworkEvent.LoggedInEvent event) {
+    public void clientLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         isLoggedIn = true;
         ClientModSettings.getSettingsReadOnly().broadcasted.broadcastToServer();
     }
     
     @SubscribeEvent
-    public void clientLoggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+    public void clientLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
         PhotosCache.onLogOut(serverId);
         isLoggedIn = false;
     }
