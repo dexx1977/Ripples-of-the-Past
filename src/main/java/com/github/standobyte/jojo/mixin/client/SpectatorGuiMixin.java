@@ -25,7 +25,7 @@ public class SpectatorGuiMixin {
     }
 
     @Inject(method = "onMouseScrolled", at = @At("HEAD"), cancellable = true)
-    public void jojoCancelHotbarScroll(double amount, CallbackInfo ci) {
+    public void jojoCancelHotbarScroll(int amount, CallbackInfo ci) { // 1.20.1 takes an int amount
         if (cancelRender()) ci.cancel();
     }
 
