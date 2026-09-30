@@ -18,7 +18,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Style;
 
-public class ShortKeybindTextComponent extends Component {
+public class ShortKeybindTextComponent implements Component {
     protected static final Map<String, Component> SHORT_NAMES = new HashMap<>();
     protected final KeyMapping key;
     protected Supplier<Component> nameResolver;
@@ -80,17 +80,27 @@ public class ShortKeybindTextComponent extends Component {
         return translatedName;
     }
 
+    // 1.20.1 has no visitSelf hook, the component contents are delegated instead
     @Override
-    public <T> Optional<T> visitSelf(FormattedText.ITextAcceptor<T> pConsumer) {
-        return getNestedComponent().visit(pConsumer);
+    public Style getStyle() {
+        return getNestedComponent().getStyle();
     }
 
     @Override
-    public <T> Optional<T> visitSelf(FormattedText.IStyledTextAcceptor<T> pConsumer, Style pStyle) {
-        return getNestedComponent().visit(pConsumer, pStyle);
+    public net.minecraft.network.chat.ComponentContents getContents() {
+        return getNestedComponent().getContents();
     }
 
     @Override
+    public List<Component> getSiblings() {
+        return getNestedComponent().getSiblings();
+    }
+
+    @Override
+    public net.minecraft.util.FormattedCharSequence getVisualOrderText() {
+        return getNestedComponent().getVisualOrderText();
+    }
+
     public ShortKeybindTextComponent plainCopy() {
         return new ShortKeybindTextComponent(key);
     }
@@ -108,7 +118,7 @@ public class ShortKeybindTextComponent extends Component {
 
     @Override
     public String toString() {
-        return "ShortKeybindComponent{keybind='" + key.getName() + '\'' + ", siblings=" + siblings + ", style=" + getStyle() + '}';
+        return "ShortKeybindComponent{keybind='" + key.getName() + '\'' + ", siblings=" + getSiblings() + ", style=" + getStyle() + '}';
     }
 
 }

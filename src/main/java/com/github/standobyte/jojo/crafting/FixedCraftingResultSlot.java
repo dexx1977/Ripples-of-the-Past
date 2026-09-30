@@ -24,7 +24,7 @@ public class FixedCraftingResultSlot<C extends CraftingContainer, T extends Reci
     }
     
     @Override
-    public ItemStack onTake(Player pPlayer, ItemStack pStack) {
+    public void onTake(Player pPlayer, ItemStack pStack) {
         checkTakeAchievements(pStack);
         ForgeHooks.setCraftingPlayer(pPlayer);
         NonNullList<ItemStack> nonnulllist = pPlayer.level.getRecipeManager().getRemainingItemsFor(recipeType, craftSlots, pPlayer.level);
@@ -43,7 +43,7 @@ public class FixedCraftingResultSlot<C extends CraftingContainer, T extends Reci
                 } else if (ItemStack.isSame(itemstack, itemstack1) && ItemStack.isSameItemSameTags(itemstack, itemstack1)) {
                     itemstack1.grow(itemstack.getCount());
                     craftSlots.setItem(i, itemstack1);
-                } else if (!player.inventory.add(itemstack1)) {
+                } else if (!player.getInventory().add(itemstack1)) {
                     player.drop(itemstack1, false);
                 }
             }

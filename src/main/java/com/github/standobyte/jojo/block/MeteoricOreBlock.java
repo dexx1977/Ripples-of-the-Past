@@ -28,7 +28,8 @@ import net.minecraft.server.level.ServerLevel;
 public class MeteoricOreBlock extends DropExperienceBlock {
 
     public MeteoricOreBlock(Properties properties) {
-        super(properties);
+        // the experience range the old xpOnDrop override returned
+        super(properties, net.minecraft.util.valueproviders.UniformInt.of(6, 10));
     }
 
     @Override
@@ -37,12 +38,7 @@ public class MeteoricOreBlock extends DropExperienceBlock {
     }
 
     @Override
-    protected int xpOnDrop(Random rand) {
-        return Mth.nextInt(rand, 6, 10);
-    }
-
-    @Override
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, Random rand) {
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, net.minecraft.util.RandomSource rand) {
         double x = pos.getX();
         double y = pos.getY();
         double z = pos.getZ();
@@ -55,7 +51,7 @@ public class MeteoricOreBlock extends DropExperienceBlock {
     }
 
     @Override
-    public void animateTick(BlockState state, Level world, BlockPos pos, Random random) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, net.minecraft.util.RandomSource random) {
         double d0 = (double)((float)pos.getX() + random.nextFloat() * 4F - 2F);
         double d1 = (double)((float)pos.getY() + random.nextFloat() * 4F - 2F);
         double d2 = (double)((float)pos.getZ() + random.nextFloat() * 4F - 2F);

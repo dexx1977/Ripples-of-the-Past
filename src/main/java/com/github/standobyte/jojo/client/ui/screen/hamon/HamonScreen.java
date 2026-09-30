@@ -132,11 +132,6 @@ public class HamonScreen extends Screen implements IJojoScreen {
 //            }
         }
     }
-    
-    @Override
-    public <T extends AbstractWidget> T addRenderableWidget(T button) {
-        return super.addRenderableWidget(button);
-    }
 
     public void removeButton(AbstractWidget button) {
         removeWidget(button);
@@ -361,8 +356,8 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
     
     @Override
-    public void renderComponentHoverEffect(PoseStack matrixStack, @Nullable Style style, int mouseX, int mouseY) {
-        super.renderComponentHoverEffect(matrixStack, style, mouseX, mouseY);
+    public void renderComponentHoverEffect(net.minecraft.client.gui.GuiGraphics guiGraphics, @Nullable Style style, int mouseX, int mouseY) {
+        super.renderComponentHoverEffect(guiGraphics, style, mouseX, mouseY);
     }
 
     // these two overrides make the tooltip wrap at the right edge of the screen correctly

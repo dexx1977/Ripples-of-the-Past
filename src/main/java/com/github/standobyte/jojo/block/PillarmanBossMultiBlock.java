@@ -32,7 +32,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class PillarmanBossMultiBlock extends Block {
+public class PillarmanBossMultiBlock extends Block implements net.minecraft.world.level.block.EntityBlock {
     private static final int PART_WITH_TILE_ENTITY = 4;
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty PART = IntegerProperty.create("pillarman_part", 0, 5);
@@ -172,11 +172,6 @@ public class PillarmanBossMultiBlock extends Block {
     
     private Direction rightDirection(BlockState state) {
         return state.getValue(FACING).getClockWise();
-    }
-    
-    @Override
-    public boolean hasTileEntity(BlockState state) {
-        return state.getValue(PART) == PART_WITH_TILE_ENTITY;
     }
     
     @Override

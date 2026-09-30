@@ -1008,7 +1008,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         private final Iterable<KeyMapping> conflictKeys = Iterables.concat(vanillaKeys, entryKeys);
         private Optional<ActionKeybindEntry> hoveredKeybindSlot = Optional.empty();
         @Override
-        protected void renderList(PoseStack pMatrixStack, int pX, int pY, int pMouseX, int pMouseY, float pPartialTicks) {
+        protected void renderList(net.minecraft.client.gui.GuiGraphics guiGraphics, int pX, int pY, int pMouseX, int pMouseY, float pPartialTicks) {
             entryKeys.clear();
             for (ActionKeybindsList.KeybindUIEntry entry : keybindsMap.values()) {
                 entryKeys.add(entry.keybindEntry.getKeybind());

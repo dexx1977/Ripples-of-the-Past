@@ -30,7 +30,7 @@ public class PolaroidPhotoData extends SavedData {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
+    public void read(CompoundTag nbt) {
         this.photoBytes = nbt.getByteArray("Photo");
         this.senderPlayer = nbt.hasUUID("Sender") ? nbt.getUUID("Sender") : null;
     }

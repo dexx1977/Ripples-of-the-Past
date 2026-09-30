@@ -61,13 +61,24 @@ public enum ModArmorMaterials implements ArmorMaterial {
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlot slot) {
-        return MAX_DAMAGE_ARRAY[slot.getIndex()] * maxDamageFactor;
+    public int getDurabilityForType(net.minecraft.world.item.ArmorItem.Type type) {
+        return MAX_DAMAGE_ARRAY[slotIndex(type)] * maxDamageFactor;
+    }
+
+    /** The old arrays were indexed by EquipmentSlot#getIndex. */
+    private static int slotIndex(net.minecraft.world.item.ArmorItem.Type type) {
+        return switch (type) {
+            case BOOTS -> 0;
+            case LEGGINGS -> 1;
+            case CHESTPLATE -> 2;
+            case HELMET -> 3;
+            case BODY -> 2;
+        };
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlot slot) {
-        return damageReductionAmountArray[slot.getIndex()];
+    public int getDefenseForType(net.minecraft.world.item.ArmorItem.Type type) {
+        return damageReductionAmountArray[slotIndex(type)];
     }
 
     @Override
