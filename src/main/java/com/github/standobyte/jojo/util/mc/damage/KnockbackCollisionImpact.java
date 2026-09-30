@@ -373,7 +373,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                                     Mth.lerp(faceHit.getStepX() * 0.5 + 0.5, entityBB.minX, entityBB.maxX), 
                                     Mth.lerp(faceHit.getStepY() * 0.5 + 0.5, entityBB.minY, entityBB.maxY), 
                                     Mth.lerp(faceHit.getStepZ() * 0.5 + 0.5, entityBB.minZ, entityBB.maxZ));
-                            BlockPos hitBlockPos = new BlockPos(hitPos.add(Vec3.atBottomCenterOf(faceHit.getNormal()).scale(0.5)));
+                            BlockPos hitBlockPos = BlockPos.containing(hitPos.add(Vec3.atBottomCenterOf(faceHit.getNormal()).scale(0.5)));
                             
                             HeavyPunchExplosion explosion = new HeavyPunchExplosion(world, attacker, new ActionTarget(hitBlockPos, faceHit.getOpposite()), 
                                     movementVec, explosionDmgSource, null, 

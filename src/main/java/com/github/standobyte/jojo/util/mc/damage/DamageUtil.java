@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.util.mc.damage;
 
+import net.minecraft.world.level.Level;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.resources.ResourceKey;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -50,28 +53,36 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.damagesource.CombatRules;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.IndirectEntityDamageSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 
 public class DamageUtil {
-    public static final DamageSource ULTRAVIOLET = new DamageSource("ultraviolet").bypassArmor().bypassMagic();
+    // 1.20.1 keeps the properties in the damage type registry, so these are the
+    // type keys; use damageSource(...) below to build the source for a level.
+    public static final ResourceKey<DamageType> ULTRAVIOLET = ModDamageTypes.ULTRAVIOLET;
     public static final String BLOOD_DRAIN_MSG = "bloodDrain";
-    public static final DamageSource COLD = new DamageSource("cold").bypassArmor();
-    public static final DamageSource HAMON = new DamageSource("hamon").bypassArmor();
-    public static final DamageSource PILLAR_MAN_ABSORPTION = new DamageSource("pillarManAbsorption").setScalesWithDifficulty();
-    public static final DamageSource STAND_VIRUS = new DamageSource("standVirus").bypassArmor().bypassMagic();
-    public static final DamageSource STAND_VIRUS_METEORITE = new DamageSource("standVirusMeteorite").bypassArmor().bypassMagic();
-    public static final DamageSource SUFFOCATION = new DamageSource("suffocation").bypassArmor();
-    public static final DamageSource EYE_OF_ENDER_SHARDS = new DamageSource("eyeOfEnderShards").bypassArmor();
+    public static final ResourceKey<DamageType> COLD = ModDamageTypes.COLD;
+    public static final ResourceKey<DamageType> HAMON = ModDamageTypes.HAMON;
+    public static final ResourceKey<DamageType> PILLAR_MAN_ABSORPTION = ModDamageTypes.PILLAR_MAN_ABSORPTION;
+    public static final ResourceKey<DamageType> STAND_VIRUS = ModDamageTypes.STAND_VIRUS;
+    public static final ResourceKey<DamageType> STAND_VIRUS_METEORITE = ModDamageTypes.STAND_VIRUS_METEORITE;
+    public static final ResourceKey<DamageType> SUFFOCATION = ModDamageTypes.SUFFOCATION;
+    public static final ResourceKey<DamageType> EYE_OF_ENDER_SHARDS = ModDamageTypes.EYE_OF_ENDER_SHARDS;
     public static final String ROAD_ROLLER_MSG = "roadRoller";
-    public static final DamageSource STONE_MASK = new DamageSource("stoneMask").bypassArmor();
+    public static final ResourceKey<DamageType> STONE_MASK = ModDamageTypes.STONE_MASK;
+
+    public static DamageSource damageSource(Level level, ResourceKey<DamageType> type) {
+        return ModDamageTypes.source(level, type);
+    }
+
+    public static DamageSource damageSource(Entity entity, ResourceKey<DamageType> type) {
+        return ModDamageTypes.source(entity, type);
+    }
     
     public static float knockbackReduction(DamageSource source) {
-        if (source instanceof StandLinkDamageSource || ROAD_ROLLER_MSG.equals(source.msgId)) {
+        if (source instanceof StandLinkDamageSource || ROAD_ROLLER_MSG.equals(source.getMsgId())) {
             return 0;
         }
         if (source instanceof IModdedDamageSource) {
@@ -88,7 +99,7 @@ public class DamageUtil {
                 return 0.05F;
             }
             String msgId = source.getMsgId();
-            if (msgId != null && (msgId.startsWith(BLOOD_DRAIN_MSG) || msgId.startsWith(COLD.msgId) || msgId.startsWith(ROAD_ROLLER_MSG))) {
+            if (msgId != null && (msgId.startsWith(BLOOD_DRAIN_MSG) || msgId.startsWith(COLD.location().getPath()) || msgId.startsWith(ROAD_ROLLER_MSG))) {
                 return 0;
             }
             if (source.getDirectEntity() instanceof HamonSendoOverdriveEntity) {
@@ -99,7 +110,7 @@ public class DamageUtil {
     }
     
     public static DamageSource bloodDrainDamage(Entity srcDirect) {
-        return new EntityDamageSource(BLOOD_DRAIN_MSG, srcDirect).bypassArmor();
+        return ModDamageTypes.source(srcDirect, BLOOD_DRAIN_MSG);
     }
     
     public static boolean entityTakesUVDamage(Entity target, boolean sun) {
@@ -127,16 +138,15 @@ public class DamageUtil {
 
     public static boolean dealUltravioletDamage(Entity target, float amount, @Nullable Entity srcDirect, @Nullable Entity srcIndirect, boolean sun) {
         if (target instanceof LivingEntity) {
-            DamageSource dmgSource = srcDirect == null ? ULTRAVIOLET : 
-                srcIndirect == null ? new EntityDamageSource(ULTRAVIOLET.getMsgId() + ".entity", srcDirect).bypassArmor().bypassMagic() : 
-                new IndirectEntityDamageSource(ULTRAVIOLET.getMsgId() + ".entity", srcDirect, srcIndirect).bypassArmor().bypassMagic();
+            DamageSource dmgSource = srcDirect == null ? ModDamageTypes.source(target, ULTRAVIOLET) : 
+                ModDamageTypes.source(srcDirect, srcIndirect, ModDamageTypes.key("ultraviolet.entity"));
             return target.hurt(dmgSource, amount);
         }
         return false;
     }
     
     public static boolean isImmuneToCold(Entity target) {
-        if (target.isInvulnerableTo(COLD)) {
+        if (target.isInvulnerableTo(ModDamageTypes.source(target, COLD))) {
             return true;
         }
         EntityType<?> type = target.getType();
@@ -155,9 +165,8 @@ public class DamageUtil {
             else if (((LivingEntity) target).getMobType() == MobType.UNDEAD) {
                 amount *= 0.5F;
             }
-            DamageSource dmgSource = srcDirect == null ? COLD : 
-                srcIndirect == null ? new EntityDamageSource(COLD.getMsgId() + ".entity", srcDirect).bypassArmor() : 
-                new IndirectEntityDamageSource(COLD.getMsgId() + ".entity", srcDirect, srcIndirect).bypassArmor();
+            DamageSource dmgSource = srcDirect == null ? ModDamageTypes.source(target, COLD) : 
+                ModDamageTypes.source(srcDirect, srcIndirect, ModDamageTypes.key("cold.entity"));
             return target.hurt(dmgSource, amount);
         }
         return false;
@@ -196,9 +205,8 @@ public class DamageUtil {
                 amount *= 0.25F;
             }
             
-            DamageSource dmgSource = srcDirect == null ? HAMON : 
-                    srcIndirect == null ? new EntityDamageSource(HAMON.getMsgId() + ".entity", srcDirect).bypassArmor() : 
-                    new IndirectEntityDamageSource(HAMON.getMsgId() + ".entity", srcDirect, srcIndirect).bypassArmor();
+            DamageSource dmgSource = srcDirect == null ? ModDamageTypes.source(target, HAMON) : 
+                    ModDamageTypes.source(srcDirect, srcIndirect, ModDamageTypes.key("hamon.entity"));
                     
             boolean undeadTarget = JojoModUtil.isAffectedByHamon(livingTarget);
             if (!undeadTarget) {
@@ -272,7 +280,7 @@ public class DamageUtil {
                 return false;
             }*/
             DamageSource dmgSource = 
-                    src == null ? PILLAR_MAN_ABSORPTION : new EntityDamageSource(PILLAR_MAN_ABSORPTION.getMsgId() + ".entity", src);
+                    src == null ? ModDamageTypes.source(target, PILLAR_MAN_ABSORPTION) : ModDamageTypes.source(src, ModDamageTypes.key("pillarManAbsorption.entity"));
             return target.hurt(dmgSource, amount);
         }
         return false;
@@ -456,7 +464,7 @@ public class DamageUtil {
             entity.setAirSupply(Math.max(entity.getAirSupply() - airReduction, -18));
         }
         else {
-            entity.hurt(SUFFOCATION, 1F);
+            entity.hurt(ModDamageTypes.source(entity, SUFFOCATION), 1F);
         }
     }
     

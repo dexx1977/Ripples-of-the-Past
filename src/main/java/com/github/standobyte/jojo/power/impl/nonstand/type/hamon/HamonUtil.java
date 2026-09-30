@@ -373,12 +373,12 @@ public class HamonUtil {
             JojoModUtil.sayVoiceLine(teacher, ModSounds.ZEPPELI_FORCE_BREATH.get());
             teacher.swing(InteractionHand.MAIN_HAND, true);
             if (player.getRandom().nextFloat() <= 0.01F) {
-                player.hurt(DamageUtil.SUFFOCATION, Math.min(10.0F, player.getHealth() - 0.0001F));
+                player.hurt(DamageUtil.damageSource(player, DamageUtil.SUFFOCATION), Math.min(10.0F, player.getHealth() - 0.0001F));
                 player.setAirSupply(0);
                 return;
             }
             else {
-                player.hurt(DamageUtil.SUFFOCATION, Math.min(0.1F, player.getHealth() - 0.0001F));
+                player.hurt(DamageUtil.damageSource(player, DamageUtil.SUFFOCATION), Math.min(0.1F, player.getHealth() - 0.0001F));
             }
         } 
         if (playerPower.givePower(ModPowers.HAMON.get())) {

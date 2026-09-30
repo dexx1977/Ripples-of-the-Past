@@ -214,7 +214,7 @@ public class BleedingEffect extends MobEffect implements IApplicableEffect {
                         if (entity instanceof ServerPlayer) {
                             ModCriteriaTriggers.MASK_SUICIDE.get().trigger((ServerPlayer) entity);
                         }
-                        entity.hurt(DamageUtil.STONE_MASK, 1000);
+                        entity.hurt(DamageUtil.damageSource(entity, DamageUtil.STONE_MASK), 1000);
                         return false;
                     } else {
                         PillarmanData pillarman = pillarmanOptional.get();

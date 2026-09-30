@@ -9,17 +9,17 @@ public class StandDamageSource extends DamageSource implements IStandDamageSourc
     private boolean standCanHitSelf = false;
     
     public StandDamageSource(String msgId, IStandPower stand) {
-        super(msgId);
+        super(ModDamageTypes.holder(stand != null ? stand.getUser() : null, msgId));
         this.stand = stand;
     }
     
     StandDamageSource(DamageSource source, IStandPower stand) {
-        this(source.msgId, stand);
+        this(source.getMsgId(), stand);
     }
 
     @Override
     public String toString() {
-       return "StandDamageSource (" + msgId + ")";
+       return "StandDamageSource (" + getMsgId() + ")";
     }
     
     @Override

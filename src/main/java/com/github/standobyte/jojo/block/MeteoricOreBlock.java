@@ -48,7 +48,7 @@ public class MeteoricOreBlock extends DropExperienceBlock {
         double z = pos.getZ();
         for (LivingEntity entity : world.getEntitiesOfClass(LivingEntity.class, (new AABB(x, y, z, x, y, z)).inflate(2.0D, 2.0D, 2.0D))) {
             if (entity.getMobType() != MobType.UNDEAD && entity.getHealth() < entity.getMaxHealth() && !isImmuneToMeteoriteStrain(entity)) {
-                entity.hurt(DamageUtil.STAND_VIRUS_METEORITE, 4.0F);
+                entity.hurt(DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS_METEORITE), 4.0F);
             }
         }
         world.getBlockTicks().scheduleTick(pos, this, 10);
@@ -78,7 +78,7 @@ public class MeteoricOreBlock extends DropExperienceBlock {
     public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tileEntity, ItemStack stack) {
         super.playerDestroy(world, player, pos, state, tileEntity, stack);
         if (player.getHealth() < player.getMaxHealth() && !isImmuneToMeteoriteStrain(player)) {
-            player.hurt(DamageUtil.STAND_VIRUS_METEORITE, 10.0F);
+            player.hurt(DamageUtil.damageSource(player, DamageUtil.STAND_VIRUS_METEORITE), 10.0F);
         }
     }
     

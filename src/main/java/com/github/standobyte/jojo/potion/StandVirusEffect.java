@@ -59,14 +59,14 @@ public class StandVirusEffect extends StatusEffect implements IApplicableEffect 
                         damage = 0.001F;
                     }
                 }
-                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.STAND_VIRUS, damage);
+                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS), damage);
                 if (stopEffect) {
                     entity.removeEffect(this);
                 }
             }
             
             else if (entity.getHealth() > damage) {
-                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.STAND_VIRUS, damage);
+                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS), damage);
             }
             else {
                 entity.removeEffect(this);
@@ -104,7 +104,7 @@ public class StandVirusEffect extends StatusEffect implements IApplicableEffect 
                     randomStandGiver.get().giveStandFromVirus(entity, amplifier);
                 }
                 else {
-                    DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.STAND_VIRUS, baseDamage(amplifier));
+                    DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS), baseDamage(amplifier));
                 }
             }
         }
@@ -189,7 +189,7 @@ public class StandVirusEffect extends StatusEffect implements IApplicableEffect 
                 gaveStand = giveStand(entity);
             }
             if (!gaveStand) {
-                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.STAND_VIRUS, baseDamage(virusEffectLvl));
+                DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.damageSource(entity, DamageUtil.STAND_VIRUS), baseDamage(virusEffectLvl));
             }
         }
     }

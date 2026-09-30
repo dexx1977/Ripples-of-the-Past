@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "jojo:ultraviolet",
+    "jojo:ultraviolet.entity",
+    "jojo:standVirus",
+    "jojo:standVirusMeteorite",
+    "jojo:healthLink"
+  ]
+}

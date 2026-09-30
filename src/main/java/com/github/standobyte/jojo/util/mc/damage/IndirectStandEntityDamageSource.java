@@ -36,7 +36,7 @@ public class IndirectStandEntityDamageSource extends StandEntityDamageSource {
     
     @Override
     public Entity getDirectEntity() {
-        return entity;
+        return super.getDirectEntity();
     }
     
     @Override
@@ -46,14 +46,14 @@ public class IndirectStandEntityDamageSource extends StandEntityDamageSource {
     
     @Override
     public Component getLocalizedDeathMessage(LivingEntity dead) {
-        Component cause = owner != null ? owner.getDisplayName() : standName != null ? standName : entity.getDisplayName();
+        Component cause = owner != null ? owner.getDisplayName() : standName != null ? standName : getDirectEntity().getDisplayName();
         if (showStandUserName && stand != null) {
             LivingEntity standUser = stand.getUser();
             if (standUser != null) {
-                return Component.translatable("death.attack." + msgId + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), cause);
+                return Component.translatable("death.attack." + getMsgId() + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), cause);
             }
         }
-        return Component.translatable("death.attack." + msgId, dead.getDisplayName(), cause);
+        return Component.translatable("death.attack." + getMsgId(), dead.getDisplayName(), cause);
     }
     
 }

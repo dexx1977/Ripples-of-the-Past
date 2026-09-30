@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.mixin;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -138,7 +139,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
             
             if (turnedIntoAngeloRock && player.isAlive()) {
                 player.invulnerableTime = 0;
-                player.hurt(new DamageSource("rockBroken").bypassArmor().bypassInvul(), Float.MAX_VALUE);
+                player.hurt(ModDamageTypes.source(player, "rockBroken"), Float.MAX_VALUE);
                 // FIXME (!!) https://bugs.mojang.com/browse/MC/issues/MC-161755 - what the fuck is going on here??
                 if (player.isDeadOrDying()) {
                     player.remove(player instanceof ServerPlayer);

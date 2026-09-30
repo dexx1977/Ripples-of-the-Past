@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.action.non_stand;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.Optional;
 
 import com.github.standobyte.jojo.action.ActionConditionResult;
@@ -71,7 +72,7 @@ public class VampirismBloodGift extends VampirismAction {
             if (!world.isClientSide()) {
                 if (INonStandPower.getNonStandPowerOptional(targetLiving).map(
                         targetPower -> targetPower.givePower(ModPowers.VAMPIRISM.get())).orElse(false)) {
-                    user.hurt(new DamageSource("blood_gift").bypassArmor(), 10.0F);
+                    user.hurt(ModDamageTypes.source(user, "blood_gift"), 10.0F);
                     boolean wasDead = targetLiving.getHealth() <= 0;
                     targetLiving.heal(targetLiving.getMaxHealth());
                     if (wasDead) {

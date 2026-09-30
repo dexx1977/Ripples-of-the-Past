@@ -6,11 +6,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 
-public class StandEntityDamageSource extends EntityDamageSource implements IStandDamageSource, IModdedDamageSource {
+public class StandEntityDamageSource extends DamageSource implements IStandDamageSource, IModdedDamageSource {
     protected final IStandPower stand;
 //    @Nullable
 //    protected final Entity standUser;
@@ -25,12 +24,12 @@ public class StandEntityDamageSource extends EntityDamageSource implements IStan
     private boolean standCanHitSelf = false;
 
     public StandEntityDamageSource(String msgId, Entity damagingEntity, IStandPower stand) {
-        super(msgId, damagingEntity);
+        super(ModDamageTypes.holder(damagingEntity, msgId), damagingEntity);
         this.stand = stand;
     }
     
     StandEntityDamageSource(DamageSource damageSource, IStandPower stand) {
-        super(damageSource.getMsgId(), damageSource.getDirectEntity());
+        super(damageSource.typeHolder(), damageSource.getDirectEntity());
         this.stand = stand;
     }
     
@@ -159,14 +158,14 @@ public class StandEntityDamageSource extends EntityDamageSource implements IStan
         if (showStandUserName && stand != null) {
             LivingEntity standUser = stand.getUser();
             if (standUser != null) {
-                return Component.translatable("death.attack." + msgId + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), entity.getDisplayName());
+                return Component.translatable("death.attack." + getMsgId() + ".stand_user", dead.getDisplayName(), standUser.getDisplayName(), getDirectEntity().getDisplayName());
             }
         }
-        return Component.translatable("death.attack." + msgId, dead.getDisplayName(), entity.getDisplayName());
+        return Component.translatable("death.attack." + getMsgId(), dead.getDisplayName(), getDirectEntity().getDisplayName());
     }
 
     @Override
     public String toString() {
-       return "StandEntityDamageSource (" + entity + ")";
+       return "StandEntityDamageSource (" + this.getDirectEntity() + ")";
     }
 }

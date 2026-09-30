@@ -606,7 +606,7 @@ public class GameplayEventHandler {
         }
         
         // Deal Hamon damage through oiled weapons
-        if (!dmgSource.isBypassArmor() && !dmgSource.getMsgId().startsWith(DamageUtil.HAMON.msgId) && 
+        if (!dmgSource.isBypassArmor() && !dmgSource.getMsgId().startsWith(DamageUtil.HAMON.location().getPath()) && 
                 attacker != null && attacker.is(dmgSource.getDirectEntity()) && attacker instanceof LivingEntity) {
             LivingEntity hamonUser = (LivingEntity) attacker;
             ItemStack weapon = hamonUser.getMainHandItem();
@@ -904,7 +904,7 @@ public class GameplayEventHandler {
                 || dmgSource.isFire()
                 || dmgSource.isMagic()
                 || dmgSource.isBypassMagic()
-                || dmgSource.getMsgId().startsWith(DamageUtil.PILLAR_MAN_ABSORPTION.getMsgId())
+                || dmgSource.getMsgId().startsWith(DamageUtil.PILLAR_MAN_ABSORPTION.location().getPath())
                 || !JojoModUtil.canBleed(target)) return;
 
         

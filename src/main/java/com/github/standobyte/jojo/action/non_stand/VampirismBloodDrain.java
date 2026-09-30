@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.action.non_stand;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import com.github.standobyte.jojo.JojoModConfig;
 import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.action.ActionConditionResult;
@@ -107,7 +108,7 @@ public class VampirismBloodDrain extends VampirismAction {
                         power.addEnergy(bloodAndHealModifier);
                         if (power.getTypeSpecificData(ModPowers.VAMPIRISM.get()).map(
                                 vampirism -> vampirism.isBeingCured() && vampirism.getCuringStage() >= 3).orElse(false)) {
-                            user.hurt(new DamageSource("curedVampireBlood"), Math.min(bloodAndHealModifier * 0.5F, user.getHealth() - 1));
+                            user.hurt(ModDamageTypes.source(user, "curedVampireBlood"), Math.min(bloodAndHealModifier * 0.5F, user.getHealth() - 1));
                         }
                         else {
                             float healed = user.getHealth();

@@ -597,7 +597,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         if (!level.isClientSide()) {
             LivingEntity host = this.host.getEntityLiving(level);
             if (host != null && host.isAlive()) {
-                DamageUtil.hurtThroughInvulTicks(host, new DamageSource("arrowLifeform").bypassArmor(), 2);
+                DamageUtil.hurtThroughInvulTicks(host, ModDamageTypes.source(host, "arrowLifeform"), 2);
             }
         }
     }

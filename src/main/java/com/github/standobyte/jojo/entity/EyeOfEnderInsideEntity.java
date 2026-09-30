@@ -58,7 +58,7 @@ public class EyeOfEnderInsideEntity extends EyeOfEnder {
             }
             else {
                 if (isVehicle()) {
-                    getPassengers().forEach(entity -> DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.EYE_OF_ENDER_SHARDS, 2));
+                    getPassengers().forEach(entity -> DamageUtil.hurtThroughInvulTicks(entity, DamageUtil.damageSource(entity, DamageUtil.EYE_OF_ENDER_SHARDS), 2));
                 }
                 playSound(SoundEvents.ENDER_EYE_DEATH, 1.0F, 1.0F);
                 level.levelEvent(2003, blockPosition(), 0);

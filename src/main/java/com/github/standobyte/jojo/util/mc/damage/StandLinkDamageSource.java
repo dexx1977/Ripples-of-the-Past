@@ -13,11 +13,10 @@ public class StandLinkDamageSource extends DamageSource {
     private final DamageSource actualSource;
 
     public StandLinkDamageSource(Entity standEntity, DamageSource actualSource) {
-        super("healthLink");
+        // the armour/magic bypass lives in the data driven damage type now
+        super(ModDamageTypes.holder(standEntity, "healthLink"), standEntity);
         this.standEntity = standEntity;
         this.actualSource = actualSource;
-        bypassArmor();
-        bypassMagic();
     }
 
 //    @Override
@@ -76,7 +75,7 @@ public class StandLinkDamageSource extends DamageSource {
 
     @Override
     public String toString() {
-       return "DamageSource (" + msgId + " (" + actualSource.getMsgId() + "))";
+       return "DamageSource (" + getMsgId() + " (" + actualSource.getMsgId() + "))";
     }
 
     @Nullable

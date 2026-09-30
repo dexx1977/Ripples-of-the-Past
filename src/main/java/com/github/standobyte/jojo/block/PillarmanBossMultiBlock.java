@@ -143,7 +143,7 @@ public class PillarmanBossMultiBlock extends Block {
             if (entity instanceof LivingEntity) {
                 LivingEntity livingEntity = (LivingEntity) entity;
                 if (HamonUtil.preventBlockDamage(livingEntity, world, 
-                        pos, state, DamageUtil.PILLAR_MAN_ABSORPTION, DAMAGE_AMOUNT)) {
+                        pos, state, DamageUtil.damageSource(world, DamageUtil.PILLAR_MAN_ABSORPTION), DAMAGE_AMOUNT)) {
                     return;
                 }
                 

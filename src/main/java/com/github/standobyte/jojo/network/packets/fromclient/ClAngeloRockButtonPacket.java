@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.network.packets.fromclient;
 
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.init.ModEntityTypes;
@@ -57,7 +58,7 @@ public class ClAngeloRockButtonPacket {
                 case RESPAWN:
                     player.invulnerableTime = 0;
                     player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
-                    player.hurt(new DamageSource("rockRespawn").bypassArmor().bypassInvul(), Float.MAX_VALUE);
+                    player.hurt(ModDamageTypes.source(player, "rockRespawn"), Float.MAX_VALUE);
                     break;
                 case GRUNT:
                     possessed.playSound(ModSounds.ANGELO_ROCK_GRUNT.get(), 1, 1);

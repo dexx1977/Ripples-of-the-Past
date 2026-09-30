@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "jojo:ultraviolet",
+    "jojo:ultraviolet.entity",
+    "jojo:cold",
+    "jojo:cold.entity",
+    "jojo:hamon",
+    "jojo:hamon.entity",
+    "jojo:standVirus",
+    "jojo:standVirusMeteorite",
+    "jojo:suffocation",
+    "jojo:eyeOfEnderShards",
+    "jojo:stoneMask",
+    "jojo:healthLink",
+    "jojo:rockBroken",
+    "jojo:rockRespawn",
+    "jojo:bloodDrain",
+    "jojo:blood_gift"
+  ]
+}

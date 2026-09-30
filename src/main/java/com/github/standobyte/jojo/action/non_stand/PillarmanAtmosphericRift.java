@@ -1,5 +1,8 @@
 package com.github.standobyte.jojo.action.non_stand;
 
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.resources.ResourceKey;
+import com.github.standobyte.jojo.util.mc.damage.ModDamageTypes;
 import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.client.playeranim.anim.ModPlayerAnimations;
 import com.github.standobyte.jojo.entity.damaging.projectile.PillarmanDivineSandstormEntity;
@@ -50,7 +53,7 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
         return 0;
     }
 
-    public static final DamageSource FINAL_MODE_SELF_DAMAGE = (new DamageSource("generic")).bypassArmor(); // TODO separate msgId & death message in lang files
+    public static final ResourceKey<DamageType> FINAL_MODE_SELF_DAMAGE = ModDamageTypes.key("generic"); // TODO separate msgId & death message in lang files
     @Override
     protected void holdTick(Level world, LivingEntity user, INonStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
         if (!world.isClientSide()) {
@@ -67,7 +70,7 @@ public class PillarmanAtmosphericRift extends PillarmanDivineSandstorm {
                         SoundSource.AMBIENT, 0.1F, 1.0F);
                 Player playerentity = user instanceof Player ? (Player)user : null;
                 if (playerentity == null || !playerentity.abilities.instabuild) {
-                    user.hurt(FINAL_MODE_SELF_DAMAGE, 1F);
+                    user.hurt(ModDamageTypes.source(user, FINAL_MODE_SELF_DAMAGE), 1F);
                 }
             }
         }

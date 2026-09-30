@@ -77,7 +77,7 @@ public class PillarmanAbsorption extends PillarmanAction {
     
     public static boolean absorb(Level world, LivingEntity attacker, LivingEntity target, float absorbDamage) {
         if (HamonUtil.preventBlockDamage(target, attacker.level, null, null, 
-                new EntityDamageSource(DamageUtil.PILLAR_MAN_ABSORPTION.getMsgId(), attacker), absorbDamage)) {
+                DamageUtil.damageSource(attacker, DamageUtil.PILLAR_MAN_ABSORPTION), absorbDamage)) {
             Vec3 userPos = attacker.getEyePosition(1.0F);
             double distanceToTarget = JojoModUtil.getDistance(attacker, target.getEntity().getBoundingBox());
             Vec3 targetPos = attacker.getEyePosition(1.0F).add(attacker.getLookAngle().scale(distanceToTarget));

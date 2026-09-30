@@ -95,7 +95,7 @@ public class HamonBlastExplosion extends CustomExplosion {
     @Deprecated // not the actual DamageSource object
     @Override
     public DamageSource getDamageSource() {
-        return DamageUtil.HAMON;
+        return DamageUtil.damageSource(level, DamageUtil.HAMON);
     }
     
     @Override
