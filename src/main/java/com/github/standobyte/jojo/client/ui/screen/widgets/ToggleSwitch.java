@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -22,7 +24,7 @@ public class ToggleSwitch extends Button {
     private boolean stateDefault;
     
     protected ToggleSwitch(int pX, int pY, int pWidth, int pHeight, Orientation orientation,
-            Button.OnPress onPress, ITooltip tooltip, Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
+            Button.OnPress onPress, Tooltip tooltip, Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
         super(pX, pY, pWidth, pHeight, Component.empty(), onPress, tooltip);
         this.orientation = orientation;
         this.stateGet = stateGet;
@@ -32,7 +34,7 @@ public class ToggleSwitch extends Button {
     
     public static ToggleSwitch create(int x, int y, Orientation orientation, 
             Supplier<Boolean> stateGet, Consumer<Boolean> stateSet, 
-            Button.OnPress onPress, Button.ITooltip tooltip) {
+            Button.OnPress onPress, Tooltip tooltip) {
         int width;
         int height;
         switch (orientation) {
@@ -83,7 +85,9 @@ public class ToggleSwitch extends Button {
     
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft mc = Minecraft.getInstance();
         GuiDraw.bind(new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png"));
         alpha = active ? 1 : 0.5f;
@@ -106,10 +110,7 @@ public class ToggleSwitch extends Button {
             throw new IllegalStateException("goddammit java");
         }
         GuiDraw.blit(matrixStack, x, y, texX, texY, width, height, 64, 64);
-        renderBg(matrixStack, mc, mouseX, mouseY);
-        if (isHovered()) {
-            renderToolTip(matrixStack, mouseX, mouseY);
-        }
+        renderBg(guiGraphics, mc, mouseX, mouseY);
     }
     
 }

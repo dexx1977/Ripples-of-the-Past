@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -24,7 +25,8 @@ public class ToggleBox extends AbstractWidget implements IExtendedWidget {
 
     public ToggleBox(int x, int y, int width, int height, Component name, 
             Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
-        super(x, y, width, height, name);
+        super(x, y, width, height, Button.DEFAULT_NARRATION);
+        setTooltip(name);
         this.extension = new WidgetExtension(this);
         this.stateGet = stateGet;
         this.stateSet = stateSet;
@@ -60,7 +62,9 @@ public class ToggleBox extends AbstractWidget implements IExtendedWidget {
     }
     
     @Override
-    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         GuiDraw.drawCenteredString(matrixStack, Minecraft.getInstance().font, getMessage(), 
                 x + width / 2, y + (height - 8) / 2, getFGColor() | Mth.ceil(alpha * 255.0F) << 24);
     }

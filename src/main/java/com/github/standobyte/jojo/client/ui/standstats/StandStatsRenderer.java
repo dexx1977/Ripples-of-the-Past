@@ -407,7 +407,7 @@ public class StandStatsRenderer {
     @SuppressWarnings("deprecation")
     private static void renderLetterFromTex(PoseStack matrixStack, float letterAlpha, boolean invertBnW, 
             float statX, float statY, float letterWidth, int texX, int texY) {
-        Minecraft.getInstance().GuiDraw.bind(STAND_STATS_UI);
+        GuiDraw.bind(STAND_STATS_UI);
         if (invertBnW) RenderSystem.setShaderColor(1, 1, 1, letterAlpha);
         else           RenderSystem.setShaderColor(0, 0, 0, letterAlpha);
         RenderSystem.enableBlend();

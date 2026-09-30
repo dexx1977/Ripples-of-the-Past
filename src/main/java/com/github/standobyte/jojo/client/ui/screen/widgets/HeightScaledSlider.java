@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -18,7 +19,9 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
     }
     
     @Override
-    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         Font fontrenderer = minecraft.font;
         GuiDraw.bind(WIDGETS_LOCATION);
@@ -43,7 +46,7 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
                 x + width / 2, y + height / 2,            
                 200 - width / 2, texY + 20 - height / 2, 
                 width - width / 2, height - height / 2);
-        this.renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
+        this.renderBg(guiGraphics, minecraft, pMouseX, pMouseY);
         int j = getFGColor();
         GuiDraw.drawCenteredString(pMatrixStack, fontrenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 8) / 2, j | Mth.ceil(this.alpha * 255.0F) << 24);
     }

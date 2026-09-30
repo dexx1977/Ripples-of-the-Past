@@ -52,7 +52,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
         this.mc = Minecraft.getInstance();
         this.changeButton = new Button(0, 0, 75 + 20, 20, name, button -> {
             setSelectedKey.accept(key);
-        }) {
+        }, Button.DEFAULT_NARRATION) {
             protected MutableComponent createNarrationMessage() {
                 return key.isUnbound() ? Component.translatable("narrator.controls.unbound", name) : Component.translatable("narrator.controls.bound", name, super.createNarrationMessage());
             }
@@ -61,7 +61,7 @@ public class VanillaKeyEntry extends KeyBindsList.Entry {
             key.setToDefault();
             mc.options.setKey(key, key.getDefaultKey());
             KeyMapping.resetMapping();
-        }) {
+        }, Button.DEFAULT_NARRATION) {
             protected MutableComponent createNarrationMessage() {
                 return Component.translatable("narrator.controls.reset", name);
             }

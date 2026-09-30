@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,8 +20,10 @@ public class HideScreenPartToggleBox extends ToggleBox {
     }
     
     @Override
-    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        Minecraft.getInstance().GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
+        GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
         int texX = 208;
         int texY = 104;
         if (getState()) texX += width;
@@ -30,7 +33,7 @@ public class HideScreenPartToggleBox extends ToggleBox {
         texX = direction.getTexX();
         texY += height;
         GuiDraw.blit(matrixStack, x, y, texX, texY, width, height);
-        super.renderButton(matrixStack, mouseX, mouseY, partialTick);
+        super.renderWidget(matrixStack, mouseX, mouseY, partialTick);
     }
     
     @Override

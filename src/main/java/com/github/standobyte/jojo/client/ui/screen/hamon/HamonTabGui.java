@@ -102,13 +102,13 @@ public abstract class HamonTabGui extends AbstractGui {
         }
         GuiDraw.pushMatrix();
         RenderSystem.enableDepthTest();
-        RenderSystem.translatef(0.0F, 0.0F, 950.0F);
+        matrixStack.translate(0.0F, 0.0F, 950.0F);
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(xOffset, yOffset, 0);
+        matrixStack.translate(xOffset, yOffset, 0);
         RenderSystem.colorMask(false, false, false, false);
         GuiDraw.fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
         RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.translatef(0.0F, 0.0F, -950.0F);
+        matrixStack.translate(0.0F, 0.0F, -950.0F);
         RenderSystem.depthFunc(518);
         GuiDraw.fill(matrixStack, WINDOW_WIDTH - 18, WINDOW_HEIGHT - 27, 0, 0, -16777216);
         RenderSystem.depthFunc(515);
@@ -132,7 +132,7 @@ public abstract class HamonTabGui extends AbstractGui {
         RenderSystem.disableDepthTest();
         drawText(matrixStack);
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(-xOffset, -yOffset, 0);
+        matrixStack.translate(-xOffset, -yOffset, 0);
         updateButtons(matrixStack, mouseX, mouseY);
         drawButtonNames(matrixStack);
         GuiDraw.popMatrix();
@@ -140,21 +140,21 @@ public abstract class HamonTabGui extends AbstractGui {
         RenderSystem.enableDepthTest();
         drawActualContents(screen, matrixStack, mouseX - (int) xOffset, mouseY - (int) yOffset, partialTick);
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(-xOffset, -yOffset, 0);
+        matrixStack.translate(-xOffset, -yOffset, 0);
         renderButtons(matrixStack, mouseX, mouseY, partialTick);
         GuiDraw.popMatrix();
 
         GuiDraw.popMatrix();
         
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(xOffset, yOffset, 0);
+        matrixStack.translate(xOffset, yOffset, 0);
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(518);
-        RenderSystem.translatef(0.0F, 0.0F, -950.0F);
+        matrixStack.translate(0.0F, 0.0F, -950.0F);
         RenderSystem.colorMask(false, false, false, false);
         GuiDraw.fill(matrixStack, 4680, 2260, -4680, -2260, -16777216);
         RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.translatef(0.0F, 0.0F, 950.0F);
+        matrixStack.translate(0.0F, 0.0F, 950.0F);
         RenderSystem.depthFunc(515);
         GuiDraw.popMatrix();
         

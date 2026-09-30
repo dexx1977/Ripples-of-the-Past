@@ -73,8 +73,12 @@ public class GridList<T extends AbstractWidget & GridList.IGridElement> {
         this.allElements = elementsList;
         this.maxColumnSize = maxColumnSize;
         this.visibleElementsCount = (int) elementsList.stream().filter(e -> e.visible).count();
-        this.scrollLeftButton =  new Button(-1, -1, 20, 20, Component.literal("<"), b -> scrollColumns(-1));
-        this.scrollRightButton = new Button(-1, -1, 20, 20, Component.literal(">"), b -> scrollColumns(1));
+        this.scrollLeftButton =  Button.builder(Component.literal("<"), b -> scrollColumns(-1))
+                        .pos(-1, -1)
+                        .size(20, 20).build();
+        this.scrollRightButton = Button.builder(Component.literal(">"), b -> scrollColumns(1))
+                        .pos(-1, -1)
+                        .size(20, 20).build();
     }
     
     public void setMaxWidth(int maxWidth) {

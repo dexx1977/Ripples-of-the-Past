@@ -158,7 +158,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     
     public static void renderHamonSkillIcon(PoseStack matrixStack, AbstractHamonSkill skill, int x, int y) {
         TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
-        Minecraft.getInstance().GuiDraw.bind(textureAtlasSprite.atlas().location());
+        GuiDraw.bind(textureAtlasSprite.atlas().location());
         GuiDraw.blit(matrixStack, x, y, 0, 16, 16, textureAtlasSprite);
     }
     

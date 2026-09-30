@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.controls;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
@@ -20,7 +22,7 @@ public class VisibilityButton extends CustomButton {
         super(x, y, WIDTH, HEIGHT, Component.empty(), onPress);
     }
 
-    public VisibilityButton(int x, int y, Button.OnPress onPress, Button.ITooltip tooltip) {
+    public VisibilityButton(int x, int y, Button.OnPress onPress, Tooltip tooltip) {
         super(x, y, WIDTH, HEIGHT, Component.empty(), onPress, tooltip);
     }
     
@@ -29,7 +31,9 @@ public class VisibilityButton extends CustomButton {
     }
     
     @SuppressWarnings("deprecation")
-    protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -41,7 +45,7 @@ public class VisibilityButton extends CustomButton {
         if (!elementVisible) texX += width;
         if (isHovered()) texY += height;
         GuiDraw.blit(matrixStack, x, y, texX, texY, width, height);
-        renderBg(matrixStack, minecraft, x, y);
+        renderBg(guiGraphics, minecraft, x, y);
     }
 
 }

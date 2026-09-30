@@ -124,7 +124,7 @@ public interface IJojoScreen {
         
         protected void renderIcon(PoseStack matrixStack, int x, int y) {
             if (icon != null) {
-                Minecraft.getInstance().GuiDraw.bind(icon);
+                GuiDraw.bind(icon);
                 GuiDraw.blit(matrixStack, x + 2, y + 6, texX, texY, 16, 16, texSizeX, texSizeY);
             }
         }
@@ -465,7 +465,7 @@ public interface IJojoScreen {
         public void renderIcon(PoseStack matrixStack, int x, int y) {
             if (power != null) {
                 ResourceLocation icon = InputHandler.getInstance().getPowerCache(power).clGetPowerTypeIcon(); 
-                Minecraft.getInstance().GuiDraw.bind(icon);
+                GuiDraw.bind(icon);
                 GuiDraw.blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             }
         }

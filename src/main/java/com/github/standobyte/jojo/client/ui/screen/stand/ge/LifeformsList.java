@@ -377,7 +377,9 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             }
             
             @Override
-            public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -389,10 +391,6 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
                 GuiDraw.blit(matrixStack, x, y, texX, texY, width, height, 128, 128);
-                
-                if (isHovered()) {
-                    renderToolTip(matrixStack, mouseX, mouseY);
-                }
             }
         }
     }
@@ -448,7 +446,9 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             }
 
             @Override
-            public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+            public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 if (!(isFavorited || isHovered())) return;
                 
                 Minecraft mc = Minecraft.getInstance();
@@ -456,10 +456,6 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 int texY = isFavorited ? 9 : 0;
                 RenderSystem.enableDepthTest();
                 GuiDraw.blit(pMatrixStack, x, y, 119, texY, width, height, 128, 128);
-                
-                if (isHovered()) {
-                    renderToolTip(pMatrixStack, pMouseX, pMouseY);
-                }
             }
         }
         

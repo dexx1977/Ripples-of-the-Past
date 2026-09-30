@@ -111,7 +111,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 }) {
 
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -143,7 +145,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 }) {
 
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -303,7 +307,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
 
     private <P extends IPower<P, ?>> void renderDragged(PoseStack matrixStack, int mouseX, int mouseY) {
         draggedAction.ifPresent(dragged -> {
-            RenderSystem.translatef(0.0F, 0.0F, 32.0F);
+            matrixStack.translate(0.0F, 0.0F, 32.0F);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             this.setBlitOffset(200);
@@ -312,7 +316,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     (Action<P>) actionSwitch.getAction(), true, (P) selectedPower);
             this.setBlitOffset(0);
             RenderSystem.disableBlend();
-            RenderSystem.translatef(0.0F, 0.0F, -32.0F);
+            matrixStack.translate(0.0F, 0.0F, -32.0F);
         });
     }
     
@@ -444,7 +448,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     private static final int HINT_KEYBINDS_X = WINDOW_WIDTH - 30;
     private static final int HINT_KEYBINDS_Y = 60;
     private void renderHints(PoseStack matrixStack, int mouseX, int mouseY) {
-        Minecraft.getInstance().GuiDraw.bind(WINDOW);
+        GuiDraw.bind(WINDOW);
         GuiDraw.blit(matrixStack, getWindowX() + HINT_HOTBARS_X, getWindowY() + HINT_HOTBARS_Y, 32, 245, 11, 11);
         GuiDraw.blit(matrixStack, getWindowX() + HINT_KEYBINDS_X, getWindowY() + HINT_KEYBINDS_Y, 32, 245, 11, 11);
     }
@@ -826,11 +830,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     }
     
     private void _addKeybindEntryToUi(ActionKeybindEntry entry) {
-        AbstractWidget keyBindingButton = new Button(
-                -1, -1, 
-                95, 20, entry.getKeybind().getTranslatedKeyMessage(), button -> {
+        AbstractWidget keyBindingButton = new Button(-1, -1, 95, 20, entry.getKeybind().getTranslatedKeyMessage(), button -> {
             HudLayoutEditingScreen.this.selectedKey.setKeybind(entry);
-        }) {
+        }, Button.DEFAULT_NARRATION) {
 //            @Override
 //            protected IFormattableTextComponent createNarrationMessage() {
 //                if (entry.action != null) {
@@ -862,7 +864,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     };
                 }) {
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -891,7 +895,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     };
                 }) {
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -918,7 +924,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     };
                 }) {
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -939,7 +947,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             }
         }) {
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WINDOW);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -1045,7 +1055,9 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     }) {
                 
                 @Override
-                protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+                protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                     Minecraft minecraft = Minecraft.getInstance();
                     GuiDraw.bind(WINDOW);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);

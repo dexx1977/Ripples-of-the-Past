@@ -241,7 +241,9 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                 }, this, -1) {
             
             @Override
-            protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+            protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
                 Minecraft minecraft = Minecraft.getInstance();
                 GuiDraw.bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);

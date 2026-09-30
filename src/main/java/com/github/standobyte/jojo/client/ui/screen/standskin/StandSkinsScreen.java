@@ -145,7 +145,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     @SuppressWarnings("deprecation")
     private void renderBgPattern(PoseStack matrixStack) {
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(getWindowX() + 4, getWindowY() + 4, 0);
+        matrixStack.translate(getWindowX() + 4, getWindowY() + 4, 0);
         GuiDraw.bind(TEXTURE_BG);
         
         int x = getWindowX() + WINDOW_INSIDE_X;
@@ -173,14 +173,14 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         int x = getWindowX() + WINDOW_INSIDE_X;
         int y = getWindowY() + WINDOW_INSIDE_Y;
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(x, y, 0);
+        matrixStack.translate(x, y, 0);
         PoseStack matrixStack = new PoseStack();
         float ticks = tickCount + partialTick;
         if (skinFullView != null) {
             skinFullView.render(matrixStack, mouseX, mouseY, ticks);
         }
         else {
-            RenderSystem.translatef(0, -scroll, 0);
+            matrixStack.translate(0, -scroll, 0);
             ClientUtil.enableGlScissor(x, y, WINDOW_INSIDE_WIDTH, WINDOW_INSIDE_HEIGHT);
             for (SkinView skin : skinsVisible) {
                 skin.renderStand(matrixStack, mouseX, mouseY, ticks);
@@ -464,7 +464,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     public static void renderStandModel(float posX, float posY, float scale, float yRot, 
             EntityStandType<?> standType, StandSkin standSkin, float ticks) {
         GuiDraw.pushMatrix();
-        RenderSystem.translatef(posX, posY, 1050.0F);
+        matrixStack.translate(posX, posY, 1050.0F);
         RenderSystem.scalef(1.0F, 1.0F, -1.0F);
         
         PoseStack matrixStack = new PoseStack();

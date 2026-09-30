@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -22,7 +24,7 @@ public class ItemButton extends Button {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.OnPress pOnPress, Button.ITooltip pOnTooltip) {
+            Button.OnPress pOnPress, Tooltip pOnTooltip) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
                 pOnPress, pOnTooltip, Component.empty());
@@ -30,7 +32,7 @@ public class ItemButton extends Button {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.OnPress pOnPress, Tooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.item = item;
     }
@@ -42,7 +44,9 @@ public class ItemButton extends Button {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -52,13 +56,9 @@ public class ItemButton extends Button {
         RenderSystem.enableDepthTest();
         GuiDraw.blit(pMatrixStack, x, y, 0, 46 + i * 20, width / 2, height);
         GuiDraw.blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
-        renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
+        renderBg(guiGraphics, minecraft, pMouseX, pMouseY);
         
         minecraft.getItemRenderer().renderGuiItem(item, x + (width - 16) / 2, y + (height - 16) / 2);
-        
-        if (isHovered()) {
-            renderToolTip(pMatrixStack, pMouseX, pMouseY);
-         }
     }
 
 }

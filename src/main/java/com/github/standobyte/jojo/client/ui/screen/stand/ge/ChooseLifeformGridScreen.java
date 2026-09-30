@@ -340,9 +340,11 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
         
         @SuppressWarnings("deprecation")
         @Override
-        public void renderButton(PoseStack matrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+        public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
             Minecraft mc = Minecraft.getInstance();
-            Minecraft.getInstance().GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
+            GuiDraw.bind(LIFEFORM_CHOOSE_LOCATION);
             
             if (isHidden) {
                 RenderSystem.setShaderColor(1, 1, 1, 0.25F);

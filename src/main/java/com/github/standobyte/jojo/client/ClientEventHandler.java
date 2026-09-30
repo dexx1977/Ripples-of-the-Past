@@ -1156,7 +1156,7 @@ public class ClientEventHandler {
 
             if (opacity > 8) {
                 RenderSystem.pushMatrix();
-                RenderSystem.translatef((float)(width / 2), (float)(height - 68), 0.0F);
+                matrixStack.translate((float)(width / 2), (float)(height - 68), 0.0F);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 Font font = vanillaGui.getFont();
@@ -1166,7 +1166,7 @@ public class ClientEventHandler {
                     int lineWidth = font.width(line);
                     ClientUtil.drawBackdrop(matrixStack, -font.width(line) / 2, -4, lineWidth, 1 - opacity);
                     GuiDraw.drawString(matrixStack, font, line.getVisualOrderText(), -font.width(line) / 2, -4, color | (opacity << 24));
-                    RenderSystem.translatef(0, -13, 0);
+                    matrixStack.translate(0, -13, 0);
                 }
                 RenderSystem.disableBlend();
                 RenderSystem.popMatrix();
@@ -1557,9 +1557,9 @@ public class ClientEventHandler {
             if (possessed != null && possessed.getType() == ModEntityTypes.ANGELO_ROCK.get()) {
                 int x = screen.width / 2 - 100;
                 int y = screen.height - 40;
-                Button angeloRockDieButton = new Button(x, y, 200, 20, 
-                        Component.translatable(mc.level.getLevelData().isHardcore() ? "deathScreen.spectate" : "deathScreen.respawn"), 
-                        button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.respawn()));
+                Button angeloRockDieButton = Button.builder(Component.translatable(mc.level.getLevelData().isHardcore() ? "deathScreen.spectate" : "deathScreen.respawn"), button -> PacketManager.sendToServer(ClAngeloRockButtonPacket.respawn()))
+                        .pos(x, y)
+                        .size(200, 20).build();
                 event.addWidget(angeloRockDieButton);
                 
                 Button angeloRockGruntButton = new ImageVanillaButton(x - 24, y, 20, 20, 

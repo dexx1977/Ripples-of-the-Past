@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.gui.components.Button;
 import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
@@ -19,12 +21,14 @@ public class HamonScreenButton extends CustomButton {
     }
     
     public HamonScreenButton(int x, int y, int width, int height, 
-            Component message, Button.OnPress onPress, ITooltip tooltip) {
+            Component message, Button.OnPress onPress, Tooltip tooltip) {
         super(x, y, width, height, message, onPress, tooltip);
     }
     
     @Override
-    protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);

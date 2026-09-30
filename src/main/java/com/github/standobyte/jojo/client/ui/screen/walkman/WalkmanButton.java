@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.gui.components.Button;
 import java.util.function.Supplier;
@@ -24,14 +26,16 @@ public class WalkmanButton extends CustomButton {
         this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> screen.renderToolTip(matrixStack, button.getMessage(), mouseX, mouseY), message, texX);
     }
 
-    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, ITooltip tooltip, Supplier<Component> message, int texX) {
+    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, Tooltip tooltip, Supplier<Component> message, int texX) {
         super(x, y, width, height, Component.empty(), onPress, tooltip);
         this.message = message;
         this.texX = texX;
     }
 
     @Override
-    protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         GuiDraw.bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);

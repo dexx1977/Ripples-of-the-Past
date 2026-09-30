@@ -42,7 +42,7 @@ public class EntityTypeIcon {
     public static void renderIcon(EntitySubtype<?> entityType, PoseStack matrixStack, float x, float y, boolean missingIconLetters) {
         ResourceLocation icon = getIcon(entityType);
         if (icon != UNKNOWN) {
-            Minecraft.getInstance().GuiDraw.bind(icon);
+            GuiDraw.bind(icon);
             BlitFloat.blitFloat(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
         }
         else if (missingIconLetters) {

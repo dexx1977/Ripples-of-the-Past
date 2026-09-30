@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen;
 
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import java.util.List;
@@ -456,7 +457,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         }
         
         public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, Button.OnPress pOnPress,
-                ITooltip pOnTooltip) {
+                Tooltip pOnTooltip) {
             super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         }
         
@@ -467,7 +468,9 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         
         @SuppressWarnings("deprecation")
         @Override
-        public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
+        public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        PoseStack matrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
             Minecraft mc = Minecraft.getInstance();
             Font font = mc.font;
             GuiDraw.bind(WIDGETS_LOCATION);
@@ -478,16 +481,13 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             RenderSystem.enableDepthTest();
             GuiDraw.blit(matrixStack, x, y, 0, 46 + i * 20, width / 2, height);
             GuiDraw.blit(matrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
-            renderBg(matrixStack, mc, mouseX, mouseY);
+            renderBg(guiGraphics, mc, mouseX, mouseY);
             int j = getFGColor();
             int textColor = j | Mth.ceil(alpha * 255.0F) << 24;
             
             renderScrollingString(matrixStack, font, getMessage(), 
                     x + 2, y, x + width - 2, y + height, 
                     textColor, isHovered(), alignment);
-            if (isHovered()) {
-                renderToolTip(matrixStack, mouseX, mouseY);
-            }
         }
         
         

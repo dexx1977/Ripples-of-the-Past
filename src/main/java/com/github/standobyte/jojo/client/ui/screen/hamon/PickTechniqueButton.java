@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.Button;
 import com.github.standobyte.jojo.power.impl.nonstand.type.hamon.skill.CharacterHamonTechnique;
 
@@ -14,7 +15,7 @@ public class PickTechniqueButton extends HamonScreenButton {
     }
     
     public PickTechniqueButton(int x, int y, int width, int height, 
-            Component message, Button.OnPress onPress, ITooltip tooltip) {
+            Component message, Button.OnPress onPress, Tooltip tooltip) {
         super(x, y, width, height, message, onPress, tooltip);
     }
     

@@ -185,12 +185,13 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         }
         addWidget(filterList);
         
-        Button unlockAllButton = new Button(width - 101, height - 24, 95, 20, Component.translatable("jojo.ge_lifeform.unlock_all"), 
-                button -> {
+        Button unlockAllButton = Button.builder(Component.translatable("jojo.ge_lifeform.unlock_all"), button -> {
                     GoldExperienceChooseLifeform.unlockAllEntityTypes(mc.player);
                     PacketManager.sendToServer(new ClAllGELifeformsButtonPacket());
                     refreshEntityTypes();
-                });
+                })
+                        .pos(width - 101, height - 24)
+                        .size(95, 20).build();
         unlockAllButton.visible = mc.player.abilities.instabuild;
         addRenderableWidget(unlockAllButton);
     }

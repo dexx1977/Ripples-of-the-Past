@@ -51,7 +51,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
     @Override
     protected void init() {
         super.init();
-        cheatButton = new Button((width - WIDTH) / 2 + WIDTH - 25, (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y, 20, 20, Component.empty(), button -> {
+        cheatButton = Button.builder(Component.empty(), button -> {
             if (cheatPower != null) {
                 Player playerEntity = minecraft.player;
                 RPSCheat cheat = game.getCheat(playerEntity, cheatPower);
@@ -61,7 +61,9 @@ public class RockPaperScissorsScreen extends ChatScreen {
                 }
                 PacketManager.sendToServer(ClRPSGameInputPacket.cheat(cheatPower));
             }
-        });
+        })
+                        .pos((width - WIDTH) / 2 + WIDTH - 25, (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y)
+                        .size(20, 20).build();
         addRenderableWidget(cheatButton);
     }
 

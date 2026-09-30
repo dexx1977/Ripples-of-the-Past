@@ -18,7 +18,7 @@ public class FinisherAttackToast extends ActionToast {
     @Override
     protected void renderIcon(PoseStack matrixStack, ToastComponent toastGui, int timeMs) {
         if (timeMs > TIME_MS - FINISHER_BAR_TIME) {
-            toastGui.getMinecraft().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+            GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
             GuiDraw.blit(matrixStack, 7, 7, 132, 216, 18, 18);
         }
         else {

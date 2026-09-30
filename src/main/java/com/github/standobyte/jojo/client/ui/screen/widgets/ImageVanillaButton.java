@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -51,7 +53,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.OnPress pOnPress, Tooltip pOnTooltip, Component pMessage) {
         this(pX, pY, pWidth, pHeight,
                 pXTexStart, pYTexStart, pWidth, pHeight,
                 pResourceLocation, pTextureWidth, pTextureHeight,
@@ -71,7 +73,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.OnPress pOnPress, Tooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.textureWidth = pTextureWidth;
         this.textureHeight = pTextureHeight;
@@ -89,7 +91,9 @@ public class ImageVanillaButton extends Button {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft minecraft = Minecraft.getInstance();
         GuiDraw.bind(WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -99,7 +103,7 @@ public class ImageVanillaButton extends Button {
         RenderSystem.enableDepthTest();
         GuiDraw.blit(pMatrixStack, x, y, 0, 46 + i * 20, width / 2, height);
         GuiDraw.blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
-        renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
+        renderBg(guiGraphics, minecraft, pMouseX, pMouseY);
         
         GuiDraw.bind(resourceLocation);
         RenderSystem.enableDepthTest();
@@ -107,10 +111,6 @@ public class ImageVanillaButton extends Button {
         int iconY = y + (height - iconHeight) / 2;
         GuiDraw.blit(pMatrixStack, iconX, iconY, (float)xTexStart, (float)yTexStart, 
                 iconWidth, iconHeight, textureWidth, textureHeight);
-        
-        if (isHovered()) {
-            renderToolTip(pMatrixStack, pMouseX, pMouseY);
-         }
     }
 
 }

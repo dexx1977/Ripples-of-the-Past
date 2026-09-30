@@ -54,7 +54,7 @@ public class IconTooltipLine implements ITooltipLine {
         switch (icon) {
         case NON_STAND_ENERGY:
             if (nonStandPowerType != null) {
-                Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+                GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
                 iconTex = BarsRenderer.getIconTex(BarsRenderer.getEnergyBarIcon(nonStandPowerType), ActionsOverlayGui.BarsOrientation.HORIZONTAL);
                 if (nonStandPowerType == ModPowers.VAMPIRISM.get()) {
                     iconTex[5] += 3;
@@ -66,14 +66,14 @@ public class IconTooltipLine implements ITooltipLine {
             }
             break;
         case STAND_STAMINA:
-            Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+            GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
             iconTex = BarsRenderer.getIconTex(BarType.STAMINA, ActionsOverlayGui.BarsOrientation.HORIZONTAL);
             iconTex[4] = 2;
             GuiDraw.blit(matrixStack, (int) x + 1, (int) y - 1, 
                     iconTex[0] / iconTex[4], iconTex[1] / iconTex[4], iconTex[2] / iconTex[4], iconTex[3] / iconTex[4], 256 / iconTex[4], 256 / iconTex[4]);
             break;
         case STAND_RESOLVE:
-            Minecraft.getInstance().GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+            GuiDraw.bind(ActionsOverlayGui.OVERLAY_LOCATION);
             iconTex = BarsRenderer.getIconTex(BarType.RESOLVE, ActionsOverlayGui.BarsOrientation.HORIZONTAL);
             GuiDraw.blit(matrixStack, (int) x, (int) y, 
                     iconTex[0]           / iconTex[4], iconTex[1] / iconTex[4], iconTex[2], iconTex[3], 256 / iconTex[4], 256 / iconTex[4]);
@@ -81,7 +81,7 @@ public class IconTooltipLine implements ITooltipLine {
                     (iconTex[0] + 40) / iconTex[4], iconTex[1] / iconTex[4], iconTex[2], iconTex[3], 256 / iconTex[4], 256 / iconTex[4]);
             break;
         default:
-            Minecraft.getInstance().GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
+            GuiDraw.bind(ClientUtil.ADDITIONAL_UI);
             for (int i = 0; i < count; i++) {
                 GuiDraw.blit(matrixStack, (int) x, (int) y, 247 - icon.ordinal() * 9, 247, 9, 9, 256, 256);
                 x += 8;

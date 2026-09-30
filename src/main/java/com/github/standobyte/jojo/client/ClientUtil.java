@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.gui.components.Tooltip;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.io.IOException;
@@ -756,7 +757,7 @@ public class ClientUtil {
     }
     
     
-    public static Button.ITooltip buttonMessageTooltip(Screen screen) {
+    public static Tooltip buttonMessageTooltip(Screen screen) {
         return (Button button, PoseStack matrixStack, int x, int y) -> {
             screen.renderToolTip(matrixStack, button.getMessage(), x, y);
         };

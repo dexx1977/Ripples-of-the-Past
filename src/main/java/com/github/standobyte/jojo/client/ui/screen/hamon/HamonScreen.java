@@ -345,7 +345,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
             RenderSystem.enableDepthTest();
             tooltipOffsetX = windowX + WINDOW_THIN_BORDER;
             tooltipOffsetY = windowY + WINDOW_UPPER_BORDER;
-            RenderSystem.translatef((float) tooltipOffsetX, (float) tooltipOffsetY, 400.0F);
+            matrixStack.translate((float) tooltipOffsetX, (float) tooltipOffsetY, 400.0F);
             selectedTab.drawToolTips(matrixStack, mouseX - windowX - WINDOW_THIN_BORDER, mouseY - windowY - WINDOW_UPPER_BORDER, windowX, windowY);
             RenderSystem.disableDepthTest();
             GuiDraw.popMatrix();

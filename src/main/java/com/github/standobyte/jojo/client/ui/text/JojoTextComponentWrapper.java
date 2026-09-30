@@ -57,11 +57,11 @@ public class JojoTextComponentWrapper implements MutableComponent {
             float spriteX = x - 1;
             sprite
             .ifLeft(texLocation -> {
-                Minecraft.getInstance().GuiDraw.bind(texLocation);
+                GuiDraw.bind(texLocation);
                 BlitFloat.blitFloat(matrixStack, spriteX, y, 0, 0, 8, 8, 8, 8);
             })
             .ifRight(atlasSprite -> {
-                Minecraft.getInstance().GuiDraw.bind(atlasSprite.atlas().location());
+                GuiDraw.bind(atlasSprite.atlas().location());
                 BlitFloat.blitFloat(matrixStack, spriteX, y, 0, 8, 8, atlasSprite);
             });
             x += 10;

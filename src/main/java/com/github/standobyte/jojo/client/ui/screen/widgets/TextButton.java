@@ -1,5 +1,7 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.GuiGraphics;
 import com.github.standobyte.jojo.client.ui.render.GuiDraw;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -15,7 +17,7 @@ public class TextButton extends Button {
     private Font font;
     
     public TextButton(int pX, int pY, Component pMessage, 
-            Button.OnPress pOnPress, ITooltip pOnTooltip, Font font) {
+            Button.OnPress pOnPress, Tooltip pOnTooltip, Font font) {
         super(pX, pY, font.width(pMessage), font.lineHeight, pMessage, pOnPress, pOnTooltip);
         this.font = font;
     }
@@ -26,23 +28,21 @@ public class TextButton extends Button {
     }
 
     @Override
-    public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void renderWidget(net.minecraft.client.gui.GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+        PoseStack pMatrixStack = guiGraphics.pose();
+        GuiDraw.setGraphics(guiGraphics);
         Minecraft mc = Minecraft.getInstance();
         
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        renderBg(pMatrixStack, mc, pMouseX, pMouseY);
+        renderBg(guiGraphics, mc, pMouseX, pMouseY);
         
         int j = getFGColor();
         Component text = makeText();
         font.drawShadow(pMatrixStack, text, x, y + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
         width = font.width(text);
-        
-        if (isHovered()) {
-            renderToolTip(pMatrixStack, pMouseX, pMouseY);
-        }
     }
     
     public Component makeText() {
