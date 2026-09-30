@@ -52,7 +52,7 @@ public class ModifiedRenderTypeBuffers2 extends MultiBufferSource.BufferSource {
         return super.getBuffer(renderType);
     }
 
-    // FIXME this breaks with Optifine - NoSuchFieldError: field_228459_c_ (lastState)
+    // FIXME this breaks with Optifine - NoSuchFieldError: f_109906_ (lastState)
 //    @Override
 //    public void endBatch() {
 //        lastState.ifPresent(renderType -> {

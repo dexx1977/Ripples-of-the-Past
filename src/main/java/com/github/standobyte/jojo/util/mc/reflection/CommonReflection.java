@@ -55,17 +55,17 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class CommonReflection {
-    private static final Field GOAL_SELECTOR_AVAILABLE_GOALS = ObfuscationReflectionHelper.findField(GoalSelector.class, "field_220892_d");
+    private static final Field GOAL_SELECTOR_AVAILABLE_GOALS = ObfuscationReflectionHelper.findField(GoalSelector.class, "f_25345_");
     public static Set<WrappedGoal> getGoalsSet(GoalSelector targetGoals) {
         return ReflectionUtil.getFieldValue(GOAL_SELECTOR_AVAILABLE_GOALS, targetGoals);
     }
 
-    private static final Field NEAREST_TARGET_GOAL_TARGET_TYPE = ObfuscationReflectionHelper.findField(NearestAttackableTargetGoal.class, "field_75307_b");
+    private static final Field NEAREST_TARGET_GOAL_TARGET_TYPE = ObfuscationReflectionHelper.findField(NearestAttackableTargetGoal.class, "f_26048_");
     public static Class<? extends LivingEntity> getTargetClass(NearestAttackableTargetGoal<?> goal) {
         return ReflectionUtil.getFieldValue(NEAREST_TARGET_GOAL_TARGET_TYPE, goal);
     }
 
-    private static final Field NEAREST_TARGET_GOAL_TARGET_CONDITIONS = ObfuscationReflectionHelper.findField(NearestAttackableTargetGoal.class, "field_220779_d");
+    private static final Field NEAREST_TARGET_GOAL_TARGET_CONDITIONS = ObfuscationReflectionHelper.findField(NearestAttackableTargetGoal.class, "f_26051_");
     public static TargetingConditions getTargetConditions(NearestAttackableTargetGoal<?> goal) {
         return ReflectionUtil.getFieldValue(NEAREST_TARGET_GOAL_TARGET_CONDITIONS, goal);
     }
@@ -74,7 +74,7 @@ public class CommonReflection {
         ReflectionUtil.setFieldValue(NEAREST_TARGET_GOAL_TARGET_CONDITIONS, goal, conditions);
     }
 
-    private static final Field ENTITY_PREDICATE_SELECTOR = ObfuscationReflectionHelper.findField(TargetingConditions.class, "field_221023_h");
+    private static final Field ENTITY_PREDICATE_SELECTOR = ObfuscationReflectionHelper.findField(TargetingConditions.class, "f_26879_");
     public static Predicate<LivingEntity> getTargetSelector(TargetingConditions conditions) {
         return ReflectionUtil.getFieldValue(ENTITY_PREDICATE_SELECTOR, conditions);
     }
@@ -84,21 +84,21 @@ public class CommonReflection {
         return ReflectionUtil.invokeMethod(TARGET_GOAL_GET_FOLLOW_DISTANCE, goal);
     }
 
-    private static final Field HURT_BY_TARGET_GOAL_TO_IGNORE = ObfuscationReflectionHelper.findField(HurtByTargetGoal.class, "field_179447_c");
+    private static final Field HURT_BY_TARGET_GOAL_TO_IGNORE = ObfuscationReflectionHelper.findField(HurtByTargetGoal.class, "f_26035_");
     public static Class<?>[] getToIgnoreDamage(HurtByTargetGoal goal) {
         return ReflectionUtil.getFieldValue(HURT_BY_TARGET_GOAL_TO_IGNORE, goal);
     }
     
     
 
-    private static final Field CREEPER_ENTITY_SWELL = ObfuscationReflectionHelper.findField(Creeper.class, "field_70833_d");
+    private static final Field CREEPER_ENTITY_SWELL = ObfuscationReflectionHelper.findField(Creeper.class, "f_32270_");
     public static void setCreeperSwell(Creeper entity, int swell) {
         ReflectionUtil.setIntFieldValue(CREEPER_ENTITY_SWELL, entity, swell);
     }
     
     
 
-    private static final Field PROJECTILE_ENTITY_LEFT_OWNER = ObfuscationReflectionHelper.findField(Projectile.class, "field_234611_d_");
+    private static final Field PROJECTILE_ENTITY_LEFT_OWNER = ObfuscationReflectionHelper.findField(Projectile.class, "f_37246_");
     public static boolean getProjectileLeftOwner(Projectile entity) {
         return ReflectionUtil.getBooleanFieldValue(PROJECTILE_ENTITY_LEFT_OWNER, entity);
     }
@@ -117,7 +117,7 @@ public class CommonReflection {
     
     
     
-    private static final Field REGISTRY_KEY_VALUES_FIELD = ObfuscationReflectionHelper.findField(ResourceKey.class, "field_240898_a_");
+    private static final Field REGISTRY_KEY_VALUES_FIELD = ObfuscationReflectionHelper.findField(ResourceKey.class, "f_135775_");
     private static Map<String, ResourceKey<?>> REGISTRY_KEY_VALUES;
     public static Map<String, ResourceKey<?>> registryKeyValues() {
         if (REGISTRY_KEY_VALUES == null) {
@@ -133,19 +133,19 @@ public class CommonReflection {
         return ReflectionUtil.getFieldValue(CRAFTING_INVENTORY_MENU, inventory);
     }
     
-    private static final Field PLAYER_CONTAINER_OWNER = ObfuscationReflectionHelper.findField(InventoryMenu.class, "field_82862_h");
+    private static final Field PLAYER_CONTAINER_OWNER = ObfuscationReflectionHelper.findField(InventoryMenu.class, "f_39703_");
     public static Player getPlayer(InventoryMenu container) {
         return ReflectionUtil.getFieldValue(PLAYER_CONTAINER_OWNER, container);
     }
     
-    private static final Field WORKBENCH_CONTAINER_PLAYER = ObfuscationReflectionHelper.findField(CraftingMenu.class, "field_192390_i");
+    private static final Field WORKBENCH_CONTAINER_PLAYER = ObfuscationReflectionHelper.findField(CraftingMenu.class, "f_39351_");
     public static Player getPlayer(CraftingMenu container) {
         return ReflectionUtil.getFieldValue(WORKBENCH_CONTAINER_PLAYER, container);
     }
     
     
     
-    private static final Field FURNACE_TE_LIT_TIME = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity.class, "field_214018_j");
+    private static final Field FURNACE_TE_LIT_TIME = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity.class, "f_58316_");
     public static int getFurnaceLitTime(AbstractFurnaceBlockEntity tileEntity) {
         return ReflectionUtil.getIntFieldValue(FURNACE_TE_LIT_TIME, tileEntity);
     }
@@ -154,14 +154,14 @@ public class CommonReflection {
         ReflectionUtil.setIntFieldValue(FURNACE_TE_LIT_TIME, tileEntity, ticks);
     }
     
-    private static final Field FURNACE_TE_LIT_DURATION = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity.class, "field_214019_k");
+    private static final Field FURNACE_TE_LIT_DURATION = ObfuscationReflectionHelper.findField(AbstractFurnaceBlockEntity.class, "f_58317_");
     public static void setFurnaceLitDuration(AbstractFurnaceBlockEntity tileEntity, int ticks) {
         ReflectionUtil.setIntFieldValue(FURNACE_TE_LIT_DURATION, tileEntity, ticks);
     }
     
     
     
-    private static final Field LIVING_ENTITY_LERP_STEPS = ObfuscationReflectionHelper.findField(LivingEntity.class, "field_70716_bi");
+    private static final Field LIVING_ENTITY_LERP_STEPS = ObfuscationReflectionHelper.findField(LivingEntity.class, "f_20903_");
     public static int getLerpSteps(LivingEntity entity) {
         return ReflectionUtil.getIntFieldValue(LIVING_ENTITY_LERP_STEPS, entity);
     }
@@ -172,12 +172,12 @@ public class CommonReflection {
     
     
     
-    private static final Field FIREWORK_ROCKET_ENTITY_LIFETIME = ObfuscationReflectionHelper.findField(FireworkRocketEntity.class, "field_92055_b");
+    private static final Field FIREWORK_ROCKET_ENTITY_LIFETIME = ObfuscationReflectionHelper.findField(FireworkRocketEntity.class, "f_37023_");
     public static void setLifetime(FireworkRocketEntity entity, int ticks) {
         ReflectionUtil.setIntFieldValue(FIREWORK_ROCKET_ENTITY_LIFETIME, entity, ticks);
     }
     
-    private static final Field FIREWORK_ROCKET_ENTITY_DATA_ID_FIREWORKS_ITEM_FIELD = ObfuscationReflectionHelper.findField(FireworkRocketEntity.class, "field_184566_a");
+    private static final Field FIREWORK_ROCKET_ENTITY_DATA_ID_FIREWORKS_ITEM_FIELD = ObfuscationReflectionHelper.findField(FireworkRocketEntity.class, "f_37019_");
     private static EntityDataAccessor<ItemStack> FIREWORK_ROCKET_ENTITY_DATA_ID_FIREWORKS_ITEM = null;
     public static EntityDataAccessor<ItemStack> getFireworkItemParameter() {
         if (FIREWORK_ROCKET_ENTITY_DATA_ID_FIREWORKS_ITEM == null) {
@@ -186,7 +186,7 @@ public class CommonReflection {
         return FIREWORK_ROCKET_ENTITY_DATA_ID_FIREWORKS_ITEM;
     }
     
-    private static final Field CREEPER_DATA_IS_POWERED_FIELD = ObfuscationReflectionHelper.findField(Creeper.class, "field_184714_b");
+    private static final Field CREEPER_DATA_IS_POWERED_FIELD = ObfuscationReflectionHelper.findField(Creeper.class, "f_32274_");
     private static EntityDataAccessor<Boolean> CREEPER_DATA_IS_POWERED = null;
     public static EntityDataAccessor<Boolean> getCreeperPoweredParameter() {
         if (CREEPER_DATA_IS_POWERED == null) {
@@ -195,14 +195,14 @@ public class CommonReflection {
         return CREEPER_DATA_IS_POWERED;
     }
     
-    private static final Field EXPLOSION_RADIUS = ObfuscationReflectionHelper.findField(Explosion.class, "field_77280_f");
+    private static final Field EXPLOSION_RADIUS = ObfuscationReflectionHelper.findField(Explosion.class, "f_46017_");
     public static float getRadius(Explosion explosion) {
         return ReflectionUtil.getFloatFieldValue(EXPLOSION_RADIUS, explosion);
     }
     
     
     
-    private static final Field TNT_MINECART_ENTITY_FUSE = ObfuscationReflectionHelper.findField(MinecartTNT.class, "field_94106_a");
+    private static final Field TNT_MINECART_ENTITY_FUSE = ObfuscationReflectionHelper.findField(MinecartTNT.class, "f_38647_");
     public static int getFuse(MinecartTNT entity) {
         return ReflectionUtil.getIntFieldValue(TNT_MINECART_ENTITY_FUSE, entity);
     }
@@ -213,7 +213,7 @@ public class CommonReflection {
     
     
     
-    private static final Field LIVING_ENTITY_ATTACK_STRENGTH_TICKER = ObfuscationReflectionHelper.findField(LivingEntity.class, "field_184617_aD");
+    private static final Field LIVING_ENTITY_ATTACK_STRENGTH_TICKER = ObfuscationReflectionHelper.findField(LivingEntity.class, "f_20922_");
     public static int getAttackStrengthTicker(LivingEntity entity) {
         return ReflectionUtil.getIntFieldValue(LIVING_ENTITY_ATTACK_STRENGTH_TICKER, entity);
     }
@@ -231,19 +231,19 @@ public class CommonReflection {
     
     
     
-    private static final Field PLAYER_ENTITY_SLEEP_COUNTER = ObfuscationReflectionHelper.findField(Player.class, "field_71076_b");
+    private static final Field PLAYER_ENTITY_SLEEP_COUNTER = ObfuscationReflectionHelper.findField(Player.class, "f_36110_");
     public static void setSleepCounter(Player entity, int sleepCounter) {
         ReflectionUtil.setIntFieldValue(PLAYER_ENTITY_SLEEP_COUNTER, entity, sleepCounter);
     }
     
     
 
-    private static final Field MERCHANT_CONTAINER_TRADER = ObfuscationReflectionHelper.findField(MerchantMenu.class, "field_75178_e");
+    private static final Field MERCHANT_CONTAINER_TRADER = ObfuscationReflectionHelper.findField(MerchantMenu.class, "f_40027_");
     public static Merchant getMerchant(MerchantMenu merchantContainer) {
         return ReflectionUtil.getFieldValue(MERCHANT_CONTAINER_TRADER, merchantContainer);
     }
     
-    private static final Field MERCHANT_INVENTORY_MERCHANT = ObfuscationReflectionHelper.findField(MerchantContainer.class, "field_70476_a");
+    private static final Field MERCHANT_INVENTORY_MERCHANT = ObfuscationReflectionHelper.findField(MerchantContainer.class, "f_39997_");
     public static Merchant getMerchant(MerchantContainer merchantContainer) {
         return ReflectionUtil.getFieldValue(MERCHANT_INVENTORY_MERCHANT, merchantContainer);
     }
@@ -262,12 +262,12 @@ public class CommonReflection {
     
     
     
-    private static final Field MOOSHROOM_ENTITY_EFFECT = ObfuscationReflectionHelper.findField(MushroomCow.class, "field_213450_bA");
+    private static final Field MOOSHROOM_ENTITY_EFFECT = ObfuscationReflectionHelper.findField(MushroomCow.class, "f_28909_");
     public static MobEffect getEffect(MushroomCow entity) {
         return ReflectionUtil.getFieldValue(MOOSHROOM_ENTITY_EFFECT, entity);
     }
     
-    private static final Field MOOSHROOM_ENTITY_EFFECT_DURATION = ObfuscationReflectionHelper.findField(MushroomCow.class, "field_213447_bB");
+    private static final Field MOOSHROOM_ENTITY_EFFECT_DURATION = ObfuscationReflectionHelper.findField(MushroomCow.class, "f_28910_");
     public static int getEffectDuration(MushroomCow entity) {
         return ReflectionUtil.getIntFieldValue(MOOSHROOM_ENTITY_EFFECT_DURATION, entity);
     }
@@ -312,7 +312,7 @@ public class CommonReflection {
     
     
     
-    private static final Field ENTITY_DATA_CUSTOM_NAME_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "field_184242_az");
+    private static final Field ENTITY_DATA_CUSTOM_NAME_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "f_19833_");
     private static EntityDataAccessor<Optional<Component>> ENTITY_DATA_CUSTOM_NAME = null;
     public static EntityDataAccessor<Optional<Component>> getEntityCustomNameParameter() {
         if (ENTITY_DATA_CUSTOM_NAME == null) {

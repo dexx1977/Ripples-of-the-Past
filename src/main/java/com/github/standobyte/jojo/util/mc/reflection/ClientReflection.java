@@ -64,22 +64,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class ClientReflection {
-    private static final Field FIRST_PERSON_RENDERER_MAIN_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "field_187469_f");
+    private static final Field FIRST_PERSON_RENDERER_MAIN_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "f_109302_");
     public static float getMainHandHeight(ItemInHandRenderer renderer) {
         return ReflectionUtil.getFloatFieldValue(FIRST_PERSON_RENDERER_MAIN_HAND_HEIGHT, renderer);
     }
 
-    private static final Field FIRST_PERSON_RENDERER_O_MAIN_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "field_187470_g");
+    private static final Field FIRST_PERSON_RENDERER_O_MAIN_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "f_109303_");
     public static float getMainHandHeightPrev(ItemInHandRenderer renderer) {
         return ReflectionUtil.getFloatFieldValue(FIRST_PERSON_RENDERER_O_MAIN_HAND_HEIGHT, renderer);
     }
     
-    private static final Field FIRST_PERSON_RENDERER_OFF_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "field_187471_h");
+    private static final Field FIRST_PERSON_RENDERER_OFF_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "f_109304_");
     public static float getOffHandHeight(ItemInHandRenderer renderer) {
         return ReflectionUtil.getFloatFieldValue(FIRST_PERSON_RENDERER_OFF_HAND_HEIGHT, renderer);
     }
 
-    private static final Field FIRST_PERSON_RENDERER_O_OFF_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "field_187472_i");
+    private static final Field FIRST_PERSON_RENDERER_O_OFF_HAND_HEIGHT = ObfuscationReflectionHelper.findField(ItemInHandRenderer.class, "f_109305_");
     public static float getOffHandHeightPrev(ItemInHandRenderer renderer) {
         return ReflectionUtil.getFloatFieldValue(FIRST_PERSON_RENDERER_O_OFF_HAND_HEIGHT, renderer);
     }
@@ -93,51 +93,51 @@ public class ClientReflection {
     }
     
     
-    private static final Field MINECRAFT_PAUSE = ObfuscationReflectionHelper.findField(Minecraft.class, "field_71445_n");
+    private static final Field MINECRAFT_PAUSE = ObfuscationReflectionHelper.findField(Minecraft.class, "f_91012_");
     public static void pauseClient(Minecraft minecraft) {
         ReflectionUtil.setFieldValue(MINECRAFT_PAUSE, minecraft, true);
     }
 
-    private static final Field MINECRAFT_TIMER = ObfuscationReflectionHelper.findField(Minecraft.class, "field_71428_T");
+    private static final Field MINECRAFT_TIMER = ObfuscationReflectionHelper.findField(Minecraft.class, "f_90991_");
     public static Timer getTimer(Minecraft minecraft) {
         return ReflectionUtil.getFieldValue(MINECRAFT_TIMER, minecraft);
     }
 
-    private static final Field TIMER_MS_PER_TICK = ObfuscationReflectionHelper.findField(Timer.class, "field_194149_e");
+    private static final Field TIMER_MS_PER_TICK = ObfuscationReflectionHelper.findField(Timer.class, "f_92521_");
     public static void setMsPerTick(Timer timer, float msPerTick) {
         ReflectionUtil.setFloatFieldValue(TIMER_MS_PER_TICK, timer, msPerTick);
     }
     
     
-    private static final Field MAIN_MENU_SCREEN_SPLASH = ObfuscationReflectionHelper.findField(TitleScreen.class, "field_73975_c");
+    private static final Field MAIN_MENU_SCREEN_SPLASH = ObfuscationReflectionHelper.findField(TitleScreen.class, "f_96721_");
     public static void setSplash(TitleScreen screen, String splash) {
         ReflectionUtil.setFieldValue(MAIN_MENU_SCREEN_SPLASH, screen, splash);
     }
     
     
-    private static final Field INGAME_GUI_OVERLAY_MESSAGE_STRING = ObfuscationReflectionHelper.findField(Gui.class, "field_73838_g");
+    private static final Field INGAME_GUI_OVERLAY_MESSAGE_STRING = ObfuscationReflectionHelper.findField(Gui.class, "f_92990_");
     public static Component getOverlayMessageString(Gui ingameGui) {
         return ReflectionUtil.getFieldValue(INGAME_GUI_OVERLAY_MESSAGE_STRING, ingameGui);
     }
     
-    private static final Field INGAME_GUI_OVERLAY_MESSAGE_TIME = ObfuscationReflectionHelper.findField(Gui.class, "field_73845_h");
+    private static final Field INGAME_GUI_OVERLAY_MESSAGE_TIME = ObfuscationReflectionHelper.findField(Gui.class, "f_92991_");
     public static void setOverlayMessageTime(Gui ingameGui, int time) {
         ReflectionUtil.setIntFieldValue(INGAME_GUI_OVERLAY_MESSAGE_TIME, ingameGui, time);
     }
     
     
-    private static final Field RENDER_TYPE_BUFFER_IMPL_BUILDER = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "field_228457_a_");
+    private static final Field RENDER_TYPE_BUFFER_IMPL_BUILDER = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "f_109904_");
     public static BufferBuilder getBuilder(MultiBufferSource.BufferSource buffers) {
         return ReflectionUtil.getFieldValue(RENDER_TYPE_BUFFER_IMPL_BUILDER, buffers);
     }
     
-    private static final Field RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "field_228458_b_");
+    private static final Field RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS = ObfuscationReflectionHelper.findField(MultiBufferSource.BufferSource.class, "f_109905_");
     public static Map<RenderType, BufferBuilder> getFixedBuffers(MultiBufferSource.BufferSource buffers) {
         return ReflectionUtil.getFieldValue(RENDER_TYPE_BUFFER_IMPL_FIXED_BUFFERS, buffers);
     }
     
     
-    @Deprecated private static final Field MODEL_RENDERER_CUBES = ObfuscationReflectionHelper.findField(ModelPart.class, "field_78804_l");
+    @Deprecated private static final Field MODEL_RENDERER_CUBES = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104212_");
     @Deprecated
     public static void setCubes(ModelPart modelRenderer, ObjectList<ModelPart.ModelBox> cubes) {
         ReflectionUtil.setFieldValue(MODEL_RENDERER_CUBES, modelRenderer, cubes);
@@ -155,7 +155,7 @@ public class ClientReflection {
     }
     
     
-    @Deprecated private static final Field MODEL_RENDERER_CHILDREN = ObfuscationReflectionHelper.findField(ModelPart.class, "field_78805_m");
+    @Deprecated private static final Field MODEL_RENDERER_CHILDREN = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104213_");
     @Deprecated
     public static ObjectList<ModelPart> getChildren(ModelPart modelRenderer) {
         return ReflectionUtil.getFieldValue(MODEL_RENDERER_CHILDREN, modelRenderer);
@@ -182,18 +182,18 @@ public class ClientReflection {
         ReflectionUtil.invokeMethod(LIVING_RENDERER_SCALE, renderer, entity, matrixStack, partialTick);
     }
 
-    private static final Field ENTITY_RENDERER_SHADOW_RADIUS = ObfuscationReflectionHelper.findField(EntityRenderer.class, "field_76989_e");
+    private static final Field ENTITY_RENDERER_SHADOW_RADIUS = ObfuscationReflectionHelper.findField(EntityRenderer.class, "f_114477_");
     public static float getShadowRadius(EntityRenderer<?> renderer) {
         return ReflectionUtil.getFloatFieldValue(ENTITY_RENDERER_SHADOW_RADIUS, renderer);
     }
 
-    private static final Field LIVING_RENDERER_LAYERS = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "field_177097_h");
+    private static final Field LIVING_RENDERER_LAYERS = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class, "f_115291_");
     public static <T extends LivingEntity, M extends EntityModel<T>> List<RenderLayer<T, M>> getLayers(LivingEntityRenderer<T, M> renderer) {
         return ReflectionUtil.getFieldValue(LIVING_RENDERER_LAYERS, renderer);
     }
     
     
-    @Deprecated private static final Field MODEL_BOX_POLYGONS = ObfuscationReflectionHelper.findField(ModelPart.ModelBox.class, "field_78254_i");
+    @Deprecated private static final Field MODEL_BOX_POLYGONS = ObfuscationReflectionHelper.findField(ModelPart.ModelBox.class, "f_104341_");
     @Deprecated
     public static ModelPart.TexturedQuad[] getPolygons(ModelPart.ModelBox modelBox) {
         return ReflectionUtil.getFieldValue(MODEL_BOX_POLYGONS, modelBox);
@@ -205,35 +205,35 @@ public class ClientReflection {
     }
     
     
-    private static final Field TEXTURED_QUAD_VERTICES = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "field_78239_a");
+    private static final Field TEXTURED_QUAD_VERTICES = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "f_104359_");
     public static void setVertices(ModelPart.TexturedQuad quad, ModelPart.PositionTextureVertex[] vertices) {
         ReflectionUtil.setFieldValue(TEXTURED_QUAD_VERTICES, quad, vertices);
     }
     
-    private static final Field TEXTURED_QUAD_NORMAL = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "field_228312_b_");
+    private static final Field TEXTURED_QUAD_NORMAL = ObfuscationReflectionHelper.findField(ModelPart.TexturedQuad.class, "f_104360_");
     public static void setNormal(ModelPart.TexturedQuad quad, Vector3f normal) {
         ReflectionUtil.setFieldValue(TEXTURED_QUAD_NORMAL, quad, normal);
     }
     
     
-    private static final Field SOUND_EVENT_ACCESSOR_LIST = ObfuscationReflectionHelper.findField(WeighedSoundEvents.class, "field_188716_a");
+    private static final Field SOUND_EVENT_ACCESSOR_LIST = ObfuscationReflectionHelper.findField(WeighedSoundEvents.class, "f_120441_");
     public static List<Weighted<Sound>> getSubAccessorsList(WeighedSoundEvents accessor) {
         return ReflectionUtil.getFieldValue(SOUND_EVENT_ACCESSOR_LIST, accessor);
     }
     
     
-    private static final Field INGAME_MENU_SCREEN_SHOW_PAUSE_MENU = ObfuscationReflectionHelper.findField(PauseScreen.class, "field_222813_a");
+    private static final Field INGAME_MENU_SCREEN_SHOW_PAUSE_MENU = ObfuscationReflectionHelper.findField(PauseScreen.class, "f_96306_");
     public static boolean showsPauseMenu(PauseScreen screen) {
         return ReflectionUtil.getBooleanFieldValue(INGAME_MENU_SCREEN_SHOW_PAUSE_MENU, screen);
     }
     
     
-    private static final Field PARTICLE_MANAGER_SPRITE_SETS = ObfuscationReflectionHelper.findField(ParticleEngine.class, "field_215242_i");
+    private static final Field PARTICLE_MANAGER_SPRITE_SETS = ObfuscationReflectionHelper.findField(ParticleEngine.class, "f_107295_");
     public static Map<ResourceLocation, ? extends SpriteSet> getSpriteSets(ParticleEngine particleManager) {
         return ReflectionUtil.getFieldValue(PARTICLE_MANAGER_SPRITE_SETS, particleManager);
     }
     
-    private static final Field PARTICLE_MANAGER_TRACKING_EMITTERS = ObfuscationReflectionHelper.findField(ParticleEngine.class, "field_178933_d");
+    private static final Field PARTICLE_MANAGER_TRACKING_EMITTERS = ObfuscationReflectionHelper.findField(ParticleEngine.class, "f_107290_");
     public static Queue<TrackingEmitter> getTrackingEmitters(ParticleEngine particleManager) {
         return ReflectionUtil.getFieldValue(PARTICLE_MANAGER_TRACKING_EMITTERS, particleManager);
     }
@@ -244,57 +244,57 @@ public class ClientReflection {
         return ReflectionUtil.getFieldValue(MODEL_BAKERY_UNREFERENCED_TEXTURES, null);
     }
     
-    private static final Field MINECRAFT_MOUSE_HANDLER = ObfuscationReflectionHelper.findField(Minecraft.class, "field_71417_B");
+    private static final Field MINECRAFT_MOUSE_HANDLER = ObfuscationReflectionHelper.findField(Minecraft.class, "f_91067_");
     public static void setMouseHandler(Minecraft mc, MouseHandler mouseHandler) {
         ReflectionUtil.setFieldValue(MINECRAFT_MOUSE_HANDLER, mc, mouseHandler);
     }
     
     
-    private static final Field MOUSE_HELPER_X_POS = ObfuscationReflectionHelper.findField(MouseHandler.class, "field_198040_e");
+    private static final Field MOUSE_HELPER_X_POS = ObfuscationReflectionHelper.findField(MouseHandler.class, "f_91507_");
     public static void setXPos(MouseHandler mouseHelper, double xPos) {
         ReflectionUtil.setFieldValue(MOUSE_HELPER_X_POS, mouseHelper, xPos);
     }
     
-    private static final Field MOUSE_HELPER_Y_POS = ObfuscationReflectionHelper.findField(MouseHandler.class, "field_198041_f");
+    private static final Field MOUSE_HELPER_Y_POS = ObfuscationReflectionHelper.findField(MouseHandler.class, "f_91508_");
     public static void setYPos(MouseHandler mouseHelper, double yPos) {
         ReflectionUtil.setFieldValue(MOUSE_HELPER_Y_POS, mouseHelper, yPos);
     }
     
     
-    private static final Field SHADER_GROUP_PASSES = ObfuscationReflectionHelper.findField(PostChain.class, "field_148031_d");
+    private static final Field SHADER_GROUP_PASSES = ObfuscationReflectionHelper.findField(PostChain.class, "f_110009_");
     public static List<PostPass> getShaderGroupPasses(PostChain shaderGroup) {
         return ReflectionUtil.getFieldValue(SHADER_GROUP_PASSES, shaderGroup);
     }
     
-    private static final Field GAME_RENDERER_POST_EFFECT = ObfuscationReflectionHelper.findField(GameRenderer.class, "field_147707_d");
+    private static final Field GAME_RENDERER_POST_EFFECT = ObfuscationReflectionHelper.findField(GameRenderer.class, "f_109050_");
     public static void setPostEffect(GameRenderer gameRenderer, PostChain postEffect) {
         ReflectionUtil.setFieldValue(GAME_RENDERER_POST_EFFECT, gameRenderer, postEffect);
     }
     
-    private static final Field GAME_RENDERER_EFFECT_ACTIVE = ObfuscationReflectionHelper.findField(GameRenderer.class, "field_175083_ad");
+    private static final Field GAME_RENDERER_EFFECT_ACTIVE = ObfuscationReflectionHelper.findField(GameRenderer.class, "f_109053_");
     public static void setEffectActive(GameRenderer gameRenderer, boolean effectActive) {
         ReflectionUtil.setBooleanFieldValue(GAME_RENDERER_EFFECT_ACTIVE, gameRenderer, effectActive);
     }
     
-    private static final Field GAME_RENDERER_EFFECT_INDEX = ObfuscationReflectionHelper.findField(GameRenderer.class, "field_147713_ae");
+    private static final Field GAME_RENDERER_EFFECT_INDEX = ObfuscationReflectionHelper.findField(GameRenderer.class, "f_109052_");
     public static void setEffectIndex(GameRenderer gameRenderer, int effectIndex) {
         ReflectionUtil.setIntFieldValue(GAME_RENDERER_EFFECT_INDEX, gameRenderer, effectIndex);
     }
     
     
-    private static final Field CLIENT_PLAYER_ENTITY_HANDS_BUSY = ObfuscationReflectionHelper.findField(LocalPlayer.class, "field_184844_co");
+    private static final Field CLIENT_PLAYER_ENTITY_HANDS_BUSY = ObfuscationReflectionHelper.findField(LocalPlayer.class, "f_108611_");
     public static void setHandsBusy(LocalPlayer player, boolean handsBusy) {
         ReflectionUtil.setBooleanFieldValue(CLIENT_PLAYER_ENTITY_HANDS_BUSY, player, handsBusy);
     }
     
     
-    private static final Field CLIENT_PLAYER_ENTITY_FLASH_ON_SET_HEALTH = ObfuscationReflectionHelper.findField(LocalPlayer.class, "field_175169_bQ");
+    private static final Field CLIENT_PLAYER_ENTITY_FLASH_ON_SET_HEALTH = ObfuscationReflectionHelper.findField(LocalPlayer.class, "f_108605_");
     public static void setFlashOnSetHealth(Player player, boolean flashOnSetHealth) {
         ReflectionUtil.setBooleanFieldValue(CLIENT_PLAYER_ENTITY_FLASH_ON_SET_HEALTH, player, flashOnSetHealth);
     }
     
     
-    private static final Field KEY_BINDING_IS_DOWN = ObfuscationReflectionHelper.findField(KeyMapping.class, "field_74513_e");
+    private static final Field KEY_BINDING_IS_DOWN = ObfuscationReflectionHelper.findField(KeyMapping.class, "f_90817_");
     /*
      * Doesn't check the conflict context and Shift/Ctrl/... modifiers
      */
@@ -302,14 +302,14 @@ public class ClientReflection {
         return ReflectionUtil.getBooleanFieldValue(KEY_BINDING_IS_DOWN, key);
     }
 
-    private static final Field KEY_BINDING_ALL_MAP = ObfuscationReflectionHelper.findField(KeyMapping.class, "field_74516_a");
+    private static final Field KEY_BINDING_ALL_MAP = ObfuscationReflectionHelper.findField(KeyMapping.class, "f_90809_");
     private static final LazyCacheSupplier<Map<String, KeyMapping>> keyBindingsMapSupplier = new LazyCacheSupplier<>(
             () -> ReflectionUtil.getFieldValue(KEY_BINDING_ALL_MAP, null));
     public static Map<String, KeyMapping> getKeyBindingsMap() {
         return keyBindingsMapSupplier.get();
     }
 
-    private static final Field KEY_BINDING_CLICK_COUNT = ObfuscationReflectionHelper.findField(KeyMapping.class, "field_151474_i");
+    private static final Field KEY_BINDING_CLICK_COUNT = ObfuscationReflectionHelper.findField(KeyMapping.class, "f_90818_");
     public static int getClickCount(KeyMapping key) {
         return ReflectionUtil.getIntFieldValue(KEY_BINDING_CLICK_COUNT, key);
     }
@@ -318,7 +318,7 @@ public class ClientReflection {
         ReflectionUtil.setIntFieldValue(KEY_BINDING_CLICK_COUNT, key, clickCount);
     }
     
-    private static final Field KEY_BINDING_ALL_FIELD = ObfuscationReflectionHelper.findField(KeyMapping.class, "field_74516_a");
+    private static final Field KEY_BINDING_ALL_FIELD = ObfuscationReflectionHelper.findField(KeyMapping.class, "f_90809_");
     private static Map<String, KeyMapping> KEY_BINDINGS_ALL;
     public static Map<String, KeyMapping> getAllKeybindingMap() {
         if (KEY_BINDINGS_ALL == null) {
@@ -359,12 +359,12 @@ public class ClientReflection {
     }
     
     
-    private static final Field MINECRAFT_PAUSE_PARTIAL_TICK = ObfuscationReflectionHelper.findField(Minecraft.class, "field_193996_ah");
+    private static final Field MINECRAFT_PAUSE_PARTIAL_TICK = ObfuscationReflectionHelper.findField(Minecraft.class, "f_91013_");
     public static float getPausePartialTick(Minecraft mc) {
         return ReflectionUtil.getFloatFieldValue(MINECRAFT_PAUSE_PARTIAL_TICK, mc);
     }
     
-    private static final Field MINECRAFT_MAIN_RENDER_TARGET = ObfuscationReflectionHelper.findField(Minecraft.class, "field_147124_at");
+    private static final Field MINECRAFT_MAIN_RENDER_TARGET = ObfuscationReflectionHelper.findField(Minecraft.class, "f_91042_");
     public static void setMainRenderTarget(Minecraft mc, RenderTarget buffer) {
         ReflectionUtil.setFieldValue(MINECRAFT_MAIN_RENDER_TARGET, mc, buffer);
     }
@@ -374,7 +374,7 @@ public class ClientReflection {
         ReflectionUtil.invokeMethod(ACTIVE_RENDER_INFO_SET_POSITION, camera, position);
     }
     
-    private static final Field ACTIVE_RENDER_INFO_DETACHED = ObfuscationReflectionHelper.findField(Camera.class, "field_216799_k");
+    private static final Field ACTIVE_RENDER_INFO_DETACHED = ObfuscationReflectionHelper.findField(Camera.class, "f_90560_");
     public static void setIsDetached(Camera camera, boolean detached) {
         ReflectionUtil.setBooleanFieldValue(ACTIVE_RENDER_INFO_DETACHED, camera, detached);
     }
@@ -385,13 +385,13 @@ public class ClientReflection {
     }
     
     
-    private static final Field NATIVE_IMAGE_PIXELS = ObfuscationReflectionHelper.findField(NativeImage.class, "field_195722_d");
+    private static final Field NATIVE_IMAGE_PIXELS = ObfuscationReflectionHelper.findField(NativeImage.class, "f_84964_");
     public static long getPixelsAddress(NativeImage image) {
         return ReflectionUtil.getLongFieldValue(NATIVE_IMAGE_PIXELS, image);
     }
     
 
-    private static final Field SOUND_SOURCE_SOURCE = ObfuscationReflectionHelper.findField(Channel.class, "field_216441_b");
+    private static final Field SOUND_SOURCE_SOURCE = ObfuscationReflectionHelper.findField(Channel.class, "f_83642_");
     public static int getSourceId(Channel source) {
         return ReflectionUtil.getIntFieldValue(SOUND_SOURCE_SOURCE, source);
     }
@@ -401,13 +401,13 @@ public class ClientReflection {
         return ReflectionUtil.invokeMethod(AUDIO_STREAM_BUFFER_GET_AL_BUFFER, buffer);
     }
 
-    private static final Field SOUND_ENGINE_SOUND_BUFFERS = ObfuscationReflectionHelper.findField(SoundEngine.class, "field_217939_i");
+    private static final Field SOUND_ENGINE_SOUND_BUFFERS = ObfuscationReflectionHelper.findField(SoundEngine.class, "f_120222_");
     public static SoundBufferLibrary getSoundBuffers(SoundEngine soundEngine) {
         return ReflectionUtil.getFieldValue(SOUND_ENGINE_SOUND_BUFFERS, soundEngine);
     }
     
     
-    private static final Field ITEM_OVERRIDE_LIST_OVERRIDES = ObfuscationReflectionHelper.findField(ItemOverrides.class, "field_188023_b");
+    private static final Field ITEM_OVERRIDE_LIST_OVERRIDES = ObfuscationReflectionHelper.findField(ItemOverrides.class, "f_111735_");
     public static List<ItemOverride> getOverrides(ItemOverrides itemOverrideList) {
         return ReflectionUtil.getFieldValue(ITEM_OVERRIDE_LIST_OVERRIDES, itemOverrideList);
     }
