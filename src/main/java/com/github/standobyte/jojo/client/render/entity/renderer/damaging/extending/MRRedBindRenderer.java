@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.extending;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Map;
 
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
@@ -13,7 +14,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -22,8 +23,8 @@ import org.joml.Vector3f;
 public class MRRedBindRenderer extends ExtendingEntityRenderer<MRRedBindEntity, MRRedBindModel> {
     private boolean second = false;
 
-    public MRRedBindRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new MRRedBindModel(), null);
+    public MRRedBindRenderer(EntityRendererProvider.Context context) {
+        super(context, new MRRedBindModel(), null);
     }
 
     @Override

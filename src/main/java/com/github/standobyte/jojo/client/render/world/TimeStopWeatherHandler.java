@@ -80,7 +80,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
 
             RenderSystem.depthMask(Minecraft.useShaderTransparency());
             int i1 = -1;
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos();
 
             for(int j1 = k - l; j1 <= k + l; ++j1) {
@@ -134,7 +134,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
                                     }
 
                                     i1 = 0;
-                                    mc.getTextureManager().bind(RAIN_LOCATION);
+                                    RenderSystem.setShaderTexture(0, RAIN_LOCATION);
                                     bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 
@@ -157,7 +157,7 @@ public class TimeStopWeatherHandler implements IWeatherRenderHandler, IWeatherPa
                                     }
 
                                     i1 = 1;
-                                    mc.getTextureManager().bind(SNOW_LOCATION);
+                                    RenderSystem.setShaderTexture(0, SNOW_LOCATION);
                                     bufferbuilder.begin(7, DefaultVertexFormat.PARTICLE);
                                 }
 

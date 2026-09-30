@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -12,7 +13,7 @@ import com.github.standobyte.jojo.entity.damaging.projectile.CDBlockBulletEntity
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,8 +23,8 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 
 public class CDBlockBulletRenderer extends SimpleEntityRenderer<CDBlockBulletEntity, CDBlockBulletModel> {
 
-    public CDBlockBulletRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new CDBlockBulletModel(), null);
+    public CDBlockBulletRenderer(EntityRendererProvider.Context context) {
+        super(context, new CDBlockBulletModel(), null);
     }
     
     @Override

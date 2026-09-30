@@ -124,7 +124,7 @@ public interface IJojoScreen {
         
         protected void renderIcon(PoseStack matrixStack, int x, int y) {
             if (icon != null) {
-                Minecraft.getInstance().textureManager.bind(icon);
+                Minecraft.getInstance().RenderSystem.setShaderTexture(0, icon);
                 AbstractGui.blit(matrixStack, x + 2, y + 6, texX, texY, 16, 16, texSizeX, texSizeY);
             }
         }
@@ -156,7 +156,7 @@ public interface IJojoScreen {
             boolean isSelected = i == selectedIndex;
             int texX = (isSelected ? 0 : 168) + (i == 0 ? 0 : 28);
             int texY = isSelected ? 32 : 2;
-            textureManager.bind(TABS);
+            RenderSystem.setShaderTexture(0, TABS);
             AbstractGui.blit(matrixStack, x, y, texX, texY, 28, 32, 256, 256);
             x += 28;
         }
@@ -192,7 +192,7 @@ public interface IJojoScreen {
             boolean isSelected = i == selectedIndex;
             int texX = atTheTop && i == 0 ? 96 : 128;
             int texY = isSelected ? 92 : 64;
-            textureManager.bind(TABS);
+            RenderSystem.setShaderTexture(0, TABS);
             AbstractGui.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
             y += 28;
         }
@@ -295,7 +295,7 @@ public interface IJojoScreen {
                 return;
             }
             int texY = isSelected ? 92 : 64;
-            textureManager.bind(TABS);
+            RenderSystem.setShaderTexture(0, TABS);
             AbstractGui.blit(matrixStack, x - 4, y, texX, texY, 32, 28, 256, 256);
             y += 28;
         }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.entity.damaging.projectile.BlockShardEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -10,7 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -19,8 +20,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class BlockShardRenderer extends EntityRenderer<BlockShardEntity> {
 
-    public BlockShardRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public BlockShardRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

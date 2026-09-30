@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.render.item;
 
 import javax.annotation.Nullable;
+import net.minecraft.world.item.ItemTransforms;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.action.stand.effect.GEItemMarkEffect;
@@ -14,7 +15,6 @@ import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;

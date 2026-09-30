@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.extending;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.render.entity.model.ownerbound.repeating.RepeatingModel;
 import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRenderer;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.OwnerBoundProjectileEntity;
@@ -9,7 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.ResourceLocation;
@@ -18,8 +19,8 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class ExtendingEntityRenderer<T extends OwnerBoundProjectileEntity, M extends RepeatingModel<T>> extends SimpleEntityRenderer<T, M> {
 
-    public ExtendingEntityRenderer(EntityRenderDispatcher renderManager, M model, ResourceLocation texPath) {
-        super(renderManager, model, texPath);
+    public ExtendingEntityRenderer(EntityRendererProvider.Context context, M model, ResourceLocation texPath) {
+        super(context, model, texPath);
     }
     
     protected float getAlpha(T entity, float partialTick) {

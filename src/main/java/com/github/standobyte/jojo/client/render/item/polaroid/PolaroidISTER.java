@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.polaroid;
 
 import com.github.standobyte.jojo.JojoMod;
+import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.polaroid.PolaroidHelper;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
@@ -10,7 +11,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.resources.ResourceLocation;

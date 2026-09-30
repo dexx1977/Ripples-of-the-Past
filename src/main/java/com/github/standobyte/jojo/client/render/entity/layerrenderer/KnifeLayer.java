@@ -1,11 +1,12 @@
 package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.capability.entity.LivingUtilCapProvider;
 import com.github.standobyte.jojo.entity.itemprojectile.KnifeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
 import net.minecraft.client.model.PlayerModel;
@@ -14,7 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
 
 public class KnifeLayer<T extends LivingEntity, M extends PlayerModel<T>> extends StuckInBodyLayer<T, M> {
-    private final EntityRenderDispatcher dispatcher;
+    private final EntityRendererProvider.Context context;
     private KnifeEntity knife;
 
     public KnifeLayer(LivingEntityRenderer<T, M> renderer) {

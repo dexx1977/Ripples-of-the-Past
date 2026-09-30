@@ -20,8 +20,8 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         Font fontrenderer = minecraft.font;
-        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         int texY = 46 + getYImage(isHovered()) * 20;
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -49,8 +49,8 @@ public abstract class HeightScaledSlider extends AbstractSliderButton {
     
     @Override
     protected void renderBg(PoseStack pMatrixStack, Minecraft pMinecraft, int pMouseX, int pMouseY) {
-        pMinecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = (isHovered() ? 2 : 1) * 20;
         blit(pMatrixStack, 
                 x + (int)(value * (width - 8)), y, 

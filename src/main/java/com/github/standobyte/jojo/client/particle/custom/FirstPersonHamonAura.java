@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.particle.custom;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -184,7 +185,7 @@ public class FirstPersonHamonAura {
         RenderSystem.multMatrix(pMatrixStack.last().pose());
 
         enable.run();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
         

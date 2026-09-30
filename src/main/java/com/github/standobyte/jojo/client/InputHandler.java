@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.github.standobyte.jojo.client.ClientSetup;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_B;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSLASH;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_H;
@@ -112,7 +113,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 public class InputHandler {
     private static InputHandler instance = null;
@@ -178,10 +178,10 @@ public class InputHandler {
     }
     
     public void registerKeyBindings() {
-        ClientRegistry.registerKeyBinding(toggleStand = new KeyMapping(JojoMod.MOD_ID + ".key.toggle_stand", GLFW_KEY_M, MAIN_CATEGORY));
-        ClientRegistry.registerKeyBinding(standRemoteControl = new KeyMapping(JojoMod.MOD_ID + ".key.stand_remote_control", GLFW_KEY_O, MAIN_CATEGORY));
-        ClientRegistry.registerKeyBinding(hamonSkillsWindow = new KeyMapping(JojoMod.MOD_ID + ".key.hamon_skills_window", GLFW_KEY_H, MAIN_CATEGORY));
-        ClientRegistry.registerKeyBinding(jojoLmbRmbKeybind = new KeyMapping(JojoMod.MOD_ID + ".key.jojo_test", GLFW_KEY_UNKNOWN, MAIN_CATEGORY) {
+        ClientSetup.registerKeyMapping(toggleStand = new KeyMapping(JojoMod.MOD_ID + ".key.toggle_stand", GLFW_KEY_M, MAIN_CATEGORY));
+        ClientSetup.registerKeyMapping(standRemoteControl = new KeyMapping(JojoMod.MOD_ID + ".key.stand_remote_control", GLFW_KEY_O, MAIN_CATEGORY));
+        ClientSetup.registerKeyMapping(hamonSkillsWindow = new KeyMapping(JojoMod.MOD_ID + ".key.hamon_skills_window", GLFW_KEY_H, MAIN_CATEGORY));
+        ClientSetup.registerKeyMapping(jojoLmbRmbKeybind = new KeyMapping(JojoMod.MOD_ID + ".key.jojo_test", GLFW_KEY_UNKNOWN, MAIN_CATEGORY) {
             private boolean wasJustReset = false;
             @Override
             public void setToDefault() {
@@ -223,21 +223,21 @@ public class InputHandler {
             }
         });
         
-        ClientRegistry.registerKeyBinding(jojoStuffMenu = new KeyMapping(JojoMod.MOD_ID + ".key.jojo_menu", GLFW_KEY_BACKSLASH, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(jojoStuffMenu = new KeyMapping(JojoMod.MOD_ID + ".key.jojo_menu", GLFW_KEY_BACKSLASH, HUD_CATEGORY));
         
-        ClientRegistry.registerKeyBinding(nonStandMode = new KeyMapping(JojoMod.MOD_ID + ".key.non_stand_mode", GLFW_KEY_J, HUD_CATEGORY));
-        ClientRegistry.registerKeyBinding(standMode = new KeyMapping(JojoMod.MOD_ID + ".key.stand_mode", GLFW_KEY_K, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(nonStandMode = new KeyMapping(JojoMod.MOD_ID + ".key.non_stand_mode", GLFW_KEY_J, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(standMode = new KeyMapping(JojoMod.MOD_ID + ".key.stand_mode", GLFW_KEY_K, HUD_CATEGORY));
         
-        ClientRegistry.registerKeyBinding(attackHotbar = new KeyMapping(JojoMod.MOD_ID + ".key.attack_hotbar", GLFW_KEY_V, HUD_CATEGORY));
-        ClientRegistry.registerKeyBinding(abilityHotbar = new KeyMapping(JojoMod.MOD_ID + ".key.ability_hotbar", GLFW_KEY_B, HUD_CATEGORY));
-        ClientRegistry.registerKeyBinding(disableHotbars = new KeyMapping(JojoMod.MOD_ID + ".key.disable_hotbars", GLFW_KEY_LEFT_ALT, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(attackHotbar = new KeyMapping(JojoMod.MOD_ID + ".key.attack_hotbar", GLFW_KEY_V, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(abilityHotbar = new KeyMapping(JojoMod.MOD_ID + ".key.ability_hotbar", GLFW_KEY_B, HUD_CATEGORY));
+        ClientSetup.registerKeyMapping(disableHotbars = new KeyMapping(JojoMod.MOD_ID + ".key.disable_hotbars", GLFW_KEY_LEFT_ALT, HUD_CATEGORY));
         
-        ClientRegistry.registerKeyBinding(scrollMode = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_mode", GLFW_KEY_UNKNOWN, HUD_ALTERNATIVE_CATEGORY));
-        ClientRegistry.registerKeyBinding(scrollAttack = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_attack", GLFW_KEY_V, HUD_ALTERNATIVE_CATEGORY));
+        ClientSetup.registerKeyMapping(scrollMode = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_mode", GLFW_KEY_UNKNOWN, HUD_ALTERNATIVE_CATEGORY));
+        ClientSetup.registerKeyMapping(scrollAttack = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_attack", GLFW_KEY_V, HUD_ALTERNATIVE_CATEGORY));
         scrollAttack.setKey(InputConstants.Type.KEYSYM.getOrCreate(GLFW_KEY_UNKNOWN));
-        ClientRegistry.registerKeyBinding(scrollAbility = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_ability", GLFW_KEY_B, HUD_ALTERNATIVE_CATEGORY));
+        ClientSetup.registerKeyMapping(scrollAbility = new KeyMapping(JojoMod.MOD_ID + ".key.scroll_ability", GLFW_KEY_B, HUD_ALTERNATIVE_CATEGORY));
         scrollAbility.setKey(InputConstants.Type.KEYSYM.getOrCreate(GLFW_KEY_UNKNOWN));
-        ClientRegistry.registerKeyBinding(hamonMeditation = new KeyMapping(JojoMod.MOD_ID + ".key.meditation", GLFW_KEY_UNKNOWN, HUD_ALTERNATIVE_CATEGORY));
+        ClientSetup.registerKeyMapping(hamonMeditation = new KeyMapping(JojoMod.MOD_ID + ".key.meditation", GLFW_KEY_UNKNOWN, HUD_ALTERNATIVE_CATEGORY));
         
         initHeldKeybindTimers();
     }

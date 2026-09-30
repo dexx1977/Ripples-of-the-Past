@@ -58,14 +58,14 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
 
     @Override
     public void addButtons() {
-        addButton(learnButton = new HamonScreenButton(screen.windowPosX() + 150, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.learnButton"), button -> {
+        addRenderableWidget(learnButton = new HamonScreenButton(screen.windowPosX() + 150, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.learnButton"), button -> {
             if (selectedSkill != null) {
                 PacketManager.sendToServer(new ClHamonLearnButtonPacket(selectedSkill.getHamonSkill()));
                 screen.clickedOnSkill = true;
             }
         }));
         
-        addButton(creativeResetButton = new HamonScreenButton(screen.windowPosX() + 16, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.resetButton"), button -> {
+        addRenderableWidget(creativeResetButton = new HamonScreenButton(screen.windowPosX() + 16, screen.windowPosY() + 92, 64, 20, Component.translatable("hamon.resetButton"), button -> {
             PacketManager.sendToServer(new ClHamonResetSkillsButtonPacket(getSkillsType()));
         }));
     }
@@ -86,7 +86,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
     
     private void renderSkillTrees(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY) {
         // skill squares
-        this.minecraft.getTextureManager().bind(HAMON_SKILLS);
+        RenderSystem.setShaderTexture(0, HAMON_SKILLS);
         HamonSkillElementLearnable hovered = null;
         for (HamonSkillElementLearnable skillElement : skills.values()) {
             skillElement.blitBgSquare(matrixStack, intScrollX, intScrollY);
@@ -96,7 +96,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
         }
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         // selected skill (green overlay, left upper corner icon)
         if (selectedSkill != null) {
@@ -111,7 +111,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
             !screen.hamon.isSkillLearned(skill)).collect(Collectors.toList());
             for (AbstractHamonSkill skill : missingSkills) {
                 if (!GeneralUtil.orElseFalse(findSkillSquare(skill), skillElement -> {
-                    minecraft.getTextureManager().bind(HAMON_SKILLS);
+                    RenderSystem.setShaderTexture(0, HAMON_SKILLS);
                     skillElement.blitBgSquareRequirement(matrixStack, intScrollX, intScrollY);
                     return true;
                 })) {
@@ -124,7 +124,7 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
                     });
                 }
 //                findSkillSquare(skill).ifPresent(skillElement -> {
-//                    minecraft.getTextureManager().bind(HAMON_SKILLS);
+//                    RenderSystem.setShaderTexture(0, HAMON_SKILLS);
 //                    skillElement.blitBgSquareRequirement(matrixStack, intScrollX, intScrollY);
 //                });
             }
@@ -140,17 +140,17 @@ public abstract class HamonSkillsTabGui extends HamonTabGui {
             boolean mouseOver = requirement.isMouseOver(intScrollX, intScrollY, mouseX, mouseY);
             boolean learned = screen.hamon.isSkillLearned(requirement.getHamonSkill());
             if (mouseOver) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
             else if (!learned) {
-                RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
             }
             else {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.4F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.4F);
             }
             requirement.renderSkillIcon(matrixStack, intScrollX, intScrollY);
         }
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         RenderSystem.disableBlend();
     }

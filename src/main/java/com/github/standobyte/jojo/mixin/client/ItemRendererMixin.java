@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.world.item.ItemTransforms;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -22,7 +23,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;

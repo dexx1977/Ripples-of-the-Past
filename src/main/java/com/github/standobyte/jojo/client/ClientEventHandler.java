@@ -868,7 +868,7 @@ public class ClientEventHandler {
     private long healthUpdateCounter;
     public void renderHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
             RenderGameOverlayEvent event, int width, int height) {
-        mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
         mc.getProfiler().push("health");
         RenderSystem.enableBlend();
 
@@ -968,9 +968,9 @@ public class ClientEventHandler {
                 
                 // !
                 if (i * 2 + 1 >= healthMax) {
-                    mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
+                    RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
                     gui.blit(matrixStack, x, y, 64, 0, 9, 9);
-                    mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
+                    RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
                 }
             }
         }
@@ -981,7 +981,7 @@ public class ClientEventHandler {
     
     public void renderMountHealthWithBleeding(LivingEntity entity, PoseStack matrixStack, Gui gui, 
             RenderGameOverlayEvent event, int width, int height) {
-        mc.textureManager.bind(AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
 
         boolean unused = false;
         int left_align = width / 2 + 91;
@@ -1019,9 +1019,9 @@ public class ClientEventHandler {
                 
                 // !
                 if (i * 2 + 1 + heart >= healthMax) {
-                    mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
+                    RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
                     gui.blit(matrixStack, x, top, 73, 0, 9, 9);
-                    mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
+                    RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
                 }
             }
 
@@ -1047,7 +1047,7 @@ public class ClientEventHandler {
                     Gui gui = mc.gui;
                     int blitOffs = gui.getBlitOffset();
                     
-                    mc.getTextureManager().bind(WIDGETS_LOCATION);
+                    RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
                     gui.setBlitOffset(-90);
                     if (offHand == HumanoidArm.LEFT) {
                         gui.blit(matrixStack, halfWidth - 91 - 29, screenHeight - 23, 24, 22, 29, 24);
@@ -1056,7 +1056,6 @@ public class ClientEventHandler {
                     }
                     
                     gui.setBlitOffset(blitOffs);
-                    RenderSystem.enableRescaleNormal();
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     
@@ -1078,11 +1077,11 @@ public class ClientEventHandler {
         Font font = mc.font;
         int xPos = screenWidth / 2 - 91;
         
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
         
         mc.getProfiler().push("expBar");
-        mc.getTextureManager().bind(AbstractGui.GUI_ICONS_LOCATION);
+        RenderSystem.setShaderTexture(0, AbstractGui.GUI_ICONS_LOCATION);
         int i = mc.player.getXpNeededForNextLevel();
         if (i > 0) {
             int k = (int)(mc.player.experienceProgress * 183.0F);
@@ -1119,7 +1118,7 @@ public class ClientEventHandler {
         mc.getProfiler().pop();
         
         RenderSystem.enableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -1364,7 +1363,7 @@ public class ClientEventHandler {
     private void renderToBeContinuedArrow(PoseStack matrixStack, AbstractGui ui, int screenWidth, int screenHeight, float partialTick) {
         int x = screenWidth - 5 - (int) ((screenWidth - 10) * Math.min(deathScreenTick + partialTick, 20F) / 20F);
         int y = screenHeight - 29;
-        mc.textureManager.bind(ClientUtil.ADDITIONAL_UI);
+        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
         ui.blit(matrixStack, x, y, 0, 231, 130, 25);
         AbstractGui.drawCenteredString(matrixStack, mc.font, Component.translatable("jojo.to_be_continued"), x + 61, y + 8, 0x525544);
     }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.PillarmanTempleEngravingEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -32,8 +33,8 @@ public class PillarmanTempleEngravingRenderer extends EntityRenderer<PillarmanTe
             new ResourceLocation(JojoMod.MOD_ID, "textures/engraving/engraving_8.png")
     };
 
-    public PillarmanTempleEngravingRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public PillarmanTempleEngravingRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

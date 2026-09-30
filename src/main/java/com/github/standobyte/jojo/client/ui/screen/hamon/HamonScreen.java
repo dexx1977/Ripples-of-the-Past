@@ -132,8 +132,8 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
     
     @Override
-    public <T extends AbstractWidget> T addButton(T button) {
-        return super.addButton(button);
+    public <T extends AbstractWidget> T addRenderableWidget(T button) {
+        return super.addRenderableWidget(button);
     }
 
     public void removeButton(AbstractWidget button) {
@@ -307,14 +307,13 @@ public class HamonScreen extends Screen implements IJojoScreen {
     }
 
     public void renderWindow(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(WINDOW);
+        RenderSystem.setShaderTexture(0, WINDOW);
         blit(matrixStack, windowX, windowY, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         for (HamonTabGui tabGui : selectableTabs) {
             tabGui.drawTab(matrixStack, windowX, windowY, tabGui == selectedTab, tabsWithSkillRequirements.contains(tabGui));
         }
-        RenderSystem.enableRescaleNormal();
         RenderSystem.defaultBlendFunc();
         for (HamonTabGui tabGui : selectableTabs) {
             tabGui.drawIcon(matrixStack, windowX, windowY, itemRenderer);
@@ -336,7 +335,7 @@ public class HamonScreen extends Screen implements IJojoScreen {
     private int tooltipOffsetX;
     private int tooltipOffsetY;
     private void renderToolTips(PoseStack matrixStack, int mouseX, int mouseY, int windowX, int windowY) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (selectedTab != null && mouseInsideWindow(mouseX, mouseY)) {
             RenderSystem.pushMatrix();
             RenderSystem.enableDepthTest();

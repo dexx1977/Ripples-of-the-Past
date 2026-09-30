@@ -91,7 +91,7 @@ public class HamonStatsTabGui extends HamonTabGui {
 
     @Override
     public void addButtons() {
-        addButton(abandonTrainingButton = new HamonScreenButton(screen.windowPosX() + 13, screen.windowPosY() + 999, 204, 20, 
+        addRenderableWidget(abandonTrainingButton = new HamonScreenButton(screen.windowPosX() + 13, screen.windowPosY() + 999, 204, 20, 
                 Component.translatable("hamon.abandon.tab"), button -> {
                     screen.abandonTrainingTab.setPrevTab(this);
                     screen.selectTab(screen.abandonTrainingTab);
@@ -100,11 +100,11 @@ public class HamonStatsTabGui extends HamonTabGui {
 
     @Override
     protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
-        minecraft.getTextureManager().bind(HamonScreen.WINDOW);
+        RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
         float breathingTraining = screen.hamon.getBreathingLevel();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         // hamon strength bar
         float pts;
@@ -197,18 +197,18 @@ public class HamonStatsTabGui extends HamonTabGui {
         matrixStack.pushPose();
         matrixStack.scale(0.5F, 0.5F, 0.5F);
         if (!screen.hamon.has4ExercisesBonus()) {
-            RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
         }
         blit(matrixStack, (intScrollX + 198) * 2, (exercisesAvgY - 1) * 2, 230, 188, 16, 16);
         matrixStack.popPose();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         RenderSystem.disableBlend();
     }
     
     public static void drawExerciseBar(AbstractGui gui, PoseStack matrixStack, int x, int y, HamonData hamon, 
             Exercise exercise, float alpha, boolean renderShadowCheckmark) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int ticks = hamon.getExerciseTicks(exercise);
         int ticksMax = exercise.getMaxTicks(hamon);
         gui.blit(matrixStack, x + 1, y + 1, 93, 250, 90 * ticks / ticksMax, 5);
@@ -221,13 +221,13 @@ public class HamonStatsTabGui extends HamonTabGui {
         
         if (renderShadowCheckmark || ticks >= ticksMax) {
             if (ticks < ticksMax) {
-                RenderSystem.color4f(0.0F, 0.0F, 0.0F, alpha);
+                RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha);
             }
             gui.blit(matrixStack, (x + 85) * 2, (y - 1) * 2, 230, 188, 16, 16);
         }
         
         matrixStack.popPose();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override
@@ -327,7 +327,7 @@ public class HamonStatsTabGui extends HamonTabGui {
 //        int iconY = windowY + getTabY() + 6;
         int iconX = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int iconY = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
-        minecraft.getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
+        RenderSystem.setShaderTexture(0, HamonSkillsTabGui.HAMON_SKILLS);
         float barRatio = (float) screen.hamon.getHamonStrengthLevel() / (float) HamonData.MAX_STAT_LEVEL;
         blit(matrixStack, iconX + 3, iconY, Mth.floor(barRatio * 11F), 16, 229, 0, 22, 32, 256, 256);
         barRatio = (float) screen.hamon.getHamonControlLevel() / (float) HamonData.MAX_STAT_LEVEL;

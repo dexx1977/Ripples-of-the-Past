@@ -71,11 +71,11 @@ public abstract class HamonTabGui extends AbstractGui {
     }
 
     void drawTab(PoseStack matrixStack, int windowX, int windowY, boolean isSelected, boolean red) {
-        minecraft.getTextureManager().bind(IJojoScreen.TABS);
+        RenderSystem.setShaderTexture(0, IJojoScreen.TABS);
         tabPositioning.draw(matrixStack, screen, windowX, windowY, WINDOW_WIDTH, WINDOW_HEIGHT, 
                 isSelected, index, false);
         if (!isSelected && red) {
-            minecraft.getTextureManager().bind(HamonScreen.WINDOW);
+            RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
             int x = windowX + tabPositioning.getX(index, WINDOW_WIDTH);
             int y = windowY + tabPositioning.getY(index, WINDOW_HEIGHT);
             blit(matrixStack, x + 3, y, 230, 0, 26, 28);
@@ -112,9 +112,9 @@ public abstract class HamonTabGui extends AbstractGui {
         fill(matrixStack, WINDOW_WIDTH - 18, WINDOW_HEIGHT - 27, 0, 0, -16777216);
         RenderSystem.depthFunc(515);
         if (background != null)  {
-            minecraft.getTextureManager().bind(background);
+            RenderSystem.setShaderTexture(0, background);
         } else {
-            minecraft.getTextureManager().bind(TextureManager.INTENTIONAL_MISSING_TEXTURE);
+            RenderSystem.setShaderTexture(0, TextureManager.INTENTIONAL_MISSING_TEXTURE);
         }
 
         intScrollX = Mth.floor(scrollX);
@@ -128,7 +128,6 @@ public abstract class HamonTabGui extends AbstractGui {
         }
 
         drawOnBackground(screen, matrixStack, mouseX - (int) xOffset, mouseY - (int) yOffset);
-        RenderSystem.disableRescaleNormal();
         RenderSystem.disableDepthTest();
         drawText(matrixStack);
         RenderSystem.pushMatrix();
@@ -138,7 +137,6 @@ public abstract class HamonTabGui extends AbstractGui {
         RenderSystem.popMatrix();
         
         RenderSystem.enableDepthTest();
-        RenderSystem.enableRescaleNormal();
         drawActualContents(screen, matrixStack, mouseX - (int) xOffset, mouseY - (int) yOffset, partialTick);
         RenderSystem.pushMatrix();
         RenderSystem.translatef(-xOffset, -yOffset, 0);
@@ -165,8 +163,8 @@ public abstract class HamonTabGui extends AbstractGui {
     public abstract void addButtons();
     
     private List<IExtendedWidget> allWidgets = new ArrayList<>();
-    protected void addButton(IExtendedWidget button) {
-        screen.addButton(button.thisAsWidget());
+    protected void addRenderableWidget(IExtendedWidget button) {
+        screen.addRenderableWidget(button.thisAsWidget());
         allWidgets.add(button);
     }
     

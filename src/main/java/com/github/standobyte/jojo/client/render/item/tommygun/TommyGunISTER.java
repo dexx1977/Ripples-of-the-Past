@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.tommygun;
 
 import com.github.standobyte.jojo.JojoMod;
+import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.item.generic.CustomModelItemISTER;
 import com.github.standobyte.jojo.init.ModItems;
@@ -11,7 +12,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
 

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,7 +32,7 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
         this.onNewValue = onNewValue;
     }
     
-    public RadioButtonsList<V> addButton(int x, int y, Component name, V value) {
+    public RadioButtonsList<V> addRenderableWidget(int x, int y, Component name, V value) {
         RadioButton button = new RadioButton(x, y, name, b -> {
             this.selectedValue = value;
             onNewValue(value);
@@ -63,9 +64,9 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
         private RadioButtonsList<?> list;
         private Object value;
 
-        public RadioButton(int x, int y, Component pMessage, IPressable pOnPress, 
+        public RadioButton(int x, int y, Component pMessage, Button.OnPress pOnPress, 
                 RadioButtonsList<?> list, Object value) {
-            super(x, y, 13, 13, pMessage, pOnPress);
+            super(x, y, 13, 13, pMessage, pOnPress, Button.DEFAULT_NARRATION);
             this.list = list;
             this.value = value;
         }
@@ -73,7 +74,7 @@ public class RadioButtonsList<V> implements ContainerEventHandler {
         @Override
         public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
             Minecraft minecraft = Minecraft.getInstance();
-            minecraft.getTextureManager().bind(ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
+            RenderSystem.setShaderTexture(0, ChooseLifeformScreen.LIFEFORM_CHOOSE_LOCATION);
             int texY = list.getSelectedValue() == value ? 40 : 53;
             blit(pMatrixStack, x, y, 115, texY, width, height, 128, 128);
             minecraft.font.drawShadow(pMatrixStack, getMessage(), x + 16, y + (height - minecraft.font.lineHeight) / 2, 0xFFFFFF);

@@ -230,17 +230,17 @@ public class StandStatsRenderer {
                 matrixStack.scale(scale, scale, 1);
             }
 
-            mc.textureManager.bind(STAND_STATS_UI);
+            RenderSystem.setShaderTexture(0, STAND_STATS_UI);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             // background
-            if (invertBnW) RenderSystem.color4f(0, 0, 0, bgAlpha * bordersAlpha);
-            else           RenderSystem.color4f(1, 1, 1, bgAlpha * bordersAlpha);
+            if (invertBnW) RenderSystem.setShaderColor(0, 0, 0, bgAlpha * bordersAlpha);
+            else           RenderSystem.setShaderColor(1, 1, 1, bgAlpha * bordersAlpha);
             AbstractGui.blit(matrixStack, x, y, 0, 256, 0, statsWidth, statsHeight, 512, 512);
             
             // circles
-            if (invertBnW) RenderSystem.color4f(1, 1, 1, bordersAlpha);
-            else           RenderSystem.color4f(0, 0, 0, bordersAlpha);
+            if (invertBnW) RenderSystem.setShaderColor(1, 1, 1, bordersAlpha);
+            else           RenderSystem.setShaderColor(0, 0, 0, bordersAlpha);
             AbstractGui.blit(matrixStack, x, y, 0, 0, 0, statsWidth, statsHeight, 512, 512);
             AbstractGui.blit(matrixStack, x, y, 0, 0, 164, statsWidth, statsHeight, 512, 512);
             AbstractGui.blit(matrixStack, x, y, 0, 256, 164, statsWidth, statsHeight, 512, 512);
@@ -276,7 +276,7 @@ public class StandStatsRenderer {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             
-            RenderSystem.color4f(1, 1, 1, 1);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
             
             matrixStack.popPose();
             
@@ -332,7 +332,7 @@ public class StandStatsRenderer {
                     standIconY -= 5;
                 }
     
-                mc.getTextureManager().bind(override.standIcon(power));
+                RenderSystem.setShaderTexture(0, override.standIcon(power));
                 AbstractGui.blit(matrixStack, x + statsWidth - 18 - width, standIconY, 0, 0, 16, 16, 16, 16);
                 ClientUtil.drawLines(matrixStack, mc.font, standName, 
                         x + statsWidth - width, standNameY, 0, color, true, true);
@@ -342,7 +342,7 @@ public class StandStatsRenderer {
                 ClientUtil.drawLines(matrixStack, mc.font, standUser, 
                         x + statsWidth - width, standUserY, 0, color, true, true);
     
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
 
             // rank letters on the outer ring
@@ -407,12 +407,12 @@ public class StandStatsRenderer {
     @SuppressWarnings("deprecation")
     private static void renderLetterFromTex(PoseStack matrixStack, float letterAlpha, boolean invertBnW, 
             float statX, float statY, float letterWidth, int texX, int texY) {
-        Minecraft.getInstance().textureManager.bind(STAND_STATS_UI);
-        if (invertBnW) RenderSystem.color4f(1, 1, 1, letterAlpha);
-        else           RenderSystem.color4f(0, 0, 0, letterAlpha);
+        Minecraft.getInstance().RenderSystem.setShaderTexture(0, STAND_STATS_UI);
+        if (invertBnW) RenderSystem.setShaderColor(1, 1, 1, letterAlpha);
+        else           RenderSystem.setShaderColor(0, 0, 0, letterAlpha);
         RenderSystem.enableBlend();
         BlitFloat.blitFloat(matrixStack, statX - letterWidth / 2, statY, texX, texY, 8, 7, 512, 512);
-        RenderSystem.color4f(1, 1, 1, 1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
     
 

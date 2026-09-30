@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.beam;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.damaging.DamagingEntity;
 import com.github.standobyte.jojo.util.general.MathUtil;
@@ -9,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -19,8 +20,8 @@ import com.mojang.math.Axis;
 
 public abstract class BeamRenderer<T extends DamagingEntity> extends EntityRenderer<T> {
 
-    public BeamRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public BeamRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
     
     protected abstract Vec3 pointB(T entity, float partialTick);

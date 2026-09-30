@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.projectile.SCRapierFlameModel;
@@ -10,15 +11,15 @@ import com.github.standobyte.jojo.entity.damaging.projectile.SCRapierEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class SCRapierRenderer extends SimpleEntityRenderer<SCRapierEntity, SCRapierModel> {
     private final SCRapierFlameModel flameModel;
 
-    public SCRapierRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new SCRapierModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/stand/silver_chariot.png"));
+    public SCRapierRenderer(EntityRendererProvider.Context context) {
+        super(context, new SCRapierModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/stand/silver_chariot.png"));
         this.flameModel = new SCRapierFlameModel();
     }
     

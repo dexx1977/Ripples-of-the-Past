@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.SoulEntity;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
@@ -102,7 +103,7 @@ public class ControllerSoul {
             
             PoseStack matrixStack = event.getMatrixStack();
             mc.getProfiler().push("expBar");
-            mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
+            RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
             int i = mc.player.getXpNeededForNextLevel();
             if (i > 0) {
                 int xPos = mc.getWindow().getGuiScaledWidth() / 2 - 91;

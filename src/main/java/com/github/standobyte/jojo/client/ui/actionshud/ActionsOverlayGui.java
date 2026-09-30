@@ -318,11 +318,9 @@ public class ActionsOverlayGui extends AbstractGui {
             updateElementPositions(barsPosConfig, hotbarsPosConfig, 
                     hotbarIsRendered[0], hotbarIsRendered[1], hotbarIsRendered[2], hotbarIsRendered[3], 
                     screenWidth, screenHeight);
-            
-            RenderSystem.enableRescaleNormal();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             
             renderBars(matrixStack, barsPosition, barsRenderer, partialTick);
             
@@ -348,23 +346,18 @@ public class ActionsOverlayGui extends AbstractGui {
             renderIconBarAtCrosshair(matrixStack, screenWidth, screenHeight, partialTick);
             
             renderOutOfBreathSprite(matrixStack, partialTick, screenWidth, screenHeight);
-            
-            RenderSystem.disableRescaleNormal();
             RenderSystem.disableBlend();
             break;
         case TEXT:
-            RenderSystem.enableRescaleNormal();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 //            if (showModeSelector) {
 //                drawModeSelectorNames(matrixStack, modeSelectorPosition, partialTick);
 //            }
             
             drawBarsText(matrixStack, barsRenderer, partialTick);
-            
-            RenderSystem.disableRescaleNormal();
             RenderSystem.disableBlend();
             break;
         case HELMET: // VIGNETTE only gets called when the graphics settings are on Fancy, and this overlay is pretty important
@@ -383,7 +376,6 @@ public class ActionsOverlayGui extends AbstractGui {
 
             switch (elementTypeRender) {
             case ALL:
-                RenderSystem.enableRescaleNormal();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
@@ -397,8 +389,6 @@ public class ActionsOverlayGui extends AbstractGui {
                 }
                 
                 renderLeapIcon(matrixStack, currentMode, screenWidth, screenHeight);
-                
-                RenderSystem.disableRescaleNormal();
                 RenderSystem.disableBlend();
                 break;
             case TEXT:
@@ -418,13 +408,10 @@ public class ActionsOverlayGui extends AbstractGui {
         if (hotbarIsRendered[2]) {
             switch (elementTypeRender) {
             case ALL:
-                RenderSystem.enableRescaleNormal();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
                 renderInHudKeybindActionSlots(matrixStack, inHudHotkeysPosition, getMouseTarget(), partialTick);
-                
-                RenderSystem.disableRescaleNormal();
                 RenderSystem.disableBlend();
                 break;
             case TEXT:
@@ -440,15 +427,12 @@ public class ActionsOverlayGui extends AbstractGui {
             ActionsModeConfig<?> hudMode = getHudMode(action.getPowerClassification());
             switch (elementTypeRender) {
             case ALL:
-                RenderSystem.enableRescaleNormal();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 
                 renderOffHudKeybindActionSlot(matrixStack, 
                         offHudHotkeyPosition, action, 
                         getMouseTarget(), partialTick);
-                
-                RenderSystem.disableRescaleNormal();
                 RenderSystem.disableBlend();
                 break;
             case TEXT:
@@ -769,7 +753,7 @@ public class ActionsOverlayGui extends AbstractGui {
         int x = pos.x;
         int y = pos.y;
         if (renderer != null) {
-            mc.getTextureManager().bind(OVERLAY_LOCATION);
+            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
             renderer.render(matrixStack, x, y, pos.alignment, 
                     currentMode, nonStandUiMode, standUiMode, 
                     tickCount, partialTick, mc);
@@ -809,8 +793,8 @@ public class ActionsOverlayGui extends AbstractGui {
         boolean shift = InputHandler.useShiftActionVariant(mc);
         float alpha = selected < 0 || !hotbarsEnabled ? 0.25F : 1.0F;
         // mouse button icon
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-        mc.getTextureManager().bind(OVERLAY_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
         switch (position.alignment) {
         case LEFT:
             renderMouseIcon(matrixStack, x, y + 2, actionKey);
@@ -860,8 +844,8 @@ public class ActionsOverlayGui extends AbstractGui {
             if (selectedActionTargetIcon != null) {
                 int[] tex = selectedActionTargetIcon.getIconTex();
                 if (tex != null) {
-                    mc.getTextureManager().bind(OVERLAY_LOCATION);
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                    RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                     int texX = tex[0];
                     int texY = tex[1];
                     float iconX = x + hotbarFold.getSlotWithIndex(selected).pos + 10;
@@ -878,7 +862,7 @@ public class ActionsOverlayGui extends AbstractGui {
         // hotbar controls lock icon
         if (actionHotbar != null) {
             if (InputHandler.getInstance().areControlsLockedForHotbar(actionHotbar)) {
-                mc.getTextureManager().bind(OVERLAY_LOCATION);
+                RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
                 if (position.alignment == Alignment.LEFT) {
                     blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
                 }
@@ -912,12 +896,12 @@ public class ActionsOverlayGui extends AbstractGui {
             }
         }
         
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         // hotbar controls lock icon
         if (actionHotbar != null) {
             if (InputHandler.getInstance().areControlsLockedForHotbar(actionHotbar)) {
-                mc.getTextureManager().bind(OVERLAY_LOCATION);
+                RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
                 if (position.alignment == Alignment.LEFT) {
                     blit(matrixStack, x + hotbarLength - 2, y, 240, 240, 16, 16);
                 }
@@ -1081,8 +1065,8 @@ public class ActionsOverlayGui extends AbstractGui {
         // target type icon
         int[] tex = targetIcon.getIconTex();
         if (tex != null) {
-            mc.getTextureManager().bind(OVERLAY_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             int texX = tex[0];
             int texY = tex[1];
             int iconX = x + 20 * selected + 10;
@@ -1094,7 +1078,7 @@ public class ActionsOverlayGui extends AbstractGui {
             matrixStack.popPose();
         }
         
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         // hold progress indicator
         x += 11;
@@ -1181,9 +1165,9 @@ public class ActionsOverlayGui extends AbstractGui {
                 
                 // action icon
                 boolean changeColor = brightness < 1 || alpha < 1;
-                if (changeColor) RenderSystem.color4f(brightness, brightness, brightness, alpha);
+                if (changeColor) RenderSystem.setShaderColor(brightness, brightness, brightness, alpha);
                 action.renderActionIcon(matrixStack, power, x, y);
-                if (changeColor) RenderSystem.color4f(1, 1, 1, 1);
+                if (changeColor) RenderSystem.setShaderColor(1, 1, 1, 1);
                 
                 // cooldown
                 float ratio = power.getCooldownRatio(action, partialTick);
@@ -1200,9 +1184,9 @@ public class ActionsOverlayGui extends AbstractGui {
                 
                 // action icon
                 boolean changeColor = hotbarAlpha < 1;
-                if (changeColor) RenderSystem.color4f(1, 1, 1, hotbarAlpha);
+                if (changeColor) RenderSystem.setShaderColor(1, 1, 1, hotbarAlpha);
                 action.renderActionIcon(matrixStack, power, x, y);
-                if (changeColor) RenderSystem.color4f(1, 1, 1, 1);
+                if (changeColor) RenderSystem.setShaderColor(1, 1, 1, 1);
                 
                 ClientUtil.disableGlScissor();
             }
@@ -1234,7 +1218,7 @@ public class ActionsOverlayGui extends AbstractGui {
 //    public static <P extends IPower<P, ?>> void renderActionIcon(MatrixStack matrixStack, Action<P> action, P power, 
 //            float x, float y, float brightness, float alpha) {
 //        boolean changeColor = brightness < 1 || alpha < 1;
-//        if (changeColor) RenderSystem.color4f(brightness, brightness, brightness, alpha);
+//        if (changeColor) RenderSystem.setShaderColor(brightness, brightness, brightness, alpha);
 //
 //        Minecraft mc = Minecraft.getInstance();
 //        boolean specialRender = false;
@@ -1260,11 +1244,11 @@ public class ActionsOverlayGui extends AbstractGui {
 //        
 //        if (!specialRender) {
 //            ResourceLocation icon = action.getIconTexture(power);
-//            mc.getTextureManager().bind(icon);
+//            RenderSystem.setShaderTexture(0, icon);
 //            BlitFloat.blitFloat(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
 //        }
 //        
-//        if (changeColor) RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//        if (changeColor) RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 //    }
     
     protected <P extends IPower<P, ?>> ActionConditionResult actionAvailability(Action<P> action, ActionsModeConfig<P> mode, 
@@ -1482,14 +1466,14 @@ public class ActionsOverlayGui extends AbstractGui {
         int y = position.y;
         if (mode != null && mode.getPower() != null && mode.getPower().isActive()) {
             if (alpha < 1.0F) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             }
             
-            mc.getTextureManager().bind(mode.getPower().clGetPowerTypeIcon());
+            RenderSystem.setShaderTexture(0, mode.getPower().clGetPowerTypeIcon());
             blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
             
             if (alpha < 1.0F) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
     }
@@ -1509,7 +1493,7 @@ public class ActionsOverlayGui extends AbstractGui {
 
 
     protected void renderWarningIcons(PoseStack matrixStack, ElementPosition position, List<Component> warningLines) {
-        mc.getTextureManager().bind(OVERLAY_LOCATION);
+        RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
         int x = position.x;
         int y = position.y - 4;
         for (int line = 0; line < warningLines.size(); line++) {
@@ -1570,10 +1554,10 @@ public class ActionsOverlayGui extends AbstractGui {
             }
 
             if (alpha < 1) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             }
             renderRadialIndicator(matrixStack, x - 1, y - 1, ratio);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
     
@@ -1606,7 +1590,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             matrixStack.popPose();
             renderModeSelectorIcons(matrixStack, x + 3, y + 3, partialTick);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
     
@@ -1617,7 +1601,7 @@ public class ActionsOverlayGui extends AbstractGui {
             if (mode != null) {
                 IPower<?, ?> power = mode.getPower();
                 if (power.hasPower()) {
-                    mc.getTextureManager().bind(power.clGetPowerTypeIcon());
+                    RenderSystem.setShaderTexture(0, power.clGetPowerTypeIcon());
                     blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
                 }
             }
@@ -1686,7 +1670,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected void renderLeapIcon(PoseStack matrixStack, @Nonnull ActionsModeConfig<?> mode, int screenWidth, int screenHeight) {
         IPower<?, ?> power = mode.getPower();
         if (power.isLeapUnlocked()) {
-            mc.getTextureManager().bind(OVERLAY_LOCATION);
+            RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
             boolean rightSide = mc.player.getMainArm() == HumanoidArm.RIGHT;
             int iconX = rightSide ? screenWidth / 2 + 91 + 6 : screenWidth / 2 - 91 - 22;
             if (mc.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
@@ -1732,7 +1716,7 @@ public class ActionsOverlayGui extends AbstractGui {
                 boolean isFinisherMechanicUnlocked = isFinisherVariationUnlocked || 
                         StandUtil.isFinisherMechanicUnlocked(standPower);
                 if (isFinisherMechanicUnlocked) {
-                    mc.getTextureManager().bind(OVERLAY_LOCATION);
+                    RenderSystem.setShaderTexture(0, OVERLAY_LOCATION);
                     IStandManifestation stand = standPower.getStandManifestation();
                     if (stand instanceof StandEntity) {
                         float finisherValue = ((StandEntity) stand).getFinisherMeter(partialTick);
@@ -1749,7 +1733,7 @@ public class ActionsOverlayGui extends AbstractGui {
     }
     
     protected <P extends IPower<P, ?>> void renderCrosshair(PoseStack matrixStack, int screenWidth, int screenHeight, float partialTick) {
-        mc.textureManager.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
         matrixStack.pushPose();
         float x = (screenWidth - 15) / 2;
         float y = (screenHeight - 15) / 2;
@@ -1789,11 +1773,11 @@ public class ActionsOverlayGui extends AbstractGui {
             if (alpha > 0) {
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
-                RenderSystem.color4f(1, 1, 1, alpha);
+                RenderSystem.setShaderColor(1, 1, 1, alpha);
                 float scale = 1 + alpha * 0.25f;
                 matrixStack.scale(scale, scale, 1);
                 BlitFloat.blitFloat(matrixStack, x, y, 88, 0, 15, 15, 256, 256);
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
             }
         }
         
@@ -1802,12 +1786,12 @@ public class ActionsOverlayGui extends AbstractGui {
     
     protected boolean renderBowChargeIcon(PoseStack matrixStack, BowChargeEffectInstance<?, ?> bowCharge, float partialTick, int x, int y) {
         if (bowCharge != null && bowCharge.isBeingCharged()) {
-            mc.getTextureManager().bind(bowCharge.getPower().clGetPowerTypeIcon());
+            RenderSystem.setShaderTexture(0, bowCharge.getPower().clGetPowerTypeIcon());
             float fill = bowCharge.getProgress(partialTick);
             if (fill < 1) {
-                RenderSystem.color4f(0, 0, 0, 1);
+                RenderSystem.setShaderColor(0, 0, 0, 1);
                 BlitFloat.blitFloat(matrixStack, x, y, 0, 0, 16, 16 * (1 - fill), 16, 16);
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
                 float px = 16F * fill;
                 BlitFloat.blitFloat(matrixStack, x, y + 16 - px, 0, 16 - px, 16, px, 16, 16);
             }
@@ -1831,11 +1815,11 @@ public class ActionsOverlayGui extends AbstractGui {
                             GlStateManager.DestFactor.CONSTANT_ALPHA, 
                             GlStateManager.SourceFactor.ONE, 
                             GlStateManager.DestFactor.ZERO);
-                    RenderSystem.color4f(whiteHighlight, whiteHighlight, whiteHighlight, 1.0F);
+                    RenderSystem.setShaderColor(whiteHighlight, whiteHighlight, whiteHighlight, 1.0F);
                     
                     blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
                     
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.defaultBlendFunc();
                 }
             }
@@ -1855,11 +1839,11 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             alpha = 0.75F;
         }
-        RenderSystem.color4f(rgb[0], rgb[1], rgb[2], alpha);
+        RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], alpha);
         float px = 18F * fill;
         blitFloat(matrixStack, x, y + texHeight - px, fillTexX, fillTexY + texHeight - px, texWidth, px);
         if (translucent) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
     }
 
@@ -1896,7 +1880,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
         }
         
-        mc.getTextureManager().bind(HamonScreen.WINDOW);
+        RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         for (Exercise exercise : Exercise.values()) {
@@ -2252,7 +2236,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected void renderOutOfBreathSprite(PoseStack matrixStack, float partialTick, int windowWidth, int windowHeight) {
         if (outOfBreathSpriteTicks > 0) {
             boolean bubblePopped = outOfBreathSpriteTicks < 11;
-            mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
+            RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
             blit(matrixStack, windowWidth / 2 - 16, windowHeight / 2 - 16, bubblePopped ? 160 : 128, outOfBreathMaskSprite ? 32 : 0, 32, 32);
         }
     }
@@ -2279,11 +2263,11 @@ public class ActionsOverlayGui extends AbstractGui {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        RenderSystem.color4f(r, g, b, 1.0F);
+        RenderSystem.setShaderColor(r, g, b, 1.0F);
 
         double screenWidth = mc.getWindow().getGuiScaledWidth();
         double screenHeight = mc.getWindow().getGuiScaledHeight();
-        mc.getTextureManager().bind(VIGNETTE_LOCATION);
+        RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormat.POSITION_TEX);
@@ -2294,7 +2278,7 @@ public class ActionsOverlayGui extends AbstractGui {
         tessellator.end();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.defaultBlendFunc();
     }
     

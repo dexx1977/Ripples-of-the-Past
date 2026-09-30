@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.render.item.standdisc;
 
 import com.github.standobyte.jojo.client.standskin.StandSkinsManager;
+import net.minecraft.world.item.ItemTransforms;
 import com.github.standobyte.jojo.item.StandDiscItem;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,7 +13,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Polygon;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -25,6 +25,10 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
+
+    public StandDiscISTER() {
+        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+    }
 
     @Override
     public void renderByItem(ItemStack itemStack, ItemTransforms.ItemDisplayContext transformType, 

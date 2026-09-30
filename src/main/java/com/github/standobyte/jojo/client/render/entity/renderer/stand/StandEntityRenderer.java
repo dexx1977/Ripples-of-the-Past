@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.stand;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -28,7 +29,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -53,9 +54,9 @@ import com.mojang.math.Axis;
 public class StandEntityRenderer<T extends StandEntity, M extends StandEntityModel<T>> extends LivingEntityRenderer<T, M> {
     private final ResourceLocation texture;
 
-    public StandEntityRenderer(EntityRenderDispatcher rendererManager, M entityModel, 
+    public StandEntityRenderer(EntityRendererProvider.Context context, M entityModel, 
             ResourceLocation texture, float shadowRadius) {
-        super(rendererManager, entityModel, shadowRadius);
+        super(context, entityModel, shadowRadius);
         this.texture = texture;
         entityModel.afterInit();
         addLayer(new ItemInHandLayer<>(this));

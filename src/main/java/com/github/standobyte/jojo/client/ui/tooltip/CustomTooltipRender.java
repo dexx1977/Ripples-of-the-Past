@@ -57,8 +57,6 @@ public class CustomTooltipRender {
             screenHeight = event.getScreenHeight();
             maxTextWidth = event.getMaxWidth();
             font = event.getFontRenderer();
-
-            RenderSystem.disableRescaleNormal();
             RenderSystem.disableDepthTest();
             int tooltipTextWidth = 0;
 
@@ -166,7 +164,6 @@ public class CustomTooltipRender {
             MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(ItemStack.EMPTY, eventTextOnlyLines, mStack, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
 
             RenderSystem.enableDepthTest();
-            RenderSystem.enableRescaleNormal();
         }
     }
 }

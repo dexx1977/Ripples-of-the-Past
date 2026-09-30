@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.function.Consumer;
 
 import com.github.standobyte.jojo.JojoMod;
@@ -10,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -21,8 +22,8 @@ import org.joml.Vector4f;
 
 public class SpriteObjectEntityRenderer extends EntityRenderer<ObjectEntity> {
 
-    public SpriteObjectEntityRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public SpriteObjectEntityRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     private static final ResourceLocation TOOTH_PARTICLE = new ResourceLocation(JojoMod.MOD_ID, "textures/particle/tooth.png");

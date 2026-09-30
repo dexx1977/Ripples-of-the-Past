@@ -31,7 +31,7 @@ public class HamonAuraParticleRenderType implements ParticleRenderType {
         RenderSystem.alphaFunc(GL11.GL_GREATER, 0.003921569F);
         RenderSystem.disableLighting();
 
-        textureManager.bind(TextureAtlas.LOCATION_PARTICLES);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
         if (ClientModSettings.getSettingsReadOnly().hamonAuraBlur) {
             textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).setBlurMipmap(true, false);
         }

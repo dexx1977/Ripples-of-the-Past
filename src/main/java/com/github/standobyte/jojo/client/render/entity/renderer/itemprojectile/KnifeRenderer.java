@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.itemprojectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.entity.itemprojectile.KnifeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -7,7 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
@@ -17,8 +18,8 @@ import com.mojang.math.Axis;
 
 public class KnifeRenderer extends ArrowRenderer<KnifeEntity> {
 
-    public KnifeRenderer(EntityRenderDispatcher manager) {
-        super(manager);
+    public KnifeRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

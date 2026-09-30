@@ -1,19 +1,20 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.model.MRDetectorModel;
 import com.github.standobyte.jojo.entity.MRDetectorEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class MRDetectorRenderer extends SimpleEntityRenderer<MRDetectorEntity, MRDetectorModel> {
 
-    public MRDetectorRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new MRDetectorModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/mr_detector.png"));
+    public MRDetectorRenderer(EntityRendererProvider.Context context) {
+        super(context, new MRDetectorModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/mr_detector.png"));
     }    
     
     @Override

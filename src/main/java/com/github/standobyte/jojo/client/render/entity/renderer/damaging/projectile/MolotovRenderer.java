@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -7,7 +8,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -19,9 +20,9 @@ import com.mojang.math.Axis;
 
 public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItemRenderer<T> {
 
-    public MolotovRenderer(EntityRenderDispatcher renderManager, ItemRenderer itemRenderer, 
+    public MolotovRenderer(EntityRendererProvider.Context context, ItemRenderer itemRenderer, 
             float scale, boolean fullBright) {
-        super(renderManager, itemRenderer, scale, fullBright);
+        super(context, itemRenderer, scale, fullBright);
     }
 
     @Override
@@ -30,7 +31,7 @@ public class MolotovRenderer<T extends Entity & ItemSupplier> extends ThrownItem
         pMatrixStack.pushPose();
         Camera camera = entityRenderDispatcher.camera;
         Matrix3f lighting = pMatrixStack.last().normal();
-        lighting.setIdentity();
+        lighting.identity();
         lighting.mul(Axis.XP.rotationDegrees(90));
         lighting.mul(Axis.YP.rotationDegrees(camera.getYRot()));
         

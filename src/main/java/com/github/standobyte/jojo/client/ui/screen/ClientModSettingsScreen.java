@@ -59,7 +59,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             @Override public Boolean get() { return settingsValues.characterVoiceLines; }
             @Override public void set(Boolean value) { settingsValues.characterVoiceLines = value; }
         };
-        addButton(characterVoiceLines.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+        addRenderableWidget(characterVoiceLines.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
         
         BooleanSetting menacingParticles = new BooleanSetting(settings, 
                 Component.translatable("jojo.config.client.menacingParticles"), 
@@ -68,23 +68,23 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             @Override public Boolean get() { return settingsValues.menacingParticles; }
             @Override public void set(Boolean value) { settingsValues.menacingParticles = value; }
         };
-        addButton(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+        addRenderableWidget(menacingParticles.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
         
         i += (i % 2 == 1) ? 3 : 2;
         
-        addButton(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
+        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
                 Component.translatable("jojo.options.client.hud"), 
                 button -> minecraft.setScreen(new HudSettings(this, settings, button.getMessage()))));
         
-        addButton(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
+        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
                 Component.translatable("jojo.options.client.stand"), 
                 button -> minecraft.setScreen(new StandSettings(this, settings, button.getMessage()))));
         
-        addButton(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
+        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
                 Component.translatable("jojo.options.client.hamon"), 
                 button -> minecraft.setScreen(new HamonSettings(this, settings, button.getMessage()))));
         
-        addButton(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
+        addRenderableWidget(new Button(calcButtonX(i), calcButtonY(i++) + 6, 150, 20, 
                 Component.translatable("jojo.options.client.vampirism"), 
                 button -> minecraft.setScreen(new VampirismSettings(this, settings, button.getMessage()))));
         
@@ -97,7 +97,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             ++buttonsAdded;
         }
 
-        addButton(new Button(
+        addRenderableWidget(new Button(
                 this.width / 2 - 100, 
                 calcButtonY(buttonsAdded), 
                 200, 20, 
@@ -123,7 +123,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public PositionConfig get() { return settingsValues.barsPosition; }
                 @Override public void set(PositionConfig value) { settingsValues.barsPosition = value; }
             };
-            addButton(barsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(barsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             EnumSetting<PositionConfig> hotbarsPosition = new EnumSetting<PositionConfig>(settings, 
@@ -133,7 +133,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public PositionConfig get() { return settingsValues.hotbarsPosition; }
                 @Override public void set(PositionConfig value) { settingsValues.hotbarsPosition = value; }
             };
-            addButton(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(hotbarsPosition.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             EnumSetting<HudTextRender> hudNamesRender = new EnumSetting<HudTextRender>(settings, 
@@ -143,7 +143,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public HudTextRender get() { return settingsValues.hudTextRender; }
                 @Override public void set(HudTextRender value) { settingsValues.hudTextRender = value; }
             };
-            addButton(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(hudNamesRender.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             BooleanSetting hudHotbarsFold = new BooleanSetting(settings, 
@@ -160,7 +160,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     }
                 }
             };
-            addButton(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(hudHotbarsFold.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             BooleanSetting showLockedSlots = new BooleanSetting(settings, 
@@ -177,7 +177,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     }
                 }
             };
-            addButton(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(showLockedSlots.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             addBackButton(CommonComponents.GUI_BACK, i);
         }
@@ -206,7 +206,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     }
                 }
             };
-            addButton(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(resolveShaders.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             BooleanSetting timeStopAnimation = new BooleanSetting(settings, 
@@ -216,7 +216,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public Boolean get() { return settingsValues.timeStopAnimation; }
                 @Override public void set(Boolean value) { settingsValues.timeStopAnimation = value; }
             };
-            addButton(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(timeStopAnimation.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             Setting<HumanoidArm> standSide = new EnumSetting<HumanoidArm>(settings, 
@@ -228,7 +228,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
             }
             .prefix("stand_")
             .setBroadcasted();
-            addButton(standSide.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(standSide.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             
             BooleanSetting standMotionTilt = new BooleanSetting(settings, 
@@ -238,7 +238,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public Boolean get() { return settingsValues.standMotionTilt; }
                 @Override public void set(Boolean value) { settingsValues.standMotionTilt = value; }
             };
-            addButton(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(standMotionTilt.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             BooleanSetting standOutline = new BooleanSetting(settings, 
                     Component.translatable("jojo.config.client.standOutline"), 
@@ -247,7 +247,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                 @Override public Boolean get() { return settingsValues.standOutline; }
                 @Override public void set(Boolean value) { settingsValues.standOutline = value; }
             };
-            addButton(standOutline.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(standOutline.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             addBackButton(CommonComponents.GUI_BACK, i);
         }
@@ -273,7 +273,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     settingsValues.thirdPersonHamonAura = value;
                 }
             };
-            addButton(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(thirdPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             BooleanSetting firstPersonHamonAura = new BooleanSetting(settings, 
                     Component.translatable("jojo.config.client.firstPersonHamonAura"), 
@@ -284,7 +284,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     settingsValues.firstPersonHamonAura = value;
                 }
             };
-            addButton(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(firstPersonHamonAura.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             BooleanSetting hamonAuraBlur = new BooleanSetting(settings, 
                     Component.translatable("jojo.config.client.hamonAuraBlur"), 
@@ -295,7 +295,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     settingsValues.hamonAuraBlur = value;
                 }
             };
-            addButton(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(hamonAuraBlur.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             addBackButton(CommonComponents.GUI_BACK, i);
         }
@@ -321,7 +321,7 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
                     settingsValues.broadcasted.vampireGlowingEyes = value;
                 }
             };
-            addButton(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
+            addRenderableWidget(glowingEyes.createButton(calcButtonX(i), calcButtonY(i++), 150, 20, this, i));
             
             addBackButton(CommonComponents.GUI_BACK, i);
         }
@@ -449,11 +449,11 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         private Alignment alignment = Alignment.LEFT;
         
         public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage,
-                IPressable pOnPress) {
-            super(pX, pY, pWidth, pHeight, pMessage, pOnPress);
+                Button.OnPress pOnPress) {
+            super(pX, pY, pWidth, pHeight, pMessage, pOnPress, Button.DEFAULT_NARRATION);
         }
         
-        public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, IPressable pOnPress,
+        public ScrollingStringButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, Button.OnPress pOnPress,
                 ITooltip pOnTooltip) {
             super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         }
@@ -468,8 +468,8 @@ public class ClientModSettingsScreen extends OptionsSubScreen {
         public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
             Minecraft mc = Minecraft.getInstance();
             Font font = mc.font;
-            mc.getTextureManager().bind(WIDGETS_LOCATION);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
             int i = getYImage(isHovered());
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();

@@ -60,7 +60,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
                 PacketManager.sendToServer(ClRPSGameInputPacket.cheat(cheatPower));
             }
         });
-        addButton(cheatButton);
+        addRenderableWidget(cheatButton);
     }
 
     @Override
@@ -114,11 +114,10 @@ public class RockPaperScissorsScreen extends ChatScreen {
 
     @SuppressWarnings("deprecation")
     private void renderScreen(PoseStack matrixStack, int windowX, int windowY) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(WINDOW);
+        RenderSystem.setShaderTexture(0, WINDOW);
         blit(matrixStack, windowX, windowY, 0, 0, WIDTH, HEIGHT);
-        RenderSystem.enableRescaleNormal();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
     }
@@ -164,12 +163,9 @@ public class RockPaperScissorsScreen extends ChatScreen {
         blit(matrixStack, windowX + 121, windowY + 11 + nonTieRound * 18, 173, 0, 24, 26);
         Pick opponentPickThoughts = opponentPick != null ? opponentPick : game.player2.getPickThoughts();
         blit(matrixStack, windowX + 128, windowY + 12 + nonTieRound * 18, opponentPickThoughts != null ? getIconTexX(opponentPickThoughts) : 102, HEIGHT + 16, 16, 16);
-
-        RenderSystem.disableRescaleNormal();
         RenderSystem.disableDepthTest();
         minecraft.font.drawShadow(matrixStack, Component.literal(game.player1.getScore() + " - " + game.player2.getScore()), windowX + 78, windowY + 117, 0xFFFFFF);
         RenderSystem.enableDepthTest();
-        RenderSystem.enableRescaleNormal();
     }
 
     private void renderCheatIcon(PoseStack matrixStack, int windowX, int windowY, int mouseX, int mouseY) {
@@ -184,7 +180,7 @@ public class RockPaperScissorsScreen extends ChatScreen {
         if (cheat != null) {
             IPower<?, ?> cheatPowerCap = IPower.getPowerOptional(minecraft.player, cheatPower).resolve().get();
             cheatButton.y = (height - HEIGHT) / 2 + DEFAULT_CHEAT_BUTTON_Y + nonTieRound * 18;
-            minecraft.getTextureManager().bind(cheatPowerCap.clGetPowerTypeIcon());
+            RenderSystem.setShaderTexture(0, cheatPowerCap.clGetPowerTypeIcon());
             blit(matrixStack, cheatButton.x + 2, cheatButton.y + 2, 0, 0, 16, 16, 16, 16);
             if (cheatButton.isMouseOver(mouseX, mouseY)) {
                 renderTooltip(matrixStack, minecraft.font.split(Component.translatable(

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.polaroid;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.function.UnaryOperator;
 
 import javax.annotation.Nullable;
@@ -209,7 +210,7 @@ public class PolaroidHelper {
         pMatrixStack.mulPose(Axis.YP.rotationDegrees(f * f6 * 70.0F));
         pMatrixStack.mulPose(Axis.ZP.rotationDegrees(f * f5 * -20.0F));
         AbstractClientPlayer abstractclientplayerentity = mc.player;
-        mc.getTextureManager().bind(abstractclientplayerentity.getSkinTextureLocation());
+        RenderSystem.setShaderTexture(0, abstractclientplayerentity.getSkinTextureLocation());
         pMatrixStack.translate((double)(f * -1.0F), (double)3.6F, 3.5D);
         pMatrixStack.mulPose(Axis.ZP.rotationDegrees(f * 120.0F));
         pMatrixStack.mulPose(Axis.XP.rotationDegrees(200.0F));

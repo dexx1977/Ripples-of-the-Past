@@ -1,6 +1,8 @@
 package com.github.standobyte.jojo.client.render.item;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import javax.annotation.Nullable;
+import net.minecraft.world.item.ItemTransforms;
 
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
@@ -18,7 +20,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -34,7 +35,7 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
     @Nullable protected LivingEntity entity;
 
     public ClackersISTER() {
-        super();
+        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
     }
     
     @Override

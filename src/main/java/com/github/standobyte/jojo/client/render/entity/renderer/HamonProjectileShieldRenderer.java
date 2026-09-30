@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.rendertype.CustomRenderType;
@@ -10,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -18,8 +19,8 @@ import net.minecraft.world.phys.Vec3;
 public class HamonProjectileShieldRenderer extends EntityRenderer<HamonProjectileShieldEntity> {
     private static final ResourceLocation GLINT_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectile_shield.png");
     
-    public HamonProjectileShieldRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public HamonProjectileShieldRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
     
     @Override

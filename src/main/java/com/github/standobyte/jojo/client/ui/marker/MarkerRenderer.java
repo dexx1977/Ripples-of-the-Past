@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
 import java.util.ArrayList;
+import net.minecraft.world.item.ItemTransforms;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,6 @@ import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -128,10 +128,10 @@ public abstract class MarkerRenderer {
         renderIcon(matrixStack, marker, partialTick);
         matrixStack.popPose();
         
-        mc.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
-        RenderSystem.color4f(rgb[0], rgb[1], rgb[2], 1.0F);
+        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
+        RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], 1.0F);
         AbstractGui.blit(matrixStack, -16, -32, 0, 0, 32, 32, 256, 256);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (marker.outlined) {
             AbstractGui.blit(matrixStack, -16, -32, 32, 0, 32, 32, 256, 256);
         }
@@ -149,7 +149,7 @@ public abstract class MarkerRenderer {
     protected void renderIcon(PoseStack matrixStack, MarkerInstance marker, float partialTick) {
         ResourceLocation icon = getIcon();
         if (icon != null) {
-            mc.getTextureManager().bind(icon);
+            RenderSystem.setShaderTexture(0, icon);
             AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
         }
     }
@@ -159,24 +159,23 @@ public abstract class MarkerRenderer {
         ItemRenderer itemRenderer = mc.getItemRenderer();
         TextureManager textureManager = mc.textureManager;
         
-        textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
         textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
-        RenderSystem.enableRescaleNormal();
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
         matrixStack.pushPose();
         matrixStack.translate(8, 8, 0);
         matrixStack.scale(16, 16, 0.0625f);
         matrixStack.scale(1, -1, -1);
         
-        matrixStack.last().normal().setIdentity(); 
-        matrixStack.last().normal().mul(Axis.XP.rotationDegrees(mc.gameRenderer.getMainCamera().getXRot() - 90));
-        matrixStack.last().normal().mul(Axis.YP.rotationDegrees(45));
-        matrixStack.last().normal().mul(Axis.ZP.rotationDegrees(45));
+        matrixStack.last().normal().identity(); 
+        matrixStack.last().normal().rotation(Axis.XP.rotationDegrees(mc.gameRenderer.getMainCamera().getXRot() - 90));
+        matrixStack.last().normal().rotation(Axis.YP.rotationDegrees(45));
+        matrixStack.last().normal().rotation(Axis.ZP.rotationDegrees(45));
 
 //        RenderSystem.disableDepthTest();
 //        RenderSystem.disableCull();
@@ -191,7 +190,6 @@ public abstract class MarkerRenderer {
         buffer.endBatch();
         
         RenderSystem.disableAlphaTest();
-        RenderSystem.disableRescaleNormal();
     }
     
     protected void renderIconOnBorder(PoseStack matrixStack, MarkerInstance marker, float partialTick) {}

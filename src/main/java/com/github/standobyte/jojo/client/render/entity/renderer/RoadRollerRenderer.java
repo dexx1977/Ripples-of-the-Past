@@ -1,20 +1,21 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.model.RoadRollerModel;
 import com.github.standobyte.jojo.entity.RoadRollerEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class RoadRollerRenderer extends SimpleEntityRenderer<RoadRollerEntity, RoadRollerModel> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/road_roller.png");
 
-    public RoadRollerRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new RoadRollerModel(), TEXTURE);
+    public RoadRollerRenderer(EntityRendererProvider.Context context) {
+        super(context, new RoadRollerModel(), TEXTURE);
     }
     
     @Override

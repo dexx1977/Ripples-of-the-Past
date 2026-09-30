@@ -67,7 +67,7 @@ public class HorizontalBarsRenderer extends BarsRenderer {
                 renderIcon(matrixStack, iconX, y + iconTex[6], 
                         iconTex[0] + 40, iconTex[1], (int) ((float) iconTex[2] * iconFill), iconTex[3], iconTex[4]);
             }
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             y += 12;
         }
         else {

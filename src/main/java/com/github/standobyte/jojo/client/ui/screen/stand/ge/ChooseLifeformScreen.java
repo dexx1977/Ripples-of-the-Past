@@ -122,7 +122,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         searchField.setResponder(this::filterEntriesRaw);
         addWidget(searchField);
         
-        addButton(clearSearchFieldButton = new ImageButton(width - 12, height - 70, 8, 7, 40, 112, 8, LIFEFORM_CHOOSE_LOCATION, 128, 128, 
+        addRenderableWidget(clearSearchFieldButton = new ImageButton(width - 12, height - 70, 8, 7, 40, 112, 8, LIFEFORM_CHOOSE_LOCATION, 128, 128, 
                 button -> {
                     searchField.setValue("");
                 }));
@@ -167,8 +167,8 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
             break;
         }
         
-        addButton(listModeButton);
-        addButton(gridModeButton);
+        addRenderableWidget(listModeButton);
+        addRenderableWidget(gridModeButton);
         
         filterList = new RadioButtonsList<>(savedFilterMode, val -> {
             savedFilterMode = val;
@@ -178,7 +178,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
         int y = height - 95;
         for (int i = FilterMode.values().length - 1; i >= 0; i--) {
             FilterMode mode = FilterMode.values()[i];
-            filterList.addButton(x, y, mode.uiName, mode);
+            filterList.addRenderableWidget(x, y, mode.uiName, mode);
             y -= 16;
         }
         addWidget(filterList);
@@ -190,7 +190,7 @@ public abstract class ChooseLifeformScreen extends WasdAllowingScreen {
                     refreshEntityTypes();
                 });
         unlockAllButton.visible = mc.player.abilities.instabuild;
-        addButton(unlockAllButton);
+        addRenderableWidget(unlockAllButton);
     }
     
     public static final ResourceLocation LIFEFORM_CHOOSE_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/gui/lifeform_choose.png");

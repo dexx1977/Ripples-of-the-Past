@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.action;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -508,7 +509,7 @@ public abstract class Action<P extends IPower<P, ?>> implements RegistryEntry<Ac
     public void renderActionIcon(PoseStack matrixStack, P power, float x, float y) {
         Minecraft mc = Minecraft.getInstance();
         ResourceLocation icon = getIconTexture(power);
-        mc.getTextureManager().bind(icon);
+        RenderSystem.setShaderTexture(0, icon);
         BlitFloat.blitFloat(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
     }
     

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.walkman;
 
+import net.minecraft.client.gui.components.Button;
 import java.util.function.Supplier;
 
 import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
@@ -18,11 +19,11 @@ public class WalkmanButton extends CustomButton {
     private final Supplier<Component> message;
     private final int texX;
 
-    public WalkmanButton(int x, int y, int width, int height, IPressable onPress, Supplier<Component> message, Screen screen, int texX) {
+    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, Supplier<Component> message, Screen screen, int texX) {
         this(x, y, width, height, onPress, (button, matrixStack, mouseX, mouseY) -> screen.renderTooltip(matrixStack, button.getMessage(), mouseX, mouseY), message, texX);
     }
 
-    public WalkmanButton(int x, int y, int width, int height, IPressable onPress, ITooltip tooltip, Supplier<Component> message, int texX) {
+    public WalkmanButton(int x, int y, int width, int height, Button.OnPress onPress, ITooltip tooltip, Supplier<Component> message, int texX) {
         super(x, y, width, height, Component.empty(), onPress, tooltip);
         this.message = message;
         this.texX = texX;
@@ -31,8 +32,8 @@ public class WalkmanButton extends CustomButton {
     @Override
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();

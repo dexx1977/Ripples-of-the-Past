@@ -13,7 +13,7 @@ public class ItemButton extends Button {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.IPressable pOnPress) {
+            Button.Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
                 pOnPress, NO_TOOLTIP, Component.empty());
@@ -21,7 +21,7 @@ public class ItemButton extends Button {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip) {
+            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip) {
         this(pX, pY, pWidth, pHeight, 
                 item, 
                 pOnPress, pOnTooltip, Component.empty());
@@ -29,7 +29,7 @@ public class ItemButton extends Button {
 
     public ItemButton(int pX, int pY, int pWidth, int pHeight, 
             ItemStack item, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.item = item;
     }
@@ -43,8 +43,8 @@ public class ItemButton extends Button {
     @Override
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

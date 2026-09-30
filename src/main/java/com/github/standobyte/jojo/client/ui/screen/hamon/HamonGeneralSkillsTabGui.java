@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_WIDTH;
@@ -88,7 +89,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
 
     @Override
     void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
-        minecraft.getTextureManager().bind(HamonSkillsTabGui.HAMON_SKILLS);
+        RenderSystem.setShaderTexture(0, HamonSkillsTabGui.HAMON_SKILLS);
         int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
         
@@ -97,7 +98,7 @@ public class HamonGeneralSkillsTabGui extends HamonSkillsTabGui {
         
         int points = screen.hamon.getSkillPoints(skillsType);
         if (points > 0) {
-            minecraft.getTextureManager().bind(HamonScreen.WINDOW);
+            RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
             int textureX = screen.isTeacherNearby ? 248 : 239;
             blit(matrixStack, x - 6, y - 3, textureX, 206, 8, 8);
         }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.beam;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.SpaceRipperStingyEyesEntity;
@@ -12,7 +13,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
@@ -24,8 +25,8 @@ import com.mojang.math.Axis;
 public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperStingyEyesEntity> {
     private static final ResourceLocation BEAM_TEX = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/space_ripper_stingy_eyes.png");
 
-    public SpaceRipperStingyEyesRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public SpaceRipperStingyEyesRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class SpaceRipperStingyEyesRenderer extends EntityRenderer<SpaceRipperSti
         float beamWidth = 0.15f;
         matrixStack.scale(1.0F, beamWidth, beamWidth);
         Matrix3f lighting = matrixStack.last().normal();
-        lighting.setIdentity();
+        lighting.identity();
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         lighting.mul(Axis.XP.rotationDegrees(camera.getXRot()));
         VertexConsumer ivertexbuilder = buffer.getBuffer(RenderType.entityTranslucentCull(getTextureLocation(entity)));

@@ -67,7 +67,7 @@ public class HamonIntroTabGui extends HamonTabGui {
     
     @Override
     public void addButtons() {
-        addButton(breathStabilityInfoToggle = new HideScreenPartToggleBox(
+        addRenderableWidget(breathStabilityInfoToggle = new HideScreenPartToggleBox(
                 screen.windowPosX() + 13, -1, Direction.DOWN, screen));
     }
     
@@ -138,7 +138,7 @@ public class HamonIntroTabGui extends HamonTabGui {
     @Override
     protected void drawActualContents(HamonScreen screen, PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
-        minecraft.textureManager.bind(ActionsOverlayGui.OVERLAY_LOCATION);
+        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
         float ticks = screen.tickCount + partialTick;
         int x = intScrollX + 5;
         
@@ -178,30 +178,30 @@ public class HamonIntroTabGui extends HamonTabGui {
     private void renderEnergyBar(PoseStack matrixStack, int x, int y, float fillStab, float fillEnergy) {
         float[] hamonRGB = ClientUtil.rgb(HamonPowerType.COLOR);
         blit(matrixStack, x, y, 0, 128, 202, 8);
-        RenderSystem.color4f(hamonRGB[0], hamonRGB[1], hamonRGB[2], 0.4F);
+        RenderSystem.setShaderColor(hamonRGB[0], hamonRGB[1], hamonRGB[2], 0.4F);
         blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillStab), 6);
         
-        RenderSystem.color4f(hamonRGB[0], hamonRGB[1], hamonRGB[2], 1.0F);
+        RenderSystem.setShaderColor(hamonRGB[0], hamonRGB[1], hamonRGB[2], 1.0F);
         blit(matrixStack, x + 1, y + 1, 1, 161, (int) (200 * fillEnergy), 6);
         
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         blit(matrixStack, x + 1, y + 1, 0, 145, 200, 6);
     }
     
     private void renderHamonBreathIcon(PoseStack matrixStack, int x, int y) {
-        minecraft.getTextureManager().bind(ActionsOverlayGui.OVERLAY_LOCATION);
+        RenderSystem.setShaderTexture(0, ActionsOverlayGui.OVERLAY_LOCATION);
         blit(matrixStack, x - 15, y - 1, 236, 128, 9, 16);
         HotbarRenderer.renderHotbar(matrixStack, minecraft, x - 3, y - 3, 1, 1);
         blit(matrixStack, x - 17, y - 17, 390, 50, 50, 50, 512, 512);
         ResourceLocation actionIcon = ModHamonActions.HAMON_BREATH.get().getIconTexture(null);
-        minecraft.getTextureManager().bind(actionIcon);
+        RenderSystem.setShaderTexture(0, actionIcon);
         blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);
         HotbarRenderer.renderSlotSelection(matrixStack, minecraft, x, y, 1, false);
     }
 
     @Override
     void drawIcon(PoseStack matrixStack, int windowX, int windowY, ItemRenderer itemRenderer) {
-        minecraft.getTextureManager().bind(ModPowers.HAMON.get().getIconTexture(null));
+        RenderSystem.setShaderTexture(0, ModPowers.HAMON.get().getIconTexture(null));
         int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
         int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
         blit(matrixStack, x, y, 0, 0, 16, 16, 16, 16);

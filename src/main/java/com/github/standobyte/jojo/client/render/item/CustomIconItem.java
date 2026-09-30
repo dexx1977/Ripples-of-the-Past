@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.client.render.item;
 
 import java.util.Map;
+import net.minecraft.world.item.ItemTransforms;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
@@ -16,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.model.Model;
 import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -119,6 +119,7 @@ public class CustomIconItem {
     public static class DummyIconItemISTER extends BlockEntityWithoutLevelRenderer {
         
         public DummyIconItemISTER() {
+            super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
             for (CustomModelIcon icon : CustomModelIcon.values()) {
                 try {
                     BlockEntityWithoutLevelRenderer ister = icon.isterSupplier.get().call();

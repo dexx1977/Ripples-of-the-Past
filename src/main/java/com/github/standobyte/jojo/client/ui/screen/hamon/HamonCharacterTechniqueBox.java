@@ -70,14 +70,14 @@ public class HamonCharacterTechniqueBox {
                     CharacterHamonTechnique userTechnique = hamon.getCharacterTechnique();
                     if (!perk.isMouseOver(x, y, mouseX, mouseY)) {
                         if (userTechnique == this.technique) {
-                            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 0.4F);
+                            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.4F);
                         }
                         else {
-                            RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
+                            RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
                         }
                     }
                     perk.renderSkillIcon(matrixStack, x, y);
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
             }
         }

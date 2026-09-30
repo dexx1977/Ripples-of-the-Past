@@ -1,12 +1,13 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.init.ModParticles;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -14,8 +15,8 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class FlameRenderer<T extends Entity> extends EntityRenderer<T> {
 
-    public FlameRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public FlameRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

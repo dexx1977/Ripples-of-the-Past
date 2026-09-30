@@ -153,7 +153,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
         int x = getWindowX();
         int y = getWindowY();
         
-        rewindButton = addButton(new WalkmanButton(x + 39, y + 107, 14, 13, 
+        rewindButton = addRenderableWidget(new WalkmanButton(x + 39, y + 107, 14, 13, 
                 button -> {
                     Playlist playlist = WalkmanSoundHandler.getPlaylist(walkmanId);
                     setTrack(playlist.getRewindTrack());
@@ -171,7 +171,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                     }
                 }, this, 39));
         
-        playButton = addButton(new WalkmanButton(x + 58, y + 107, 41, 13, 
+        playButton = addRenderableWidget(new WalkmanButton(x + 58, y + 107, 41, 13, 
                 button -> {
                     Playlist playlist = WalkmanSoundHandler.initPlaylist(cassetteTracks, getCassetteItem(), walkmanId);
                     playlist.setVolume(volumeWheel.getValue());
@@ -184,7 +184,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                     return Component.translatable("walkman.button.play", tooltipTrackName(currentTrack));
                 }, this, 58));
         
-        flipSideButton = addButton(new WalkmanButton(x + 58, y + 107, 41, 13, 
+        flipSideButton = addRenderableWidget(new WalkmanButton(x + 58, y + 107, 41, 13, 
                 button -> {
                     Playlist playlist = WalkmanSoundHandler.getPlaylist(walkmanId);
                     setTrack(playlist.getFlipSideTrack());
@@ -196,7 +196,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                     return Component.translatable("walkman.button.flip", tooltipTrackName(WalkmanSoundHandler.getPlaylist(walkmanId).getFlipSideTrack()));
                 }, this, 58));
         
-        fastForwardButton = addButton(new WalkmanButton(x + 104, y + 107, 14, 13, 
+        fastForwardButton = addRenderableWidget(new WalkmanButton(x + 104, y + 107, 14, 13, 
                 button -> {
                     Playlist playlist = WalkmanSoundHandler.getPlaylist(walkmanId);
                     setTrack(playlist.getFastForwardTrack());
@@ -213,7 +213,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                     }
                 }, this, 104));
         
-        stopButton = addButton(new WalkmanButton(x + 131, y + 107, 14, 13, 
+        stopButton = addRenderableWidget(new WalkmanButton(x + 131, y + 107, 14, 13, 
                 button -> {
                     WalkmanSoundHandler.getPlaylist(walkmanId).stopPlaying();
                 }, 
@@ -221,7 +221,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                     return Component.translatable("walkman.button.stop");
                 }, this, 131));
         
-        playbackModeSwitch = addButton(new WalkmanButton(x + 175, y + 107 + mode.ordinal() * 9, 8, 15, 
+        playbackModeSwitch = addRenderableWidget(new WalkmanButton(x + 175, y + 107 + mode.ordinal() * 9, 8, 15, 
                 button -> {
                     mode = mode.getOpposite();
                     if (mode == PlaybackMode.LOOP) button.y += 9;
@@ -239,8 +239,8 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -302,9 +302,9 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
 
     @Override
     protected void renderBg(PoseStack matrixStack, float partialTick, int mouseX, int mouseY) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(WALKMAN_SCREEN_TEXTURE);
+        RenderSystem.setShaderTexture(0, WALKMAN_SCREEN_TEXTURE);
         int windowX = getWindowX();
         int windowY = getWindowY();
         
@@ -345,7 +345,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
                 revFlicker = tmp;
             }
 
-            minecraft.getTextureManager().bind(WALKMAN_SCREEN_TEXTURE);
+            RenderSystem.setShaderTexture(0, WALKMAN_SCREEN_TEXTURE);
             boolean flickerTick = minecraft.player.tickCount % 40 >= 20;
             if (revLight || revFlicker && flickerTick) {
                 blit(matrixStack, windowX + 17, windowY + 18, 17, 226, 9, 9);
@@ -359,7 +359,7 @@ public class WalkmanScreen extends AbstractContainerScreen<WalkmanItemContainer>
     private void renderCassette(PoseStack matrixStack, float partialTick, int windowX, int windowY) {
         ItemStack cassetteItem = getCassetteItem();
         if (!cassetteItem.isEmpty()) {
-            minecraft.getTextureManager().bind(WALKMAN_CASSETTE_TEXTURE);
+            RenderSystem.setShaderTexture(0, WALKMAN_CASSETTE_TEXTURE);
             blit(matrixStack, windowX + 35, windowY + 7, 0, 0, 150, 95);
             
             Optional<DyeColor> color = CassetteRecordedItem.getCassetteData(cassetteItem).map(cap -> cap.getDye());

@@ -71,7 +71,7 @@ public class FlameModelRenderer extends ModelPart {
         matrixStack.pushPose();
         matrixStack.translate(xOffset, yOffset, zOffset);
         Matrix3f lightNormal = matrixStack.last().normal();
-        lightNormal.setIdentity();
+        lightNormal.identity();
         if (!renderingUI) {
             Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             float cameraXRot = camera.getXRot();

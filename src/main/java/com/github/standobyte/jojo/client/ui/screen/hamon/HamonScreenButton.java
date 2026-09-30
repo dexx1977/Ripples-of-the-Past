@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import net.minecraft.client.gui.components.Button;
 import com.github.standobyte.jojo.client.ui.screen.widgets.CustomButton;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -12,20 +13,20 @@ import net.minecraft.network.chat.Component;
 public class HamonScreenButton extends CustomButton {
     
     public HamonScreenButton(int x, int y, int width, int height, 
-            Component message, IPressable onPress) {
+            Component message, Button.OnPress onPress) {
         super(x, y, width, height, message, onPress);
     }
     
     public HamonScreenButton(int x, int y, int width, int height, 
-            Component message, IPressable onPress, ITooltip tooltip) {
+            Component message, Button.OnPress onPress, ITooltip tooltip) {
         super(x, y, width, height, message, onPress, tooltip);
     }
     
     @Override
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
 //        RenderSystem.enableBlend();
 //        RenderSystem.defaultBlendFunc();

@@ -48,7 +48,7 @@ public class ActionToast implements Toast {
             return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
-            mc.getTextureManager().bind(TEXTURE);
+            RenderSystem.setShaderTexture(0, TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             toastGui.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
@@ -56,7 +56,7 @@ public class ActionToast implements Toast {
             matrixStack.pushPose();
             matrixStack.scale(0.5F, 0.5F, 1.0F);
             
-            mc.getTextureManager().bind(powerTypeIcon);
+            RenderSystem.setShaderTexture(0, powerTypeIcon);
             ToastComponent.blit(matrixStack, 3, 3, 0, 0, 16, 16, 16, 16);
             
             matrixStack.popPose();

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.pose.anim;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.function.UnaryOperator;
 
 import com.github.standobyte.jojo.client.render.entity.model.stand.HumanoidStandModel;

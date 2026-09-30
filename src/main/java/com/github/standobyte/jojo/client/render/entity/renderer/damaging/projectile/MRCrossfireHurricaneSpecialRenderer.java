@@ -1,16 +1,17 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.render.entity.model.projectile.MRCrossfireHurricaneModel;
 import com.github.standobyte.jojo.entity.damaging.projectile.MRCrossfireHurricaneEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 
 public class MRCrossfireHurricaneSpecialRenderer extends MRCrossfireHurricaneRenderer {
 
-    public MRCrossfireHurricaneSpecialRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public MRCrossfireHurricaneSpecialRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
     
     @Override

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.projectile.HamonCutterModel;
@@ -8,14 +9,14 @@ import com.github.standobyte.jojo.entity.damaging.projectile.HamonCutterEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class HamonCutterRenderer extends SimpleEntityRenderer<HamonCutterEntity, HamonCutterModel> {
 
-    public HamonCutterRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new HamonCutterModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hamon_cutter.png"));
+    public HamonCutterRenderer(EntityRendererProvider.Context context) {
+        super(context, new HamonCutterModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hamon_cutter.png"));
     }
     
     @Override

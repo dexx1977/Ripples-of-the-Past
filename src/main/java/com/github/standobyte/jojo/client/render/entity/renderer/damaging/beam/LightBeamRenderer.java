@@ -1,17 +1,18 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.beam;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.entity.damaging.LightBeamEntity;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 public class LightBeamRenderer<T extends LightBeamEntity> extends BeamRenderer<T> {
     private static final ResourceLocation BEAM_TEX = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/aja_beam.png");
 
-    public LightBeamRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public LightBeamRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

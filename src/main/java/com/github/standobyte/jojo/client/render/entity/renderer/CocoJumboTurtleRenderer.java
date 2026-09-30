@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.model.mob.CocoJumboTurtleModel;
 import com.github.standobyte.jojo.mrpresident.CocoJumboTurtleEntity;
@@ -9,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -27,8 +28,8 @@ public class CocoJumboTurtleRenderer extends MobRenderer<CocoJumboTurtleEntity, 
     private static final ResourceLocation TURTLE_LOCATION_2 = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/mob/turtle_extra.png");
     private static final ResourceLocation KEY_LOCATION = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/mob/turtle_key.png");
     
-    public CocoJumboTurtleRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new CocoJumboTurtleModel<>(0.0F), 0.7F);
+    public CocoJumboTurtleRenderer(EntityRendererProvider.Context context) {
+        super(context, new CocoJumboTurtleModel<>(0.0F), 0.7F);
         addLayer(new CocoJumboExtraTextureStuff(this));
         addLayer(new MrPresidentKeyLayer(this));
     }

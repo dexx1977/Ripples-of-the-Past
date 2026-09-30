@@ -1,13 +1,14 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.extending;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.render.entity.model.ownerbound.repeating.HGStringModel;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.HGStringEntity;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 
 public class HGStringRenderer extends HGStringAbstractRenderer<HGStringEntity> {
 
-    public HGStringRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new HGStringModel<HGStringEntity>());
+    public HGStringRenderer(EntityRendererProvider.Context context) {
+        super(context, new HGStringModel<HGStringEntity>());
     }
 }

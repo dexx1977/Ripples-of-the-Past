@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.standskin;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
@@ -141,7 +142,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     private void renderBgPattern(PoseStack matrixStack) {
         RenderSystem.pushMatrix();
         RenderSystem.translatef(getWindowX() + 4, getWindowY() + 4, 0);
-        minecraft.getTextureManager().bind(TEXTURE_BG);
+        RenderSystem.setShaderTexture(0, TEXTURE_BG);
         
         int x = getWindowX() + WINDOW_INSIDE_X;
         int y = getWindowY() + WINDOW_INSIDE_Y;
@@ -159,7 +160,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
     
     private void renderWindow(PoseStack matrixStack) {
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
+        RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
         blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     
@@ -390,7 +391,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         }
         
         public void renderStand(PoseStack matrixStack, int mouseX, int mouseY, float ticks) {
-            minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
+            RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
 //            blit(matrixStack, x, y, 98, 182, width, height);
             
             StandType<?> standType = standCap.getType();
@@ -404,17 +405,17 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         @SuppressWarnings("deprecation")
         public void renderAdditional(PoseStack matrixStack, int mouseX, int mouseY, 
                 float ticks, boolean isHovered) {
-            minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
+            RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
             if (isSkinSelected(skin)) {
                 blit(matrixStack, x + boxWidth - 18, y + 2, 0, 192, 16, 16);
             }
             if (isHovered) {
                 float[] color = ClientUtil.rgb(skin.color);
                 RenderSystem.enableBlend();
-                RenderSystem.color4f(color[0], color[1], color[2], 1);
+                RenderSystem.setShaderColor(color[0], color[1], color[2], 1);
                 blit(matrixStack, x - 2, y - 2, 
                         32, 180, boxWidth + 4, boxHeight + 4);
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
                 RenderSystem.disableBlend();
             };
         }
@@ -435,7 +436,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
             ResourceLocation standIcon = JojoModUtil.makeTextureLocation("power", 
                     skinFullView.skin.standTypeId.getNamespace(), skinFullView.skin.standTypeId.getPath());
             standIcon = skinFullView.skin.getRemappedResPath(standIcon).or(standIcon);
-            minecraft.getTextureManager().bind(standIcon);
+            RenderSystem.setShaderTexture(0, standIcon);
             blit(matrixStack, 4, 4, 0, 0, 16, 16, 16, 16);
             
             StandType<?> standType = standCap.getType();
@@ -445,7 +446,7 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
             }
             
             if (isSkinSelected(skin)) {
-                minecraft.getTextureManager().bind(TEXTURE_MAIN_WINDOW);
+                RenderSystem.setShaderTexture(0, TEXTURE_MAIN_WINDOW);
                 blit(matrixStack, WINDOW_INSIDE_WIDTH - 20, 4, 0, 192, 16, 16);
             }
 
@@ -468,12 +469,12 @@ public class StandSkinsScreen extends Screen implements IJojoScreen {
         Quaternionf quaternion1 = Axis.YP.rotationDegrees(yRot);
         quaternion.mul(quaternion1);
         matrixStack.mulPose(quaternion);
-        EntityRenderDispatcher entityrenderermanager = Minecraft.getInstance().getEntityRenderDispatcher();
+        EntityRendererProvider.Context context = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternion1.conj();
         entityrenderermanager.overrideCameraOrientation(quaternion1);
         
         // rotate lighting
-        matrixStack.last().normal().mul(Axis.YP.rotationDegrees(60));
+        matrixStack.last().normal().rotation(Axis.YP.rotationDegrees(60));
         
         entityrenderermanager.setRenderShadow(false);
         MultiBufferSource.Impl buffer = Minecraft.getInstance().renderBuffers().bufferSource();

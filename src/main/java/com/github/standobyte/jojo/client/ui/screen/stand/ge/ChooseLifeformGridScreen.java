@@ -341,7 +341,7 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             Minecraft.getInstance().getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
             
             if (isHidden) {
-                RenderSystem.color4f(1, 1, 1, 0.25F);
+                RenderSystem.setShaderColor(1, 1, 1, 0.25F);
             }
             
             if (isNew) {
@@ -354,20 +354,20 @@ public class ChooseLifeformGridScreen extends ChooseLifeformScreen {
             EntityTypeIcon.renderIcon(entityType.getCurrentSubtype(), matrixStack, x + 4, y + 4);
             
             if (isHidden) {
-                RenderSystem.color4f(1, 1, 1, 1);
+                RenderSystem.setShaderColor(1, 1, 1, 1);
             }
             
             if (isSelected) {
-                mc.getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
+                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
                 blit(matrixStack, x, y, 24, 0, 24, 24, 128, 128);
             }
             else if (this.entityType.getCurrentSubtype() == playerUISettings.getGEChosenLifeformType()) {
-                mc.getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
+                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
                 blit(matrixStack, x, y, 0, 24, 24, 24, 128, 128);
             }
             
             if (isInFavorite) {
-                mc.getTextureManager().bind(LIFEFORM_CHOOSE_LOCATION);
+                RenderSystem.setShaderTexture(0, LIFEFORM_CHOOSE_LOCATION);
                 blit(matrixStack, x + width - 5, y - 3, 119, 9, 9, 9, 128, 128);
             }
         }

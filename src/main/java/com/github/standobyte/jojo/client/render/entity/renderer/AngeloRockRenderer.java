@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.model.AngeloRockModel;
 import com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile.CDBlockBulletRenderer;
@@ -10,7 +11,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,8 +19,8 @@ public class AngeloRockRenderer extends SimpleEntityRenderer<AngeloRockEntity, A
     public static final ResourceLocation TEXTURE = new ResourceLocation("textures/block/stone.png");
     public static final ResourceLocation SHADOW_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/angelo_rock_shadow.png");
 
-    public AngeloRockRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new AngeloRockModel(), TEXTURE);
+    public AngeloRockRenderer(EntityRendererProvider.Context context) {
+        super(context, new AngeloRockModel(), TEXTURE);
     }
     
     @Override

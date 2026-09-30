@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.LeavesGliderModel;
 import com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile.CDBlockBulletRenderer;
@@ -7,15 +8,15 @@ import com.github.standobyte.jojo.entity.LeavesGliderEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class LeavesGliderRenderer extends SimpleEntityRenderer<LeavesGliderEntity, LeavesGliderModel> {
     private static final ResourceLocation DEFAULT_OAK_LEAVES = new ResourceLocation("textures/block/oak_leaves.png");
 
-    public LeavesGliderRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new LeavesGliderModel(), null);
+    public LeavesGliderRenderer(EntityRendererProvider.Context context) {
+        super(context, new LeavesGliderModel(), null);
     }
     
     @Override

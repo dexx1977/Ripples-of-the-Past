@@ -14,20 +14,20 @@ import net.minecraft.network.chat.Component;
 public class CustomButton extends Button implements IExtendedWidget {
     private final WidgetExtension extension;
 
-    public CustomButton(int x, int y, int width, int height, Button.IPressable onPress) {
+    public CustomButton(int x, int y, int width, int height, Button.Button.OnPress onPress) {
         this(x, y, width, height, Component.empty(), onPress);
     }
 
-    public CustomButton(int x, int y, int width, int height, Button.IPressable onPress, Button.ITooltip tooltip) {
+    public CustomButton(int x, int y, int width, int height, Button.Button.OnPress onPress, Button.ITooltip tooltip) {
         this(x, y, width, height, Component.empty(), onPress, tooltip);
     }
 
-    public CustomButton(int x, int y, int width, int height, Component message, Button.IPressable onPress) {
-        super(x, y, width, height, message, onPress);
+    public CustomButton(int x, int y, int width, int height, Component message, Button.Button.OnPress onPress) {
+        super(x, y, width, height, message, onPress, Button.DEFAULT_NARRATION);
         this.extension = new WidgetExtension(this);
     }
 
-    public CustomButton(int x, int y, int width, int height, Component message, Button.IPressable onPress, Button.ITooltip tooltip) {
+    public CustomButton(int x, int y, int width, int height, Component message, Button.Button.OnPress onPress, Button.ITooltip tooltip) {
         super(x, y, width, height, message, onPress, tooltip);
         this.extension = new WidgetExtension(this);
     }
@@ -42,8 +42,8 @@ public class CustomButton extends Button implements IExtendedWidget {
     
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

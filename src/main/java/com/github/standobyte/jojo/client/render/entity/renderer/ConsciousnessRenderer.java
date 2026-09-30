@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.entity.ClientConsciousnessEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -9,7 +10,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -30,8 +31,8 @@ import com.mojang.math.Axis;
 
 public class ConsciousnessRenderer extends EntityRenderer<ClientConsciousnessEntity> {
 
-    public ConsciousnessRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public ConsciousnessRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

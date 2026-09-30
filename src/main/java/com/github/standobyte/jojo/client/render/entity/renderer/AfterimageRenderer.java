@@ -1,19 +1,20 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.entity.AfterimageEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
 
 public class AfterimageRenderer<T extends AfterimageEntity> extends EntityRenderer<T> {
 
-    public AfterimageRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public AfterimageRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

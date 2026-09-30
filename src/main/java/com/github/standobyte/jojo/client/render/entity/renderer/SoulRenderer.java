@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.entity.SoulEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -22,8 +23,8 @@ import com.mojang.math.Axis;
 
 public class SoulRenderer<T extends SoulEntity> extends EntityRenderer<T> {
 
-    public SoulRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public SoulRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

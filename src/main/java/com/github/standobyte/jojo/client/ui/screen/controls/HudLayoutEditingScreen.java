@@ -98,7 +98,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     @Override
     protected void init() {
         // reset layout
-        addButton(new CustomButton(getWindowX() - 26, getWindowY() + WINDOW_HEIGHT - 34, 24, 24, 
+        addRenderableWidget(new CustomButton(getWindowX() - 26, getWindowY() + WINDOW_HEIGHT - 34, 24, 24, 
                 button -> {
                     currentControlScheme.reset(selectedPower);
                     markLayoutEdited();
@@ -111,8 +111,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -121,7 +121,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         });
         
         // vanilla controls settings
-        addButton(new CustomButton(getWindowX() - 24, getWindowY() + WINDOW_HEIGHT - 120, 22, 22, 
+        addRenderableWidget(new CustomButton(getWindowX() - 24, getWindowY() + WINDOW_HEIGHT - 120, 22, 22, 
                 button -> {
                     ControlsScreen mcControlsScreen = new ControlsScreen(this, minecraft.options);
                     
@@ -143,8 +143,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -190,7 +190,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             selectTab(IPower.getPlayerPower(minecraft.player, selectedTab));
         }
         
-        addButton(ToggleSwitch.create(getWindowX() - 18, getWindowY() + 18, ToggleSwitch.Orientation.VERTICAL, 
+        addRenderableWidget(ToggleSwitch.create(getWindowX() - 18, getWindowY() + 18, ToggleSwitch.Orientation.VERTICAL, 
                 () -> currentControlScheme.hotbarsEnabled, state -> currentControlScheme.hotbarsEnabled = state, 
                 button -> {
                     markLayoutEdited();
@@ -211,7 +211,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         renderAfterScissor = null;
         renderBackground(matrixStack, 0);
         hoveredAction = getSlotAt(mouseX, mouseY);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         renderWindow(matrixStack);
         renderTabButtons(matrixStack, mouseX, mouseY);
         renderHotbars(matrixStack, mouseX, mouseY);
@@ -237,7 +237,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     
     private void renderWindow(PoseStack matrixStack) {
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(WINDOW);
+        RenderSystem.setShaderTexture(0, WINDOW);
         blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         blit(matrixStack, getWindowX() + 7, getWindowY() + 10, 232, 3, 9, 16);
         blit(matrixStack, getWindowX() + 7, getWindowY() + 36, 232, 39, 9, 16);
@@ -292,7 +292,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     true, getPlusSlotAt(mouseX, mouseY).map(plusHotbar -> {
                         return plusHotbar == hotbar;
                     }).orElse(false), false);
-            minecraft.getTextureManager().bind(WINDOW);
+            RenderSystem.setShaderTexture(0, WINDOW);
             blit(matrixStack, pos.x, pos.y, 64, 220, 18, 18);
         });
     }
@@ -326,7 +326,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             int x, int y, int mouseX, int mouseY, 
             P power, Action<?> action, boolean isEnabled, 
             boolean fitsForDragged, boolean isHoveredOver, boolean renderActionIcon) {
-        minecraft.getTextureManager().bind(WINDOW);
+        RenderSystem.setShaderTexture(0, WINDOW);
         int texX = isHoveredOver ? 82 : 64;
         if (fitsForDragged) {
             texX += 36;
@@ -353,11 +353,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             float brightness = isEnabled && isUnlocked ? 1.0F : 0.0F;
             
             boolean changeColor = brightness < 1 || alpha < 1;
-            if (changeColor) RenderSystem.color4f(brightness, brightness, brightness, alpha);
+            if (changeColor) RenderSystem.setShaderColor(brightness, brightness, brightness, alpha);
             
             action.renderActionIcon(matrixStack, power, x, y);
             
-            if (changeColor) RenderSystem.color4f(1, 1, 1, 1);
+            if (changeColor) RenderSystem.setShaderColor(1, 1, 1, 1);
         }
     }
     
@@ -440,7 +440,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     private static final int HINT_KEYBINDS_X = WINDOW_WIDTH - 30;
     private static final int HINT_KEYBINDS_Y = 60;
     private void renderHints(PoseStack matrixStack, int mouseX, int mouseY) {
-        Minecraft.getInstance().textureManager.bind(WINDOW);
+        Minecraft.getInstance().RenderSystem.setShaderTexture(0, WINDOW);
         blit(matrixStack, getWindowX() + HINT_HOTBARS_X, getWindowY() + HINT_HOTBARS_Y, 32, 245, 11, 11);
         blit(matrixStack, getWindowX() + HINT_KEYBINDS_X, getWindowY() + HINT_KEYBINDS_Y, 32, 245, 11, 11);
     }
@@ -860,8 +860,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -889,8 +889,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -916,8 +916,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -937,8 +937,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             @Override
             protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.getTextureManager().bind(WINDOW);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, WINDOW);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableDepthTest();
@@ -1043,8 +1043,8 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                 @Override
                 protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                     Minecraft minecraft = Minecraft.getInstance();
-                    minecraft.getTextureManager().bind(WINDOW);
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                    RenderSystem.setShaderTexture(0, WINDOW);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.enableDepthTest();

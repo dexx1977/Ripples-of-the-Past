@@ -46,7 +46,7 @@ public class WalkmanVolumeWheel extends AbstractWidget {
     @Override
     public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft.getInstance().getTextureManager().bind(WalkmanScreen.WALKMAN_SCREEN_TEXTURE);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         blit(matrixStack, x, y, isHovered() ? 229 : 245 , 61 + (int) (value * FULL_WHEEL_LENGTH), width, height);
     }

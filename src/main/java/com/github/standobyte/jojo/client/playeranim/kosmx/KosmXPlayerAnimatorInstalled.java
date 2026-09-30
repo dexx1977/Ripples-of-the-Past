@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.playeranim.kosmx;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;

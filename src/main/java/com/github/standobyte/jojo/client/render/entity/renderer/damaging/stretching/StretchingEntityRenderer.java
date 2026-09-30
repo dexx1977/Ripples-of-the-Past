@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.stretching;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRenderer;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.OwnerBoundProjectileEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
@@ -8,7 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,8 +21,8 @@ import com.mojang.math.Axis;
 
 public abstract class StretchingEntityRenderer<T extends OwnerBoundProjectileEntity, M extends EntityModel<T>> extends SimpleEntityRenderer<T, M> {
 
-    public StretchingEntityRenderer(EntityRenderDispatcher renderManager, M entityModel, ResourceLocation texture) {
-        super(renderManager, entityModel, texture);
+    public StretchingEntityRenderer(EntityRendererProvider.Context context, M entityModel, ResourceLocation texture) {
+        super(context, entityModel, texture);
     }
 
     protected abstract float getModelLength();

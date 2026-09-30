@@ -14,13 +14,13 @@ public class TextButton extends Button {
     private Font font;
     
     public TextButton(int pX, int pY, Component pMessage, 
-            IPressable pOnPress, ITooltip pOnTooltip, Font font) {
+            Button.OnPress pOnPress, ITooltip pOnTooltip, Font font) {
         super(pX, pY, font.width(pMessage), font.lineHeight, pMessage, pOnPress, pOnTooltip);
         this.font = font;
     }
 
     public TextButton(int pX, int pY, Component pMessage, 
-            IPressable pOnPress, Font font) {
+            Button.OnPress pOnPress, Font font) {
         this(pX, pY, pMessage, pOnPress, NO_TOOLTIP, font);
     }
 
@@ -28,7 +28,7 @@ public class TextButton extends Button {
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft mc = Minecraft.getInstance();
         
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();

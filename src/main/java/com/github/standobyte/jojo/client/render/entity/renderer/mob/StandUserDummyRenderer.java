@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.mob;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.text.DecimalFormat;
 
 import com.github.standobyte.jojo.client.ClientUtil;
@@ -10,7 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
@@ -20,8 +21,8 @@ import net.minecraft.network.chat.Component;
 
 public class StandUserDummyRenderer extends HumanoidMobRenderer<StandUserDummyEntity, PlayerModel<StandUserDummyEntity>> {
 
-    public StandUserDummyRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new PlayerModel<>(0, false), 0.5F);
+    public StandUserDummyRenderer(EntityRendererProvider.Context context) {
+        super(context, new PlayerModel<>(0, false), 0.5F);
         this.addLayer(new HumanoidArmorLayer<>(this, new HumanoidModel<>(0.5F), new HumanoidModel<>(1.0F)));
         this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new CustomHeadLayer<>(this));

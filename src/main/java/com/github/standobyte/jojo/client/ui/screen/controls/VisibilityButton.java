@@ -15,11 +15,11 @@ public class VisibilityButton extends CustomButton {
     
     private boolean elementVisible;
 
-    public VisibilityButton(int x, int y, Button.IPressable onPress) {
+    public VisibilityButton(int x, int y, Button.Button.OnPress onPress) {
         super(x, y, WIDTH, HEIGHT, Component.empty(), onPress);
     }
 
-    public VisibilityButton(int x, int y, Button.IPressable onPress, Button.ITooltip tooltip) {
+    public VisibilityButton(int x, int y, Button.Button.OnPress onPress, Button.ITooltip tooltip) {
         super(x, y, WIDTH, HEIGHT, Component.empty(), onPress, tooltip);
     }
     
@@ -30,8 +30,8 @@ public class VisibilityButton extends CustomButton {
     @SuppressWarnings("deprecation")
     protected void renderCustomButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(ClientUtil.ADDITIONAL_UI);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();

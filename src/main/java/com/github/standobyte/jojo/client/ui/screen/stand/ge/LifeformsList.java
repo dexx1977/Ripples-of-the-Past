@@ -46,7 +46,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
     private Map<String, List<LifeformEntry>> allVisibleEntries = new HashMap<>();
     
     public LifeformsList(Minecraft mc, int width, int height, int y0, int y1, int itemHeight, ChooseLifeformListScreen screen) {
-        super(mc, width, height, y0, y1, itemHeight);
+        super(mc, width, height, y0, y1, itemHeight, Button.DEFAULT_NARRATION);
         this.screen = screen;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
@@ -223,8 +223,8 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuilder();
 //        if (this.renderBackground) {
-//            this.minecraft.getTextureManager().bind(AbstractGui.BACKGROUND_LOCATION);
-//            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+//            RenderSystem.setShaderTexture(0, AbstractGui.BACKGROUND_LOCATION);
+//            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 //            float f = 32.0F;
 //            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 //            bufferbuilder.vertex((double)this.x0, (double)this.y1, 0.0D).uv((float)this.x0 / 32.0F, (float)(this.y1 + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).endVertex();
@@ -241,7 +241,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
 //        }
 
 //        if (this.renderTopAndBottom) {
-//            this.minecraft.getTextureManager().bind(AbstractGui.BACKGROUND_LOCATION);
+//            RenderSystem.setShaderTexture(0, AbstractGui.BACKGROUND_LOCATION);
 //            RenderSystem.enableDepthTest();
 //            RenderSystem.depthFunc(519);
 //            float f1 = 32.0F;
@@ -365,7 +365,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             private Supplier<Boolean> isExpanded;
             
             public ExpandCollapseButton(int pX, int pY, int pWidth, int pHeight, Screen screen, 
-                    IPressable pOnPress, Supplier<Boolean> isExpanded) {
+                    Button.OnPress pOnPress, Supplier<Boolean> isExpanded) {
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = isExpanded.get() ? Component.translatable("jojo.ui.list_collapse") : Component.translatable("jojo.ui.list_expand");
@@ -377,8 +377,8 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             @Override
             public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
                 Minecraft minecraft = Minecraft.getInstance();
-                minecraft.textureManager.bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderTexture(0, ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
                 
                 int texX = isHovered ? 118 : 108;
                 int texY = isExpanded.get() ? 20 : 30;
@@ -437,7 +437,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             private boolean isFavorited;
 
             public FavoriteButton(int pX, int pY, int pWidth, int pHeight, 
-                    IPressable pOnPress, Screen screen) {
+                    Button.OnPress pOnPress, Screen screen) {
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
                         (button, matrixStack, mouseX, mouseY) -> {
                             Component text = ((FavoriteButton) button).isFavorited ? Component.translatable("jojo.ui.favorite_remove") : Component.translatable("jojo.ui.favorite");
@@ -450,7 +450,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
                 if (!(isFavorited || isHovered())) return;
                 
                 Minecraft mc = Minecraft.getInstance();
-                mc.getTextureManager().bind(ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
+                RenderSystem.setShaderTexture(0, ChooseLifeformListScreen.LIFEFORM_CHOOSE_LOCATION);
                 int texY = isFavorited ? 9 : 0;
                 RenderSystem.enableDepthTest();
                 blit(pMatrixStack, x, y, 119, texY, width, height, 128, 128);

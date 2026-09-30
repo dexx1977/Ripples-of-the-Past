@@ -20,7 +20,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, 
-            Button.IPressable pOnPress) {
+            Button.Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, 
                 pResourceLocation, 256, 256, 
@@ -30,7 +30,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress) {
+            Button.Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -40,7 +40,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, Component pMessage) {
+            Button.Button.OnPress pOnPress, Component pMessage) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, pWidth, pHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -50,7 +50,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         this(pX, pY, pWidth, pHeight,
                 pXTexStart, pYTexStart, pWidth, pHeight,
                 pResourceLocation, pTextureWidth, pTextureHeight,
@@ -60,7 +60,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress) {
+            Button.Button.OnPress pOnPress) {
         this(pX, pY, pWidth, pHeight, 
                 pXTexStart, pYTexStart, iconWidth, iconHeight, 
                 pResourceLocation, pTextureWidth, pTextureHeight, 
@@ -70,7 +70,7 @@ public class ImageVanillaButton extends Button {
     public ImageVanillaButton(int pX, int pY, int pWidth, int pHeight, 
             int pXTexStart, int pYTexStart, int iconWidth, int iconHeight, 
             ResourceLocation pResourceLocation, int pTextureWidth, int pTextureHeight, 
-            Button.IPressable pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
+            Button.Button.OnPress pOnPress, Button.ITooltip pOnTooltip, Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
         this.textureWidth = pTextureWidth;
         this.textureHeight = pTextureHeight;
@@ -90,8 +90,8 @@ public class ImageVanillaButton extends Button {
     @Override
     public void renderButton(PoseStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(WIDGETS_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         int i = getYImage(isHovered());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -100,7 +100,7 @@ public class ImageVanillaButton extends Button {
         blit(pMatrixStack, x + width / 2, y, 200 - width / 2, 46 + i * 20, width / 2, height);
         renderBg(pMatrixStack, minecraft, pMouseX, pMouseY);
         
-        minecraft.getTextureManager().bind(resourceLocation);
+        RenderSystem.setShaderTexture(0, resourceLocation);
         RenderSystem.enableDepthTest();
         int iconX = x + (width - iconWidth) / 2;
         int iconY = y + (height - iconHeight) / 2;

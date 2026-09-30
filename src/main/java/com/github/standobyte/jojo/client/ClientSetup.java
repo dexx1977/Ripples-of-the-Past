@@ -1,5 +1,14 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.world.entity.Entity;
+import java.util.function.Consumer;
+import java.util.List;
+import java.util.ArrayList;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
@@ -180,7 +189,6 @@ import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import com.github.standobyte.jojo.util.mc.MCUtil;
@@ -194,76 +202,104 @@ public class ClientSetup {
     
     public static ConsciousnessRenderer xxd;
     
+    /**
+     * Renderer and key-mapping registration. 1.20.1 removed
+     * RenderingRegistry/ClientRegistry, so the registrations declared during client
+     * setup are recorded here and handed to Forge when it asks for them. The order
+     * the mod declares them in is preserved.
+     */
+    private static final List<Consumer<EntityRenderersEvent.RegisterRenderers>> RENDERER_REGISTRATIONS = new ArrayList<>();
+    private static final List<KeyMapping> KEY_MAPPINGS = new ArrayList<>();
+
+    public static <T extends Entity> void registerRenderer(EntityType<T> entityType, EntityRendererProvider<T> rendererProvider) {
+        RENDERER_REGISTRATIONS.add(event -> event.registerEntityRenderer(entityType, rendererProvider));
+    }
+
+    public static KeyMapping registerKeyMapping(KeyMapping keyMapping) {
+        KEY_MAPPINGS.add(keyMapping);
+        return keyMapping;
+    }
+
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        RENDERER_REGISTRATIONS.forEach(registration -> registration.accept(event));
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        KEY_MAPPINGS.forEach(event::register);
+    }
+
     @SubscribeEvent
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
         Minecraft mc = event.getMinecraftSupplier().get();
         
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BLADE_HAT.get(), BladeHatRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get(), SpaceRipperStingyEyesRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.TURQUOISE_BLUE_OVERDRIVE.get(), TurquoiseBlueOverdriveRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SENDO_HAMON_OVERDRIVE.get(), SendoHamonOverdriveRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.ZOOM_PUNCH.get(), ZoomPunchRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.AFTERIMAGE.get(), AfterimageRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_PROJECTILE_SHIELD.get(), HamonProjectileShieldRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.LEAVES_GLIDER.get(), LeavesGliderRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_BLOCK_CHARGE.get(), HamonBlockChargeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.AJA_STONE_BEAM.get(), LightBeamRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_CUTTER.get(), HamonCutterRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CLACKERS.get(), ClackersRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_BUBBLE.get(), HamonBubbleRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_BUBBLE_BARRIER.get(), HamonBubbleBarrierRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_BUBBLE_CUTTER.get(), HamonBubbleCutterRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CRIMSON_BUBBLE.get(), CrimsonBubbleRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SATIPOROJA_SCARF.get(), SatiporojaScarfRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SATIPOROJA_SCARF_BINDING.get(), SatiporojaScarfBindingRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SNAKE_MUFFLER.get(), SnakeMufflerRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.TOMMY_GUN_BULLET.get(), TommyGunBulletRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.KNIFE.get(), KnifeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MOLOTOV.get(), manager -> new MolotovRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.STAND_ARROW.get(), StandArrowRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SOUL.get(), SoulRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.BLOCK_SHARD.get(), BlockShardRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.PILLARMAN_TEMPLE_ENGRAVING.get(), PillarmanTempleEngravingRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SP_STAR_FINGER.get(), SPStarFingerRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HG_STRING.get(), HGStringRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HG_EMERALD.get(), HGEmeraldRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HG_GRAPPLING_STRING.get(), HGGrapplingStringRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HG_BARRIER.get(), HGBarrierRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SC_RAPIER.get(), SCRapierRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.SC_FLAME.get(), SCFlameRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.ROAD_ROLLER.get(), RoadRollerRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_FLAME.get(), MRFlameRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_FIREBALL.get(), MRFireballRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_CROSSFIRE_HURRICANE.get(), MRCrossfireHurricaneRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_CROSSFIRE_HURRICANE_SPECIAL.get(), MRCrossfireHurricaneSpecialRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_RED_BIND.get(), MRRedBindRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.MR_DETECTOR.get(), MRDetectorRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CD_BLOOD_CUTTER.get(), CDBloodCutterRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.CD_BLOCK_BULLET.get(), CDBlockBulletRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager, Minecraft.getInstance().getItemRenderer()));
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.ANGELO_ROCK.get(), AngeloRockRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), GETransformationRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HUNGRY_ZOMBIE.get(), HungryZombieRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.HAMON_MASTER.get(), HamonMasterRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.COCO_JUMBO_TURTLE.get(), CocoJumboTurtleRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.ROCK_PAPER_SCISSORS_KID.get(), RockPaperScissorsKidRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.STAND_USER_DUMMY.get(), StandUserDummyRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.PILLARMAN_HORN.get(), PillarmanHornRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.PILLARMAN_DIVINE_SANDSTORM.get(), PillarmanDivineSandstormRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.PILLARMAN_VEINS.get(), PillarmanVeinRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.PILLARMAN_RIBS.get(), PillarmanRibRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(ModEntityTypes.OBJECT.get(), SpriteObjectEntityRenderer::new);
+        registerRenderer(ModEntityTypes.BLADE_HAT.get(), BladeHatRenderer::new);
+        registerRenderer(ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get(), SpaceRipperStingyEyesRenderer::new);
+        registerRenderer(ModEntityTypes.TURQUOISE_BLUE_OVERDRIVE.get(), TurquoiseBlueOverdriveRenderer::new);
+        registerRenderer(ModEntityTypes.SENDO_HAMON_OVERDRIVE.get(), SendoHamonOverdriveRenderer::new);
+        registerRenderer(ModEntityTypes.ZOOM_PUNCH.get(), ZoomPunchRenderer::new);
+        registerRenderer(ModEntityTypes.AFTERIMAGE.get(), AfterimageRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_PROJECTILE_SHIELD.get(), HamonProjectileShieldRenderer::new);
+        registerRenderer(ModEntityTypes.LEAVES_GLIDER.get(), LeavesGliderRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_BLOCK_CHARGE.get(), HamonBlockChargeRenderer::new);
+        registerRenderer(ModEntityTypes.AJA_STONE_BEAM.get(), LightBeamRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_CUTTER.get(), HamonCutterRenderer::new);
+        registerRenderer(ModEntityTypes.CLACKERS.get(), ClackersRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_BUBBLE.get(), HamonBubbleRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_BUBBLE_BARRIER.get(), HamonBubbleBarrierRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_BUBBLE_CUTTER.get(), HamonBubbleCutterRenderer::new);
+        registerRenderer(ModEntityTypes.CRIMSON_BUBBLE.get(), CrimsonBubbleRenderer::new);
+        registerRenderer(ModEntityTypes.SATIPOROJA_SCARF.get(), SatiporojaScarfRenderer::new);
+        registerRenderer(ModEntityTypes.SATIPOROJA_SCARF_BINDING.get(), SatiporojaScarfBindingRenderer::new);
+        registerRenderer(ModEntityTypes.SNAKE_MUFFLER.get(), SnakeMufflerRenderer::new);
+        registerRenderer(ModEntityTypes.TOMMY_GUN_BULLET.get(), TommyGunBulletRenderer::new);
+        registerRenderer(ModEntityTypes.KNIFE.get(), KnifeRenderer::new);
+        registerRenderer(ModEntityTypes.MOLOTOV.get(), manager -> new MolotovRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
+        registerRenderer(ModEntityTypes.STAND_ARROW.get(), StandArrowRenderer::new);
+        registerRenderer(ModEntityTypes.SOUL.get(), SoulRenderer::new);
+        registerRenderer(ModEntityTypes.BLOCK_SHARD.get(), BlockShardRenderer::new);
+        registerRenderer(ModEntityTypes.PILLARMAN_TEMPLE_ENGRAVING.get(), PillarmanTempleEngravingRenderer::new);
+        registerRenderer(ModEntityTypes.SP_STAR_FINGER.get(), SPStarFingerRenderer::new);
+        registerRenderer(ModEntityTypes.HG_STRING.get(), HGStringRenderer::new);
+        registerRenderer(ModEntityTypes.HG_EMERALD.get(), HGEmeraldRenderer::new);
+        registerRenderer(ModEntityTypes.HG_GRAPPLING_STRING.get(), HGGrapplingStringRenderer::new);
+        registerRenderer(ModEntityTypes.HG_BARRIER.get(), HGBarrierRenderer::new);
+        registerRenderer(ModEntityTypes.SC_RAPIER.get(), SCRapierRenderer::new);
+        registerRenderer(ModEntityTypes.SC_FLAME.get(), SCFlameRenderer::new);
+        registerRenderer(ModEntityTypes.ROAD_ROLLER.get(), RoadRollerRenderer::new);
+        registerRenderer(ModEntityTypes.MR_FLAME.get(), MRFlameRenderer::new);
+        registerRenderer(ModEntityTypes.MR_FIREBALL.get(), MRFireballRenderer::new);
+        registerRenderer(ModEntityTypes.MR_CROSSFIRE_HURRICANE.get(), MRCrossfireHurricaneRenderer::new);
+        registerRenderer(ModEntityTypes.MR_CROSSFIRE_HURRICANE_SPECIAL.get(), MRCrossfireHurricaneSpecialRenderer::new);
+        registerRenderer(ModEntityTypes.MR_RED_BIND.get(), MRRedBindRenderer::new);
+        registerRenderer(ModEntityTypes.MR_DETECTOR.get(), MRDetectorRenderer::new);
+        registerRenderer(ModEntityTypes.CD_BLOOD_CUTTER.get(), CDBloodCutterRenderer::new);
+        registerRenderer(ModEntityTypes.CD_BLOCK_BULLET.get(), CDBlockBulletRenderer::new);
+        registerRenderer(ModEntityTypes.EYE_OF_ENDER_INSIDE.get(), manager -> new ThrownItemRenderer<>(manager, Minecraft.getInstance().getItemRenderer(), 1.0F, true));
+        registerRenderer(ModEntityTypes.FIREWORK_INSIDE.get(), manager -> new FireworkEntityRenderer(manager, Minecraft.getInstance().getItemRenderer()));
+        registerRenderer(ModEntityTypes.ANGELO_ROCK.get(), AngeloRockRenderer::new);
+        registerRenderer(ModEntityTypes.GE_LIFEFORM_TRANSFORMATION.get(), GETransformationRenderer::new);
+        registerRenderer(ModEntityTypes.HUNGRY_ZOMBIE.get(), HungryZombieRenderer::new);
+        registerRenderer(ModEntityTypes.HAMON_MASTER.get(), HamonMasterRenderer::new);
+        registerRenderer(ModEntityTypes.COCO_JUMBO_TURTLE.get(), CocoJumboTurtleRenderer::new);
+        registerRenderer(ModEntityTypes.ROCK_PAPER_SCISSORS_KID.get(), RockPaperScissorsKidRenderer::new);
+        registerRenderer(ModEntityTypes.STAND_USER_DUMMY.get(), StandUserDummyRenderer::new);
+        registerRenderer(ModEntityTypes.PILLARMAN_HORN.get(), PillarmanHornRenderer::new);
+        registerRenderer(ModEntityTypes.PILLARMAN_DIVINE_SANDSTORM.get(), PillarmanDivineSandstormRenderer::new);
+        registerRenderer(ModEntityTypes.PILLARMAN_VEINS.get(), PillarmanVeinRenderer::new);
+        registerRenderer(ModEntityTypes.PILLARMAN_RIBS.get(), PillarmanRibRenderer::new);
+        registerRenderer(ModEntityTypes.OBJECT.get(), SpriteObjectEntityRenderer::new);
         
         xxd = new ConsciousnessRenderer(mc.getEntityRenderDispatcher());
         
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.THE_WORLD.getEntityType(), ClientUtil.logException(TheWorldRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.HIEROPHANT_GREEN.getEntityType(), ClientUtil.logException(HierophantGreenRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.SILVER_CHARIOT.getEntityType(), ClientUtil.logException(SilverChariotRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.MAGICIANS_RED.getEntityType(), ClientUtil.logException(MagiciansRedRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.CRAZY_DIAMOND.getEntityType(), ClientUtil.logException(CrazyDiamondRenderer::new));
-        RenderingRegistry.registerEntityRenderingHandler(ModStands.GOLD_EXPERIENCE.getEntityType(), ClientUtil.logException(GoldExperienceRenderer::new));
+        registerRenderer(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
+        registerRenderer(ModStands.THE_WORLD.getEntityType(), ClientUtil.logException(TheWorldRenderer::new));
+        registerRenderer(ModStands.HIEROPHANT_GREEN.getEntityType(), ClientUtil.logException(HierophantGreenRenderer::new));
+        registerRenderer(ModStands.SILVER_CHARIOT.getEntityType(), ClientUtil.logException(SilverChariotRenderer::new));
+        registerRenderer(ModStands.MAGICIANS_RED.getEntityType(), ClientUtil.logException(MagiciansRedRenderer::new));
+        registerRenderer(ModStands.CRAZY_DIAMOND.getEntityType(), ClientUtil.logException(CrazyDiamondRenderer::new));
+        registerRenderer(ModStands.GOLD_EXPERIENCE.getEntityType(), ClientUtil.logException(GoldExperienceRenderer::new));
         
         PlayerAnimationHandler.initAnimator();
         

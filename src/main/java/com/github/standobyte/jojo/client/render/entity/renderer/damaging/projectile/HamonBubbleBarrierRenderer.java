@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.render.entity.model.projectile.HamonBubbleBarrierModel;
 import com.github.standobyte.jojo.client.render.entity.renderer.SimpleEntityRenderer;
@@ -7,14 +8,14 @@ import com.github.standobyte.jojo.entity.damaging.projectile.HamonBubbleBarrierE
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class HamonBubbleBarrierRenderer extends SimpleEntityRenderer<HamonBubbleBarrierEntity, HamonBubbleBarrierModel> {
 
-    public HamonBubbleBarrierRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new HamonBubbleBarrierModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hamon_bubble_barrier.png"));
+    public HamonBubbleBarrierRenderer(EntityRendererProvider.Context context) {
+        super(context, new HamonBubbleBarrierModel(), new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hamon_bubble_barrier.png"));
     }
     
     @Override

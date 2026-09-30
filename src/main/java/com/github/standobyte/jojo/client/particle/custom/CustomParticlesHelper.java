@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.particle.custom;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

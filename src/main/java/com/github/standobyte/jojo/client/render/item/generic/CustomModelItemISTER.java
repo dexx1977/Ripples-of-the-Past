@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.world.item.ItemTransforms;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -38,6 +38,7 @@ public class CustomModelItemISTER<M extends Model> extends BlockEntityWithoutLev
     
     public CustomModelItemISTER(ResourceLocation modelResource, ResourceLocation texture, 
             Supplier<? extends Item> item, Supplier<M> modelObjConstructor) {
+        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
         this.modelResource = modelResource;
         this.texture = texture;
         this.item = item;

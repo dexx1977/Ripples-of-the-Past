@@ -1,10 +1,11 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.mob;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.entity.mob.rps.RockPaperScissorsKidEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.CrossedArmsItemLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
@@ -16,8 +17,8 @@ import net.minecraft.resources.ResourceLocation;
 public class RockPaperScissorsKidRenderer extends MobRenderer<RockPaperScissorsKidEntity, VillagerModel<RockPaperScissorsKidEntity>> {
     private static final ResourceLocation VILLAGER_BASE_SKIN = new ResourceLocation("textures/entity/villager/villager.png");
 
-    public RockPaperScissorsKidRenderer(EntityRenderDispatcher manager) {
-        super(manager, new VillagerModel<>(0.0F), 0.5F);
+    public RockPaperScissorsKidRenderer(EntityRendererProvider.Context context) {
+        super(context, new VillagerModel<>(0.0F), 0.5F);
         addLayer(new CustomHeadLayer<>(this));
         addLayer(new VillagerProfessionLayer<>(this, (ReloadableResourceManager) Minecraft.getInstance().getResourceManager(), "villager"));
         addLayer(new CrossedArmsItemLayer<>(this));

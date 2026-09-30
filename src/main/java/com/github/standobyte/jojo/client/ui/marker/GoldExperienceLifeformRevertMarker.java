@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.marker;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 
 import com.github.standobyte.jojo.JojoMod;
@@ -44,7 +45,7 @@ public class GoldExperienceLifeformRevertMarker extends MarkerRenderer {
                         ObjectEntity.Type objectType = ((ObjectEntity) sourceEntity).getObjectType();
                         switch (objectType) {
                         case TOOTH:
-                            mc.getTextureManager().bind(ICON_TOOTH);
+                            RenderSystem.setShaderTexture(0, ICON_TOOTH);
                             AbstractGui.blit(matrixStack, 0, 0, 0, 0, 16, 16, 16, 16);
                             break;
                         }

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
@@ -59,8 +60,8 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     protected int texWidth = 64;
     protected int texHeight = 64;
 
-    public GETransformationRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public GETransformationRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
 
     @Override

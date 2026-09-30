@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.hamon;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_HEIGHT;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_THIN_BORDER;
 import static com.github.standobyte.jojo.client.ui.screen.hamon.HamonScreen.WINDOW_WIDTH;
@@ -167,7 +168,7 @@ public class HamonTechniqueTabGui extends HamonSkillsTabGui {
             int x = tabPositioning.getIconX(windowX, index, WINDOW_WIDTH);
             int y = tabPositioning.getIconY(windowY, index, WINDOW_HEIGHT);
             
-            minecraft.getTextureManager().bind(HamonScreen.WINDOW);
+            RenderSystem.setShaderTexture(0, HamonScreen.WINDOW);
             
             blit(matrixStack, x - 6, y - 3, 248, 206, 8, 8);
         }

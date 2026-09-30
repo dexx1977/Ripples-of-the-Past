@@ -42,14 +42,14 @@ public class HamonSkillToast implements Toast {
             return Toast.Visibility.HIDE;
         } else {
             Minecraft mc = toastGui.getMinecraft();
-            mc.getTextureManager().bind(TEXTURE);
+            RenderSystem.setShaderTexture(0, TEXTURE);
             RenderSystem.color3f(1.0F, 1.0F, 1.0F);
             toastGui.blit(matrixStack, 0, 0, 0, 32, 160, 32);
             mc.font.draw(matrixStack, NAME, 30.0F, 7.0F, -11534256);
             mc.font.draw(matrixStack, description, 30.0F, 18.0F, -16777216);
             AbstractHamonSkill skill = skills.get((int)(delta / Math.max(1L, 5000L / (long)skills.size()) % (long)skills.size()));
             TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
-            mc.getTextureManager().bind(textureAtlasSprite.atlas().location());
+            RenderSystem.setShaderTexture(0, textureAtlasSprite.atlas().location());
             ToastComponent.blit(matrixStack, 8, 8, 0, 16, 16, textureAtlasSprite);
             return delta - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }

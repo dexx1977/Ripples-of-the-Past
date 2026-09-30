@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -89,7 +90,6 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.client.gui.GuiUtils;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
 import com.mojang.math.Axis;
 import com.github.standobyte.jojo.util.mc.MCUtil;
 
@@ -267,11 +267,10 @@ public class ClientUtil {
         }
     }
     
-    public static <T extends Entity> IRenderFactory<? super T> logException(IRenderFactory<? super T> renderFactory) {
-        return manager -> {
+    public static <T extends Entity> EntityRendererProvider<T> logException(EntityRendererProvider<T> rendererProvider) {
+        return context -> {
             try {
-                EntityRenderer<? super T> renderer = renderFactory.createRenderFor(manager);
-                return renderer;
+                return rendererProvider.create(context);
             }
             catch (Exception e) {
                 JojoMod.getLogger().error("Error creating a renderer class for an entity", e);
@@ -328,7 +327,6 @@ public class ClientUtil {
     @SuppressWarnings("deprecation")
     public static void drawTooltipRectangle(PoseStack matrixStack, int x, int y, int width, int height, 
             int backgroundColor, int borderColorStart, int borderColorEnd, int zLevel) {
-        RenderSystem.disableRescaleNormal();
         RenderSystem.enableDepthTest();
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
@@ -351,7 +349,6 @@ public class ClientUtil {
         RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
         RenderSystem.enableTexture();
-        RenderSystem.enableRescaleNormal();
     }
     
     private static void drawGradientRect(Matrix4f mat, int zLevel, int left, int top, int right, int bottom, int startColor, int endColor) {
@@ -421,7 +418,7 @@ public class ClientUtil {
     public static void renderPlayerFace(PoseStack matrixStack, int x, int y, AbstractClientPlayer player) {
         Minecraft mc = Minecraft.getInstance();
         ResourceLocation playerFace = player.getSkinTextureLocation();
-        mc.getTextureManager().bind(playerFace);
+        RenderSystem.setShaderTexture(0, playerFace);
 
         AbstractGui.blit(matrixStack, x, y, 16, 16, 16, 16, 128, 128);
         if (mc.options.getModelParts().contains(PlayerModelPart.HAT)) {

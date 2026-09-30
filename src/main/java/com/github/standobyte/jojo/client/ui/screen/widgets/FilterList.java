@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.widgets;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -78,7 +79,7 @@ public class FilterList<T extends FilterList.Entry> implements GuiEventListener 
             int mouseX, int mouseY, float partialTick) {
         if (!visible) return;
         
-        mc.textureManager.bind(ClientUtil.ADDITIONAL_UI);
+        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
         AbstractGui.blit(matrixStack, x + width / 2, y, 
                 16, getScrollUpState(mouseX, mouseY).texY, 16, 16, 256, 256);
         
@@ -87,7 +88,7 @@ public class FilterList<T extends FilterList.Entry> implements GuiEventListener 
             entry.render(matrixStack, mc, mouseX, mouseY, partialTick);
         }
 
-        mc.textureManager.bind(ClientUtil.ADDITIONAL_UI);
+        RenderSystem.setShaderTexture(0, ClientUtil.ADDITIONAL_UI);
         AbstractGui.blit(matrixStack, x + width / 2, this.y + height - 16, 
                 0, getScrollDownState(mouseX, mouseY).texY, 16, 16, 256, 256);
     }

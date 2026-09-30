@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.stretching;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.client.render.entity.model.ownerbound.ZoomPunchModel;
 import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.ZoomPunchEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -7,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,8 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ZoomPunchRenderer extends StretchingEntityRenderer<ZoomPunchEntity, ZoomPunchModel> {
 
-    public ZoomPunchRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager, new ZoomPunchModel(0.0F), DefaultPlayerSkin.getDefaultSkin());
+    public ZoomPunchRenderer(EntityRendererProvider.Context context) {
+        super(context, new ZoomPunchModel(0.0F), DefaultPlayerSkin.getDefaultSkin());
     }
     
     protected float getModelLength() {

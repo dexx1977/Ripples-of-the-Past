@@ -18,8 +18,8 @@ public class HotbarRenderer {
     
     public static void renderHotbar(PoseStack matrixStack, Minecraft mc, int x, int y, int slots, float alpha) {
         if (slots <= 0) return;
-        mc.getTextureManager().bind(HOTBAR_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, HOTBAR_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         
         HotbarTexPosition texPos = HotbarTexPosition.getHotbarFromSlotsCount(slots);
         AbstractGui.blit(matrixStack, 
@@ -31,8 +31,8 @@ public class HotbarRenderer {
     }
     
     public static void renderHotbar(PoseStack matrixStack, Minecraft mc, float x, float y, int slots, float alpha) {
-        mc.getTextureManager().bind(HOTBAR_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, HOTBAR_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         
         HotbarTexPosition texPos = HotbarTexPosition.getHotbarFromSlotsCount(slots);
         AbstractGui.blit(matrixStack, 
@@ -45,8 +45,8 @@ public class HotbarRenderer {
     public static void renderFoldingHotbar(PoseStack matrixStack, Minecraft mc, float x, float y, HotbarFold hotbarFold, float alpha) {
         int slotsCount = hotbarFold.getSlotsCount();
         if (slotsCount <= 0) return;
-        mc.getTextureManager().bind(HOTBAR_LOCATION);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderTexture(0, HOTBAR_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         
         HotbarTexPosition texPos = HotbarTexPosition.getHotbarFromSlotsCount(slotsCount);
         hotbarFold.renderSlots(slot -> {
@@ -97,14 +97,14 @@ public class HotbarRenderer {
     }
     
     public static void renderSlotSelection(PoseStack matrixStack, Minecraft mc, float slotX, float slotY, float hotbarAlpha, boolean greenSelection) {
-        mc.getTextureManager().bind(HOTBAR_LOCATION);
+        RenderSystem.setShaderTexture(0, HOTBAR_LOCATION);
         if (greenSelection) {
-            RenderSystem.color4f(0.0F, 1.0F, 0.0F, hotbarAlpha);
+            RenderSystem.setShaderColor(0.0F, 1.0F, 0.0F, hotbarAlpha);
         }
         else {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, hotbarAlpha);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hotbarAlpha);
         }
         BlitFloat.blitFloat(matrixStack, slotX - 28, slotY - 28, 440, 0, 72, 72, 512, 512);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, hotbarAlpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, hotbarAlpha);
     }
 }

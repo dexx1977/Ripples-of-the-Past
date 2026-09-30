@@ -47,7 +47,7 @@ public class StandInfoScreen extends Screen implements IJojoScreen {
     
     private void renderWindow(PoseStack matrixStack) {
         RenderSystem.enableBlend();
-        minecraft.getTextureManager().bind(WINDOW);
+        RenderSystem.setShaderTexture(0, WINDOW);
         blit(matrixStack, getWindowX(), getWindowY(), 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
     

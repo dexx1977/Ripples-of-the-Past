@@ -1,12 +1,13 @@
 package com.github.standobyte.jojo.client.render.entity.renderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
@@ -17,8 +18,8 @@ public abstract class SimpleEntityRenderer<T extends Entity, M extends EntityMod
     protected M model;
     protected final ResourceLocation texPath;
 
-    public SimpleEntityRenderer(EntityRenderDispatcher renderManager, M model, ResourceLocation texPath) {
-        super(renderManager);
+    public SimpleEntityRenderer(EntityRendererProvider.Context context, M model, ResourceLocation texPath) {
+        super(context);
         this.model = model;
         this.texPath = texPath;
     }

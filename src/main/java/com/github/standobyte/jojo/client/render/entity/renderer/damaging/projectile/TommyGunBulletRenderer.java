@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.projectile;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.Util;
@@ -33,8 +34,8 @@ public class TommyGunBulletRenderer extends EntityRenderer<TommyGunBulletEntity>
     protected float BEAM_WIDTH = 0.015f;
     protected double BULLET_U = 0.015625;
 
-    public TommyGunBulletRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+    public TommyGunBulletRenderer(EntityRendererProvider.Context context) {
+        super(context);
     }
     
     private static final ResourceLocation TRAIL_TEX = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/bullet_trace.png");
@@ -112,7 +113,7 @@ public class TommyGunBulletRenderer extends EntityRenderer<TommyGunBulletEntity>
         matrixStack.mulPose(Axis.ZP.rotationDegrees(-xRot));
         matrixStack.scale(1.0F, BEAM_WIDTH, BEAM_WIDTH);
         Matrix3f lighting = matrixStack.last().normal();
-        lighting.setIdentity();
+        lighting.identity();
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         lighting.mul(Axis.XP.rotationDegrees(camera.getXRot()));
         float length = (float) trailSegmentVec.length();

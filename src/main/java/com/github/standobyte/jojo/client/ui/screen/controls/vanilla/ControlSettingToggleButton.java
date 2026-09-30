@@ -11,8 +11,8 @@ public class ControlSettingToggleButton extends Button {
     private final Supplier<Boolean> settingGetter;
 
     public ControlSettingToggleButton(int pWidth, int pHeight, 
-            Button.IPressable onPress, Supplier<Boolean> settingGetter) {
-        super(-1, -1, pWidth, pHeight, Component.empty(), onPress);
+            Button.Button.OnPress onPress, Supplier<Boolean> settingGetter) {
+        super(-1, -1, pWidth, pHeight, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.settingGetter = settingGetter;
         setMessageFromSetting(settingGetter.get());
     }

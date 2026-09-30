@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;

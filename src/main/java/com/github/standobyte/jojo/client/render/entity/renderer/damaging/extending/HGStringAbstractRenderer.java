@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.renderer.damaging.extending;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.github.standobyte.jojo.JojoMod;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.client.render.entity.model.ownerbound.repeating.HGStringModel;
@@ -8,14 +9,14 @@ import com.github.standobyte.jojo.entity.damaging.projectile.ownerbound.OwnerBou
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class HGStringAbstractRenderer<T extends OwnerBoundProjectileEntity> extends ExtendingEntityRenderer<T, HGStringModel<T>> {
     private static final ResourceLocation GLOW_TEXTURE = new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hg_string_glow.png");
 
-    public HGStringAbstractRenderer(EntityRenderDispatcher renderManager, HGStringModel<T> model) {
-        super(renderManager, model, new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hg_string.png"));
+    public HGStringAbstractRenderer(EntityRendererProvider.Context context, HGStringModel<T> model) {
+        super(context, model, new ResourceLocation(JojoMod.MOD_ID, "textures/entity/projectiles/hg_string.png"));
     }
     
     @Override

@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import static net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType.POTION_ICONS;
 import static net.minecraftforge.event.TickEvent.Phase.END;
 import static net.minecraftforge.fml.LogicalSide.CLIENT;
@@ -201,7 +202,7 @@ public class ControllerStand {
                     Gui gui = mc.gui;
                     int width = mc.getWindow().getGuiScaledWidth();
                     int height = mc.getWindow().getGuiScaledHeight();
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     if (ForgeGui.renderHealth) renderCameraStandHealth(matrixStack, gui, event, width, height);
                     if (ForgeGui.renderArmor)  renderCameraStandArmor(matrixStack, gui, event, width, height);
                 }
@@ -256,13 +257,13 @@ public class ControllerStand {
             int j = 0;
             MobEffectTextureManager potionspriteuploader = mc.getMobEffectTextures();
             List<Runnable> list = Lists.newArrayListWithExpectedSize(collection.size());
-            mc.getTextureManager().bind(AbstractContainerScreen.INVENTORY_LOCATION);
+            RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
 
             for(MobEffectInstance effectinstance : Ordering.natural().reverse().sortedCopy(collection)) {
                 MobEffect effect = effectinstance.getEffect();
                 if (!effectinstance.shouldRenderHUD()) continue;
                 // Rebind in case previous renderHUDEffect changed texture
-                mc.getTextureManager().bind(AbstractContainerScreen.INVENTORY_LOCATION);
+                RenderSystem.setShaderTexture(0, AbstractContainerScreen.INVENTORY_LOCATION);
                 if (effectinstance.showIcon()) {
                     int k = width;
                     int l = 1;
@@ -279,7 +280,7 @@ public class ControllerStand {
                         l += 26;
                     }
 
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     float f = 1.0F;
                     if (effectinstance.isAmbient()) {
                         gui.blit(matrixStack, k, l, 165, 166, 24, 24);
@@ -296,8 +297,8 @@ public class ControllerStand {
                     int k1 = l;
                     float f1 = f;
                     list.add(() -> {
-                        mc.getTextureManager().bind(textureatlassprite.atlas().location());
-                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, f1);
+                        RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
+                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
                         AbstractGui.blit(matrixStack, j1 + 3, k1 + 3, gui.getBlitOffset(), 18, 18, textureatlassprite);
                     });
                     effectinstance.renderHUDEffect(gui, matrixStack, k, l, gui.getBlitOffset(), f);

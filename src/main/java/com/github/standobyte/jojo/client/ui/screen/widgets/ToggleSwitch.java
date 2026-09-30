@@ -21,7 +21,7 @@ public class ToggleSwitch extends Button {
     private boolean stateDefault;
     
     protected ToggleSwitch(int pX, int pY, int pWidth, int pHeight, Orientation orientation,
-            Button.IPressable onPress, ITooltip tooltip, Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
+            Button.Button.OnPress onPress, ITooltip tooltip, Supplier<Boolean> stateGet, Consumer<Boolean> stateSet) {
         super(pX, pY, pWidth, pHeight, Component.empty(), onPress, tooltip);
         this.orientation = orientation;
         this.stateGet = stateGet;
@@ -31,7 +31,7 @@ public class ToggleSwitch extends Button {
     
     public static ToggleSwitch create(int x, int y, Orientation orientation, 
             Supplier<Boolean> stateGet, Consumer<Boolean> stateSet, 
-            Button.IPressable onPress, Button.ITooltip tooltip) {
+            Button.Button.OnPress onPress, Button.ITooltip tooltip) {
         int width;
         int height;
         switch (orientation) {
@@ -84,9 +84,9 @@ public class ToggleSwitch extends Button {
     @Override
     public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTick) {
         Minecraft mc = Minecraft.getInstance();
-        mc.getTextureManager().bind(new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png"));
+        RenderSystem.setShaderTexture(0, new ResourceLocation(JojoMod.MOD_ID, "textures/gui/toggle_switch.png"));
         alpha = active ? 1 : 0.5f;
-        RenderSystem.color4f(1, 1, 1, alpha);
+        RenderSystem.setShaderColor(1, 1, 1, alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();

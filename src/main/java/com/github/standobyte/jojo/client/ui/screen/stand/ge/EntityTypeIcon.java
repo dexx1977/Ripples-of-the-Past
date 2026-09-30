@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.ui.screen.stand.ge;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.HashMap;
 import java.util.Map;
 

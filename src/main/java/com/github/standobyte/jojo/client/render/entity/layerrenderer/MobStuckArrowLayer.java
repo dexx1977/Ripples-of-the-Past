@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.client.render.entity.layerrenderer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import java.util.Random;
 
 import com.github.standobyte.jojo.action.stand.GoldExperienceCreateLifeform;
@@ -11,7 +12,7 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.model.EntityModel;
@@ -25,7 +26,7 @@ import net.minecraft.util.Mth;
 public class MobStuckArrowLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
     private final LivingEntityRenderer<T, M> renderer;
     private ModelCubeWeightedList modelCubes;
-    private final EntityRenderDispatcher dispatcher;
+    private final EntityRendererProvider.Context context;
     private Entity arrow;
     private boolean slime;
     

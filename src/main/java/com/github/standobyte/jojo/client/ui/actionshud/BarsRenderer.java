@@ -190,16 +190,16 @@ public abstract class BarsRenderer {
         if (barAlpha > 0) {
             float[] rgb = ClientUtil.rgb(barColor);
             if (tranclucentFill > 0) {
-                RenderSystem.color4f(rgb[0], rgb[1], rgb[2], barAlpha * 0.4F);
+                RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], barAlpha * 0.4F);
                 barFill(matrixStack, x, y, alignment, texX, texY, width, length, tranclucentFill);
             }
-            RenderSystem.color4f(rgb[0], rgb[1], rgb[2], barAlpha);
+            RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], barAlpha);
             if (fill > 0) {
                 barFill(matrixStack, x, y, alignment, texX, texY, width, length, fill);
             }
             // border
             drawBarElement(matrixStack, x, y, borderTexX, borderTexY, width, length + 2);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, barAlpha);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, barAlpha);
             // cost
             float costAlpha = ClientUtil.getHighlightAlpha(costTick + 40F, 80F, 60F, 0.15F, 0.6F);
             renderCost(matrixStack, x, y, alignment, 
@@ -219,7 +219,7 @@ public abstract class BarsRenderer {
             // scale
             drawBarElement(matrixStack, x + 1, y + 1, scaleTexX, scaleTexY, width - 2, length);
             if (barAlpha != 1.0F) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             }
         }
     }
