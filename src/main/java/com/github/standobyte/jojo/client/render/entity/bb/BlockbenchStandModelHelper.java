@@ -164,7 +164,7 @@ public class BlockbenchStandModelHelper {
         deepCopy.visible = modelPart.visible;
         
         deepCopy.cubes.addAll(modelPart.cubes);
-        deepCopy.children.addAll(modelPart.children);
+        deepCopy.children.putAll(modelPart.children);
         
         return deepCopy;
     }

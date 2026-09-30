@@ -77,7 +77,7 @@ public class StoneMaskItem extends CustomModelArmorItem {
         boolean activated = stack.getTag().getByte(NBT_ACTIVATION_KEY) > 0;
         if (activated) {
             if (textureActivatedStr == null) {
-                ResourceLocation regName = getRegistryName();
+                ResourceLocation regName = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(this);
                 textureActivatedStr = createTexturePath(new ResourceLocation(regName.getNamespace(), regName.getPath() + "_activated"));
             }
             return textureActivatedStr;

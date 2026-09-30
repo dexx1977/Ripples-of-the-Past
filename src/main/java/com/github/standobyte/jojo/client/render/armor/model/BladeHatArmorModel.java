@@ -42,9 +42,9 @@ public class BladeHatArmorModel extends HumanoidModel<LivingEntity> {
         hat.texOffs(0, 37).addBox(-1.5F, -2.85F, -4.75F, 3.0F, 2.0F, 1.0F, 0.1F, false);
         hat.texOffs(0, 0).addBox(-4.0F, 0.0F, -6.0F, 8.0F, 0.0F, 12.0F, 0.0F, false);
         
-        head.setTexSize(texWidth, texHeight);
+        // the head is a vanilla baked part; the hat keeps the model texture size
         head.cubes.clear();
-        head.children.add(hat);
+        head.children.put("hat", hat);
 
         cube_r1 = new ModelPart(this);
         cube_r1.setPos(8.6198F, -1.9135F, 0.0F);

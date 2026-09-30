@@ -35,27 +35,30 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
         
         // emulating PlayerModel
         // subclassing PlayerModel wouldn't work with the animations
-        leftArm = new ModelPart(this, 32, 48);
-        leftArm.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
-        leftArm.setPos(5.0F, 2.0F, 0.0F);
+        ModelPart leftArmPart = new ModelPart(this, 32, 48);
+        leftArmPart.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
+        leftArmPart.setPos(5.0F, 2.0F, 0.0F);
+        leftArm = leftArmPart;
         leftSleeve = new ModelPart(this, 48, 48);
         leftSleeve.addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         leftSleeve.setPos(5.0F, 2.0F, 0.0F);
         rightSleeve = new ModelPart(this, 40, 32);
         rightSleeve.addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         rightSleeve.setPos(-5.0F, 2.0F, 10.0F);
-        leftLeg = new ModelPart(this, 16, 48);
-        leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
-        leftLeg.setPos(1.9F, 12.0F, 0.0F);
+        ModelPart leftLegPart = new ModelPart(this, 16, 48);
+        leftLegPart.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0);
+        leftLegPart.setPos(1.9F, 12.0F, 0.0F);
+        leftLeg = leftLegPart;
         leftPants = new ModelPart(this, 0, 48);
         leftPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         leftPants.setPos(1.9F, 12.0F, 0.0F);
         rightPants = new ModelPart(this, 0, 32);
         rightPants.addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.25F);
         rightPants.setPos(-1.9F, 12.0F, 0.0F);
-        jacket = new ModelPart(this, 16, 32);
-        jacket.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.25F);
-        jacket.setPos(0.0F, 0.0F, 0.0F);
+        ModelPart jacketPart = new ModelPart(this, 16, 32);
+        jacketPart.addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, 0.25F);
+        jacketPart.setPos(0.0F, 0.0F, 0.0F);
+        jacket = jacketPart;
         
         
         rightCapeBinding = new ModelPart(this);

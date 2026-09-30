@@ -28,7 +28,7 @@ public class CustomModelArmorItem extends ArmorItem {
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         if (textureStr == null) {
-            textureStr = createTexturePath(getRegistryName());
+            textureStr = createTexturePath(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(this));
         }
         return textureStr;
     }

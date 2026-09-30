@@ -79,7 +79,7 @@ public class EntitySubtype<T extends Entity> {
             allValuesCache = ForgeRegistries.ENTITY_TYPES.getValues().stream()
                     .flatMap(entityType -> {
                         Stream<EntitySubtype<?>> base = Stream.of(base(entityType));
-                        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(entityType.getRegistryName());
+                        Map<String, EntitySubtype<?>> subtypes = SUBTYPES.get(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entityType));
                         if (subtypes != null && !subtypes.isEmpty()) {
                             return Streams.concat(base, subtypes.values().stream());
                         }
