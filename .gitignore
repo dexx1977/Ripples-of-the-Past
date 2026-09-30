@@ -38,3 +38,6 @@ README.txt
 # local porting notes, logs and downloaded reference artifacts
 .porting/
 .DS_Store
+
+# carryon gradle home (build cache, kept outside the index)
+.carryon-gradle/
