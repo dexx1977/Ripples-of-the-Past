@@ -36,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.Items;
 
 public class StoneMaskItem extends CustomModelArmorItem {
     public static final String NBT_ACTIVATION_KEY = "Activated";
@@ -231,8 +232,13 @@ public class StoneMaskItem extends CustomModelArmorItem {
 
     /** The mask block the mod's tab showed next to the mask item. */
     public void addToCreativeTab(CreativeModeTab.Output output) {
-        if (this.getBlock() != null) {
-            output.accept(this.getBlock());
+        Block block = this.getBlock();
+        if (block != null) {
+            // 1.20.1 rejects stacks whose count is not 1, and a block that has no item
+            // of its own yields an empty stack, so the mask item is used in that case
+            // (in 1.16.5 the block stack was the same mask item anyway)
+            Item blockItem = block.asItem();
+            output.accept(blockItem == Items.AIR ? new ItemStack(this) : new ItemStack(blockItem));
         }
     }
 
