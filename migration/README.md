@@ -110,6 +110,8 @@ Compilation is the current gate; the counts below are javac errors from
 | Walk animation state, child attachment, sound attenuation, texture binds | 2,124 |
 | Custom buttons (renderWidget), widget Tooltips, scene translate calls | 2,073 |
 | PlayerAnimator bending on the 1.20.1 stateless bend API | 2,044 |
+| Save file capability accessors, data serializer registry | 2,012 |
+| Collision helpers (ReuseableStream, horizontal distance) | 1,991 |
 
 Committed systems: build toolchain, namespace/type relocation, capability,
 networking, materials/blocks, model layer, client registration/widgets, GUI/HUD
