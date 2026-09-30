@@ -150,7 +150,11 @@ Known remaining work, roughly in the order it should be tackled:
    mods rewrite the text. 1.20.1 fires the chat event on the server side instead, and a
    signed player chat message cannot be forged, so this synthetic message is built and
    broadcast as a system message with the stand's name.
-7. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
+7. Approximation: the input tick takes a slow down factor in 1.20.1; the fake client
+   player passes 0.3, the vanilla sneak value, where 1.16.5 only passed the flag.
+   Likewise the suffocation check walks the blocks in its box because the 1.20.1
+   collision query no longer takes a block state predicate.
+8. Damage sources that still use the 1.16.5 setters (setProjectile, setExplosion,
    bypassArmor, bypassMagic, setIsFire, setScalesWithDifficulty): a wrapper cannot
    change these in 1.20.1, so each call site has to pick a damage type carrying the
    right tags. Still to do.
