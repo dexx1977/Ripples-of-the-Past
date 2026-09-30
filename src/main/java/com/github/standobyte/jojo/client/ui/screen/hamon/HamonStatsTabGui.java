@@ -76,7 +76,7 @@ public class HamonStatsTabGui extends HamonTabGui {
                 .withStyle(style -> {
                     ItemStack item = new ItemStack(ModItems.BREATH_CONTROL_MASK.get());
                     item.enchant(Enchantments.BINDING_CURSE, 1);
-                    return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemHover(item)));
+                    return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(item)));
                 });
         exercisesDescLines = minecraft.font.split(Component.translatable("hamon.breathing_stat.desc2", breathMaskHoverable), textWidth);
         breathingDeteriorationLines = minecraft.font.split(Component.translatable("hamon.breathing_stat.desc3"), textWidth);
@@ -371,13 +371,13 @@ public class HamonStatsTabGui extends HamonTabGui {
             if (mouseY >= y && mouseY <= y + 6) {
                 int level = screen.hamon.getHamonStrengthLevel();
                 if (level == HamonData.MAX_STAT_LEVEL) {
-                    screen.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                 }
                 else {
                     int ptsAtLvl = HamonData.pointsAtLevel(level);
                     int pts = screen.hamon.getHamonStrengthPoints() - ptsAtLvl;
                     int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                    screen.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
+                    com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                 }
             }
             else {
@@ -385,13 +385,13 @@ public class HamonStatsTabGui extends HamonTabGui {
                 if (mouseY >= y && mouseY <= y + 6) {
                     int level = screen.hamon.getHamonControlLevel();
                     if (level == HamonData.MAX_STAT_LEVEL) {
-                        screen.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.translatable("hamon.max_level"), mouseX, mouseY);
                     }
                     else {
                         int ptsAtLvl = HamonData.pointsAtLevel(level);
                         int pts = screen.hamon.getHamonControlPoints() - ptsAtLvl;
                         int ptsTotal = HamonData.pointsAtLevel(level + 1) - ptsAtLvl;
-                        screen.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
+                        com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, Component.literal(pts + "/" + ptsTotal), mouseX, mouseY);
                     }
                 }
             }
@@ -409,7 +409,7 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (breathingBonus > 0 && 
                 mouseX >= 3 && mouseX <= 11 && 
                 mouseY >= exercisesAvgY && mouseY <= exercisesAvgY + 7) {
-            screen.renderToolTip(matrixStack, minecraft.font.split(bonusTooltip, 150), mouseX, mouseY);
+            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, minecraft.font.split(bonusTooltip, 150), mouseX, mouseY);
         }
         
         else if (mouseX >= 199 && mouseX < 207 && mouseY > exercisesAvgY && mouseY < exercisesAvgY + 8) {
@@ -470,11 +470,11 @@ public class HamonStatsTabGui extends HamonTabGui {
         if (exercisesDescLine >= 0 && exercisesDescLine < exercisesDescLines.size()) {
             Style style = minecraft.font.getSplitter().componentStyleAtWidth(exercisesDescLines.get(exercisesDescLine), mouseX - WINDOW_THIN_BORDER);
             if (style != null && style.getHoverEvent() != null) {
-                screen.renderComponentHoverEffect(matrixStack, style, mouseX, mouseY);
+                screen.renderComponentHoverEffect(com.github.standobyte.jojo.client.ui.render.GuiDraw.graphics(), style, mouseX, mouseY);
                 maskNameTooltip = true;
             }
         }
-        breathMaskHoverable.getStyle().setUnderlined(!maskNameTooltip);
+        breathMaskHoverable.withStyle(style -> style.withUnderlined(!maskNameTooltip));
     }
     
     private static final DecimalFormat PERCENTAGE_FORMAT = new DecimalFormat("#.#");

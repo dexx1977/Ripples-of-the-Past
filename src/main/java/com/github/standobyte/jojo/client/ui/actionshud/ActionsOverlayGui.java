@@ -128,16 +128,16 @@ public class ActionsOverlayGui extends AbstractGui {
     };
     protected Action<?> crosshairFillLastAction;
     protected final Map<InputHandler.ActionKey, ElementTransparency> actionNameTransparency = Arrays.stream(InputHandler.ActionKey.values())
-            .collect(Maps.toImmutableEnumMap(hotbar -> hotbar, hotbar -> new ElementTransparency(40, 10)));
+            .collect(com.google.common.collect.ImmutableMap.toImmutableMap(hotbar -> hotbar, hotbar -> new ElementTransparency(40, 10)));
     protected final Map<InputHandler.ActionKey, Component> lastActionName = new EnumMap<>(InputHandler.ActionKey.class);
     protected final Map<ControlScheme.Hotbar, FadeOut> actionHotbarFold = Arrays.stream(ControlScheme.Hotbar.values())
-            .collect(Maps.toImmutableEnumMap(hotbar -> hotbar, hotbar -> new FadeOut(40, 10)));
+            .collect(com.google.common.collect.ImmutableMap.toImmutableMap(hotbar -> hotbar, hotbar -> new FadeOut(40, 10)));
     protected final Map<PowerClassification, ElementTransparency> customKeybindActionTransparency = Arrays.stream(PowerClassification.values())
-            .collect(Maps.toImmutableEnumMap(Function.identity(), __ -> new ElementTransparency(40, 10)));
+            .collect(com.google.common.collect.ImmutableMap.toImmutableMap(Function.identity(), __ -> new ElementTransparency(40, 10)));
     protected final Map<Exercise, ElementTransparency> exerciseBarsTransparency = Arrays.stream(Exercise.values())
-            .collect(Maps.toImmutableEnumMap(Function.identity(), __ -> new ElementTransparency(40, 10)));
+            .collect(com.google.common.collect.ImmutableMap.toImmutableMap(Function.identity(), __ -> new ElementTransparency(40, 10)));
     protected final Map<HamonStatIncNotif, ElementTransparency> hamonLvlIncreaseTransparency = Arrays.stream(HamonStatIncNotif.values())
-            .collect(Maps.toImmutableEnumMap(Function.identity(), __ -> new ElementTransparency(100, 20)));
+            .collect(com.google.common.collect.ImmutableMap.toImmutableMap(Function.identity(), __ -> new ElementTransparency(100, 20)));
     
     public static enum HamonStatIncNotif {
         STRENGTH,
@@ -462,18 +462,11 @@ public class ActionsOverlayGui extends AbstractGui {
         PoseStack matrixStack = guiGraphics.pose();
         int screenWidth = mc.getWindow().getGuiScaledWidth();
         int screenHeight = mc.getWindow().getGuiScaledHeight();
-        float partialTick = event.getPartialTick();
-        switch (event.getType()) {
-        case CROSSHAIRS:
-            if (mc.options.getCameraType().isFirstPerson()
-                    && !(mc.options.renderDebug && !mc.player.isReducedDebugInfo() && !mc.options.reducedDebugInfo)) {
-                RenderSystem.defaultBlendFunc();
-                renderCrosshair(matrixStack, screenWidth, screenHeight, partialTick);
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            }
-            break;
-        default:
-            break;
+        if (mc.options.getCameraType().isFirstPerson()
+                && !(mc.getDebugOverlay().showDebugScreen() && !mc.player.isReducedDebugInfo() && !mc.options.reducedDebugInfo().get())) {
+            RenderSystem.defaultBlendFunc();
+            renderCrosshair(matrixStack, screenWidth, screenHeight, partialTick);
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         }
     }
     
@@ -1628,7 +1621,7 @@ public class ActionsOverlayGui extends AbstractGui {
             }
             name = power.getName();
         }
-        MutableComponent keyName = getKeyName(mode);
+        Component keyName = getKeyName(mode);
         if (keyName != null) {
             name = Component.translatable("jojo.overlay.mode_key", keyName, name);
         }
@@ -1661,7 +1654,7 @@ public class ActionsOverlayGui extends AbstractGui {
             GuiDraw.bind(OVERLAY_LOCATION);
             boolean rightSide = mc.player.getMainArm() == HumanoidArm.RIGHT;
             int iconX = rightSide ? screenWidth / 2 + 91 + 6 : screenWidth / 2 - 91 - 22;
-            if (mc.options.attackIndicator == AttackIndicatorStatus.HOTBAR) {
+            if (mc.options.attackIndicator().get() == AttackIndicatorStatus.HOTBAR) {
                 if (rightSide) {
                     iconX += 20;
                 }

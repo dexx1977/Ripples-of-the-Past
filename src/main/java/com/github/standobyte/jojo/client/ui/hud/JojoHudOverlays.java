@@ -60,7 +60,7 @@ public class JojoHudOverlays {
                     GuiDraw.setGraphics(guiGraphics);
                     ActionsOverlayGui.getInstance().render(guiGraphics, partialTick, true);
                 });
-        event.registerAboveAll("jojo_actions_hud_post",
+        event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "jojo_actions_hud_post",
                 (gui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
                     GuiDraw.setGraphics(guiGraphics);
                     ActionsOverlayGui.getInstance().renderPost(guiGraphics, partialTick);
