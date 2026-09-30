@@ -137,32 +137,35 @@ public class ClientReflection {
     }
     
     
-    @Deprecated private static final Field MODEL_RENDERER_CUBES = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104212_");
+    // These work on the vanilla part (the mod's ModelPart is a subclass), because
+    // the values come from vanilla models such as HumanoidModel/TurtleModel.
+    @Deprecated private static final Field MODEL_RENDERER_CUBES = ObfuscationReflectionHelper.findField(net.minecraft.client.model.geom.ModelPart.class, "f_104212_");
     @Deprecated
-    public static void setCubes(ModelPart modelRenderer, ObjectList<ModelPart.Cube> cubes) {
+    public static void setCubes(net.minecraft.client.model.geom.ModelPart modelRenderer, List<net.minecraft.client.model.geom.ModelPart.Cube> cubes) {
         ReflectionUtil.setFieldValue(MODEL_RENDERER_CUBES, modelRenderer, cubes);
     }
     
     @Deprecated
-    public static void addCube(ModelPart modelRenderer, ModelPart.Cube cube) {
-        List<ModelPart.Cube> cubes = ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
+    public static void addCube(net.minecraft.client.model.geom.ModelPart modelRenderer, net.minecraft.client.model.geom.ModelPart.Cube cube) {
+        List<net.minecraft.client.model.geom.ModelPart.Cube> cubes = ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
         cubes.add(cube);
     }
     
     @Deprecated
-    public static ObjectList<ModelPart.Cube> getCubes(ModelPart modelRenderer) {
+    public static List<net.minecraft.client.model.geom.ModelPart.Cube> getCubes(net.minecraft.client.model.geom.ModelPart modelRenderer) {
         return ReflectionUtil.getFieldValue(MODEL_RENDERER_CUBES, modelRenderer);
     }
     
     
-    @Deprecated private static final Field MODEL_RENDERER_CHILDREN = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104213_");
+    // 1.20.1 stores children in a map keyed by name instead of a list.
+    @Deprecated private static final Field MODEL_RENDERER_CHILDREN = ObfuscationReflectionHelper.findField(net.minecraft.client.model.geom.ModelPart.class, "f_104213_");
     @Deprecated
-    public static ObjectList<ModelPart> getChildren(ModelPart modelRenderer) {
+    public static Map<String, net.minecraft.client.model.geom.ModelPart> getChildren(net.minecraft.client.model.geom.ModelPart modelRenderer) {
         return ReflectionUtil.getFieldValue(MODEL_RENDERER_CHILDREN, modelRenderer);
     }
     
     @Deprecated
-    public static void setChildren(ModelPart modelRenderer, ObjectList<ModelPart> children) {
+    public static void setChildren(net.minecraft.client.model.geom.ModelPart modelRenderer, Map<String, net.minecraft.client.model.geom.ModelPart> children) {
         ReflectionUtil.setFieldValue(MODEL_RENDERER_CHILDREN, modelRenderer, children);
     }
     

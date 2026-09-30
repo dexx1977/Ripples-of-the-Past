@@ -109,7 +109,7 @@ public class BarrageFistAfterimagesLayer extends RenderLayer<AbstractClientPlaye
         setVisibility(model.rightSleeve, false);
     }
     
-    private void setVisibility(ModelPart part, boolean visible) {
+    private void setVisibility(net.minecraft.client.model.geom.ModelPart part, boolean visible) {
         part.visible = visible;
     }
     

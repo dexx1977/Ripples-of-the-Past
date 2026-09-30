@@ -409,14 +409,14 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
             private float age;
             public final float lifeSpan = SPARK_LIFE_SPAN;
             public final BipedModelPart modelPartType;
-            public final ModelPart modelPart;
+            public final net.minecraft.client.model.geom.ModelPart modelPart;
             public final double x;
             public final double y;
             public final double z;
             public final float scale;
             
             private SparkPseudoParticle(ParticleType<?> particleType, BipedModelPart modelPartType, 
-                    ModelPart modelPart, Vec3 pos) {
+                    net.minecraft.client.model.geom.ModelPart modelPart, Vec3 pos) {
                 this.hamonSparkSprite = CustomParticlesHelper.getSavedSpriteSet(particleType).get(RANDOM);
                 this.modelPartType = modelPartType;
                 this.modelPart = modelPart;
@@ -470,7 +470,7 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
                 .uv(u0, v1).color(255, 255, 255, 255).uv2(light).endVertex();
             }
 
-            private void translateTo(PoseStack matrixStack, @Nullable ModelPart modelRenderer, double x, double y, double z) {
+            private void translateTo(PoseStack matrixStack, @Nullable net.minecraft.client.model.geom.ModelPart modelRenderer, double x, double y, double z) {
                 if (modelRenderer != null) {
                     modelRenderer.translateAndRotate(matrixStack);
                 }
@@ -513,7 +513,7 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
             this.bendable = bendable;
         }
         
-        public ModelPart getModelPart(HumanoidModel<?> model) {
+        public net.minecraft.client.model.geom.ModelPart getModelPart(HumanoidModel<?> model) {
             switch (this) {
             case HEAD:
                 return model.head;
@@ -539,7 +539,7 @@ public class EnergyRippleLayer<T extends LivingEntity, M extends HumanoidModel<T
         offset = offset.add(0, -0.65, 0);
         
         BipedModelPart modelPartType = right ? BipedModelPart.RIGHT_ARM : BipedModelPart.LEFT_ARM;
-        ModelPart modelPart = modelPartType.getModelPart(posedModel);
+        net.minecraft.client.model.geom.ModelPart modelPart = modelPartType.getModelPart(posedModel);
         double xPivot = right ? -0.0625 : 0.0625;
         offset = HamonEnergyRippleHandler.bendOffset(offset, posedModel, modelPartType, -0.225);
         offset = offset.add(xPivot, 0, 0);

@@ -66,8 +66,8 @@ public class GlovesLayer<T extends LivingEntity, M extends PlayerModel<T>> exten
         
         ClientUtil.setupForFirstPersonRender(model, player);
         VertexConsumer vertexBuilder = ItemRenderer.getArmorFoilBuffer(buffer, RenderType.armorCutoutNoCull(texture), false, glovesItemStack.hasFoil());
-        ModelPart glove = ClientUtil.getArm(model, side);
-        ModelPart gloveOuter = ClientUtil.getArmOuter(model, side);
+        net.minecraft.client.model.geom.ModelPart glove = ClientUtil.getArm(model, side);
+        net.minecraft.client.model.geom.ModelPart gloveOuter = ClientUtil.getArmOuter(model, side);
         glove.xRot = 0.0F;
         glove.render(matrixStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY);
         gloveOuter.xRot = 0.0F;

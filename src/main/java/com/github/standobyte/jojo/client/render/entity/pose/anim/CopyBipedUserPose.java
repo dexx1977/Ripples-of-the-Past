@@ -47,7 +47,7 @@ public class CopyBipedUserPose<T extends StandEntity> implements IModelPose<T> {
         }        
     }
     
-    private void copyRotation(ModelPart to, ModelPart from) {
+    private void copyRotation(net.minecraft.client.model.geom.ModelPart to, net.minecraft.client.model.geom.ModelPart from) {
         to.xRot = from.xRot;
         to.yRot = from.yRot;
         to.zRot = from.zRot;

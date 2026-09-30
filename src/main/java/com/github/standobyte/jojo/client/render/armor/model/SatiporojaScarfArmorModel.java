@@ -50,7 +50,7 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
         super.renderToBuffer(matrixStack, vertexBuilder, packedLight, packedOverlay, red, green, blue, alpha);
     }
 
-    public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
+    public void setRotationAngle(net.minecraft.client.model.geom.ModelPart modelRenderer, float x, float y, float z) {
         modelRenderer.xRot = x;
         modelRenderer.yRot = y;
         modelRenderer.zRot = z;

@@ -35,7 +35,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ListModel;
-import com.github.standobyte.jojo.client.render.entity.model.ModelPart;
+import com.github.standobyte.jojo.client.render.entity.model.net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -237,10 +237,10 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     
     
-    private static Map<ModelPart, float[]> createStateZero(Collection<ModelPart> modelParts) {
-        Map<ModelPart, float[]> map = new HashMap<>();
+    private static Map<net.minecraft.client.model.geom.ModelPart, float[]> createStateZero(Collection<net.minecraft.client.model.geom.ModelPart> modelParts) {
+        Map<net.minecraft.client.model.geom.ModelPart, float[]> map = new HashMap<>();
         modelParts.forEach(modelPart -> {
-            ObjectList<ModelPart.Cube> boxes = modelPart.cubes;
+            ObjectList<net.minecraft.client.model.geom.ModelPart.Cube> boxes = modelPart.cubes;
             float minX = boxes.stream().map(box -> box.minX).min(Float::compare).orElse(0f);
             float maxX = boxes.stream().map(box -> box.maxX).max(Float::compare).orElse(0f);
             float minY = boxes.stream().map(box -> box.minY).min(Float::compare).orElse(0f);
@@ -264,11 +264,11 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     private static final Map<EntityModel<?>, ModelStateEntry> MODEL_PARTS_CACHE = new HashMap<>();
     private static class ModelStateEntry {
-        private final Map<ModelPart, ModelRendererState> state;
+        private final Map<net.minecraft.client.model.geom.ModelPart, ModelRendererState> state;
         
         private ModelStateEntry(EntityModel<?> model) {
-            Collection<ModelPart> modelParts = getModelParts(model);
-            Map<ModelPart, float[]> stateZero = createStateZero(modelParts);
+            Collection<net.minecraft.client.model.geom.ModelPart> modelParts = getModelParts(model);
+            Map<net.minecraft.client.model.geom.ModelPart, float[]> stateZero = createStateZero(modelParts);
             this.state = modelParts.stream().collect(Collectors.toMap(Function.identity(), modelPart -> {
                 float[] partStateZero = stateZero.get(modelPart);
                 return new ModelRendererState()
@@ -317,11 +317,11 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             return this;
         }
         
-        public ModelRendererState withNormalState(ModelPart modelRenderer) {
+        public ModelRendererState withNormalState(net.minecraft.client.model.geom.ModelPart modelRenderer) {
             return withNormalState(modelRenderer.x, modelRenderer.y, modelRenderer.z, modelRenderer.xRot, modelRenderer.yRot, modelRenderer.zRot);
         }
         
-        public void saveState(ModelPart modelRenderer) {
+        public void saveState(net.minecraft.client.model.geom.ModelPart modelRenderer) {
             stateSaved[0] = modelRenderer.x;
             stateSaved[1] = modelRenderer.y;
             stateSaved[2] = modelRenderer.z;
@@ -330,7 +330,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             stateSaved[5] = modelRenderer.zRot;
         }
         
-        public void restoreState(ModelPart modelRenderer) {
+        public void restoreState(net.minecraft.client.model.geom.ModelPart modelRenderer) {
             modelRenderer.x = stateSaved[0];
             modelRenderer.y = stateSaved[1];
             modelRenderer.z = stateSaved[2];
@@ -339,7 +339,7 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
             modelRenderer.zRot = stateSaved[5];
         }
         
-        public void lerp(ModelPart modelRenderer, float lerp) {
+        public void lerp(net.minecraft.client.model.geom.ModelPart modelRenderer, float lerp) {
             modelRenderer.x = Mth.lerp(lerp, stateZero[0], stateNormal[0]);
             modelRenderer.y = Mth.lerp(lerp, stateZero[1], stateNormal[1]);
             modelRenderer.z = Mth.lerp(lerp, stateZero[2], stateNormal[2]);
@@ -351,8 +351,8 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
     
     
     
-    private static Collection<ModelPart> getModelParts(EntityModel<?> model) {
-        Set<ModelPart> modelParts = new HashSet<>();
+    private static Collection<net.minecraft.client.model.geom.ModelPart> getModelParts(EntityModel<?> model) {
+        Set<net.minecraft.client.model.geom.ModelPart> modelParts = new HashSet<>();
         if (model instanceof AgeableListModel) {
             AgeableListModel<?> ageable = (AgeableListModel<?>) model;
             ClientReflection.getHeadParts(ageable).forEach(modelPart -> addSubPartsAndSelf(modelParts, modelPart));
@@ -364,24 +364,24 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
         }
         else {
             ReflectionUtil.getFieldsIncludingSuperclasses(model.getClass()).forEach(field -> {
-                if (ModelPart.class.isAssignableFrom(field.getType())) {
+                if (net.minecraft.client.model.geom.ModelPart.class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
                         Object obj = field.get(model);
                         if (obj != null) {
-                            ModelPart modelPart = (ModelPart) obj;
+                            net.minecraft.client.model.geom.ModelPart modelPart = (net.minecraft.client.model.geom.ModelPart) obj;
                             addSubPartsAndSelf(modelParts, modelPart);
                         }
                     } catch (IllegalArgumentException | IllegalAccessException e) {
                         JojoMod.getLogger().error("Failed to create the lifeform creation animation for model {}", model.getClass().getSimpleName(), e);
                     }
                 }
-                else if (ModelPart[].class.isAssignableFrom(field.getType())) {
+                else if (net.minecraft.client.model.geom.ModelPart[].class.isAssignableFrom(field.getType())) {
                     try {
                         field.setAccessible(true);
                         Object obj = field.get(model);
                         if (obj != null) {
-                            for (ModelPart modelPart : (ModelPart[]) obj)
+                            for (net.minecraft.client.model.geom.ModelPart modelPart : (net.minecraft.client.model.geom.ModelPart[]) obj)
                             addSubPartsAndSelf(modelParts, modelPart);
                         }
                     } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -394,9 +394,9 @@ public class GETransformationRenderer<T extends GETransformationEntity> extends 
         return modelParts;
     }
     
-    private static void addSubPartsAndSelf(Set<ModelPart> modelParts, ModelPart modelRenderer) {
+    private static void addSubPartsAndSelf(Set<net.minecraft.client.model.geom.ModelPart> modelParts, net.minecraft.client.model.geom.ModelPart modelRenderer) {
         modelParts.add(modelRenderer);
-        ObjectList<ModelPart> children = modelRenderer.children;
+        ObjectList<net.minecraft.client.model.geom.ModelPart> children = modelRenderer.children;
         children.forEach(child -> addSubPartsAndSelf(modelParts, child));
     }
     

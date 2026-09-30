@@ -687,11 +687,11 @@ public class ClientUtil {
         }
     }
     
-    public static ModelPart getArm(HumanoidModel<?> model, HumanoidArm side) {
+    public static net.minecraft.client.model.geom.ModelPart getArm(HumanoidModel<?> model, HumanoidArm side) {
         return side == HumanoidArm.LEFT ? model.leftArm : model.rightArm;
     }
     
-    public static ModelPart getArmOuter(PlayerModel<?> model, HumanoidArm side) {
+    public static net.minecraft.client.model.geom.ModelPart getArmOuter(PlayerModel<?> model, HumanoidArm side) {
         return side == HumanoidArm.LEFT ? model.leftSleeve : model.rightSleeve;
     }
     

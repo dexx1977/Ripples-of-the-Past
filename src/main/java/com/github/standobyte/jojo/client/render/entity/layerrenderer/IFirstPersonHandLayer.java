@@ -36,8 +36,8 @@ public interface IFirstPersonHandLayer {
         if (texture == null || player.isSpectator()) return;
         ClientUtil.setupForFirstPersonRender(model, player);
         VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.entityTranslucent(texture));
-        ModelPart arm = ClientUtil.getArm(model, side);
-        ModelPart armOuter = ClientUtil.getArmOuter(model, side);
+        net.minecraft.client.model.geom.ModelPart arm = ClientUtil.getArm(model, side);
+        net.minecraft.client.model.geom.ModelPart armOuter = ClientUtil.getArmOuter(model, side);
         arm.xRot = 0.0F;
         arm.render(matrixStack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
         armOuter.xRot = 0.0F;

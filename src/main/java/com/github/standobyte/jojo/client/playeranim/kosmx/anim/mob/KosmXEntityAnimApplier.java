@@ -70,7 +70,7 @@ public abstract class KosmXEntityAnimApplier<T extends LivingEntity, M extends H
         }
     }
 
-    private void updatePart(AnimationProcessor pose, String partName, ModelPart part) {
+    private void updatePart(AnimationProcessor pose, String partName, net.minecraft.client.model.geom.ModelPart part) {
         Vec3f pos = pose.get3DTransform(partName, ItemDisplayContext.POSITION, new Vec3f(part.x, part.y, part.z));
         part.x = pos.getX();
         part.y = pos.getY();

@@ -135,7 +135,7 @@ public class ClackersISTER extends BlockEntityWithoutLevelRenderer implements IS
         
         
         else {
-            ModelPart bipedHand = null;
+            net.minecraft.client.model.geom.ModelPart bipedHand = null;
             float limbSwing = 0;
             float limbSwingAmount = 0;
             if (entity != null) {

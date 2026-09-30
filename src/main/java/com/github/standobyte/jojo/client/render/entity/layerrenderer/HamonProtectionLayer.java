@@ -60,8 +60,8 @@ public class HamonProtectionLayer<T extends LivingEntity, M extends PlayerModel<
             PlayerModel<AbstractClientPlayer> model = playerRenderer.getModel();
             ClientUtil.setupForFirstPersonRender(model, player);
             VertexConsumer vertexBuilder = buffer.getBuffer(RenderType.energySwirl(TEXTURE, this.xOffset(f), f * 0.01F));
-            ModelPart arm = ClientUtil.getArm(model, side);
-            ModelPart armOuter = ClientUtil.getArmOuter(model, side);
+            net.minecraft.client.model.geom.ModelPart arm = ClientUtil.getArm(model, side);
+            net.minecraft.client.model.geom.ModelPart armOuter = ClientUtil.getArmOuter(model, side);
             arm.xRot = 0.0F;
             arm.render(matrixStack, vertexBuilder, ClientUtil.MAX_MODEL_LIGHT, OverlayTexture.NO_OVERLAY, 0.15F, 0.15F, 0.15F, 0.25F);
             armOuter.xRot = 0.0F;
