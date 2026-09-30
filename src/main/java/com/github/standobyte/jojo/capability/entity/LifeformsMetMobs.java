@@ -37,7 +37,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.gen.feature.structure.StructureManager;
+import net.minecraft.world.level.levelgen.structure.StructureManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.registries.ForgeRegistries;
 import com.github.standobyte.jojo.util.mc.MCUtil;

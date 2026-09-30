@@ -75,13 +75,14 @@ public class BubbleGlovesItem extends GlovesItem {
     }
     
     @Override
-    public boolean showDurabilityBar(ItemStack stack) {
+    public boolean isBarVisible(ItemStack stack) {
         return TommyGunItem.getAmmo(stack) < MAX_AMMO;
     }
 
     @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        return 1 - ((double) TommyGunItem.getAmmo(stack) / (double) MAX_AMMO);
+    public int getBarWidth(ItemStack stack) {
+        // the 1.16.5 method returned the missing fraction; 1.20.1 wants filled pixels
+        return Math.round((float) TommyGunItem.getAmmo(stack) / (float) MAX_AMMO * 13.0F);
     }
 
     /** The gloves the mod's tab showed, with a full clip. */

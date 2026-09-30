@@ -16,7 +16,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
-import net.minecraft.command.arguments.ArgumentSerializer;
+import net.minecraft.commands.arguments.ArgumentSerializer;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.chat.Component;
 import com.github.standobyte.jojo.init.power.RegistryEntry;

@@ -240,8 +240,10 @@ public class HungryZombieEntity extends Zombie {
     }
 
     @Override
-    public void killed(ServerLevel world, LivingEntity entityDead) {
+    public boolean killedEntity(ServerLevel world, LivingEntity entityDead) {
         if (world.getDifficulty() != Difficulty.EASY) createZombie(world, getOwner(), entityDead, isPersistenceRequired());
+
+        return super.killedEntity(world, entityDead);
     }
     
     public static boolean createZombie(ServerLevel world, @Nullable LivingEntity owner, LivingEntity dead, boolean makePersistent) {

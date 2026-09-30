@@ -54,7 +54,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPassengerMixinReposition {
     private static final EntityDataAccessor<Boolean> HAS_KEY = SynchedEntityData.defineId(CocoJumboTurtleEntity.class, EntityDataSerializers.BOOLEAN);
@@ -355,17 +355,17 @@ public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPas
     public static final ResourceLocation GOT_ARROW_ADVANCEMENT = new ResourceLocation(JojoMod.MOD_ID, "jojo/stand_arrow");
     public static final ResourceLocation MET_TURTLE_ADVANCEMENT = new ResourceLocation(JojoMod.MOD_ID, "jojo/coco_jumbo");
     private static long lastSpawnTime;
-    public static void onRegularTutelSpawn(LivingSpawnEvent.CheckSpawn event) {
-        MobSpawnType spawnReason = event.getSpawnReason();
+    public static void onRegularTutelSpawn(MobSpawnEvent.PositionCheck event) {
+        MobSpawnType spawnReason = event.getSpawnType();
         switch (spawnReason) {
         case NATURAL:
         case CHUNK_GENERATION:
         case SPAWNER:
-            if (event.level() instanceof ServerLevelAccessor && lastSpawnTime != event.level().dayTime()) {
-                ServerLevelAccessor spawnRegion = (ServerLevelAccessor) event.level();
-                double x = event.getX();
-                double y = event.getY();
-                double z = event.getZ();
+            if (event.getEntity().level() instanceof ServerLevelAccessor && lastSpawnTime != event.getEntity().level().dayTime()) {
+                ServerLevelAccessor spawnRegion = (ServerLevelAccessor) event.getEntity().level();
+                double x = event.getEntity().getX();
+                double y = event.getEntity().getY();
+                double z = event.getEntity().getZ();
                 Player nearestPlayer = spawnRegion.getLevel().getNearestPlayer(x, y, z, -1, EntitySelector.NO_SPECTATORS);
                 if (nearestPlayer instanceof ServerPlayer) {
                     ServerPlayer player = (ServerPlayer) nearestPlayer;

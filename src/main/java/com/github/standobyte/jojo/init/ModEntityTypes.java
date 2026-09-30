@@ -73,7 +73,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -328,8 +327,11 @@ public class ModEntityTypes {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void afterEntitiesRegister(RegistryEvent.Register<EntityType<?>> event) {
-        GoldExperienceChooseLifeform.registerExtraEntitySubtypes();
+    public static void afterEntitiesRegister(net.minecraftforge.registries.RegisterEvent event) {
+        // 1.20.1 has one register event per registry
+        if (net.minecraft.core.registries.Registries.ENTITY_TYPE.equals(event.getRegistryKey())) {
+            GoldExperienceChooseLifeform.registerExtraEntitySubtypes();
+        }
     }
 
     @SubscribeEvent

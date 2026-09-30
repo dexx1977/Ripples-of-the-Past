@@ -1,5 +1,6 @@
 package com.github.standobyte.jojo.block;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.advancements.ModCriteriaTriggers;
@@ -30,7 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 
-public class StoneMaskBlock extends FaceAttachedHorizontalDirectionalBlock { // TODO allow harvesting it with silk touch tool (how do loot tables interact with tile entities tho?)
+public class StoneMaskBlock extends FaceAttachedHorizontalDirectionalBlock implements net.minecraft.world.level.block.EntityBlock { // TODO allow harvesting it with silk touch tool (how do loot tables interact with tile entities tho?)
     public static final DirectionProperty HORIZONTAL_FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty BLOOD_ACTIVATION = BooleanProperty.create("blood_activation");
     protected static final VoxelShape WALL_NORTH_SHAPE = Block.box(4.0D, 4.0D, 15.0D, 12.0D, 12.0D, 16.0D);
@@ -115,8 +116,16 @@ public class StoneMaskBlock extends FaceAttachedHorizontalDirectionalBlock { // 
     }
     
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return ModTileEntities.STONE_MASK.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModTileEntities.STONE_MASK.get().create(pos, state);
+    }
+
+    @Override
+    public <T extends BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(
+            Level level, BlockState state, BlockEntityType<T> type) {
+        return type == ModTileEntities.STONE_MASK.get()
+                ? (lvl, pos, st, blockEntity) -> ((StoneMaskTileEntity) blockEntity).tick()
+                : null;
     }
 
     @Override

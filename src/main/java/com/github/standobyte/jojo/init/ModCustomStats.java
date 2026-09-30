@@ -8,7 +8,6 @@ import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Registry;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -22,7 +21,10 @@ public class ModCustomStats {
     public static final ResourceLocation RPS_WON = new ResourceLocation(JojoMod.MOD_ID, "rps_won");
     
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static final void registerCustomStats(RegistryEvent.Register<StatType<?>> event) {
+    public static final void registerCustomStats(net.minecraftforge.registries.RegisterEvent event) {
+        if (!net.minecraft.core.registries.Registries.CUSTOM_STAT.equals(event.getRegistryKey())) {
+            return;
+        }
         registerCustomStat(VAMPIRE_PEOPLE_DRAINED, StatFormatter.DEFAULT);
         registerCustomStat(VAMPIRE_ANIMALS_DRAINED, StatFormatter.DEFAULT);
         registerCustomStat(VAMPIRE_ZOMBIES_CREATED, StatFormatter.DEFAULT);
