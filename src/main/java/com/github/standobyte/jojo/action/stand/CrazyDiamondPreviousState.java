@@ -331,7 +331,7 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                     list.add(recipe -> recipe instanceof StonecutterRecipe);
                     list.add(recipe -> recipe instanceof CraftingRecipe);
                     list.add(recipe -> true);
-                }), recipe -> outputMatches(recipe, item) && !bannedItem(item, world) && (additionalCondition == null || additionalCondition.test(recipe)), false)
+                }), recipe -> outputMatches(recipe, item, world.registryAccess()) && !bannedItem(item, world) && (additionalCondition == null || additionalCondition.test(recipe)), false)
                 .values().stream().filter(list -> !list.isEmpty()).findFirst()
                 .flatMap(recipesOfPreferredType -> {
                     Recipe<?> randomRecipe = recipesOfPreferredType.get(random.nextInt(recipesOfPreferredType.size()));
@@ -341,8 +341,11 @@ public class CrazyDiamondPreviousState extends StandEntityAction {
                 });
     }
     
-    private boolean outputMatches(Recipe<?> recipe, ItemStack stack) {
-        return recipe.getResultItem(null).getItem() == stack.getItem() && recipe.getResultItem(null).getCount() <= stack.getCount();
+    private boolean outputMatches(Recipe<?> recipe, ItemStack stack, net.minecraft.core.RegistryAccess registryAccess) {
+        // the registry access comes from the level; it must not be null, third party
+        // recipes may need it
+        ItemStack result = recipe.getResultItem(registryAccess);
+        return result.getItem() == stack.getItem() && result.getCount() <= stack.getCount();
     }
     
     private boolean bannedItem(ItemStack stack, Level world) {

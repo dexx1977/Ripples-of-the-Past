@@ -24,7 +24,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.ModelDataManager;
 import net.minecraftforge.client.model.data.ModelData;
 
 // A helper class for rendering translucent blocks overlay
@@ -46,10 +46,10 @@ public class TranslucentBlockRenderHelper {
                                 RenderSystem.disableDepthTest();
                                 RenderSystem.enableBlend();
                                 RenderSystem.blendFunc(GlStateManager.SourceFactor.CONSTANT_ALPHA, GlStateManager.DestFactor.ONE_MINUS_CONSTANT_ALPHA);
-                                RenderSystem.blendColor(1, 1, 1, 0.3f);
+                                RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 0.3F);
                             }, 
                             () -> {
-                                RenderSystem.blendColor(1, 1, 1, 1);
+                                RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
                                 RenderSystem.defaultBlendFunc();
                                 RenderSystem.disableBlend();
                                 RenderSystem.enableDepthTest();
@@ -70,9 +70,9 @@ public class TranslucentBlockRenderHelper {
         blocks.forEach(block -> {
             BlockPos pos = block.pos;
             BlockState blockState = block.state;
-            IModelData tileData = ModelDataManager.getModelData(mc.level, pos);
+            ModelData tileData = ModelDataManager.getModelData(mc.level, pos);
             if (tileData == null) tileData = ModelData.EMPTY;
-            IModelData model = renderer.getBlockModel(blockState).getModelData(mc.level, pos, blockState, tileData);
+            ModelData model = renderer.getBlockModel(blockState).getModelData(mc.level, pos, blockState, tileData);
             matrixStack.pushPose();
             matrixStack.translate(
                     pos.getX(), 

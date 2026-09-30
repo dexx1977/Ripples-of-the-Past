@@ -36,7 +36,7 @@ public class SoundtrackLoopPlayer {
     boolean finished = false;
 
     protected SoundInstance startingSound;
-    protected ChannelAccess.Entry channelEntry;
+    protected ChannelAccess.ChannelHandle channelEntry;
     protected OptionalInt soundSourceID = OptionalInt.empty();
     protected OptionalInt startingSoundBuffer = OptionalInt.empty();
 
@@ -63,11 +63,11 @@ public class SoundtrackLoopPlayer {
     
     protected void onSoundSourceEvent(SoundSourceEvent event) {
         if (!queuedMain && startingSound != null && event.getSound() == startingSound) {
-            SoundEngine soundEngine = event.getManager();
-            Channel startSoundSource = event.getSource();
+            SoundManager soundEngine = Minecraft.getInstance().getSoundManager();
+            Channel startSoundSource = event.getChannel();
 
             SoundInstance iMainSound = new SimpleSoundInstance(main.getLocation(), startingSound.getSource(), 
-                    startingSound.getVolume(), startingSound.getPitch(), true, 0, startingSound.getAttenuation(), 
+                    startingSound.getVolume(), startingSound.getPitch(), net.minecraft.util.RandomSource.create(), true, 0, startingSound.getAttenuation(), 
                     startingSound.getX(), startingSound.getY(), startingSound.getZ(), startingSound.isRelative());
             WeighedSoundEvents mainSoundAccessor = iMainSound.resolve(soundEngine.soundManager);
             if (mainSoundAccessor != null) {
@@ -134,7 +134,7 @@ public class SoundtrackLoopPlayer {
     public void finish() {
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
         if (!finished) {
-            SoundInstance sound = new SimpleSoundInstance(finish.getLocation(), category, volume, pitch, false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, false);
+            SoundInstance sound = new SimpleSoundInstance(finish.getLocation(), category, volume, pitch, net.minecraft.util.RandomSource.create(), false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, false);
             soundManager.play(sound);
         }
         forceStop();
@@ -158,9 +158,9 @@ public class SoundtrackLoopPlayer {
     public static class BackgroundSound extends SimpleSoundInstance {
 
         public BackgroundSound(ResourceLocation location, SoundSource source, float volume,
-                float pitch, boolean looping, int delay, AttenuationType attenuation,
+                float pitch, boolean looping, int delay, SoundInstance.Attenuation attenuation,
                 double x, double y, double z, boolean isRelative) {
-            super(location, source, volume, pitch, looping, delay, attenuation, x,
+            super(location, source, volume, pitch, net.minecraft.util.RandomSource.create(), looping, delay, attenuation, x,
                     y, z, isRelative);
         }
         
