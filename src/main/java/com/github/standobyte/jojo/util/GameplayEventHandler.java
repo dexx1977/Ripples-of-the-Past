@@ -463,8 +463,8 @@ public class GameplayEventHandler {
     
     private static void cutOutHands(Painting painting) {
         if (!painting.level.isClientSide()) {
-            boolean monaLisaFull = painting.motive == ModPaintings.MONA_LISA.get();
-            boolean monaLisaHands = painting.motive == ModPaintings.MONA_LISA_HANDS.get();
+            boolean monaLisaFull = painting.getVariant().value() == ModPaintings.MONA_LISA.get();
+            boolean monaLisaHands = painting.getVariant().value() == ModPaintings.MONA_LISA_HANDS.get();
             if (monaLisaFull || monaLisaHands) {
                 List<LivingEntity> KQUsers = painting.level.getEntitiesOfClass(
                         LivingEntity.class, painting.getBoundingBox().expandTowards(painting.getLookAngle().scale(3)).inflate(1), 
@@ -473,7 +473,7 @@ public class GameplayEventHandler {
                             .orElse(false));
                 if (!KQUsers.isEmpty()) {
                     if (monaLisaFull) {
-                        painting.motive = ModPaintings.MONA_LISA_HANDS.get();
+                        painting.getVariant().value() = ModPaintings.MONA_LISA_HANDS.get();
                         double x = painting.getX();
                         double z = painting.getZ();
                         if (x - (int) x != 0 && (int) (x + 0.04) != (int) x) {
@@ -486,7 +486,7 @@ public class GameplayEventHandler {
                     }
                 }
                 else if (monaLisaHands) {
-                    painting.motive = PaintingVariant.KEBAB;
+                    painting.getVariant().value() = PaintingVariant.KEBAB;
                 }
             }
         }
@@ -724,7 +724,7 @@ public class GameplayEventHandler {
         DamageSource dmgSource = event.getSource();
         LivingEntity target = event.getEntity();
         // block explosion with stand
-        if (dmgSource.isExplosion()) {
+        if (dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)) {
             target.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(util -> {
                 Explosion explosion = util.getSourceExplosion(dmgSource);
                 if (explosion != null) {
@@ -1306,7 +1306,7 @@ public class GameplayEventHandler {
                     player.server.getPlayerList().broadcastToAllExceptTeam(player, deathMessage);
                 }
             } else {
-                player.server.getPlayerList().broadcastMessage(deathMessage, ChatType.CHAT, player.getUUID());
+                player.server.getPlayerList().broadcastSystemMessage(deathMessage, false);
             }
         }
     }
@@ -1441,7 +1441,7 @@ public class GameplayEventHandler {
                 }
                 if (message != null) {
                     JojoModUtil.sayVoiceLine(joseph, ModSounds.JOSEPH_GIGGLE.get());
-                    joseph.server.getPlayerList().broadcastMessage(message, ChatType.CHAT, joseph.getUUID());
+                    joseph.server.getPlayerList().broadcastSystemMessage(message, false);
                 }
             }
         }
@@ -1462,8 +1462,8 @@ public class GameplayEventHandler {
                             standEntity.getDisplayName(), ForgeHooks.newChatWithLinks(event.getMessage()));
                     Component msgUserTooltip = Component.translatable("chat.type.text", 
                             getDisplayNameWithUser(standEntity, playerSending), ForgeHooks.newChatWithLinks(event.getMessage()));
-                    ClientboundSystemChatPacket messagePacket = new ClientboundSystemChatPacket(msg, ChatType.CHAT, playerSending.getUUID());
-                    ClientboundSystemChatPacket messagePacketUser = new ClientboundSystemChatPacket(msgUserTooltip, ChatType.CHAT, playerSending.getUUID());
+                    ClientboundSystemChatPacket messagePacket = new ClientboundSystemChatPacket(msg, false);
+                    ClientboundSystemChatPacket messagePacketUser = new ClientboundSystemChatPacket(msgUserTooltip, false);
                     
                     server.sendMessage(event.getComponent() /*sending the message with the original user name*/, playerSending.getUUID());
                     for (ServerPlayer player : server.getPlayerList().getPlayers()) {

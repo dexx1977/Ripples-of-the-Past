@@ -147,7 +147,7 @@ public class MRCrossfireHurricaneEntity extends ModdedProjectileEntity {
     
     @Override
     public boolean isInvulnerableTo(DamageSource dmgSource) {
-        return dmgSource.isExplosion() || super.isInvulnerableTo(dmgSource);
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) || super.isInvulnerableTo(dmgSource);
     }
     
     private void burnBlocksTick() {

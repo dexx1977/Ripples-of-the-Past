@@ -38,7 +38,7 @@ public class PillarmanUnnaturalAgility extends PillarmanAction {
     public static boolean onUserAttacked(LivingAttackEvent event) {
         DamageSource source = event.getSource();
         Entity attacker = source.getDirectEntity();
-        if (!source.isExplosion() && (attacker instanceof LivingEntity || attacker instanceof Projectile)) {
+        if (!source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION) && (attacker instanceof LivingEntity || attacker instanceof Projectile)) {
             LivingEntity targetLiving = event.getEntity();
             return INonStandPower.getNonStandPowerOptional(targetLiving).map(power -> {
                 Action<?> heldAction = power.getHeldAction(true);

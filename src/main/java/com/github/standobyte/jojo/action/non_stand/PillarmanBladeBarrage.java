@@ -103,7 +103,7 @@ public class PillarmanBladeBarrage extends PillarmanAction {
                                 digDuration = 0;
                                 dropItem = false;
                             }
-                            else if (!ForgeHooks.canHarvestBlock(blockState, player, world, pos)) {
+                            else if (!ForgeHooks.isCorrectToolForDrops(blockState, player)) {
                                 digDuration *= 10F / 3F;
 //                                dropItem = false;
                             }

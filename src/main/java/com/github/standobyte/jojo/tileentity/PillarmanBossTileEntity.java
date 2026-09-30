@@ -27,7 +27,7 @@ public class PillarmanBossTileEntity extends BlockEntity implements ITickableTil
     
     @Override
     public CompoundTag save(CompoundTag compound) {
-        super.save(compound);
+        super.saveAdditional(compound);
         compound.putInt("AbsorbedLife", absorbedLife);
         return compound;
     }

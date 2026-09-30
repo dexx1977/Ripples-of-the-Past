@@ -479,7 +479,7 @@ public class InputHandler {
                         else {
                             message = Component.translatable("jojo.chat.message.no_hamon");
                         }
-                        mc.gui.handleChat(ChatType.GAME_INFO, message, Util.NIL_UUID);
+                        mc.gui.setOverlayMessage(message, false);
                     }
                 }
             }

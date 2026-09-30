@@ -992,7 +992,7 @@ public class HamonData extends TypeSpecificData {
                 }
                 
                 if (message2 == null) {
-                    player.sendMessage(message1, ChatType.GAME_INFO, Util.NIL_UUID);
+                    player.displayClientMessage(message1, true);
                 }
                 else {
                     PacketManager.sendToClient(new MultiLineOverlayMsgPacket(ImmutableList.of(message1, message2)), player);

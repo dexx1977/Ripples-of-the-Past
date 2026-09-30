@@ -373,10 +373,10 @@ public class JojoModUtil {
     }
 
     public static boolean isAffectedByHamon(LivingEntity entity) {
-        if (ModTags.NO_HAMON_DAMAGE.contains(entity.getType())) {
+        if (entity.getType().builtInRegistryHolder().is(ModTags.NO_HAMON_DAMAGE)) {
             return false;
         }
-        if (ModTags.HAMON_DAMAGE.contains(entity.getType())) {
+        if (entity.getType().builtInRegistryHolder().is(ModTags.HAMON_DAMAGE)) {
             return true;
         }
         return JojoModUtil.isUndeadOrVampiric(entity) || OptionalDependencyHelper.vampirism().isEntityVampire(entity);

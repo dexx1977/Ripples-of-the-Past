@@ -138,7 +138,7 @@ public class ControllerConsciousness {
             ClientConsciousnessEntity entity = new ClientConsciousnessEntity(this);
             
             Vec3 pos = playerEntity.position();
-            entity.setPacketCoordinates(pos.x, pos.y, pos.z);
+            entity.setPosRaw(pos.x, pos.y, pos.z);
             entity.absMoveTo(pos.x, pos.y, pos.z, playerEntity.yRot, playerEntity.xRot);
             entity.setYHeadRot(playerEntity.yHeadRot);
             entity.setYBodyRot(playerEntity.yBodyRot);

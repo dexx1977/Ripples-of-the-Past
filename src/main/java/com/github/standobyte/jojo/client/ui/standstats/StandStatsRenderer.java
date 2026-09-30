@@ -29,7 +29,6 @@ import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.fml.client.gui.GuiUtils;
 import com.mojang.math.Axis;
 
 public class StandStatsRenderer {
@@ -395,8 +394,7 @@ public class StandStatsRenderer {
                 
                 // stat name tooltip
                 if (mouseX >= statX - letterWidth / 2 && mouseX <= statX + letterWidth / 2 && mouseY >= statY && mouseY <= statY + mc.font.lineHeight) {
-                    GuiUtils.drawHoveringText(matrixStack, override.statTooltip(stat, power), 
-                            mouseX, mouseY, screenWidth, screenHeight, -1, mc.font);
+                    GuiDraw.renderTooltipWrapped(matrixStack, mc.font, override.statTooltip(stat, power), mouseX, mouseY);
                 }
             }
             

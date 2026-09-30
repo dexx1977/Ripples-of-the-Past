@@ -297,7 +297,7 @@ public class ClientEventHandler {
 //        if (partialTick != changePartialTick) {
 //            event.setCanceled(true);
 //            event.getRenderer().render((T) entity, MathHelper.lerp(changePartialTick, entity.yRotO, entity.yRot), 
-//                    changePartialTick, event.getPoseStack(), event.getBuffers(), event.getLight());
+//                    changePartialTick, event.getPoseStack(), event.getMultiBufferSource(), event.getLight());
 //            return;
 //        }
         
@@ -1233,7 +1233,7 @@ public class ClientEventHandler {
                         ModPillarmanActions.PILLARMAN_ERRATIC_BLAZE_KING.get(),
                         ModPillarmanActions.PILLARMAN_DIVINE_SANDSTORM.get())
                         || LivingWallClimbing.getHandler(player).map(cap -> cap.isWallClimbing()).orElse(false)) {
-                    renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getBuffers(), event.getLight(), 
+                    renderHand(InteractionHand.OFF_HAND, event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
                             event.getPartialTick(), event.getInterpolatedPitch(), player);
                     renderOtherHand = false;
                 }
@@ -1242,7 +1242,7 @@ public class ClientEventHandler {
                     InteractionHand handToRender = renderOtherHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
                     if (MCUtil.isHandFree(player, handToRender)) {
                         event.setCanceled(true);
-                        renderHand(handToRender, event.getPoseStack(), event.getBuffers(), event.getLight(), 
+                        renderHand(handToRender, event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
                                 event.getPartialTick(), event.getInterpolatedPitch(), player);
                     }
                 }
@@ -1250,7 +1250,7 @@ public class ClientEventHandler {
             
             if (!item.isEmpty() && item.getItem() == ModItems.PHOTO.get()) {
                 event.setCanceled(true);
-                PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getBuffers(), event.getLight(), 
+                PolaroidHelper.renderPhotoInHand(event.getPoseStack(), event.getMultiBufferSource(), event.getLight(), 
                         event.getEquipProgress(), MCUtil.getHandSide(player, hand), event.getSwingProgress(), item, event.getPartialTick());
             }
         }

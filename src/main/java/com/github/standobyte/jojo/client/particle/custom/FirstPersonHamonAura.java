@@ -258,7 +258,7 @@ public class FirstPersonHamonAura {
     private static void renderParticle(IFirstPersonParticle particle, VertexConsumer buffer, 
             float x, float y, float z, float scale, int light, float partialTick, Quaternionf renderRot) {
 //        Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
-//        vector3f1.transform(renderRot);
+//        vector3f1.rotate(renderRot);
         
         Vector3f[] avector3f = new Vector3f[]{
                 new Vector3f(-1.0F, -1.0F, 0.0F), 
@@ -268,7 +268,7 @@ public class FirstPersonHamonAura {
 
         for(int i = 0; i < 4; ++i) {
             Vector3f vector3f = avector3f[i];
-            vector3f.transform(renderRot);
+            vector3f.rotate(renderRot);
             vector3f.mul(scale);
             vector3f.add(x, y, z);
         }
@@ -378,7 +378,7 @@ public class FirstPersonHamonAura {
 //            Quaternion quaternion = renderRot;
 //
 ////            Vector3f vector3f1 = new Vector3f(-1.0F, -1.0F, 0.0F);
-////            vector3f1.transform(quaternion);
+////            vector3f1.rotate(quaternion);
 //            float scale = this.getQuadSize(partialTick);
 //            
 //            Vector3f[] avector3f = new Vector3f[]{
@@ -389,7 +389,7 @@ public class FirstPersonHamonAura {
 //
 //            for(int i = 0; i < 4; ++i) {
 //                Vector3f vector3f = avector3f[i];
-//                vector3f.transform(quaternion);
+//                vector3f.rotate(quaternion);
 //                vector3f.mul(scale);
 //                vector3f.add(x, y, z);
 //            }

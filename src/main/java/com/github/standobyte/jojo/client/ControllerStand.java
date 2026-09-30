@@ -155,7 +155,7 @@ public class ControllerStand {
         player.xBob = (float)((double)player.xBob + (double)(player.xRot - player.xBob) * 0.5D);
         player.yBob = (float)((double)player.yBob + (double)(player.yRot - player.yBob) * 0.5D);
         PoseStack matrixStack = event.getPoseStack();
-        MultiBufferSource buffer = event.getBuffers();
+        MultiBufferSource buffer = event.getMultiBufferSource();
         float partialTick = event.getPartialTick();
         int light = mc.getEntityRenderDispatcher().getPackedLightCoords(stand, partialTick);
         StandEntityRenderer renderer = (StandEntityRenderer<?, ?>)mc.getEntityRenderDispatcher().<StandEntity>getRenderer(stand);
@@ -311,7 +311,7 @@ public class ControllerStand {
                     int k1 = l;
                     float f1 = f;
                     list.add(() -> {
-                        RenderSystem.setShaderTexture(0, textureatlassprite.atlas().location());
+                        RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
                         GuiDraw.blit(matrixStack, j1 + 3, k1 + 3, gui.getBlitOffset(), 18, 18, textureatlassprite);
                     });

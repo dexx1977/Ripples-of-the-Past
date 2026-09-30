@@ -113,7 +113,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isExplosion() {
-        return dmgSource.isExplosion();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION);
     }
     
     public DamageSource setExplosion() {

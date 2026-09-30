@@ -53,7 +53,7 @@ public class HamonSkillToast implements Toast {
             GuiDraw.drawString(matrixStack, mc.font, description, 30.0F, 18.0F, -16777216);
             AbstractHamonSkill skill = skills.get((int)(delta / Math.max(1L, 5000L / (long)skills.size()) % (long)skills.size()));
             TextureAtlasSprite textureAtlasSprite = CustomResources.getHamonSkillSprites().getSprite(skill);
-            GuiDraw.bind(textureAtlasSprite.atlas().location());
+            GuiDraw.bind(textureAtlasSprite.atlasLocation());
             GuiDraw.blit(matrixStack, 8, 8, 0, 16, 16, textureAtlasSprite);
             return delta - this.lastChanged >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
         }

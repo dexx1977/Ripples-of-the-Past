@@ -1,9 +1,8 @@
 package com.github.standobyte.jojo.client.ui.tooltip;
 
-import static net.minecraftforge.fml.client.gui.GuiUtils.DEFAULT_BACKGROUND_COLOR;
-import static net.minecraftforge.fml.client.gui.GuiUtils.DEFAULT_BORDER_COLOR_END;
-import static net.minecraftforge.fml.client.gui.GuiUtils.DEFAULT_BORDER_COLOR_START;
 
+import com.github.standobyte.jojo.client.ui.render.GuiDraw;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +20,11 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public class CustomTooltipRender {
+    // the vanilla tooltip colours Forge's GuiUtils used to expose
+    private static final int DEFAULT_BACKGROUND_COLOR = 0xF0100010;
+    private static final int DEFAULT_BORDER_COLOR_START = 0x505000FF;
+    private static final int DEFAULT_BORDER_COLOR_END = 0x5028007F;
+
 
     public static void renderWrappedToolTip(PoseStack matrixStack, List<? extends ITooltipLine> tooltipLines, int mouseX, int mouseY, Font font) {
         Minecraft mc = Minecraft.getInstance();
@@ -48,15 +52,19 @@ public class CustomTooltipRender {
         if (!tooltipLines.isEmpty())
         {
             List<? extends FormattedText> eventTextOnlyLines = tooltipLines.stream().flatMap(ITooltipLine::getTextOnly).collect(Collectors.toList());
-            RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(ItemStack.EMPTY, eventTextOnlyLines, mStack, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
+            // 1.20.1 hands the tooltip events the GuiGraphics and the client components
+            List<ClientTooltipComponent> eventComponents = eventTextOnlyLines.stream()
+                    .map(text -> ClientTooltipComponent.create(net.minecraft.locale.Language.getInstance().getVisualOrder(text)))
+                    .collect(Collectors.toList());
+            RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(ItemStack.EMPTY, GuiDraw.graphics(), mouseX, mouseY, 
+                    screenWidth, screenHeight, font, eventComponents, null);
             if (MinecraftForge.EVENT_BUS.post(event))
                 return;
             mouseX = event.getX();
             mouseY = event.getY();
             screenWidth = event.getScreenWidth();
             screenHeight = event.getScreenHeight();
-            maxTextWidth = event.getMaxWidth();
-            font = event.getFontRenderer();
+            font = event.getFont();
             RenderSystem.disableDepthTest();
             int tooltipTextWidth = 0;
 
@@ -132,16 +140,17 @@ public class CustomTooltipRender {
                 tooltipY = screenHeight - tooltipHeight - 4;
 
             final int zLevel = 400;
-            RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(ItemStack.EMPTY, eventTextOnlyLines, mStack, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
+            RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(ItemStack.EMPTY, GuiDraw.graphics(), tooltipX, tooltipY, 
+                    font, backgroundColor, borderColorStart, borderColorEnd, eventComponents);
             MinecraftForge.EVENT_BUS.post(colorEvent);
-            backgroundColor = colorEvent.getBackground();
+            backgroundColor = colorEvent.getBackgroundStart();
             borderColorStart = colorEvent.getBorderStart();
             borderColorEnd = colorEvent.getBorderEnd();
 
             mStack.pushPose();
             ClientUtil.drawTooltipRectangle(mStack, tooltipX, tooltipY, tooltipTextWidth, tooltipHeight, backgroundColor, borderColorStart, borderColorEnd, zLevel);
             
-            MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(ItemStack.EMPTY, eventTextOnlyLines, mStack, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
+            // 1.20.1 has no PostBackground/PostText tooltip events any more
 
             mStack.translate(0.0D, 0.0D, zLevel);
 
@@ -161,7 +170,6 @@ public class CustomTooltipRender {
 
             mStack.popPose();
 
-            MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(ItemStack.EMPTY, eventTextOnlyLines, mStack, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
 
             RenderSystem.enableDepthTest();
         }

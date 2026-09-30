@@ -55,7 +55,7 @@ public class GEBodyTissueItem extends Item {
         }
         else {
             if (!world.isClientSide()) {
-                ((ServerPlayer) player).sendMessage(canUse.getWarning(), ChatType.GAME_INFO, Util.NIL_UUID);
+                ((ServerPlayer) player).displayClientMessage(canUse.getWarning(), true);
             }
             return InteractionResultHolder.fail(item);
         }

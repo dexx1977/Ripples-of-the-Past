@@ -54,7 +54,7 @@ public class DeflectedBulletPacket {
         public void handle(DeflectedBulletPacket msg, Supplier<NetworkEvent.Context> ctx) {
             Entity entity = ClientUtil.getEntityById(msg.entityId);
             if (entity instanceof ModdedProjectileEntity) {
-                entity.setPacketCoordinates(msg.bulletPos.x, msg.bulletPos.y, msg.bulletPos.z);
+                entity.setPosRaw(msg.bulletPos.x, msg.bulletPos.y, msg.bulletPos.z);
                 entity.xo = msg.deflectVec.x;
                 entity.yo = msg.deflectVec.y;
                 entity.zo = msg.deflectVec.z;

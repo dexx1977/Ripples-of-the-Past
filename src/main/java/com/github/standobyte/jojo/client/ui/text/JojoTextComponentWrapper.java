@@ -61,7 +61,7 @@ public class JojoTextComponentWrapper implements MutableComponent {
                 BlitFloat.blitFloat(matrixStack, spriteX, y, 0, 0, 8, 8, 8, 8);
             })
             .ifRight(atlasSprite -> {
-                GuiDraw.bind(atlasSprite.atlas().location());
+                GuiDraw.bind(atlasSprite.atlasLocation());
                 BlitFloat.blitFloat(matrixStack, spriteX, y, 0, 8, 8, atlasSprite);
             });
             x += 10;

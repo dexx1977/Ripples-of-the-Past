@@ -36,7 +36,7 @@ public class StoneMaskTileEntity extends BlockEntity implements ITickableTileEnt
     
     @Override
     public CompoundTag save(CompoundTag compound) {
-        super.save(compound);
+        super.saveAdditional(compound);
         compound.put("Item", maskStack.save(new CompoundTag()));
         compound.putInt("ActivationTicks", activationTicks);
         return compound;

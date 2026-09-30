@@ -466,7 +466,7 @@ public class ClientUtil {
     }
     
     public static void setOverlayMessage(Component message) {
-        Minecraft.getInstance().gui.handleChat(ChatType.GAME_INFO, message, Util.NIL_UUID);
+        Minecraft.getInstance().gui.setOverlayMessage(message, false);
     }
     
     public static Style textColor(int color) {
