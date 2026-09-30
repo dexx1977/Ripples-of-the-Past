@@ -313,9 +313,10 @@ public class ControllerStand {
                     list.add(() -> {
                         RenderSystem.setShaderTexture(0, textureatlassprite.atlasLocation());
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f1);
-                        GuiDraw.blit(matrixStack, j1 + 3, k1 + 3, gui.getBlitOffset(), 18, 18, textureatlassprite);
+                        GuiDraw.blit(matrixStack, j1 + 3, k1 + 3, 0, 18, 18, textureatlassprite);
                     });
-                    effectinstance.renderHUDEffect(gui, matrixStack, k, l, gui.getBlitOffset(), f);
+                    // the effect duration/level text had a public hook in 1.16.5; the
+                    // modern port draws the stand's effect icons only
                 }
             }
 

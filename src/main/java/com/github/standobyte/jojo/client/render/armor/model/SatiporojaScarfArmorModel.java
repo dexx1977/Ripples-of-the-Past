@@ -29,9 +29,15 @@ public class SatiporojaScarfArmorModel extends HumanoidModel<LivingEntity> {
         head.cubes.clear();
         head.setPos(0.0F, 0.5F, 0.0F);
         setRotationAngle(head, 0.0873F, 0.0F, 0.0F);
-        head.texOffs(0, 7).addBox(-4.5F, -1.2F, -2.5F, 9.0F, 1.0F, 5.0F, 0.0F, false);
-        head.texOffs(0, 0).addBox(-4.5F, 0.0F, -2.6F, 9.0F, 2.0F, 5.0F, 0.2F, false);
-        head.texOffs(0, 13).addBox(-4.1F, -0.5F, -3.5F, 3.0F, 11.0F, 1.0F, -0.3F, false);
+        // a baked vanilla part has no texture offset setter, so the scarf is built
+        // with the model part helper and its cuboids take the head's place
+        ModelPart scarfHead = new ModelPart(this);
+        scarfHead.setTexSize(texWidth, texHeight);
+        scarfHead.texOffs(0, 7).addBox(-4.5F, -1.2F, -2.5F, 9.0F, 1.0F, 5.0F, 0.0F, false);
+        scarfHead.texOffs(0, 0).addBox(-4.5F, 0.0F, -2.6F, 9.0F, 2.0F, 5.0F, 0.2F, false);
+        scarfHead.texOffs(0, 13).addBox(-4.1F, -0.5F, -3.5F, 3.0F, 11.0F, 1.0F, -0.3F, false);
+        head.cubes.clear();
+        head.cubes.addAll(scarfHead.cubesMutable());
     }
 
     @Override

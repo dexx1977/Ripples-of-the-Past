@@ -1044,17 +1044,17 @@ public class ClientEventHandler {
                     int screenHeight = mc.getWindow().getGuiScaledHeight();
                     int halfWidth = mc.getWindow().getGuiScaledWidth() / 2;
                     Gui gui = mc.gui;
-                    int blitOffs = gui.getBlitOffset();
+                    matrixStack.pushPose();
+                    matrixStack.translate(0.0F, 0.0F, -90.0F);
                     
                     RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-                    gui.setBlitOffset(-90);
                     if (offHand == HumanoidArm.LEFT) {
                         GuiDraw.blit(matrixStack, halfWidth - 91 - 29, screenHeight - 23, 24, 22, 29, 24);
                     } else {
                         GuiDraw.blit(matrixStack, halfWidth + 91,      screenHeight - 23, 53, 22, 29, 24);
                     }
                     
-                    gui.setBlitOffset(blitOffs);
+                    matrixStack.popPose();
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     

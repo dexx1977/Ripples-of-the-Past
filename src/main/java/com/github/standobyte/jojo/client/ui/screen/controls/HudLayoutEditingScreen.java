@@ -310,11 +310,11 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
             matrixStack.translate(0.0F, 0.0F, 32.0F);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            this.setBlitOffset(200);
+            matrixStack.translate(0.0F, 0.0F, 200.0F);
             ActionVisibilitySwitch actionSwitch = dragged.actionSwitch;
             renderActionIcon(matrixStack, mouseX - 8, mouseY - 8, 
                     (Action<P>) actionSwitch.getAction(), true, (P) selectedPower);
-            this.setBlitOffset(0);
+            matrixStack.translate(0.0F, 0.0F, -200.0F);
             RenderSystem.disableBlend();
             matrixStack.translate(0.0F, 0.0F, -32.0F);
         });

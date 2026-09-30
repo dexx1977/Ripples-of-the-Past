@@ -2186,7 +2186,7 @@ public class ActionsOverlayGui extends AbstractGui {
     protected void blitFloat(PoseStack pMatrixStack, float pX, float pY, 
             float pUOffset, float pVOffset, float pUWidth, float pVHeight) {
         BlitFloat.blitFloat(pMatrixStack, 
-                pX, pY, this.getBlitOffset(), 
+                pX, pY, 0, 
                 pUOffset, pVOffset, pUWidth, pVHeight, 256, 256);
     }
     
