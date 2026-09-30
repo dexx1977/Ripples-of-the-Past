@@ -178,7 +178,7 @@ public class HamonProjectileShieldEntity extends Entity implements IEntityAdditi
                 }
                 else {
                     power.setEnergy(0);
-                    remove();
+                    discard();
                 }
             }
         }

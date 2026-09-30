@@ -50,11 +50,11 @@ public class HamonBubbleBarrierEntity extends ModdedProjectileEntity {
         super.tick();
         if (!level.isClientSide()) { 
             if (barrier && (barrierTicks++ >= barrierMaxTicks || !isVehicle()) || power == null) {
-                remove();
+                discard();
             }
             else if (!shot) {
                 if (power.getHeldAction() != ModHamonActions.CAESAR_BUBBLE_BARRIER.get()) {
-                    remove();
+                    discard();
                 }
                 else if (power.getHeldActionTicks() >= ModHamonActions.CAESAR_BUBBLE_BARRIER.get().getHoldDurationToFire(power) - 1) {
                     Entity owner = getOwner();

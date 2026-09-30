@@ -82,7 +82,7 @@ public class ControllerConsciousness {
             if (playerCsnsEntity != null) {
                 if (!playerCsnsEntity.isAlive() || !player.isAlive()) {
                     ClientUtil.setCameraEntityPreventShaderSwitch(mc, player);
-                    playerCsnsEntity.remove();
+                    playerCsnsEntity.discard();
                     playerCsnsEntity = null;
                 }
                 else {
@@ -99,7 +99,7 @@ public class ControllerConsciousness {
     
     public void stop() {
         if (playerCsnsEntity != null) {
-            playerCsnsEntity.remove();
+            playerCsnsEntity.discard();
         }
 //        ClientReflection.setMsPerTick(mcTimer, 50);
 //        normalSpeedTimer = null;

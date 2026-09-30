@@ -1275,7 +1275,7 @@ public class GameplayEventHandler {
     }
 
     private static void chorusFruitTeleport(LivingEntity entity) {
-        Random random = entity.getRandom();
+        net.minecraft.util.RandomSource random = entity.getRandom();
         double x = entity.getX();
         double y = entity.getY();
         double z = entity.getZ();

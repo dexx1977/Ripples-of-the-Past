@@ -194,7 +194,7 @@ public class CrazyDiamondLeaveObject extends StandEntityActionModifier {
         double zPrev = target.getZ();
 
         for(int tpTry = 0; tpTry < 16; ++tpTry) {
-            Random random = target.getRandom();
+            net.minecraft.util.RandomSource random = target.getRandom();
 //            double x = entity.getX() + (random.nextDouble() - 0.5D) * 16.0D;
 //            double y = MathHelper.clamp(entity.getY() + (double)(random.nextInt(16) - 8), 0.0D, (double)(entity.level.getHeight() - 1));
 //            double z = entity.getZ() + (random.nextDouble() - 0.5D) * 16.0D;

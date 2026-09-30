@@ -286,7 +286,7 @@ public class AngeloRockEntity extends Entity implements IEntityAdditionalSpawnDa
                 }
             }
             
-            remove();
+            discard();
         }
         else {
             clBreakBlockVisuals(getUpperBlock(), blockPosition());

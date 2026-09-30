@@ -131,7 +131,7 @@ public class PillarmanDivineSandstormEntity extends ModdedProjectileEntity {
     protected void breakProjectile(TargetType targetType, HitResult hitTarget) {
         if (targetType != TargetType.ENTITY) {
             if (!level.isClientSide()) {
-                remove();
+                discard();
             } else {
                 super.breakProjectile(targetType, hitTarget);
             }

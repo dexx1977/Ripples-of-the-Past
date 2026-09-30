@@ -97,7 +97,7 @@ public class TommyGunItem extends Item {
         }
         if (ammo > 0) {
             if (shotTick) {
-                Random random = entity.getRandom();
+                net.minecraft.util.RandomSource random = entity.getRandom();
                 if (entity.getType() == EntityType.PLAYER ? world.isClientSide() : !world.isClientSide()) {
                     float recoil = 1F + Math.min((1F - (float) remainingTicks / (float) getUseDuration(stack)) * 6F, 3F);
                     entity.yRot += (random.nextFloat() - 0.5F) * 0.3F * recoil;

@@ -107,7 +107,7 @@ public class StandArrowEntity extends AbstractArrow {
                                 }
                             }
                             
-                            remove();
+                            discard();
                             arrowItem.setDamageValue(0);
                         }
 
@@ -221,7 +221,7 @@ public class StandArrowEntity extends AbstractArrow {
                     if (!level.isClientSide && pickup == AbstractArrow.Pickup.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
-                    remove();
+                    discard();
                 }
                 else {
                     setNoPhysics(true);

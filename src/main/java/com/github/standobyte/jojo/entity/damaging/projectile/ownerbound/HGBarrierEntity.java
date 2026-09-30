@@ -69,7 +69,7 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
             if (rippedTicks > 0) {
                 if (--rippedTicks == 0) {
                     if (!level.isClientSide()) {
-                        remove();
+                        discard();
                     }
                     return;
                 }
@@ -80,7 +80,7 @@ public class HGBarrierEntity extends OwnerBoundProjectileEntity {
             }
             else {
                 if (standUser == null) {
-                    remove();
+                    discard();
                     return;
                 }
                 super.tick();

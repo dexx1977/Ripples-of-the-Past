@@ -115,7 +115,7 @@ public abstract class CustomParticlesHelper {
     public static void summonHamonAuraParticlesFirstPerson(ParticleOptions type, LivingEntity user, float particlesPerTick) {
         SpriteSet sprite = getSavedSpriteSet(type.getType());
         if (sprite != null) {
-            Random random = user.getRandom();
+            net.minecraft.util.RandomSource random = user.getRandom();
             FirstPersonHamonAura particles = FirstPersonHamonAura.getInstance();
             
             for (HumanoidArm handSide : HumanoidArm.values()) {

@@ -158,7 +158,7 @@ public class HamonSendoOverdriveEntity extends Entity implements IEntityAddition
             }
         }
         else if (!level.isClientSide()) {
-            remove();
+            discard();
         }
     }
     

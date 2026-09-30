@@ -47,7 +47,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
         }
         if (!level.isClientSide()) {
             if (ownerStand == null || ownerStand.getCurrentTaskAction() != ModStandsInit.MAGICIANS_RED_RED_BIND.get() && !isInKickAttack()) {
-                remove();
+                discard();
                 return;
             }
         }
@@ -56,7 +56,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
             LivingEntity owner = getOwner();
             if (!bound.isAlive() || owner.distanceToSqr(bound) > 100) {
                 if (!level.isClientSide()) {
-                    remove();
+                    discard();
                 }
             }
             else {
@@ -72,7 +72,7 @@ public class MRRedBindEntity extends OwnerBoundProjectileEntity {
                     ticksTargetClose = 0;
                 }
                 else if (!level.isClientSide() && !isInKickAttack() && ticksTargetClose++ > 10) {
-                    remove();
+                    discard();
                 }
             }
         }

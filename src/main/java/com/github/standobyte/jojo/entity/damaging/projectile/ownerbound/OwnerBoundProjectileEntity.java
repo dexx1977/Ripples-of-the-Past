@@ -64,7 +64,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             LivingEntity owner = getOwner();
             if (owner == null) {
                 if (!level.isClientSide()) {
-                    remove();
+                    discard();
                 }
                 return;
             }
@@ -103,7 +103,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             Vec3 nextOriginOffset = getNextOriginOffset();
             if (nextOriginOffset == null) {
                 if (!level.isClientSide()) {
-                    remove();
+                    discard();
                 }
                 return true;
             }
@@ -116,7 +116,7 @@ public abstract class OwnerBoundProjectileEntity extends ModdedProjectileEntity 
             double nextZ = originPoint.z + nextOriginOffset.z;
             if (!level.getChunkSource().hasChunk(Mth.floor(nextX) >> 4, Mth.floor(nextZ) >> 4)) {
                 if (level.isClientSide()) {
-                    remove();
+                    discard();
                 }
                 return false;
             }

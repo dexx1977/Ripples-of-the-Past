@@ -115,7 +115,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
             }
             playSound(getHitGroundSoundEvent(), 1.0F, 1.2F / (random.nextFloat() * 0.2F + 0.9F));
             if (isRemovedOnEntityHit()) {
-                remove();
+                discard();
             }
             else {
                 changeMovementAfterHit();
@@ -130,7 +130,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
                     if (pickup == AbstractArrow.Pickup.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
-                    remove();
+                    discard();
                 }
                 else {
                     changeMovementAfterHit();
@@ -167,7 +167,7 @@ public abstract class ItemProjectileEntity extends AbstractArrow implements IEnt
     
     protected void pickUp(Player player) {
         player.take(this, 1);
-        remove();
+        discard();
     }
 
     public final boolean isInGround() {

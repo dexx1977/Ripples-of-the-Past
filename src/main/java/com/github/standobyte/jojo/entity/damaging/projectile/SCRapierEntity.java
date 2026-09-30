@@ -177,7 +177,7 @@ public class SCRapierEntity extends ModdedProjectileEntity {
                     power.setCooldownTimer(ModStandsInit.SILVER_CHARIOT_RAPIER_LAUNCH.get(), 0);
                 }
             });
-            remove();
+            discard();
         }
     }
     

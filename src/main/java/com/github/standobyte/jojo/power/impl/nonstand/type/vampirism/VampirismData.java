@@ -187,7 +187,7 @@ public class VampirismData extends TypeSpecificData {
     private int getCuringTickProgress() {
         int i = 1;
         LivingEntity user = power.getUser();
-        Random random = user.getRandom();
+        net.minecraft.util.RandomSource random = user.getRandom();
         if (random.nextFloat() < 0.01F) {
             int accelBlocks = 0;
             BlockPos pos = user.blockPosition();

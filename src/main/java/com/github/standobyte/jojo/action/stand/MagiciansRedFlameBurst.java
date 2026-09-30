@@ -24,7 +24,7 @@ public class MagiciansRedFlameBurst extends StandEntityAction {
     
     @Override
     public void standTickPerform(Level world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
-        Random random = standEntity.getRandom();
+        net.minecraft.util.RandomSource random = standEntity.getRandom();
         if (!world.isClientSide()) {
 //            GeneralUtil.doFractionTimes(() -> {
                 MRFlameEntity flame = new MRFlameEntity(standEntity, world);

@@ -1065,7 +1065,7 @@ public class MCUtil {
     
     // i sure love copy-pasting private methods
     public static void spawnItemParticles(LivingEntity entity, ItemStack item, int particlesCount) {
-        Random random = entity.getRandom();
+        net.minecraft.util.RandomSource random = entity.getRandom();
         for (int i = 0; i < particlesCount; ++i) {
             Vec3 motion = new Vec3((random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0);
             motion = motion.xRot(-entity.xRot * ((float) Math.PI / 180F));

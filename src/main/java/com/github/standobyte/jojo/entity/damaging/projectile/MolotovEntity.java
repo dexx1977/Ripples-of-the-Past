@@ -62,7 +62,7 @@ public class MolotovEntity extends ThrowableItemProjectile implements ItemSuppli
         if (!level.isClientSide) {
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.SPLASH_POTION_BREAK, 
                     SoundSource.NEUTRAL, 1.0F, random.nextFloat() * 0.1F + 0.9F);
-            remove();
+            discard();
         }
     }
     

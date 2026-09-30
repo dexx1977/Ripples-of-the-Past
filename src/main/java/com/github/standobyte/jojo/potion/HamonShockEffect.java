@@ -19,7 +19,7 @@ public class HamonShockEffect extends StunEffect {
         super.applyEffectTick(entity, amplifier);
         
         if (MCUtil.isControlledThisSide(entity)) {
-            Random random = entity.getRandom();
+            net.minecraft.util.RandomSource random = entity.getRandom();
             entity.yRot     += (random.nextFloat() - 0.5F) * (amplifier + 1) * 2.5F;
             entity.yHeadRot += (random.nextFloat() - 0.5F) * (amplifier + 1) * 2.5F;
             entity.xRot     += (random.nextFloat() - 0.5F) * (amplifier + 1) * 2.5F;

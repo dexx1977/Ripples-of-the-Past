@@ -71,14 +71,14 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
         
         if (objectType == null) {
             if (!level.isClientSide()) {
-                remove();
+                discard();
             }
             return;
         }
         
         if ((onGround() || fluidHeight.values().stream().anyMatch(height -> height > 0)) && tickCount > 100) {
             if (!level.isClientSide()) {
-                remove();
+                discard();
             }
             return;
         }

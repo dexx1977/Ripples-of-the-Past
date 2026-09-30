@@ -229,7 +229,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
             }
         }
         
-        remove();
+        discard();
     }
     
     @Override

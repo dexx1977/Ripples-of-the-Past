@@ -81,7 +81,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
                 || originEntity.isRemoved()
                 || tickCount > 1 && !originEntity.isDeadOrDying()
                 || tickCount > lifeSpan) {
-            remove();
+            discard();
             return;
         }
         if (level.isClientSide()) {
@@ -252,7 +252,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
                 setOriginEntity((LivingEntity) entity);
             }
             else {
-                remove();
+                discard();
             }
         }
         buffer.writeInt(originEntity == null ? -1 : originEntity.getId());
@@ -269,7 +269,7 @@ public class SoulEntity extends Entity implements IEntityAdditionalSpawnData {
             addCloudParticles();
         }
         else {
-            remove();
+            discard();
             return;
         }
         lifeSpan = additionalData.readInt();

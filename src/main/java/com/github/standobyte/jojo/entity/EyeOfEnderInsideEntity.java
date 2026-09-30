@@ -62,7 +62,7 @@ public class EyeOfEnderInsideEntity extends EyeOfEnder {
                 }
                 playSound(SoundEvents.ENDER_EYE_DEATH, 1.0F, 1.0F);
                 level.levelEvent(2003, blockPosition(), 0);
-                remove();
+                discard();
                 return;
             }
         }

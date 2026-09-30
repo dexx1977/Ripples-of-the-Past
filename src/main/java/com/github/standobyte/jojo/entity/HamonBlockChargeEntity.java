@@ -61,7 +61,7 @@ public class HamonBlockChargeEntity extends Entity {
                 if (level.getBlockState(blockPos).getBlock() == Blocks.COBWEB) {
                     level.setBlock(blockPos, Blocks.TRIPWIRE.defaultBlockState(), 3);
                 }
-                remove();
+                discard();
                 return;
             }
             hamonCharge.tick(null, blockPos, level, getBoundingBox().inflate(0.1D));

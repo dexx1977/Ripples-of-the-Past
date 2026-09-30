@@ -134,13 +134,13 @@ public class RoadRollerEntity extends Entity implements IHasHealth {
             ticksBeforeExplosion--;
         }
         else if (ticksBeforeExplosion == 0) {
-            remove();
+            discard();
         }
         Entity owner = getOwner();
         if (!level.isClientSide() && (ticksBeforeExplosion == 0 || 
                 (ticksBeforeExplosion > 0 && ticksBeforeExplosion < 40 && owner != null && distanceToSqr(owner) > 100))) {
             explode();
-            remove();
+            discard();
         }
     }
     

@@ -69,7 +69,7 @@ public class CrimsonBubbleEntity extends Entity {
     public void tick() {
         if (!level.isClientSide()) {
             if (hamonControlPoints == 0 && hamonStrengthPoints == 0) {
-                remove();
+                discard();
                 return;
             }
             for (Entity entity : getPassengers()) {

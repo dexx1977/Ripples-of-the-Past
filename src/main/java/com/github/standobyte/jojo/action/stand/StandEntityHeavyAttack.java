@@ -505,7 +505,7 @@ public class StandEntityHeavyAttack extends StandEntityAction implements IHasSta
                     
                     Map<BlockPos, BlockShardEntity[]> blockShardEntities = new HashMap<>();
                     if (createBlockShards) {
-                        Random random = attacker.getRandom();
+                        net.minecraft.util.RandomSource random = attacker.getRandom();
                         float shardsVelocity = 0.5f + (float) strength * 0.05f;
                         double shardsInaccuracy = Math.max(100 - precision * 4.5, 0);
                         

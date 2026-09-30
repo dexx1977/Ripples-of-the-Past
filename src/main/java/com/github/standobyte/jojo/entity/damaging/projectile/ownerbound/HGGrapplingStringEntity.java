@@ -55,7 +55,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
         if (!level.isClientSide() && (userStandPower == null || userStandPower.getHeldAction() != (
                 bindEntities ? ModStandsInit.HIEROPHANT_GREEN_GRAPPLE_ENTITY.get() : 
                     ModStandsInit.HIEROPHANT_GREEN_GRAPPLE.get()))) {
-            remove();
+            discard();
             return;
         }
         LivingEntity bound = getEntityAttachedTo();
@@ -63,7 +63,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
             LivingEntity owner = getOwner();
             if (!bound.isAlive()) {
                 if (!level.isClientSide()) {
-                    remove();
+                    discard();
                 }
             }
             else if (owner != null) {
@@ -71,7 +71,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
                 double length = vecToOwner.length();
                 if (length < 2) {
                     if (!level.isClientSide()) {
-                        remove();
+                        discard();
                     }
                 }
                 else {
@@ -108,7 +108,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
                 entity.fallDistance = 0;
             }
             else if (!level.isClientSide()) {
-                remove();
+                discard();
             }
             return true;
         }
@@ -173,7 +173,7 @@ public class HGGrapplingStringEntity extends OwnerBoundProjectileEntity {
         BlockPos blockHitPos = blockRayTraceResult.getBlockPos();
         BlockState hitBlock = level.getBlockState(blockHitPos);
         if (hitBlock.getBlock() == Blocks.BARRIER) {
-            remove();
+            discard();
             return;
         }
         

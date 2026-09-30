@@ -69,7 +69,7 @@ public class CDBloodCutterEntity extends ModdedProjectileEntity {
                 }
                 return false;
             })) {
-                remove();
+                discard();
                 return false;
             }
         }

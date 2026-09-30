@@ -134,7 +134,7 @@ public class BlockShardEntity extends ModdedProjectileEntity implements EntityMa
         if (isCrazyDRestored()) {
             originBlockPos.ifPresent(target -> {
                 if (crazyDRestoreTick-- == 0 && !level.isClientSide()) {
-                    remove();
+                    discard();
                     return;
                 }
                 

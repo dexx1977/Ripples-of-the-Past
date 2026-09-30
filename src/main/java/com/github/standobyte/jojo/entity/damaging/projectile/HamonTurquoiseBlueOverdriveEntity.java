@@ -98,7 +98,7 @@ public class HamonTurquoiseBlueOverdriveEntity extends ModdedProjectileEntity {
     protected void checkHit() {
         if (!level.isClientSide()) {
             if (!this.isInWaterOrBubble()) {
-                remove();
+                discard();
                 return;
             }
             level.getEntitiesOfClass(LivingEntity.class, getBoundingBox(), entity -> entity.isInWaterOrBubble() && canHitEntity(entity)).forEach(target -> {

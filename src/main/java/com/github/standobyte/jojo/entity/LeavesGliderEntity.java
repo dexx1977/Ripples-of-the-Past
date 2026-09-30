@@ -117,7 +117,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
                 setHealth(Math.min(getHealth() + 0.1F, MAX_HEALTH));
             }
             if (getHealth() <= 0) {
-                remove();
+                discard();
             }
         }
         else {
@@ -596,7 +596,7 @@ public class LeavesGliderEntity extends Entity implements IEntityAdditionalSpawn
     @Override
     public boolean crazyDRestore(BlockPos blockPos) {
         if (position().distanceToSqr(Vec3.atCenterOf(blockPos)) < 0.25) {
-            remove();
+            discard();
             return true;
         }
         else {

@@ -53,7 +53,7 @@ public class LightBeamEntity extends DamagingEntity {
     public void tick() {
         super.tick();
         if (!level.isClientSide()) {
-            remove();
+            discard();
         }
     }
     

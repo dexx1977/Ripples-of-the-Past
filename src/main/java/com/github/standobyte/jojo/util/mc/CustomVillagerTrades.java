@@ -78,7 +78,7 @@ public class CustomVillagerTrades {
                     }
                     // why the fuck are LivingEntity#getSoundVolume() and LivingEntity#getVoicePitch() not public exactly?
                     float soundVolume = 1;
-                    Random random = targetLiving.getRandom();
+                    net.minecraft.util.RandomSource random = targetLiving.getRandom();
                     float voicePitch = targetLiving.isBaby() ? (random.nextFloat() - random.nextFloat()) * 0.2F + 1.5F : (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F;
                     asVillager.playSound(SoundEvents.VILLAGER_NO, soundVolume, voicePitch);
                     event.setCanceled(true);
