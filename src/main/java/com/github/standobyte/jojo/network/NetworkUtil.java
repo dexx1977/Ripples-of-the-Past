@@ -37,7 +37,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.extensions.IForgeFriendlyByteBuf;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -69,7 +68,7 @@ public class NetworkUtil {
     
     
     
-    public static <T extends RegistryEntry<T>> void writeRegistryIds(IForgeFriendlyByteBuf buf, @Nonnull List<T> entries) {
+    public static <T extends RegistryEntry<T>> void writeRegistryIds(net.minecraft.network.FriendlyByteBuf buf, @Nonnull List<T> entries) {
         Objects.requireNonNull(entries, "Cannot write a null registry entries list!");
         buf.writeBoolean(!entries.isEmpty());
         if (entries.isEmpty()) return;
@@ -80,9 +79,9 @@ public class NetworkUtil {
             Preconditions.checkArgument(entryRegistry != null, "Cannot write registry id for an unknown registry type: %s", entry.getClass().getName());
             if (retrievedRegistry == null) retrievedRegistry = entryRegistry;
             Preconditions.checkArgument(retrievedRegistry == entryRegistry, "Cannot write entries of different registry types: %s, %s",
-                    retrievedRegistry.getRegistrySuperType().getName(), entryRegistry.getRegistrySuperType().getName());
+                    retrievedRegistry.getRegistryKey().location(), entryRegistry.getRegistryKey().location());
             Preconditions.checkArgument(retrievedRegistry.containsValue(entry), "Cannot find %s in %s",
-                    entry.getRegistryName() != null ? entry.getRegistryName() : entry, retrievedRegistry.getRegistryName());
+                    entry.getRegistryName() != null ? entry.getRegistryName() : entry, retrievedRegistry.getRegistryKey().location());
         }
         ResourceLocation name = retrievedRegistry.getRegistryName();
         ForgeRegistry<T> reg = (ForgeRegistry<T>) retrievedRegistry;
@@ -94,7 +93,7 @@ public class NetworkUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends RegistryEntry<T>> List<T> readRegistryIds(IForgeFriendlyByteBuf buf) {
+    public static <T extends RegistryEntry<T>> List<T> readRegistryIds(net.minecraft.network.FriendlyByteBuf buf) {
         if (!buf.readBoolean()) return Collections.emptyList();
         ResourceLocation location = buf.readResourceLocation();
         ForgeRegistry<T> registry = (ForgeRegistry<T>) (ForgeRegistry<?>) RegistryManager.ACTIVE.getRegistry(location);
@@ -106,7 +105,7 @@ public class NetworkUtil {
         return entries;
     }
 
-    public static <T extends RegistryEntry<T>> List<T> readRegistryIdsSafe(IForgeFriendlyByteBuf buf, Class<? super T> registrySuperType) {
+    public static <T extends RegistryEntry<T>> List<T> readRegistryIdsSafe(net.minecraft.network.FriendlyByteBuf buf, Class<? super T> registrySuperType) {
         List<T> values = readRegistryIds(buf);
         for (T value : values) {
             if (!registrySuperType.isAssignableFrom(value.getClass()))

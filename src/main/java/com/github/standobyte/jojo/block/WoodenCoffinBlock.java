@@ -91,7 +91,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
             Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (world.isClientSide) {
             if (!BedBlock.canSetSpawn(world)) {
-                Random random = world.random;
+                net.minecraft.util.RandomSource random = world.random;
                 int particlesSetting = ClientUtil.particlesSetting();
                 if (particlesSetting < 2) {
                     int particles = particlesSetting == 1 ? 256 : 2560;
@@ -126,8 +126,9 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
                     entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
                     entity.clearFire();
                 });
-                world.explode(null, DamageSource.badRespawnPointExplosion(), null, 
-                        blockPos.getX() + 0.5D, blockPos.getY() + 0.5D, blockPos.getZ() + 0.5D, 5.0F, false, Explosion.BlockInteraction.DESTROY);
+                world.explode(null, world.damageSources().badRespawnPointExplosion(
+                        new Vec3(blockPos.getX() + 0.5D, blockPos.getY() + 0.5D, blockPos.getZ() + 0.5D)), null, 
+                        blockPos.getX() + 0.5D, blockPos.getY() + 0.5D, blockPos.getZ() + 0.5D, 5.0F, false, net.minecraft.world.level.Level.ExplosionInteraction.BLOCK);
                 GameplayEventHandler.splashBlood(world, Vec3.atCenterOf(blockPos), 16, 10, Optional.empty());
                 
                 return InteractionResult.SUCCESS;
@@ -150,10 +151,10 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
             player.getCapability(PlayerUtilCapProvider.CAPABILITY).ifPresent(
                     playerData -> playerData.onSleepingInCoffin(vampireRespawn));
             BlockPos coffinPos = blockPos;
-            Either<Player.SleepResult, Unit> sleepResult = player.startSleepInBed(blockPos);
+            Either<Player.BedSleepingProblem, Unit> sleepResult = player.startSleepInBed(blockPos);
             sleepResult.ifLeft(failed -> {
                 if (failed != null) {
-                    if (!world.isClientSide() && failed == Player.SleepResult.NOT_SAFE) {
+                    if (!world.isClientSide() && failed == Player.BedSleepingProblem.NOT_SAFE) {
                         forseSleep((ServerPlayer) player, coffinPos);
                     }
                     else {
@@ -208,8 +209,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent
         public static void setCoffinTime(SleepFinishedTimeEvent event) {
-            if (event.level() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.level();
+            if (event.getLevel() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getLevel();
                 int playersCount = world.players().size();
                 if (world.players().stream()
                         .filter(player -> player.isSleeping() && isBlockCoffin(player.level, Optional.of(player.blockPosition())))
@@ -223,8 +224,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void skippedToNight(SleepFinishedTimeEvent event) {
-            if (event.level() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.level();
+            if (event.getLevel() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getLevel();
                 world.players().stream()
                 .filter(player -> player.isSleeping())
                 .forEach(player -> {
@@ -235,7 +236,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
                             player.removeEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
                             player.removeEffect(MobEffects.WEAKNESS);
                         }
-                        long oldTime = event.level().getLevelData().getDayTime();
+                        long oldTime = event.getLevel().getLevelData().getDayTime();
                         int oldDayTime = (int) (oldTime % 24000L);
                         int newDayTime = (int) (event.getNewTime() % 24000L);
                         if (newDayTime >= 12600 && newDayTime < 23500 && 
