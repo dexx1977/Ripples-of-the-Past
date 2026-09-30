@@ -218,7 +218,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
         GuiDraw.setGraphics(guiGraphics);
         if (!works()) return;
         renderAfterScissor = null;
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        renderBackground(guiGraphics);
         hoveredAction = getSlotAt(mouseX, mouseY);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         renderWindow(matrixStack);
@@ -833,7 +833,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
     private void _addKeybindEntryToUi(ActionKeybindEntry entry) {
         AbstractWidget keyBindingButton = new Button(-1, -1, 95, 20, entry.getKeybind().getTranslatedKeyMessage(), button -> {
             HudLayoutEditingScreen.this.selectedKey.setKeybind(entry);
-        }, DEFAULT_NARRATION) {
+        }, narration -> narration.get()) {
 //            @Override
 //            protected IFormattableTextComponent createNarrationMessage() {
 //                if (entry.action != null) {
@@ -1169,7 +1169,7 @@ public class HudLayoutEditingScreen extends Screen implements IJojoScreen {
                     for (KeyMapping otherKey : conflictKeys) {
                         if (otherKey != keybind && keybind.same(otherKey)) {
                             conflicting = true;
-                            keyCodeModifierConflict &= otherKey.hasKeyCodeModifierConflict(keybind);
+                            keyCodeModifierConflict &= otherKey.getKeyModifier() != keybind.getKeyModifier();
                         }
                     }
                 }

@@ -31,7 +31,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -39,7 +38,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
-public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList.LifeformsListEntry> {
+public abstract class LifeformsList<V> extends ContainerObjectSelectionList<LifeformsList.LifeformsListEntry> {
     // the entry type refers to itself, as the 1.20.1 list requires
     private static final Set<String> COLLAPSED_MOD_NAMES = new HashSet<>();
     
@@ -49,7 +48,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
     private Map<String, List<LifeformEntry>> allVisibleEntries = new HashMap<>();
     
     public LifeformsList(Minecraft mc, int width, int height, int y0, int y1, int itemHeight, ChooseLifeformListScreen screen) {
-        super(mc, width, height, y0, y1, itemHeight, DEFAULT_NARRATION);
+        super(mc, width, height, y0, y1, itemHeight);
         this.screen = screen;
         this.setRenderBackground(false);
         this.setRenderTopAndBottom(false);
@@ -222,7 +221,7 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         PoseStack pMatrixStack = guiGraphics.pose();
         GuiDraw.setGraphics(guiGraphics);
         // Ctrl + C, Ctrl + V
-        this.screen.renderBackground(guiGraphics, pMouseX, pMouseY, pPartialTicks);
+        this.screen.renderBackground(guiGraphics);
         int i = this.getScrollbarPosition();
         int j = i + 6;
         Tesselator tessellator = Tesselator.getInstance();
@@ -348,8 +347,15 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         }
 
         @Override
-        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public List<? extends net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+            return buttons.stream().filter(button -> button instanceof net.minecraft.client.gui.narration.NarratableEntry)
+                    .map(button -> (net.minecraft.client.gui.narration.NarratableEntry) button).collect(java.util.stream.Collectors.toList());
+        }
+
+        @Override
+        public void render(GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+            PoseStack pMatrixStack = guiGraphics.pose();
             Font font = Minecraft.getInstance().font;
             Component name = Component.literal(modName).withStyle(ChatFormatting.BLUE, ChatFormatting.ITALIC);
             GuiDraw.drawString(pMatrixStack, font, name, pLeft + 43, pTop + 1, 0xFFFFFF);
@@ -368,10 +374,8 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
             public ExpandCollapseButton(int pX, int pY, int pWidth, int pHeight, Screen screen, 
                     Button.OnPress pOnPress, Supplier<Boolean> isExpanded) {
                 super(pX, pY, pWidth, pHeight, Component.empty(), pOnPress, 
-                        (button, matrixStack, mouseX, mouseY) -> {
-                            Component text = isExpanded.get() ? Component.translatable("jojo.ui.list_collapse") : Component.translatable("jojo.ui.list_expand");
-                            com.github.standobyte.jojo.client.ui.render.GuiDraw.renderToolTip(matrixStack, text, mouseX, mouseY);
-                        });
+                        // the tooltip follows the expanded state, so it is set while drawing
+                        narration -> narration.get());
                 this.isExpanded = isExpanded;
             }
             
@@ -417,8 +421,15 @@ public abstract class LifeformsList<V> extends ObjectSelectionList<LifeformsList
         }
 
         @Override
-        public void render(PoseStack pMatrixStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
+        public List<? extends net.minecraft.client.gui.narration.NarratableEntry> narratables() {
+            return buttons.stream().filter(button -> button instanceof net.minecraft.client.gui.narration.NarratableEntry)
+                    .map(button -> (net.minecraft.client.gui.narration.NarratableEntry) button).collect(java.util.stream.Collectors.toList());
+        }
+
+        @Override
+        public void render(GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight,
                 int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+            PoseStack pMatrixStack = guiGraphics.pose();
             if (lifeformButton != null) {
                 lifeformButton.x = pLeft + 25;
                 lifeformButton.y = pTop + 1;
