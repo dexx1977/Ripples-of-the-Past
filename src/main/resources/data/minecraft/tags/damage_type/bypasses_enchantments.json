@@ -3,8 +3,8 @@
   "values": [
     "jojo:ultraviolet",
     "jojo:ultraviolet.entity",
-    "jojo:standVirus",
-    "jojo:standVirusMeteorite",
-    "jojo:healthLink"
+    "jojo:stand_virus",
+    "jojo:stand_virus_meteorite",
+    "jojo:health_link"
   ]
 }

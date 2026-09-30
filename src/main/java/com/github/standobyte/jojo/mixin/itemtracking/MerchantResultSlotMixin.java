@@ -26,7 +26,7 @@ public class MerchantResultSlotMixin {
 
     @Inject(method = "onTake", at = @At(value = "INVOKE", target = 
             "Lnet/minecraft/world/item/trading/MerchantOffer;take(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z", ordinal = 0))
-    public void onTradePerform(Player player, ItemStack item, CallbackInfoReturnable<ItemStack> ci) {
+    public void onTradePerform(Player player, ItemStack item, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         if (!player.level.isClientSide()) {
             ItemStack playerOfferA = slots.getItem(0);
             ItemStack playerOfferB = slots.getItem(1);

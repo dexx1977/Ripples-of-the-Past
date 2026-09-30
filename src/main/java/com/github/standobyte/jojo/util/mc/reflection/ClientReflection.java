@@ -85,7 +85,7 @@ public class ClientReflection {
         return ReflectionUtil.getFloatFieldValue(FIRST_PERSON_RENDERER_O_OFF_HAND_HEIGHT, renderer);
     }
 
-    private static final Method FIRST_PERSON_RENDERER_RENDER_PLAYER_ARM = ObfuscationReflectionHelper.findMethod(ItemInHandRenderer.class, "func_228401_a_", 
+    private static final Method FIRST_PERSON_RENDERER_RENDER_PLAYER_ARM = ObfuscationReflectionHelper.findMethod(ItemInHandRenderer.class, "m_109346_", 
             PoseStack.class, MultiBufferSource.class, int.class, float.class, float.class, HumanoidArm.class);
     public static void renderPlayerArm(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, 
             float handHeight, float swingAnim, HumanoidArm handSide, ItemInHandRenderer renderer) {
@@ -170,17 +170,17 @@ public class ClientReflection {
         ReflectionUtil.setFieldValue(MODEL_RENDERER_CHILDREN, modelRenderer, children);
     }
     
-    private static final Method AGEABLE_MODEL_HEAD_PARTS = ObfuscationReflectionHelper.findMethod(AgeableListModel.class, "func_225602_a_");
+    private static final Method AGEABLE_MODEL_HEAD_PARTS = ObfuscationReflectionHelper.findMethod(AgeableListModel.class, "m_5607_");
     public static Iterable<ModelPart> getHeadParts(AgeableListModel<?> model) {
         return ReflectionUtil.invokeMethod(AGEABLE_MODEL_HEAD_PARTS, model);
     }
     
-    private static final Method AGEABLE_MODEL_BODY_PARTS = ObfuscationReflectionHelper.findMethod(AgeableListModel.class, "func_225600_b_");
+    private static final Method AGEABLE_MODEL_BODY_PARTS = ObfuscationReflectionHelper.findMethod(AgeableListModel.class, "m_5608_");
     public static Iterable<ModelPart> getBodyParts(AgeableListModel<?> model) {
         return ReflectionUtil.invokeMethod(AGEABLE_MODEL_BODY_PARTS, model);
     }
 
-    private static final Method LIVING_RENDERER_SCALE = ObfuscationReflectionHelper.findMethod(LivingEntityRenderer.class, "func_225620_a_", 
+    private static final Method LIVING_RENDERER_SCALE = ObfuscationReflectionHelper.findMethod(LivingEntityRenderer.class, "m_7546_", 
             LivingEntity.class, PoseStack.class, float.class);
     public static void scale(LivingEntityRenderer<?, ?> renderer, LivingEntity entity, PoseStack matrixStack, float partialTick) {
         ReflectionUtil.invokeMethod(LIVING_RENDERER_SCALE, renderer, entity, matrixStack, partialTick);
@@ -243,10 +243,7 @@ public class ClientReflection {
     }
     
     
-    private static final Field MODEL_BAKERY_UNREFERENCED_TEXTURES = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_177602_b");
-    public static Set<Material> getModelBakeryUnreferencedTextures() {
-        return ReflectionUtil.getFieldValue(MODEL_BAKERY_UNREFERENCED_TEXTURES, null);
-    }
+    // 1.20.1's model bakery does not collect unreferenced textures anymore
     
     private static final Field MINECRAFT_MOUSE_HANDLER = ObfuscationReflectionHelper.findField(Minecraft.class, "f_91067_");
     public static void setMouseHandler(Minecraft mc, MouseHandler mouseHandler) {
@@ -373,7 +370,7 @@ public class ClientReflection {
         ReflectionUtil.setFieldValue(MINECRAFT_MAIN_RENDER_TARGET, mc, buffer);
     }
     
-    private static final Method ACTIVE_RENDER_INFO_SET_POSITION = ObfuscationReflectionHelper.findMethod(Camera.class, "func_216774_a", Vec3.class);
+    private static final Method ACTIVE_RENDER_INFO_SET_POSITION = ObfuscationReflectionHelper.findMethod(Camera.class, "m_90581_", Vec3.class);
     public static void setPosition(Camera camera, Vec3 position) {
         ReflectionUtil.invokeMethod(ACTIVE_RENDER_INFO_SET_POSITION, camera, position);
     }
@@ -383,10 +380,7 @@ public class ClientReflection {
         ReflectionUtil.setBooleanFieldValue(ACTIVE_RENDER_INFO_DETACHED, camera, detached);
     }
     
-    private static final Field ACTIVE_RENDER_INFO_MIRROR = ObfuscationReflectionHelper.findField(Camera.class, "field_216800_l");
-    public static void setMirror(Camera camera, boolean mirror) {
-        ReflectionUtil.setBooleanFieldValue(ACTIVE_RENDER_INFO_MIRROR, camera, mirror);
-    }
+    // 1.20.1's Camera has no mirror flag anymore, the view direction comes from setup()
     
     
     private static final Field NATIVE_IMAGE_PIXELS = ObfuscationReflectionHelper.findField(NativeImage.class, "f_84964_");
@@ -400,7 +394,7 @@ public class ClientReflection {
         return ReflectionUtil.getIntFieldValue(SOUND_SOURCE_SOURCE, source);
     }
 
-    private static final Method AUDIO_STREAM_BUFFER_GET_AL_BUFFER = ObfuscationReflectionHelper.findMethod(SoundBuffer.class, "func_216473_a");
+    private static final Method AUDIO_STREAM_BUFFER_GET_AL_BUFFER = ObfuscationReflectionHelper.findMethod(SoundBuffer.class, "m_83800_");
     public static OptionalInt getAlBuffer(SoundBuffer buffer) {
         return ReflectionUtil.invokeMethod(AUDIO_STREAM_BUFFER_GET_AL_BUFFER, buffer);
     }
@@ -422,7 +416,7 @@ public class ClientReflection {
         return ReflectionUtil.getFieldValue(ITEM_OVERRIDE_LIST_OVERRIDES, itemOverrideList);
     }
     
-    private static final Field ITEM_OVERRIDE_LIST_OVERRIDE_MODELS = ObfuscationReflectionHelper.findField(ItemOverrides.class, "field_209582_c");
+    private static final Field ITEM_OVERRIDE_LIST_OVERRIDE_MODELS = ObfuscationReflectionHelper.findField(ItemOverrides.class, "f_111735_");
     public static List<BakedModel> getOverrideModels(ItemOverrides itemOverrideList) {
         return ReflectionUtil.getFieldValue(ITEM_OVERRIDE_LIST_OVERRIDE_MODELS, itemOverrideList);
     }

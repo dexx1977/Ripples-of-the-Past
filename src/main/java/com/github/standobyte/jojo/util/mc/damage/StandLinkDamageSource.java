@@ -14,7 +14,7 @@ public class StandLinkDamageSource extends DamageSource {
 
     public StandLinkDamageSource(Entity standEntity, DamageSource actualSource) {
         // the armour/magic bypass lives in the data driven damage type now
-        super(ModDamageTypes.holder(standEntity, "healthLink"), standEntity);
+        super(ModDamageTypes.holder(standEntity, "health_link"), standEntity);
         this.standEntity = standEntity;
         this.actualSource = actualSource;
     }

@@ -280,7 +280,7 @@ public class DamageUtil {
                 return false;
             }*/
             DamageSource dmgSource = 
-                    src == null ? ModDamageTypes.source(target, PILLAR_MAN_ABSORPTION) : ModDamageTypes.source(src, ModDamageTypes.key("pillarManAbsorption.entity"));
+                    src == null ? ModDamageTypes.source(target, PILLAR_MAN_ABSORPTION) : ModDamageTypes.source(src, ModDamageTypes.key("pillar_man_absorption.entity"));
             return target.hurt(dmgSource, amount);
         }
         return false;

@@ -58,7 +58,7 @@ public class ClAngeloRockButtonPacket {
                 case RESPAWN:
                     player.invulnerableTime = 0;
                     player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
-                    player.hurt(ModDamageTypes.source(player, "rockRespawn"), Float.MAX_VALUE);
+                    player.hurt(ModDamageTypes.source(player, "rock_respawn"), Float.MAX_VALUE);
                     break;
                 case GRUNT:
                     possessed.playSound(ModSounds.ANGELO_ROCK_GRUNT.get(), 1, 1);

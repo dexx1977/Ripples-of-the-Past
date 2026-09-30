@@ -78,7 +78,7 @@ public class CommonReflection {
         return ReflectionUtil.getFieldValue(ENTITY_PREDICATE_SELECTOR, conditions);
     }
 
-    private static final Method TARGET_GOAL_GET_FOLLOW_DISTANCE = ObfuscationReflectionHelper.findMethod(TargetGoal.class, "func_111175_f");
+    private static final Method TARGET_GOAL_GET_FOLLOW_DISTANCE = ObfuscationReflectionHelper.findMethod(TargetGoal.class, "m_7623_");
     public static double getTargetDistance(NearestAttackableTargetGoal<?> goal) {
         return ReflectionUtil.invokeMethod(TARGET_GOAL_GET_FOLLOW_DISTANCE, goal);
     }
@@ -104,7 +104,7 @@ public class CommonReflection {
     
     
     
-    private static final Method CHUNK_GENERATOR_CODEC = ObfuscationReflectionHelper.findMethod(ChunkGenerator.class, "func_230347_a_");
+    private static final Method CHUNK_GENERATOR_CODEC = ObfuscationReflectionHelper.findMethod(ChunkGenerator.class, "m_6909_");
     public static Codec<? extends ChunkGenerator> getCodec(ChunkGenerator chunkGenerator) {
         return ReflectionUtil.invokeMethod(CHUNK_GENERATOR_CODEC, chunkGenerator);
     }
@@ -123,7 +123,7 @@ public class CommonReflection {
     
     
     
-    private static final Field CRAFTING_INVENTORY_MENU = ObfuscationReflectionHelper.findField(CraftingContainer.class, "field_70465_c");
+    private static final Field CRAFTING_INVENTORY_MENU = ObfuscationReflectionHelper.findField(net.minecraft.world.inventory.TransientCraftingContainer.class, "f_286998_");
     public static AbstractContainerMenu getCraftingInventoryMenu(CraftingContainer inventory) {
         return ReflectionUtil.getFieldValue(CRAFTING_INVENTORY_MENU, inventory);
     }
@@ -219,9 +219,9 @@ public class CommonReflection {
     
     
     
-    private static final Method LIVING_ENTITY_ON_EFFECT_UPDATED = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "func_70695_b", MobEffectInstance.class, boolean.class);
+    private static final Method LIVING_ENTITY_ON_EFFECT_UPDATED = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_141973_", MobEffectInstance.class, boolean.class, net.minecraft.world.entity.Entity.class);
     public static void onEffectUpdated(LivingEntity entity, MobEffectInstance effect, boolean resetAttributes) {
-        ReflectionUtil.invokeMethod(LIVING_ENTITY_ON_EFFECT_UPDATED, entity, effect, resetAttributes);
+        ReflectionUtil.invokeMethod(LIVING_ENTITY_ON_EFFECT_UPDATED, entity, effect, resetAttributes, null); // 1.20.1 also takes the source entity
     }
     
     
@@ -245,12 +245,12 @@ public class CommonReflection {
     
     
     
-    private static final Method PROJECTILE_ITEM_ENTITY_GET_ITEM_RAW = ObfuscationReflectionHelper.findMethod(ThrowableItemProjectile.class, "func_213882_k");
+    private static final Method PROJECTILE_ITEM_ENTITY_GET_ITEM_RAW = ObfuscationReflectionHelper.findMethod(ThrowableItemProjectile.class, "m_37454_");
     public static ItemStack getItemRaw(ThrowableItemProjectile entity) {
         return ReflectionUtil.invokeMethod(PROJECTILE_ITEM_ENTITY_GET_ITEM_RAW, entity);
     }
     
-    private static final Method PROJECTILE_ITEM_ENTITY_GET_DEFAULT_ITEM = ObfuscationReflectionHelper.findMethod(ThrowableItemProjectile.class, "func_213885_i");
+    private static final Method PROJECTILE_ITEM_ENTITY_GET_DEFAULT_ITEM = ObfuscationReflectionHelper.findMethod(ThrowableItemProjectile.class, "m_7881_");
     public static Item getDefaultItem(ThrowableItemProjectile entity) {
         return ReflectionUtil.invokeMethod(PROJECTILE_ITEM_ENTITY_GET_DEFAULT_ITEM, entity);
     }
@@ -274,14 +274,14 @@ public class CommonReflection {
     
     
     
-    private static final Method LIVING_ENTITY_DROP_EQUIPMENT = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "func_213337_cE");
+    private static final Method LIVING_ENTITY_DROP_EQUIPMENT = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_5907_");
     public static void dropEquipment(LivingEntity entity) {
         ReflectionUtil.invokeMethod(LIVING_ENTITY_DROP_EQUIPMENT, entity);
     }
     
     
     
-    private static final Method ZOMBIE_VILLAGER_ENTITY_START_CONVERTING = ObfuscationReflectionHelper.findMethod(ZombieVillager.class, "func_191991_a", UUID.class, int.class);
+    private static final Method ZOMBIE_VILLAGER_ENTITY_START_CONVERTING = ObfuscationReflectionHelper.findMethod(ZombieVillager.class, "m_34383_", UUID.class, int.class);
     public static void startConverting(ZombieVillager entity, @Nullable UUID conversionStarter, int villagerConversionTime) {
         ReflectionUtil.invokeMethod(ZOMBIE_VILLAGER_ENTITY_START_CONVERTING, entity, 
                 conversionStarter, villagerConversionTime);
@@ -289,18 +289,18 @@ public class CommonReflection {
     
     
     
-    private static final Method MOB_ENTITY_GET_AMBIENT_SOUND = ObfuscationReflectionHelper.findMethod(Mob.class, "func_184639_G");
+    private static final Method MOB_ENTITY_GET_AMBIENT_SOUND = ObfuscationReflectionHelper.findMethod(Mob.class, "m_7515_");
     public static SoundEvent getAmbientSound(Mob entity) {
         return ReflectionUtil.invokeMethod(MOB_ENTITY_GET_AMBIENT_SOUND, entity);
     }
     
-    private static final Method LIVING_ENTITY_PLAY_HURT_SOUND = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "func_184581_c", DamageSource.class);
+    private static final Method LIVING_ENTITY_PLAY_HURT_SOUND = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_6677_", DamageSource.class);
     public static void playHurtSound(LivingEntity entity, DamageSource damageSource) {
         ReflectionUtil.invokeMethod(LIVING_ENTITY_PLAY_HURT_SOUND, entity, damageSource);
     }
     
     
-    private static final Method LIVING_ENTITY_DROP_ALL_DEATH_LOOT = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "func_213345_d", DamageSource.class);
+    private static final Method LIVING_ENTITY_DROP_ALL_DEATH_LOOT = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_6668_", DamageSource.class);
     public static void dropAllDeathLoot(LivingEntity entity, DamageSource damageSource) {
         ReflectionUtil.invokeMethod(LIVING_ENTITY_DROP_ALL_DEATH_LOOT, entity, damageSource);
     }

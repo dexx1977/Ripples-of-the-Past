@@ -157,7 +157,7 @@ public class PolaroidHelper {
                 event.setYaw(angles.y());
                 event.setRoll(angles.z());
             }
-            ClientReflection.setMirror(camera, false);
+            // 1.20.1's Camera no longer has a mirror flag to clear
             return true;
         }
         return false;

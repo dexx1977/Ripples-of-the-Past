@@ -25,7 +25,7 @@ public abstract class AbstractFurnaceTEMixin extends BlockEntity {
     }
     
     @Inject(method = "getRecipesToAwardAndPopExperience", at = @At("HEAD"), cancellable = true)
-    public void jojoKeepXpOnTEBreak(Level world, Vec3 pos, CallbackInfoReturnable<List<Recipe<?>>> ci) {
+    public void jojoKeepXpOnTEBreak(net.minecraft.server.level.ServerLevel world, Vec3 pos, CallbackInfoReturnable<List<Recipe<?>>> ci) {
         if (GoldExperienceCreateLifeform.KEEP_ITEMS.contains(this)) {
             ci.setReturnValue(Collections.emptyList());
         }

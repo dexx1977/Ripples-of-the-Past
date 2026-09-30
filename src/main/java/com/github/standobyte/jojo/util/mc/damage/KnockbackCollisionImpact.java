@@ -291,12 +291,12 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                 }
                 if (scarletOverdriveFireTicks > 0) {
                     DamageUtil.dealDamageAndSetOnFire(targetEntity, 
-                            e -> hurtTarget(e, ModDamageTypes.source(entity, "entityFlewInto"), 
+                            e -> hurtTarget(e, ModDamageTypes.source(entity, "entity_flew_into"), 
                                     (float) getKnockbackImpactStrength() * 5), 
                             scarletOverdriveFireTicks / 20, false);
                 }
                 else {
-                    hurtTarget(targetEntity, ModDamageTypes.source(entity, "entityFlewInto"), 
+                    hurtTarget(targetEntity, ModDamageTypes.source(entity, "entity_flew_into"), 
                             (float) getKnockbackImpactStrength() * 5);
                 }
                 if (asLiving != null) {

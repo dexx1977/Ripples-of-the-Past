@@ -27,13 +27,13 @@ public final class ModDamageTypes {
     public static final ResourceKey<DamageType> ULTRAVIOLET = key("ultraviolet");
     public static final ResourceKey<DamageType> COLD = key("cold");
     public static final ResourceKey<DamageType> HAMON = key("hamon");
-    public static final ResourceKey<DamageType> PILLAR_MAN_ABSORPTION = key("pillarManAbsorption");
-    public static final ResourceKey<DamageType> STAND_VIRUS = key("standVirus");
-    public static final ResourceKey<DamageType> STAND_VIRUS_METEORITE = key("standVirusMeteorite");
+    public static final ResourceKey<DamageType> PILLAR_MAN_ABSORPTION = key("pillar_man_absorption");
+    public static final ResourceKey<DamageType> STAND_VIRUS = key("stand_virus");
+    public static final ResourceKey<DamageType> STAND_VIRUS_METEORITE = key("stand_virus_meteorite");
     public static final ResourceKey<DamageType> SUFFOCATION = key("suffocation");
-    public static final ResourceKey<DamageType> EYE_OF_ENDER_SHARDS = key("eyeOfEnderShards");
-    public static final ResourceKey<DamageType> STONE_MASK = key("stoneMask");
-    public static final ResourceKey<DamageType> HEALTH_LINK = key("healthLink");
+    public static final ResourceKey<DamageType> EYE_OF_ENDER_SHARDS = key("eye_of_ender_shards");
+    public static final ResourceKey<DamageType> STONE_MASK = key("stone_mask");
+    public static final ResourceKey<DamageType> HEALTH_LINK = key("health_link");
     /** The old on fire source with the explosion flag, in both the fire and explosion tags. */
     public static final ResourceKey<DamageType> ON_FIRE_EXPLOSION = key("on_fire_explosion");
 

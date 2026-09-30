@@ -140,7 +140,7 @@ public abstract class PlayerEntityMixin extends LivingEntityMixin implements Pla
             
             if (turnedIntoAngeloRock && player.isAlive()) {
                 player.invulnerableTime = 0;
-                player.hurt(ModDamageTypes.source(player, "rockBroken"), Float.MAX_VALUE);
+                player.hurt(ModDamageTypes.source(player, "rock_broken"), Float.MAX_VALUE);
                 // FIXME (!!) https://bugs.mojang.com/browse/MC/issues/MC-161755 - what the fuck is going on here??
                 if (player.isDeadOrDying()) {
                     player.discard();

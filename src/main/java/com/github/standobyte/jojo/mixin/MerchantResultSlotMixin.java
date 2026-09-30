@@ -22,7 +22,7 @@ public abstract class MerchantResultSlotMixin {
             value = "INVOKE", 
             target = "Lnet/minecraft/world/entity/player/Player;awardStat(Lnet/minecraft/resources/ResourceLocation;)V", 
             ordinal = 0))
-    public void jojoOnVillagerTrade(Player pPlayer, ItemStack pStack, CallbackInfoReturnable<ItemStack> ci) {
+    public void jojoOnVillagerTrade(Player pPlayer, ItemStack pStack, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         CustomVillagerTrades.onTrade(pPlayer, pStack, slots, slots.getActiveOffer());
     }
 

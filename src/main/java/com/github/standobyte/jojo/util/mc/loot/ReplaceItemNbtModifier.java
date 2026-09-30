@@ -32,16 +32,29 @@ public class ReplaceItemNbtModifier extends LootModifier {
         }
     }, CompoundTag::toString);
 
+    
+    /** The data files keep the 1.16.5 nesting: replace_nbt: {item, to_replace, replace_with}. */
+    private static final Codec<Replacement> REPLACEMENT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf("item").forGetter(Replacement::itemId),
+            TAG_CODEC.fieldOf("to_replace").forGetter(Replacement::tagToReplace),
+            TAG_CODEC.fieldOf("replace_with").forGetter(Replacement::replacingTag)
+    ).apply(instance, Replacement::new));
+    
+    private record Replacement(ResourceLocation itemId, CompoundTag tagToReplace, CompoundTag replacingTag) {}
+
     public static final Codec<ReplaceItemNbtModifier> CODEC = RecordCodecBuilder.create(instance -> 
             codecStart(instance)
-                    .and(ResourceLocation.CODEC.fieldOf("item").forGetter(modifier -> BuiltInRegistries.ITEM.getKey(modifier.item)))
-                    .and(TAG_CODEC.fieldOf("to_replace").forGetter(modifier -> modifier.tagToReplace))
-                    .and(TAG_CODEC.fieldOf("replace_with").forGetter(modifier -> modifier.replacingTag))
+                    .and(REPLACEMENT_CODEC.fieldOf("replace_nbt").forGetter(modifier -> new Replacement(
+                            BuiltInRegistries.ITEM.getKey(modifier.item), modifier.tagToReplace, modifier.replacingTag)))
                     .apply(instance, ReplaceItemNbtModifier::new));
 
     private final Item item;
     private final CompoundTag tagToReplace;
     private final CompoundTag replacingTag;
+
+    public ReplaceItemNbtModifier(LootItemCondition[] conditions, Replacement replacement) {
+        this(conditions, replacement.itemId(), replacement.tagToReplace(), replacement.replacingTag());
+    }
 
     public ReplaceItemNbtModifier(LootItemCondition[] conditions, ResourceLocation itemId, CompoundTag tagToReplace, CompoundTag replacingTag) {
         this(conditions, BuiltInRegistries.ITEM.get(itemId), tagToReplace, replacingTag);

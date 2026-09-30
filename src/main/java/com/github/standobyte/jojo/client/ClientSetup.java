@@ -497,10 +497,8 @@ public class ClientSetup {
         StandDiscOverrideList.onModelRegistry(event);
     }
     
-    public static void addUnreferencedBlockModels(Material... renderMaterials) {
-        Set<Material> textures = ClientReflection.getModelBakeryUnreferencedTextures();
-        Collections.addAll(textures, renderMaterials);
-    }
+    // 1.16.5 added extra materials to ModelBakery's unreferenced texture set, which
+    // 1.20.1's model loading does not have; the method had no callers left.
     
     
     @SubscribeEvent
