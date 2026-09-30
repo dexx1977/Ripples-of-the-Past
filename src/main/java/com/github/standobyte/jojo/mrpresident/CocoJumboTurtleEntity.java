@@ -361,8 +361,8 @@ public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPas
         case NATURAL:
         case CHUNK_GENERATION:
         case SPAWNER:
-            if (event.getWorld() instanceof ServerLevelAccessor && lastSpawnTime != event.getWorld().dayTime()) {
-                ServerLevelAccessor spawnRegion = (ServerLevelAccessor) event.getWorld();
+            if (event.getLevel() instanceof ServerLevelAccessor && lastSpawnTime != event.getLevel().dayTime()) {
+                ServerLevelAccessor spawnRegion = (ServerLevelAccessor) event.getLevel();
                 double x = event.getX();
                 double y = event.getY();
                 double z = event.getZ();
@@ -401,7 +401,7 @@ public class CocoJumboTurtleEntity extends Turtle implements IMobStandUser, IPas
                                     spawnRegion.getCurrentDifficultyAt(extraTurtle.blockPosition()), 
                                     spawnReason, entityData, null);
                             spawnRegion.addFreshEntityWithPassengers(extraTurtle);
-                            lastSpawnTime = event.getWorld().dayTime();
+                            lastSpawnTime = event.getLevel().dayTime();
                         }
                     }
                 }

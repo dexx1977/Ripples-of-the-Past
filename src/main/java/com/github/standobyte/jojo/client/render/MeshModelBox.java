@@ -161,9 +161,9 @@ public class MeshModelBox extends ModelPart.Cube {
                     ClientReflection.setVertices(quad, verticesArr);
                     
                     if (calcNormalFromVertices) {
-                        Vector3f pos0 = verticesArr[0].pos.copy();
-                        Vector3f vec1 = verticesArr[1].pos.copy();
-                        Vector3f vec2 = verticesArr[2].pos.copy();
+                        Vector3f pos0 = verticesArr[0].new Vector3f(pos);
+                        Vector3f vec1 = verticesArr[1].new Vector3f(pos);
+                        Vector3f vec2 = verticesArr[2].new Vector3f(pos);
                         vec1.sub(pos0);
                         vec2.sub(pos0);
                         vec1.cross(vec2);

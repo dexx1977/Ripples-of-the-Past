@@ -731,7 +731,7 @@ public class ClientUtil {
         Vec3 cameraPos = camera.getPosition();
         Vec3 vecToEntity = posInWorld.subtract(cameraPos);
         
-        Matrix4f projectionMatrix = projection.copy();
+        Matrix4f projectionMatrix = new Vector3f(projection);
         Matrix4f viewMatrix = matrixStack.last().pose();
         projectionMatrix.multiply(viewMatrix);
         Vector3f clip = MathUtil.multiplyPoint(projectionMatrix, vecToEntity);

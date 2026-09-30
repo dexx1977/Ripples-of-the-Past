@@ -122,7 +122,7 @@ public class ModdedDamageSourceWrapper extends DamageSource implements IModdedDa
     }
     
     public boolean isBypassArmor() {
-        return dmgSource.isBypassArmor();
+        return dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR);
     }
     
     public float getFoodExhaustion() {

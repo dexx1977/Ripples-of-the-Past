@@ -1161,7 +1161,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
     }
     
     public boolean canBlockDamage(DamageSource dmgSource) {
-        return dmgSource.getDirectEntity() != null && !dmgSource.isBypassArmor() && !ModStatusEffects.isStunned(this);
+        return dmgSource.getDirectEntity() != null && !dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && !ModStatusEffects.isStunned(this);
     }
 
     @Override

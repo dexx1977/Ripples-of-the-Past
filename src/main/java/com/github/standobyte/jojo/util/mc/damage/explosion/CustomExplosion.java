@@ -74,7 +74,7 @@ public abstract class CustomExplosion extends Explosion {
     }
     
     protected CustomExplosion(Level pLevel, double pToBlowX, double pToBlowY, double pToBlowZ, float pRadius) {
-        this(pLevel, null, null, null, pToBlowX, pToBlowY, pToBlowZ, pRadius, false, Explosion.Explosion.BlockInteraction.KEEP);
+        this(pLevel, null, null, null, pToBlowX, pToBlowY, pToBlowZ, pRadius, false, Explosion.BlockInteraction.KEEP);
     }
     
     public void toBuf(FriendlyByteBuf buf) {}
@@ -175,7 +175,7 @@ public abstract class CustomExplosion extends Explosion {
             spawnParticles();
         }
         
-        if (blockInteraction != Explosion.Explosion.BlockInteraction.KEEP) {
+        if (blockInteraction != Explosion.BlockInteraction.KEEP) {
             explodeBlocks();
         }
 
@@ -277,7 +277,7 @@ public abstract class CustomExplosion extends Explosion {
     
     protected void spawnParticles() {
         Vec3 pos = getPosition();
-        if (radius >= 2.0F && blockInteraction != Explosion.Explosion.BlockInteraction.KEEP) {
+        if (radius >= 2.0F && blockInteraction != Explosion.BlockInteraction.KEEP) {
             level.addParticle(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y, pos.z, 1.0D, 0.0D, 0.0D);
         } else {
             level.addParticle(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 1.0D, 0.0D, 0.0D);
@@ -322,7 +322,7 @@ public abstract class CustomExplosion extends Explosion {
         explosion.finalizeExplosion(true);
         
         if (!world.isClientSide()) {
-            if (explosion.blockInteraction == Explosion.Explosion.BlockInteraction.KEEP) {
+            if (explosion.blockInteraction == Explosion.BlockInteraction.KEEP) {
                 explosion.clearToBlow();
             }
             

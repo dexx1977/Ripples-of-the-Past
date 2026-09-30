@@ -115,7 +115,7 @@ public class StandDiscISTER extends BlockEntityWithoutLevelRenderer {
             VertexConsumer vertexBuilder, int light, int overlay) {
         Matrix4f pose = poseEntry.pose();
         Matrix3f entry = poseEntry.normal();
-        Vector3f normal = quad.normal.copy();
+        Vector3f normal = quad.new Vector3f(normal);
         normal.transform(entry);
         float x = normal.x();
         float y = normal.y();

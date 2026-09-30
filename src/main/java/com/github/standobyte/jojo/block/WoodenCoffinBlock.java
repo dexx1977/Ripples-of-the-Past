@@ -1,6 +1,6 @@
 package com.github.standobyte.jojo.block;
 
-import static net.minecraft.block.BedBlock.OCCUPIED;
+import static net.minecraft.world.level.block.BedBlock.OCCUPIED;
 import static net.minecraft.world.level.block.BedBlock.PART;
 
 import java.util.Optional;
@@ -208,8 +208,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent
         public static void setCoffinTime(SleepFinishedTimeEvent event) {
-            if (event.getWorld() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.getWorld();
+            if (event.getLevel() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getLevel();
                 int playersCount = world.players().size();
                 if (world.players().stream()
                         .filter(player -> player.isSleeping() && isBlockCoffin(player.level, Optional.of(player.blockPosition())))
@@ -223,8 +223,8 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
         
         @SubscribeEvent(priority = EventPriority.LOWEST)
         public static void skippedToNight(SleepFinishedTimeEvent event) {
-            if (event.getWorld() instanceof ServerLevel) {
-                ServerLevel world = (ServerLevel) event.getWorld();
+            if (event.getLevel() instanceof ServerLevel) {
+                ServerLevel world = (ServerLevel) event.getLevel();
                 world.players().stream()
                 .filter(player -> player.isSleeping())
                 .forEach(player -> {
@@ -235,7 +235,7 @@ public class WoodenCoffinBlock extends HorizontalDirectionalBlock {
                             player.removeEffect(ModStatusEffects.VAMPIRE_SUN_BURN.get());
                             player.removeEffect(MobEffects.WEAKNESS);
                         }
-                        long oldTime = event.getWorld().getLevelData().getDayTime();
+                        long oldTime = event.getLevel().getLevelData().getDayTime();
                         int oldDayTime = (int) (oldTime % 24000L);
                         int newDayTime = (int) (event.getNewTime() % 24000L);
                         if (newDayTime >= 12600 && newDayTime < 23500 && 

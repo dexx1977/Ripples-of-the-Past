@@ -585,7 +585,7 @@ public class ActionsOverlayGui extends AbstractGui {
         public HudHotkey(ActionKeybindEntry actionEntry, MutableComponent keyName) {
             this.actionEntry = actionEntry;
             this.keyName = keyName;
-            this.maxWidth = Minecraft.getInstance().font.width(keyName.copy().withStyle(ChatFormatting.BOLD));
+            this.maxWidth = Minecraft.getInstance().font.width(new Vector3f(keyName).withStyle(ChatFormatting.BOLD));
         }
     }
     

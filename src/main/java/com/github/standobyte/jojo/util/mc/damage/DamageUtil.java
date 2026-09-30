@@ -315,7 +315,7 @@ public class DamageUtil {
         LivingEntity targetLiving = target instanceof LivingEntity ? (LivingEntity) target : null;
         float lastHurt = targetLiving != null ? targetLiving.lastHurt : 0;
         
-        if (!dmgSource.isBypassArmor() && dmgSource instanceof IModdedDamageSource && targetLiving != null) {
+        if (!dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource instanceof IModdedDamageSource && targetLiving != null) {
             targetLiving.getCapability(LivingUtilCapProvider.CAPABILITY).ifPresent(
                     cap -> cap.onHurtThroughInvul((IModdedDamageSource) dmgSource));
         }
@@ -329,9 +329,10 @@ public class DamageUtil {
     }
     
     public static DamageSource enderDragonDamageHack(DamageSource damageSource, Entity target) {
-        if (target instanceof EnderDragon || target instanceof EnderDragonPart) {
-            damageSource.setExplosion();
-        }
+        // 1.16.5 had to mark this damage as explosive so the dragon's body parts
+        // would take it. The 1.20.1 dragon handles that itself - neither
+        // EnderDragon nor EnderDragonPart looks at the explosion tag any more - so
+        // the source is passed through unchanged.
         return damageSource;
     }
     

@@ -52,7 +52,7 @@ public class PillarmanSelfDetonation extends PillarmanAction {
             PillarmanExplosion explosion = new PillarmanExplosion(world, user, 
                     DamageSource.ON_FIRE.setExplosion(), null, 
                     user.getX(), user.getY(), user.getZ(), 3.0F, 
-                    true, Explosion.Explosion.BlockInteraction.DESTROY);
+                    true, Explosion.BlockInteraction.DESTROY);
             CustomExplosion.explode(explosion);
             Player playerentity = user instanceof Player ? (Player)user : null;
             if (playerentity == null || !playerentity.abilities.instabuild) {

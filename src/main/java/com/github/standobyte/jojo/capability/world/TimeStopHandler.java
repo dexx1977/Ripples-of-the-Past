@@ -375,7 +375,7 @@ public class TimeStopHandler {
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof Player)) {
-            stopNewEntityInTime(entity, event.getWorld());
+            stopNewEntityInTime(entity, event.getLevel());
         }
     }
     
@@ -507,42 +507,42 @@ public class TimeStopHandler {
     
 //    @SubscribeEvent(priority = EventPriority.HIGHEST)
 //    public static void cancelBlockNeighborUpdate(NeighborNotifyEvent event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setCanceled(true);
 //        }
 //    }
 //    
 //    @SubscribeEvent(priority = EventPriority.LOWEST)
 //    public static void cancelFluidPlacingBlock(FluidPlaceBlockEvent event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setNewState(event.getOriginalState());
 //        }
 //    }
 //    
 //    @SubscribeEvent(priority = EventPriority.LOWEST)
 //    public static void cancelFluidSourceCreation(CreateFluidSourceEvent event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setResult(Result.DENY);
 //        }
 //    }
 //    
 //    @SubscribeEvent(priority = EventPriority.LOWEST)
 //    public static void cancelCropGrowth(CropGrowEvent.Pre event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setResult(Result.DENY);
 //        }
 //    }
 //    
 //    @SubscribeEvent(priority = EventPriority.HIGHEST)
 //    public static void cancelPistonMovement(PistonEvent.Pre event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setCanceled(true);
 //        }
 //    }
 //    
 //    @SubscribeEvent(priority = EventPriority.HIGHEST)
 //    public static void cancelNoteBlock(NoteBlockEvent.Play event) {
-//        if (isTimeStopped((World) event.getWorld(), event.getPos())) {
+//        if (isTimeStopped((World) event.getLevel(), event.getPos())) {
 //            event.setCanceled(true);
 //        }
 //    }

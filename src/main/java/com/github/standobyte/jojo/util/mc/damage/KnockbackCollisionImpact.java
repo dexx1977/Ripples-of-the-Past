@@ -124,7 +124,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
         if (this.knockbackVec == null) return this;
         
         this.explosionRadius = radius;
-        if (aoeDamageSource != null) aoeDamageSource.setExplosion();
+        // the caller passes a source whose type is in the explosion tag
         this.explosionDmgSource = aoeDamageSource;
         this.explosionDamage = aoeDamage;
         return this;
@@ -379,7 +379,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                             HeavyPunchExplosion explosion = new HeavyPunchExplosion(world, attacker, new ActionTarget(hitBlockPos, faceHit.getOpposite()), 
                                     movementVec, explosionDmgSource, null, 
                                     hitPos.x, hitPos.y, hitPos.z, 
-                                    explosionRadius, false, Explosion.Explosion.BlockInteraction.DESTROY)
+                                    explosionRadius, false, Explosion.BlockInteraction.DESTROY)
                                     .aoeDamage(explosionDamage)
                                     .entityNoDamage(entity);
                             if (CustomExplosion.explode(explosion)) {

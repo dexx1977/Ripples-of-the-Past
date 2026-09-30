@@ -338,7 +338,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onChunkLoad(ChunkWatchEvent.Watch event) {
-        LevelChunk chunk = event.getWorld().getChunkSource().getChunk(event.getPos().x, event.getPos().z, false);
+        LevelChunk chunk = event.getLevel().getChunkSource().getChunk(event.getPos().x, event.getPos().z, false);
         if (chunk != null) {
             chunk.getCapability(ChunkCapProvider.CAPABILITY).ifPresent(cap -> cap.onChunkLoad(event.getPlayer()));
         }
@@ -346,8 +346,8 @@ public class GameplayEventHandler {
     
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        if (event.getWorld() instanceof ServerLevel) {
-            MinecraftServer server = ((ServerLevel) event.getWorld()).getServer();
+        if (event.getLevel() instanceof ServerLevel) {
+            MinecraftServer server = ((ServerLevel) event.getLevel()).getServer();
             for (RegistryObject<? extends Feature<?>> featureSupplier : ModStructures.FEATURES.getEntries()) {
                 Feature<?> feature = (Feature<?>) featureSupplier.get();
                 if (feature instanceof LoadMeFeature) {
@@ -400,7 +400,7 @@ public class GameplayEventHandler {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onUseItem(PlayerInteractEvent.RightClickItem event) {
         if (ModInteractionUtil.isSquidInkPasta(event.getItemStack())) {
-            InkPastaItem.useWithHamon(event.getWorld(), event.getEntity(), event.getHand()).ifPresent(result -> {
+            InkPastaItem.useWithHamon(event.getLevel(), event.getEntity(), event.getHand()).ifPresent(result -> {
                 event.setCanceled(true);
                 event.setCancellationResult(result.getResult());
             });
@@ -606,7 +606,7 @@ public class GameplayEventHandler {
         }
         
         // Deal Hamon damage through oiled weapons
-        if (!dmgSource.isBypassArmor() && !dmgSource.getMsgId().startsWith(DamageUtil.HAMON.location().getPath()) && 
+        if (!dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && !dmgSource.getMsgId().startsWith(DamageUtil.HAMON.location().getPath()) && 
                 attacker != null && attacker.is(dmgSource.getDirectEntity()) && attacker instanceof LivingEntity) {
             LivingEntity hamonUser = (LivingEntity) attacker;
             ItemStack weapon = hamonUser.getMainHandItem();
@@ -766,7 +766,7 @@ public class GameplayEventHandler {
         }
         
         // block physical damage with hamon
-        if (!dmgSource.isBypassArmor() && dmgSource.getDirectEntity() != null) {
+        if (!dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource.getDirectEntity() != null) {
             INonStandPower.getNonStandPowerOptional(target).ifPresent(power -> {
                 if (
                         target.getType() == ModEntityTypes.HAMON_MASTER.get() || 
@@ -805,7 +805,7 @@ public class GameplayEventHandler {
 //    @SubscribeEvent(priority = EventPriority.LOWEST)
 //    public static void preventDamagingArmor(LivingHurtEvent event) {
 //        DamageSource dmgSource = event.getSource();
-//        if (!dmgSource.isBypassArmor() && dmgSource instanceof IModdedDamageSource
+//        if (!dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource instanceof IModdedDamageSource
 //                && ((IModdedDamageSource) dmgSource).preventsDamagingArmor()) {
 //            dmgSource.bypassArmor();
 //            LivingEntity target = event.getEntityLiving();
@@ -900,7 +900,7 @@ public class GameplayEventHandler {
         Level world = target.level;
         if (world.isClientSide()
                 || dmgAmount < 0.98F
-                || dmgSource.isBypassArmor() && dmgSource != DamageSource.FALL
+                || dmgSource.is(net.minecraft.tags.DamageTypeTags.BYPASSES_ARMOR) && dmgSource != DamageSource.FALL
                 || dmgSource.isFire()
                 || dmgSource.isMagic()
                 || dmgSource.isBypassMagic()
@@ -1351,7 +1351,7 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onProjectileShot(EntityJoinLevelEvent event) {
-        HamonUtil.chargeNewEntity(event.getEntity(), event.getWorld());
+        HamonUtil.chargeNewEntity(event.getEntity(), event.getLevel());
     }
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -1385,7 +1385,7 @@ public class GameplayEventHandler {
             }
         });
         
-        HamonUtil.hamonChargedCreeperBlast(explosion, event.getWorld());
+        HamonUtil.hamonChargedCreeperBlast(explosion, event.getLevel());
     }
     
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -1609,8 +1609,8 @@ public class GameplayEventHandler {
     
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (!event.getWorld().isClientSide()) {
-            Level world = (Level) event.getWorld();
+        if (!event.getLevel().isClientSide()) {
+            Level world = (Level) event.getLevel();
             BlockPos pos = event.getPos();
             
             int xp = event.getExpToDrop();
