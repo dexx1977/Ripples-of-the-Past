@@ -1,6 +1,6 @@
 # Ripples of the Past 1.16.5 → 1.20.1 移植进展
 
-> 本文是阶段性简报（最近更新：第 65 轮工作结束时）。
+> 本文是阶段性简报（最近更新：编译清零、构建通过、专用服务器实测通过之后）。
 > 详细的任务清单、验收标准与逐轮记录见 [`migration/README.md`](README.md)。
 
 ## 1. 任务目标
@@ -20,10 +20,12 @@
 | 工作分支 | `codex/forge-1.20.1`（仓库 `Ripples-of-the-Past-1.20.1`） |
 | 基线提交 | 上游 1.16.5 `72862a5826ed45d1dc26e90b37853097acda35de` |
 | 工具链 | Java 17、Forge 1.20.1-47.4.10、ForgeGradle 6.0.54、Gradle 8.8、官方（Mojang）映射、Mixin 0.8.5 |
-| 编译错误数 | **324**（一次性 javac 报告数；轨迹 8,819 → 2,580 → 492 → 437 → 324） |
-| 迁移提交数 | 125（相对 1.16.5 基线；每个系统一个里程碑，均未推送） |
-| 当前阶段 | **长尾文件清理**（单文件 3–8 处），随后进入 Mixin/AT 复核 |
-| 运行时测试 | **尚未开始**（构建尚未通过，不能宣称已测试） |
+| 编译错误数 | **0**（轨迹 8,819 → 2,580 → 492 → 437 → 324 → 128 → 0；`compileJava` BUILD SUCCESSFUL） |
+| Mixin 注解处理器 | **0 错误、0 警告**（全部 `@At`/`@Shadow`/`@Accessor` 目标均已解析） |
+| 完整构建 | `./gradlew build` **BUILD SUCCESSFUL**；产物 `build/libs/JJBA-RipplesOfThePast-1.20.1-0.2.2.2-snapshot-port.1.jar`（含 `mixins.jojo.json`（JAVA_17）与 refmap 87 条映射） |
+| 迁移提交数 | 151（相对 1.16.5 基线；每个系统一个里程碑，均未推送） |
+| 当前阶段 | **运行时验证**：专用服务器已实测通过；客户端 dev 运行受 ForgeGradle 类路径限制（见 §6.3），产物 jar 已确认自包含 |
+| 运行时测试 | 专用服务器：**通过**（含自定义维度与模组内容冒烟测试）；客户端：**部分通过**（模组加载/注册/模型/音效均正常，卡在资源重载的 dev 类路径问题） |
 
 构建命令：
 
@@ -80,6 +82,73 @@ python3 migration/tools/analyze_errors.py .porting/build-NN.log --symbols
 | 拍立得离屏渲染 | 手工触发 `BasicEventHooks.onRenderTickStart/End` | 该 Forge 钩子类已删除，不再手工触发 | 离屏渲染期间其他模组的 render-tick 处理器不再被额外调用一次 |
 | 柱人自爆伤害源 | `ON_FIRE` + `setExplosion()` | 自定义 `jojo:on_fire_explosion`（`message_id` 仍为 `onFire`），**同时**加入 `is_fire` 与 `is_explosion` | 完整恢复火焰与爆炸两类语义（**非差异**，记录以说明取舍） |
 | 魔法伤害判定 | `DamageSource#isMagic()` | 模组自有 `jojo:magic` 标签（magic / indirect_magic / thorns） | 严格保持 1.16.5 集合，未纳入 1.20.1 新增的 `sonic_boom` |
+| damage_type id | 14 个 id 含大写（如 `pillarManAbsorption`） | 1.20.1 强制校验资源路径，改为 snake_case（`pillar_man_absorption`） | 注册 id 改变（无法保留）；`message_id`、翻译键、伤害语义全部不变 |
+| 维度类型数据 | 仅 11 个字段 | 1.20.1 要求额外 `height`/`min_y`/怪物生成光照字段，`infiniburn` 用标签 | 数值沿用 1.16.5（世界高度 0..255、`ambient_light` 保持原值），世界形状不变 |
+| 相机 mirror 标志 | `Camera#mirror` 可运行时置位 | 1.20.1 的 `Camera` 无该状态（朝向在 `setup()` 决定） | 拍立得离屏渲染不再能强制清除镜像标志；相机类型语义由原版决定 |
+| ModelBakery 未引用纹理集合 | `ModelBakery.unreferencedTextures` | 1.20.1 模型加载不再收集该集合 | 对应方法在移植中已无调用方，删除并记录 |
+| ForgeGui 旁观者提示 | `ForgeGui.renderSpectatorTooltip` 标志 | 1.20.1 无该字段 | 模组原本只赋值不读取，删除赋值并记录 |
+
+## 6. 运行时验证（本轮实测）
+
+### 6.1 专用服务器：通过
+
+```bash
+JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
+GRADLE_USER_HOME=/Users/administrator/CodexWorkspace/.carryon-gradle \
+./gradlew --console=plain runServer        # 工作目录 run-server/
+```
+
+观察结果：模组加载、全部注册表（方块/物品/实体/粒子/药水/音效/结构类型与碎片/命令参数/自定义注册表）注册成功；数据包（25 个 damage_type、worldgen、loot modifier、配方、标签）全部解码；自定义维度 `jojo:mr_president` 载入；`Done (2.483s)! For help, type "help"`；无模组相关 ERROR/WARN。
+
+冒烟测试用一个临时数据包（`run-server/world/datapacks/jojo_port_test`，位于已 gitignore 的运行目录内）在 `#minecraft:load` 中执行：
+
+```mcfunction
+say [ROTP-TEST] start
+execute in jojo:mr_president run setblock 0 0 0 minecraft:bedrock
+execute in jojo:mr_president run setblock 0 1 0 jojo:stone_mask
+execute in jojo:mr_president run summon jojo:hungry_zombie 3 2 0
+execute in jojo:mr_president run summon jojo:rps_kid 6 2 0
+summon jojo:coco_jumbo_turtle 0 -60 0
+give @a jojo:stone_mask
+give @a jojo:sledgehammer
+setblock 1 -60 0 jojo:meteoric_iron
+say [ROTP-TEST] done
+```
+
+日志中 `[ROTP-TEST] start` 与 `[ROTP-TEST] done` 之间无任何失败（自定义维度写入、模组方块与实体生成、物品给予均执行成功）。
+
+### 6.2 客户端：部分通过（dev 运行）
+
+已确认通过的阶段：模组加载与注册（含客户端注册表）、纹理图集（方块/物品/床/潜影盒等）、护甲模型构建、模型烘焙（`ModelEvent.ModifyBakingResult` 替换模型）、`Sound engine started`。此前被发现并修复的客户端专属缺陷见 §7。
+
+### 6.3 客户端 dev 运行的已知限制（非模组缺陷）
+
+客户端在资源重载阶段抛出 `NoClassDefFoundError: team/unnamed/mocha/runtime/value/Value`（`GeckoAnimLoader → MolangInterpreter.init()`）。原因：ForgeGradle 6 的 dev 运行把模组类放进模块层，而 `shade`/`implementation` 里的库只在普通类路径上，模组的 dev 模块读不到它。
+
+产物 jar 已确认**自包含且正确**：`dependency/standobyte/jojo/mocha/runtime/value/Value.class` 等重定位类已打包，模组类引用的是重定位后的包名（`javap` 验证）。因此该问题只影响 dev 运行，不影响发布产物。后续可选方案：用生产 jar 在真实 1.20.1 实例中测试（推荐），或把该库改为 `jarJar`/加入 dev 模块路径。
+
+## 7. 本轮修复的运行时缺陷（编译通过后暴露）
+
+| 现象 | 根因 | 处理 |
+| --- | --- | --- |
+| 服务器启动即崩：`ResourceLocationException: jojo:pillarManAbsorption` | 1.20.1 强制校验资源路径 `[a-z0-9/._-]`（1.16.5 构造器不校验） | 14 个含大写的 damage_type id 改为 snake_case（文件名 + 代码引用 + 标签引用）；JSON 内 `message_id` 与翻译键**保持不变** |
+| 注册表载入失败：`mr_president` 维度类型缺字段 | 1.20.1 新增 `height`/`min_y`/`monster_spawn_light_level`/`monster_spawn_block_light_limit`，`infiniburn` 需为标签 | 按原版 overworld 格式补齐，保留 1.16.5 原值（0..255 世界高度等）；平坦生成器的 `structures` → `structure_overrides` |
+| 启动崩溃：`TargetGoal.func_111175_f` 等 NoSuchMethod | 反射里的 SRG 名仍是 1.16.5 的 | 逐条核对并更新；并用脚本把 `src/main` 中全部 SRG 字面量与 `build/createSrgToMcp/output.srg` 对照校验（90 条全部匹配所属类） |
+| 自定义维度/物品注册期 NPE | `ClackersItem` 构造期即读 `ModItems.CLACKERS.get()` | ISTER 改为按物品类分发（构造期不再读注册对象）；`meteoric_ingot` 恢复为普通物品，仅 scrap 有自定义图标渲染器（与 1.16.5 一致） |
+| 客户端模型阶段 `UnsupportedOperationException` | 1.20.1 烘焙后的 `ModelPart.cubes` 是不可变列表 | 需要改几何的模型（石鬼面/其它护甲/Blockbench+Gecko 解析器/清空双足立方体）改为**整体替换列表**（AT 已将该字段 `-f` 解除 final） |
+| 模型替换 `UnsupportedOperationException` | `ModelEvent.BakingCompleted` 的注册表只读 | 改用 `ModelEvent.ModifyBakingResult` |
+| `ClassCastException: BakedOverride[] → List` | 1.20.1 把覆盖模型烘焙进 `ItemOverrides$BakedOverride[]` | 物品模型包装器改为**委托式 `ItemOverrides`**，解析结果再包一层 ISTER；删除失效的两个反射工具 |
+| loot modifier 解码失败 | codec 少了 1.16.5 的 `replace_nbt` 嵌套 | 恢复嵌套结构（`Replacement` record） |
+| 桶模型 `forge:bucket` 未注册 | 1.20.1 改名为 `forge:fluid_container` | 更新模型 JSON |
+| Stand 唱片专属模型路径重复 `item/` | 路径与 1.20.1 的 item 模型解析规则不符 | 去掉前缀（这些模型本就只存在于资源包中，缺失时走 missing-model 兜底，与原版行为一致） |
+| Mixin 运行时注入失败（3 处） | 目标签名与 1.16.5 不同 | `AbstractFurnaceBlockEntity#getRecipesToAwardAndPopExperience` 取 `ServerLevel`；`MerchantResultSlot#onTake` 返回 void（`CallbackInfo`）；`MapDataMixin` 补 `@Final` |
+
+## 8. 下一步
+
+1. **客户端/单人世界实测**：推荐用产物 jar 在真实 1.20.1 Forge 实例中测试（dev 运行的类路径问题见 §6.3）；测试项按 README 的运行时矩阵执行并逐项记录。
+2. **游戏内回归**：替身获取/成长、时间停止、各非替身能力、GUI 界面、粒子与模型、多人同步、存档重启。
+3. **沿用《已接受的有意差异》清单**：新增条目（damage_type id 规范化、维度数据格式、ISTER 分发方式、可编辑立方体、模型事件）需与 README 同步。
+4. README 中列出的旧开放项（magic 标签审计、`passEvents` 缺口、Stand 聊天近似、死文件清理、输入 tick、窒息判定）继续保留待办。
 
 ## 5. 约束与安全边界（本次无人值守阶段）
 

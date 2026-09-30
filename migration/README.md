@@ -63,14 +63,45 @@ Do not remove source sets, disable mixins/features, or add placeholder behavior
 merely to make compilation pass. Where APIs disappeared, record the original
 behavior and its replacement before implementing it.
 
-## Runtime test matrix (not yet executed)
+## Build status (this round)
+
+`./gradlew compileJava` finishes with **0 javac errors** and **0 Mixin annotation
+processor warnings**, and `./gradlew build` produces
+`build/libs/JJBA-RipplesOfThePast-1.20.1-0.2.2.2-snapshot-port.1.jar` (14 MB) with
+`mixins.jojo.json` (compatibility level JAVA_17) and a 87 entry refmap. The
+shaded `mocha` library is bundled relocated to `dependency/standobyte/jojo/mocha`
+and the mod's own classes reference that package, so the released jar is
+self-contained.
+
+## Executed runtime tests
+
+| # | Build | Launch | Mode | Observed |
+| --- | --- | --- | --- | --- |
+| 1 | `b9a0c4056` + runtime fixes | `./gradlew runServer` (`run-server/`, `--nogui`) | dedicated server | Mod loads, every registry and data pack decodes, `jojo:mr_president` dimension loads, `Done (2.483s)! For help, type "help"`, no mod related error |
+| 2 | same | `./gradlew runServer` with a temporary smoke data pack | dedicated server | `#minecraft:load` function placed mod blocks and summoned mod entities in the custom dimension, gave mod items, and set a mod block in the overworld: `[ROTP-TEST] start` and `[ROTP-TEST] done` with nothing failing in between |
+| 3 | `87a158318` | `./gradlew runClient --args="--quickPlaySingleplayer porttest"` | client (dev) | Mod loading, registries, texture atlases, armour models, model baking (`ModelEvent.ModifyBakingResult`) and `Sound engine started` all pass; the run then stops in the resource reload with `NoClassDefFoundError: team/unnamed/mocha/runtime/value/Value`, a ForgeGradle dev classpath limitation (the library is on the plain classpath while the mod's dev module is not allowed to read it). The production jar carries the relocated classes, so the shipped mod is unaffected |
+
+The client case 3 is **not** a full client pass: the world was never entered,
+because the resource reload aborts on the dev classpath issue above. The
+recommended way to finish client, singleplayer and multiplayer testing is to drop
+the built jar into a real 1.20.1 Forge instance (plus playerAnimator and
+bendy-lib, which the mod declares as optional) instead of running from the dev
+workspace.
+
+Runtime defects found and fixed by these runs are listed in
+[`PROGRESS-zh.md`](PROGRESS-zh.md) section 7 (resource location validation,
+dimension data, reflection SRG names, item renderer dispatch, immutable model
+cuboids, the read only model registry, the baked item overrides, the loot
+modifier json shape, the bucket model loader and three mixin descriptors).
+
+## Runtime test matrix (executed cases are marked)
 
 Record build commit, exact mods, launch command, world mode, steps and observed
 results for each executed case. An unexecuted case is not a passing case.
 
 | Area | Client / singleplayer | Dedicated server + two clients |
 | --- | --- | --- |
-| Startup | menu, new world, save/reload | startup, login, reconnect |
+| Startup | **partial** (see case 3: dev run stops at resource reload) | **done** (case 1: startup) |
 | Stand data | obtain/progress, save/reload | owner and tracking-player state |
 | Lifecycle | death/respawn, End return, dimension transfer | same, with another observer |
 | Networking | integrated-server queues | packet direction, no client classes loaded on server |
