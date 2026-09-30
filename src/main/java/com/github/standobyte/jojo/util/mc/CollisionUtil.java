@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.core.Direction;
-import net.minecraft.util.ReuseableStream;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
@@ -44,7 +45,7 @@ public class CollisionUtil {
         VoxelShape worldBorder = entity.level.getWorldBorder().getCollisionShape();
         Stream<VoxelShape> worldBorderCollision = Shapes.joinIsNotEmpty(worldBorder, Shapes.create(collisionBox.deflate(1.0E-7D)), BooleanOp.AND) ? Stream.empty() : Stream.of(worldBorder);
         Stream<VoxelShape> entityCollisions = entity.level.getEntityCollisions(entity, collisionBox.expandTowards(offsetVec), e -> true);
-        ReuseableStream<VoxelShape> collisions = new ReuseableStream<>(Stream.concat(entityCollisions, worldBorderCollision));
+        List<VoxelShape> collisions = Stream.concat(entityCollisions, worldBorderCollision).collect(Collectors.toList());
         Vec3 vector3d = offsetVec.lengthSqr() == 0 ? offsetVec : collideBoundingBoxHeuristically(entity, offsetVec, collisionBox, entity.level, selectionContext, collisions);
         boolean flag = offsetVec.x != vector3d.x;
         boolean flag2 = offsetVec.z != vector3d.z;
@@ -54,12 +55,12 @@ public class CollisionUtil {
             Vec3 vector3d2 = collideBoundingBoxHeuristically(entity, new Vec3(0, entity.maxUpStep, 0), collisionBox.expandTowards(offsetVec.x, 0.0D, offsetVec.z), entity.level, selectionContext, collisions);
             if (vector3d2.y < entity.maxUpStep) {
                 Vec3 vector3d3 = collideBoundingBoxHeuristically(entity, new Vec3(offsetVec.x, 0.0D, offsetVec.z), collisionBox.move(vector3d2), entity.level, selectionContext, collisions).add(vector3d2);
-                if (Entity.getHorizontalDistanceSqr(vector3d3) > Entity.getHorizontalDistanceSqr(vector3d1)) {
+                if (vector3d3.horizontalDistanceSqr() > vector3d1.horizontalDistanceSqr()) {
                     vector3d1 = vector3d3;
                 }
             }
             
-            if (Entity.getHorizontalDistanceSqr(vector3d1) > Entity.getHorizontalDistanceSqr(vector3d)) {
+            if (vector3d1.horizontalDistanceSqr() > vector3d.horizontalDistanceSqr()) {
                 return vector3d1.add(collideBoundingBoxHeuristically(entity, new Vec3(0.0D, -vector3d1.y + offsetVec.y, 0.0D), collisionBox.move(vector3d1), entity.level, selectionContext, collisions));
             }
         }
@@ -67,14 +68,15 @@ public class CollisionUtil {
         return vector3d;
     }
 
-    public static Vec3 collideBoundingBoxHeuristically(@Nullable Entity pEntity, Vec3 pVec, AABB pCollisionBox, Level pLevel, CollisionContext pContext, ReuseableStream<VoxelShape> pPotentialHits) {
+    public static Vec3 collideBoundingBoxHeuristically(@Nullable Entity pEntity, Vec3 pVec, AABB pCollisionBox, Level pLevel, CollisionContext pContext, List<VoxelShape> pPotentialHits) {
        boolean flag = pVec.x == 0.0D;
        boolean flag1 = pVec.y == 0.0D;
        boolean flag2 = pVec.z == 0.0D;
        if ((!flag || !flag1) && (!flag || !flag2) && (!flag1 || !flag2)) {
-          ReuseableStream<VoxelShape> reuseablestream = new ReuseableStream<>(Stream.concat(
-                  pPotentialHits.getStream(), 
-                  StreamSupport.stream(new CustomContextVoxelShapeSpliterator(pLevel, pEntity, pContext, pCollisionBox.expandTowards(pVec)), false)));
+          List<VoxelShape> reuseablestream = Stream.concat(
+                  pPotentialHits.stream(), 
+                  StreamSupport.stream(new CustomContextVoxelShapeSpliterator(pLevel, pEntity, pContext, pCollisionBox.expandTowards(pVec)), false))
+                  .collect(Collectors.toList());
           return collideBoundingBoxLegacy(pVec, pCollisionBox, reuseablestream);
        } else {
           return collideBoundingBox(pVec, pCollisionBox, pLevel, pContext, pPotentialHits);
@@ -83,12 +85,12 @@ public class CollisionUtil {
 
 
 
-    public static Vec3 collideBoundingBoxLegacy(Vec3 pVec, AABB pCollisionBox, ReuseableStream<VoxelShape> pPotentialHits) {
+    public static Vec3 collideBoundingBoxLegacy(Vec3 pVec, AABB pCollisionBox, List<VoxelShape> pPotentialHits) {
        double d0 = pVec.x;
        double d1 = pVec.y;
        double d2 = pVec.z;
        if (d1 != 0.0D) {
-          d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pPotentialHits.getStream(), d1);
+          d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pPotentialHits, d1);
           if (d1 != 0.0D) {
              pCollisionBox = pCollisionBox.move(0.0D, d1, 0.0D);
           }
@@ -96,21 +98,21 @@ public class CollisionUtil {
 
        boolean flag = Math.abs(d0) < Math.abs(d2);
        if (flag && d2 != 0.0D) {
-          d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits.getStream(), d2);
+          d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits, d2);
           if (d2 != 0.0D) {
              pCollisionBox = pCollisionBox.move(0.0D, 0.0D, d2);
           }
        }
 
        if (d0 != 0.0D) {
-          d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pPotentialHits.getStream(), d0);
+          d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pPotentialHits, d0);
           if (!flag && d0 != 0.0D) {
              pCollisionBox = pCollisionBox.move(d0, 0.0D, 0.0D);
           }
        }
 
        if (!flag && d2 != 0.0D) {
-          d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits.getStream(), d2);
+          d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pPotentialHits, d2);
        }
 
        return new Vec3(d0, d1, d2);
@@ -244,12 +246,12 @@ public class CollisionUtil {
       }
 
      
-     public static Vec3 collideBoundingBox(Vec3 pVec, AABB pCollisionBox, LevelReader pLevel, CollisionContext pSelectionContext, ReuseableStream<VoxelShape> pPotentialHits) {
+     public static Vec3 collideBoundingBox(Vec3 pVec, AABB pCollisionBox, LevelReader pLevel, CollisionContext pSelectionContext, List<VoxelShape> pPotentialHits) {
         double d0 = pVec.x;
         double d1 = pVec.y;
         double d2 = pVec.z;
         if (d1 != 0.0D) {
-           d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pLevel, d1, pSelectionContext, pPotentialHits.getStream());
+           d1 = Shapes.collide(Direction.Axis.Y, pCollisionBox, pLevel, d1, pSelectionContext, pPotentialHits);
            if (d1 != 0.0D) {
               pCollisionBox = pCollisionBox.move(0.0D, d1, 0.0D);
            }
@@ -257,21 +259,21 @@ public class CollisionUtil {
 
         boolean flag = Math.abs(d0) < Math.abs(d2);
         if (flag && d2 != 0.0D) {
-           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits.getStream());
+           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits);
            if (d2 != 0.0D) {
               pCollisionBox = pCollisionBox.move(0.0D, 0.0D, d2);
            }
         }
 
         if (d0 != 0.0D) {
-           d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pLevel, d0, pSelectionContext, pPotentialHits.getStream());
+           d0 = Shapes.collide(Direction.Axis.X, pCollisionBox, pLevel, d0, pSelectionContext, pPotentialHits);
            if (!flag && d0 != 0.0D) {
               pCollisionBox = pCollisionBox.move(d0, 0.0D, 0.0D);
            }
         }
 
         if (!flag && d2 != 0.0D) {
-           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits.getStream());
+           d2 = Shapes.collide(Direction.Axis.Z, pCollisionBox, pLevel, d2, pSelectionContext, pPotentialHits);
         }
 
         return new Vec3(d0, d1, d2);

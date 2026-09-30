@@ -47,7 +47,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ReuseableStream;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -261,15 +262,16 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
         ServerLevel serverWorld = (ServerLevel) world;
         
         VoxelShape worldBorder = world.getWorldBorder().getCollisionShape();
-        ReuseableStream<VoxelShape> worldBorderCollision = new ReuseableStream<>(
-                Shapes.joinIsNotEmpty(worldBorder, Shapes.create(aabb.deflate(1.0E-7D)), BooleanOp.AND) ? Stream.empty() : Stream.of(worldBorder));
+        List<VoxelShape> worldBorderCollision = (
+                Shapes.joinIsNotEmpty(worldBorder, Shapes.create(aabb.deflate(1.0E-7D)), BooleanOp.AND) ? Stream.<VoxelShape>empty() : Stream.of(worldBorder))
+                .collect(Collectors.toList());
         
-        ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions = new ReuseableStream<>(getEntityCollisions(world, entity, aabb.expandTowards(movementVec), 
+        List<Pair<Entity, VoxelShape>> potentialEntityCollisions = (getEntityCollisions(world, entity, aabb.expandTowards(movementVec), 
                 EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(
                         e -> e.isPickable()
                         && (attackerStandUser == null || MCUtil.canHarm(attackerStandUser, e))
                         && !(entity instanceof LivingEntity && !MCUtil.canHarm((LivingEntity) entity, e))
-                        )));
+                        ))).collect(Collectors.toList());
         Collection<Entity> entitiesCollided = new ArrayList<>();
         collideEntities(aabb, movementVec, world, 
                 worldBorderCollision, potentialEntityCollisions, 
@@ -424,7 +426,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
     }
     
     private static void collideEntities(AABB aabb, Vec3 movementVec, Level world, 
-            ReuseableStream<VoxelShape> worldBorderCollision, ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
+            List<VoxelShape> worldBorderCollision, List<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
             CollisionContext selectionContext, Collection<Entity> entityCollision) {
         double x = movementVec.x;
         double y = movementVec.y;
@@ -466,7 +468,7 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
     }
     
     private static double collideEntitiesAxis(Direction.Axis movementAxis, AABB collisionBox, Level world, double desiredOffset, 
-            ReuseableStream<VoxelShape> worldBorderCollision, ReuseableStream<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
+            List<VoxelShape> worldBorderCollision, List<Pair<Entity, VoxelShape>> potentialEntityCollisions, 
             CollisionContext pSelectionContext, Collection<Entity> entityCollision) {
         if (!(collisionBox.getXsize() < 1.0E-6D) && !(collisionBox.getYsize() < 1.0E-6D) && !(collisionBox.getZsize() < 1.0E-6D)) {
             if (Math.abs(desiredOffset) < 1.0E-7D) {
@@ -477,14 +479,14 @@ public class KnockbackCollisionImpact implements INBTSerializable<CompoundTag> {
                 Direction.Axis direction$axis2 = axisrotation.cycle(Direction.Axis.Z);
 
                 MutableDouble worldBorderCollideOffset = new MutableDouble(desiredOffset);
-                worldBorderCollision.getStream().forEach(voxelShape -> {
+                worldBorderCollision.stream().forEach(voxelShape -> {
                     worldBorderCollideOffset.setValue(voxelShape.collide(direction$axis2, collisionBox, worldBorderCollideOffset.doubleValue()));
                 });
                 desiredOffset = worldBorderCollideOffset.doubleValue();
                 
                 double maxOffset = desiredOffset;
                 MutableDouble collidedOffset = new MutableDouble(maxOffset);
-                potentialEntityCollisions.getStream().forEach(entityVoxelShape -> {
+                potentialEntityCollisions.stream().forEach(entityVoxelShape -> {
                     double entityCollideResult = entityVoxelShape.getRight().collide(direction$axis2, collisionBox, collidedOffset.doubleValue());
                     if (entityCollideResult != maxOffset) {
                         entityCollision.add(entityVoxelShape.getLeft());

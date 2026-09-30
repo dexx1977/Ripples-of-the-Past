@@ -152,8 +152,8 @@ public class ConsciousnessRenderer extends EntityRenderer<ClientConsciousnessEnt
 
             Vec3 vector3d = pEntityLiving.getViewVector(pPartialTicks);
             Vec3 vector3d1 = pEntityLiving.getDeltaMovement();
-            double d0 = Entity.getHorizontalDistanceSqr(vector3d1);
-            double d1 = Entity.getHorizontalDistanceSqr(vector3d);
+            double d0 = (vector3d1).horizontalDistanceSqr();
+            double d1 = (vector3d).horizontalDistanceSqr();
             if (d0 > 0.0D && d1 > 0.0D) {
                 double d2 = (vector3d1.x * vector3d.x + vector3d1.z * vector3d.z) / Math.sqrt(d0 * d1);
                 double d3 = vector3d1.x * vector3d.z - vector3d1.z * vector3d.x;

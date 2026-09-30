@@ -286,7 +286,7 @@ public class GETransformationEntity extends Entity implements IEntityAdditionalS
         }
 
         deltaMovement = getDeltaMovement();
-        if (!onGround || getHorizontalDistanceSqr(deltaMovement) > 1.0E-5 || (tickCount + getId()) % 4 == 0) {
+        if (!onGround || (deltaMovement).horizontalDistanceSqr() > 1.0E-5 || (tickCount + getId()) % 4 == 0) {
             move(MoverType.SELF, deltaMovement);
             double inertia = 0.98;
             if (onGround) {

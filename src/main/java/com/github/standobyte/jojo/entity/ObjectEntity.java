@@ -105,7 +105,7 @@ public class ObjectEntity extends Entity implements IEntityAdditionalSpawnData {
             }
         }
 
-        if (!this.onGround || getHorizontalDistanceSqr(this.getDeltaMovement()) > (double)1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
+        if (!this.onGround || (this.getDeltaMovement()).horizontalDistanceSqr() > (double)1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
             this.move(MoverType.SELF, this.getDeltaMovement());
             float f1 = 0.98F;
             if (this.onGround) {
