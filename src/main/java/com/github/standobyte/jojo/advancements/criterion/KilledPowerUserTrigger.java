@@ -2,6 +2,7 @@ package com.github.standobyte.jojo.advancements.criterion;
 
 import com.github.standobyte.jojo.advancements.criterion.predicate.PowerPredicate;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
@@ -45,10 +46,13 @@ public class KilledPowerUserTrigger extends SimpleCriterionTrigger<KilledPowerUs
 
     @Override
     public KilledPowerUserTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate, DeserializationContext conditionArrayParser) {
+        JsonElement entityElem = json.get("entity");
         return new KilledPowerUserTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromElement("entity", conditionArrayParser, json.get("entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
+                entityElem != null
+                        ? ContextAwarePredicate.fromElement("entity", conditionArrayParser, entityElem, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY)
+                        : EntityPredicate.wrap(EntityPredicate.ANY), 
                 DamageSourcePredicate.fromJson(json.get("killing_blow")), 
                 PowerPredicate.fromJson(json.get("power"), null),
                 PowerPredicate.fromJson(json.get("killed_power"), null));

@@ -20,7 +20,7 @@
       "trigger": "jojo:destroy_stone_mask",
       "conditions": {
         "item_used": {
-          "item": "jojo:sledgehammer"
+          "items": ["jojo:sledgehammer"]
         }
       }
     }

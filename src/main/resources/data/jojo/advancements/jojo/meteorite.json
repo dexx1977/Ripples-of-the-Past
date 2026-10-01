@@ -17,11 +17,9 @@
   },
   "criteria": {
     "at_meteorite": {
-      "trigger": "minecraft:location",
+      "trigger": "jojo:stand_structure",
       "conditions": {
-        "location": {
-          "structure": "jojo:meteorite"
-        }
+        "structure": "jojo:meteorite"
       }
     }
   },

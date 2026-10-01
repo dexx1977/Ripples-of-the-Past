@@ -217,6 +217,12 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
     }
 
     public ModelPart addBox(float x, float y, float z, float width, float height, float depth, float inflate, boolean mirror) {
+        // UVs are passed through unchanged: vanilla 1.20.1's PartDefinition.bake()
+        // normalizes them against the textureWidth/textureHeight arguments passed to
+        // bake() (see CubeDefinition.bake), which is this part's declared texture size,
+        // exactly like 1.16.5's ModelRenderer divided by ModelBase.texWidth/texHeight.
+        // No scaling must happen here - scaling by 64/texWidth would double-shrink the
+        // UVs of a 128-layout model once bake() divides by 128 again.
         cubeBuilder.texOffs(this.texOffsU, this.texOffsV);
         cubeBuilder.mirror(mirror || this.mirror);
         cubeBuilder.addBox(x, y, z, width, height, depth, new CubeDeformation(inflate), 1.0F, 1.0F);
@@ -248,7 +254,12 @@ public class ModelPart extends net.minecraft.client.model.geom.ModelPart {
         baked = true;
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition definition = mesh.getRoot().addOrReplaceChild("part", cubeBuilder, PartPose.ZERO);
-        net.minecraft.client.model.geom.ModelPart bakedPart = definition.bake(this.texWidth, this.texHeight);
+        // Guard against uninitialized (0) texture sizes: baking divides UVs by the
+        // passed texture size, so 0 would produce NaN UVs and render the model as a
+        // garbled mess (a model that never declared a size keeps the 64x64 default).
+        int bakeTexW = this.texWidth > 0 ? this.texWidth : 64;
+        int bakeTexH = this.texHeight > 0 ? this.texHeight : 64;
+        net.minecraft.client.model.geom.ModelPart bakedPart = definition.bake(bakeTexW, bakeTexH);
         // Only the cuboids are taken: this instance keeps its own pose fields, so
         // animation code keeps writing x/y/z and xRot/yRot/zRot as before.
         this.cubes.addAll(bakedPart.cubes);

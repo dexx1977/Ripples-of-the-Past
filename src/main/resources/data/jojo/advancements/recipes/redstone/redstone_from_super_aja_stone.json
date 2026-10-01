@@ -11,7 +11,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:super_aja_stone"
+            "items": [
+              "jojo:super_aja_stone"
+            ]
           }
         ]
       }

@@ -21,7 +21,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:stone_mask"
+            "items": [
+              "jojo:stone_mask"
+            ]
           }
         ]
       }

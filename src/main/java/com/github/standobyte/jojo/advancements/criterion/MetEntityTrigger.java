@@ -1,6 +1,7 @@
 package com.github.standobyte.jojo.advancements.criterion;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
@@ -36,7 +37,10 @@ public class MetEntityTrigger extends SimpleCriterionTrigger<MetEntityTrigger.In
     @Override
     public MetEntityTrigger.Instance createInstance(JsonObject json, 
             ContextAwarePredicate playerPredicate, DeserializationContext conditionsParser) {
-        ContextAwarePredicate entityPredicate = ContextAwarePredicate.fromElement("entity", conditionsParser, json.get("entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY);
+        JsonElement entityElem = json.get("entity");
+        ContextAwarePredicate entityPredicate = entityElem != null
+                ? ContextAwarePredicate.fromElement("entity", conditionsParser, entityElem, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY)
+                : EntityPredicate.wrap(EntityPredicate.ANY);
         return new MetEntityTrigger.Instance(id, playerPredicate, entityPredicate);
     }
 

@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.github.standobyte.jojo.advancements.criterion.predicate.PowerPredicate;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
@@ -67,12 +68,18 @@ public class HamonChargeKillTrigger extends SimpleCriterionTrigger<HamonChargeKi
             });
         }
 
+        JsonElement killedEntityElem = json.get("killed_entity");
+        JsonElement chargedEntityElem = json.get("charged_entity");
         return new HamonChargeKillTrigger.Instance(
                 id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromElement("killed_entity", conditionArrayParser, json.get("killed_entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
+                killedEntityElem != null
+                        ? ContextAwarePredicate.fromElement("killed_entity", conditionArrayParser, killedEntityElem, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY)
+                        : EntityPredicate.wrap(EntityPredicate.ANY), 
                 PowerPredicate.fromJson(json.get("killed_power"), null),
-                ContextAwarePredicate.fromElement("charged_entity", conditionArrayParser, json.get("charged_entity"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
+                chargedEntityElem != null
+                        ? ContextAwarePredicate.fromElement("charged_entity", conditionArrayParser, chargedEntityElem, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY)
+                        : EntityPredicate.wrap(EntityPredicate.ANY), 
                 block, 
                 blockState,
                 LocationPredicate.fromJson(json.get("location")));

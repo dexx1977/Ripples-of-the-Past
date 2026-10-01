@@ -1,39 +1,55 @@
 {
   "sources": [
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "action",
       "prefix": "action/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "icons",
       "prefix": "icons/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "power",
       "prefix": "power/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "hamon",
       "prefix": "hamon/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "mob_effect",
       "prefix": "mob_effect/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "entity/projectiles",
       "prefix": "entity/projectiles/"
     },
     {
-      "type": "minecraft:directory",
+      "type": "directory",
       "source": "particle",
       "prefix": "particle/"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:entity/stand/magicians_red_fire_0"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:entity/stand/magicians_red_fire_1"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:block/mr_fire_0"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:block/mr_fire_1"
     }
   ]
 }

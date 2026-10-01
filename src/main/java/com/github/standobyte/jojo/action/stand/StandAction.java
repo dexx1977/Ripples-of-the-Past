@@ -131,7 +131,12 @@ public abstract class StandAction extends Action<IStandPower> {
     
     @Override
     public boolean isUnlocked(IStandPower power) {
-        return power.getLearningProgressPoints(this) >= 0;
+        // Creative mode treats every stand action as unlocked (mirrors the original
+        // 1.16.5 behavior where giving yourself a stand in creative runs
+        // skipProgression(), which unlocks all actions at max training points).
+        // A legacy save that unlocked actions before switching to creative keeps
+        // working the same way the original does.
+        return power.getLearningProgressPoints(this) >= 0 || power.isUserCreative();
     }
     
     @Override

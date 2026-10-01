@@ -11,7 +11,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:meteoric_ore"
+            "items": [
+              "jojo:meteoric_ore"
+            ]
           }
         ]
       }

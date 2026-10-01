@@ -17,11 +17,9 @@
   },
   "criteria": {
     "in_temple": {
-      "trigger": "minecraft:location",
+      "trigger": "jojo:stand_structure",
       "conditions": {
-        "location": {
-          "structure": "jojo:hamon_temple"
-        }
+        "structure": "jojo:hamon_temple"
       }
     }
   },

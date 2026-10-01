@@ -176,6 +176,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.ForgeHooks;
@@ -267,6 +270,9 @@ public class GameplayEventHandler {
                         ModCriteriaTriggers.AFK.get().trigger(serverPlayer);
                     }
                 }
+                if (player.tickCount % 20 == 0 && player instanceof ServerPlayer) {
+                    checkStandStructures((ServerPlayer) player);
+                }
             }
             
             INonStandPower.getNonStandPowerOptional(player).ifPresent(power -> {
@@ -288,6 +294,21 @@ public class GameplayEventHandler {
         }
     }
     
+    private static void checkStandStructures(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        if (!level.isLoaded(player.blockPosition())) {
+            return;
+        }
+        ResourceKey<Structure>[] structures = new ResourceKey[] {
+                ModStructures.METEORITE, ModStructures.PILLARMAN_TEMPLE, ModStructures.HAMON_TEMPLE };
+        for (ResourceKey<Structure> structureKey : structures) {
+            StructureStart start = level.structureManager().getStructureWithPieceAt(player.blockPosition(), structureKey);
+            if (start.isValid()) {
+                ModCriteriaTriggers.STAND_STRUCTURE.get().trigger(player, structureKey);
+            }
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void replaceStrayArrow(EntityJoinLevelEvent event) {
         Entity newEntity = event.getEntity();

@@ -21,7 +21,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:stand_arrow"
+            "items": [
+              "jojo:stand_arrow"
+            ]
           }
         ]
       }
@@ -31,7 +33,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:stand_arrow_beetle"
+            "items": [
+              "jojo:stand_arrow_beetle"
+            ]
           }
         ]
       }

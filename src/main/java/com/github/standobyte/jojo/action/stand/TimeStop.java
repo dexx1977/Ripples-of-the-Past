@@ -232,7 +232,16 @@ public class TimeStop extends StandAction {
     
     public static final int MIN_TIME_STOP_TICKS = 5;
     public static int getTimeStopTicks(IStandPower standPower, StandAction timeStopAction) {
-        return Mth.floor(standPower.getLearningProgressPoints(timeStopAction)) + MIN_TIME_STOP_TICKS;
+        int ticks = Mth.floor(standPower.getLearningProgressPoints(timeStopAction)) + MIN_TIME_STOP_TICKS;
+        // In creative mode time stop always lasts the full duration, matching the
+        // original 1.16.5 mod (there, gaining a stand in creative calls
+        // skipProgression(), which sets the training points of every action to max,
+        // so TimeStop reaches its maximum ticks). Legacy saves that don't have the
+        // training points stored yet get the same full duration in creative.
+        if (standPower.isUserCreative() && timeStopAction instanceof TimeStop) {
+            ticks = Math.max(ticks, ((TimeStop) timeStopAction).getMaxTimeStopTicks(standPower));
+        }
+        return ticks;
     }
     
     public int getMaxTimeStopTicks(IStandPower standPower) {

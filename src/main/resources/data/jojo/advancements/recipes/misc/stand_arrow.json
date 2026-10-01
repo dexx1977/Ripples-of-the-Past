@@ -12,7 +12,9 @@
       "conditions": {
         "items": [
           {
-            "item": "jojo:meteoric_ingot"
+            "items": [
+              "jojo:meteoric_ingot"
+            ]
           }
         ]
       }

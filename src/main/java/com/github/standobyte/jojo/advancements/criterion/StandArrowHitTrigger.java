@@ -3,6 +3,7 @@ package com.github.standobyte.jojo.advancements.criterion;
 import com.github.standobyte.jojo.advancements.criterion.predicate.StandArrowHitPredicate;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
@@ -37,10 +38,13 @@ public class StandArrowHitTrigger extends SimpleCriterionTrigger<StandArrowHitTr
 
     @Override
     public StandArrowHitTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate playerPredicate, DeserializationContext conditionArrayParser) {
+        JsonElement targetElem = json.get("target");
         return new StandArrowHitTrigger.Instance(
                 this.id, 
                 playerPredicate, 
-                ContextAwarePredicate.fromElement("target", conditionArrayParser, json.get("target"), net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY), 
+                targetElem != null
+                        ? ContextAwarePredicate.fromElement("target", conditionArrayParser, targetElem, net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.ENTITY)
+                        : EntityPredicate.wrap(EntityPredicate.ANY), 
                 StandArrowHitPredicate.fromJson(json.get("arrow_hit")));
     }
 
