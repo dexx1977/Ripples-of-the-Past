@@ -30,7 +30,11 @@ public class HamonMasterModel extends HumanoidModel<HamonMasterEntity> {
     private final ModelPart lowLeftCape;
     
     public HamonMasterModel(boolean isExtraLayer) {
-        super(ModelPart.humanoidRoot());
+        // The original 1.16.5 model extends BipedModel, whose constructor creates the
+        // standard humanoid mesh (head/hat/body/arms/legs). The no-arg humanoidRoot()
+        // only creates empty part placeholders, which left this model with no head/body
+        // cubes and made the mob render wrong. Bake the full standard humanoid instead.
+        super(ModelPart.humanoidRoot(0.0F));
         
         
         // emulating PlayerModel
