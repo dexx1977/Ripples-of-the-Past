@@ -74,7 +74,6 @@ public class ModItems {
                 output.accept(BLADE_HAT.get());
                 output.accept(STONE_MASK.get());
                 STONE_MASK.get().addToCreativeTab(output);
-                AJA_STONE_MASK.get().addToCreativeTab(output);
                 output.accept(BREATH_CONTROL_MASK.get());
                 output.accept(GLOVES.get());
                 output.accept(OIL.get());

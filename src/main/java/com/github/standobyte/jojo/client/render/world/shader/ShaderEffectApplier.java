@@ -166,17 +166,17 @@ public class ShaderEffectApplier {
             float partialTick = Mth.frac(partialSecond * 20F);
             float tsTick = tsFields.getTimeStopTicks() + partialTick;
             tsShader.safeGetUniform("TSTicks") .set(tsTick);
-            tsShader.safeGetUniform("TSLength").set(tsFields.getTimeStopLength());
+            tsShader.safeGetUniform("TSLength").set((float) tsFields.getTimeStopLength());
             if (!ClientModSettings.getSettingsReadOnly().timeStopAnimation || tsPosOnScreen == null) {
-                tsShader.safeGetUniform("TSEffectLength").set(0);
+                tsShader.safeGetUniform("TSEffectLength").set(0F);
             }
             if (tsPosOnScreen != null) {
                 tsShader.safeGetUniform("CenterScreenCoord").set(new float[] {tsPosOnScreen.pos.x, tsPosOnScreen.pos.y});
             }
         }
         else {
-            tsShader.safeGetUniform("TSTicks") .set(0);
-            tsShader.safeGetUniform("TSLength").set(-1);
+            tsShader.safeGetUniform("TSTicks") .set(0F);
+            tsShader.safeGetUniform("TSLength").set(-1F);
         }
     }
     

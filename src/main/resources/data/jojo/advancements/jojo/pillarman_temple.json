@@ -20,7 +20,7 @@
       "trigger": "minecraft:location",
       "conditions": {
         "location": {
-          "feature": "jojo:pillarman_temple"
+          "structure": "jojo:pillarman_temple"
         }
       }
     }

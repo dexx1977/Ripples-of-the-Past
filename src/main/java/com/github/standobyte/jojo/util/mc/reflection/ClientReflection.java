@@ -27,6 +27,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.components.SplashRenderer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.controls.KeyBindsList;
 import net.minecraft.client.particle.TrackingEmitter;
@@ -112,7 +113,7 @@ public class ClientReflection {
     
     private static final Field MAIN_MENU_SCREEN_SPLASH = ObfuscationReflectionHelper.findField(TitleScreen.class, "f_96721_");
     public static void setSplash(TitleScreen screen, String splash) {
-        ReflectionUtil.setFieldValue(MAIN_MENU_SCREEN_SPLASH, screen, splash);
+        ReflectionUtil.setFieldValue(MAIN_MENU_SCREEN_SPLASH, screen, new SplashRenderer(splash));
     }
     
     

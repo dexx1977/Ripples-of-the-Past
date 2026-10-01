@@ -483,7 +483,8 @@ public class JojoModUtil {
                 packet = PlayVoiceLinePacket.notTriggered(entity.getId());
             }
             else {
-                PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, net.minecraft.core.Holder.direct(sound), category, volume, pitch);
+                PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtPosition(entity.level, entity.getX(), entity.getY(), entity.getZ(), 
+                        net.minecraft.core.Holder.direct(sound), category, volume, pitch);
                 if (event.isCanceled() || event.getSound() == null) {
                     packet = PlayVoiceLinePacket.notTriggered(entity.getId());
                 }

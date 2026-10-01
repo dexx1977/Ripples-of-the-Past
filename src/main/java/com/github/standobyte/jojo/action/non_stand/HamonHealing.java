@@ -29,6 +29,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -320,7 +321,7 @@ public class HamonHealing extends HamonAction {
         } else {
             BlockPos posOffset = pos.relative(face);
             BlockState blockState = world.getBlockState(pos);
-            if (blockState.isFaceSturdy(world, pos, face) && BoneMealItem.growWaterPlant(new ItemStack((net.minecraft.world.level.ItemLike) null), world, posOffset, face)) {
+            if (blockState.isFaceSturdy(world, pos, face) && BoneMealItem.growWaterPlant(new ItemStack(Items.BONE_MEAL), world, posOffset, face)) {
                 if (!world.isClientSide()) {
                     world.levelEvent(2005, posOffset, 0);
                 }

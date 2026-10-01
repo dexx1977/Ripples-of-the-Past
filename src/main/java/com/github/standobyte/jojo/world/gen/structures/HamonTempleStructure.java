@@ -6,8 +6,11 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
@@ -44,6 +47,15 @@ public class HamonTempleStructure extends Structure {
         ChunkPos chunkPos = context.chunkPos();
         int centerX = chunkPos.getMiddleBlockX();
         int centerZ = chunkPos.getMiddleBlockZ();
+        // Extra hard biome check: on 1.20.1 the structure json biome tag is not
+        // always honored for mod structures (the old json used a non-existent
+        // #minecraft:is_hill tag), which let the temple spawn on flat plains and
+        // trigger the advancement for every new world.
+        Holder<Biome> biome = context.chunkGenerator().getBiomeSource()
+                .getNoiseBiome(centerX >> 2, 0, centerZ >> 2, context.randomState().sampler());
+        if (!biome.is(BiomeTags.IS_HILL)) {
+            return Optional.empty();
+        }
         if (context.chunkGenerator().getFirstOccupiedHeight(centerX, centerZ, Heightmap.Types.WORLD_SURFACE_WG,
                 context.heightAccessor(), context.randomState()) < 90) {
             return Optional.empty();

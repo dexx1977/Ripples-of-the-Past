@@ -41,6 +41,9 @@ public abstract class ExtendingEntityRenderer<T extends OwnerBoundProjectileEnti
                 Mth.lerp((double) partialTick, entity.yo, entity.getY()), 
                 Mth.lerp((double) partialTick, entity.zo, entity.getZ()));
         Vec3 extentVec = entityPos.subtract(originPos);
+        if (entity.tickCount % 20 == 0) {
+            System.out.println("[DBG-EXT] id=" + entity.getId() + " origin=" + originPos + " pos=" + entityPos + " len=" + extentVec.length() + " invisible=" + entity.isInvisible() + " bound=" + entity.isBoundToOwner());
+        }
         yRotation = MathUtil.yRotDegFromVec(extentVec);
         xRotation = MathUtil.xRotDegFromVec(extentVec);
         model.setLength((float) extentVec.length());

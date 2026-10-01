@@ -27,6 +27,9 @@ public abstract class HGStringAbstractRenderer<T extends OwnerBoundProjectileEnt
     
     @Override
     protected void doRender(T entity, HGStringModel<T> model, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
+        if (entity.tickCount % 20 == 0) {
+            System.out.println("[DBG-HG] doRender id=" + entity.getId() + " pos=" + entity.position() + " owner=" + entity.getOwner() + " invisible=" + entity.isInvisible() + " alpha=" + getAlpha(entity, partialTick) + " skin=" + entity.getStandSkin());
+        }
         super.doRender(entity, model, partialTick, matrixStack, buffer, packedLight);
         ResourceLocation glowTexture = StandSkinsManager.getInstance()
                 .getRemappedResPath(manager -> manager.getStandSkin(entity.getStandSkin()), GLOW_TEXTURE);

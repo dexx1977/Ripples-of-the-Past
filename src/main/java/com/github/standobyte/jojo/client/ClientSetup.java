@@ -280,6 +280,19 @@ public class ClientSetup {
         registerRenderer(ModEntityTypes.PILLARMAN_VEINS.get(), PillarmanVeinRenderer::new);
         registerRenderer(ModEntityTypes.PILLARMAN_RIBS.get(), PillarmanRibRenderer::new);
         registerRenderer(ModEntityTypes.OBJECT.get(), SpriteObjectEntityRenderer::new);
+
+        // Stand entity renderers must be declared here as well: EntityRenderersEvent.
+        // RegisterRenderers fires BEFORE the client setup event in 1.20.1, so the
+        // registrations made in onFMLClientSetup below would never be handed to Forge,
+        // leaving the Stand entities without a renderer (NullPointerException when the
+        // client renders a summoned Stand).
+        registerRenderer(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
+        registerRenderer(ModStands.THE_WORLD.getEntityType(), ClientUtil.logException(TheWorldRenderer::new));
+        registerRenderer(ModStands.HIEROPHANT_GREEN.getEntityType(), ClientUtil.logException(HierophantGreenRenderer::new));
+        registerRenderer(ModStands.SILVER_CHARIOT.getEntityType(), ClientUtil.logException(SilverChariotRenderer::new));
+        registerRenderer(ModStands.MAGICIANS_RED.getEntityType(), ClientUtil.logException(MagiciansRedRenderer::new));
+        registerRenderer(ModStands.CRAZY_DIAMOND.getEntityType(), ClientUtil.logException(CrazyDiamondRenderer::new));
+        registerRenderer(ModStands.GOLD_EXPERIENCE.getEntityType(), ClientUtil.logException(GoldExperienceRenderer::new));
     }
 
 
@@ -302,6 +315,10 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        // 1.20.1: RegisterKeyMappingsEvent fires BEFORE FMLClientSetupEvent, so InputHandler
+        // (which creates all KeyMappings in its constructor) must be initialized here,
+        // otherwise none of the mod's keybinds are registered and cannot be rebound in the Controls screen.
+        InputHandler.init(Minecraft.getInstance());
         KEY_MAPPINGS.forEach(event::register);
     }
 
@@ -314,14 +331,6 @@ public class ClientSetup {
         xxd = new ConsciousnessRenderer(new EntityRendererProvider.Context(dispatcher, mc.getItemRenderer(), 
                 mc.getBlockRenderer(), mc.gameRenderer.itemInHandRenderer, mc.getResourceManager(), 
                 mc.getEntityModels(), mc.font));
-        
-        registerRenderer(ModStands.STAR_PLATINUM.getEntityType(), ClientUtil.logException(StarPlatinumRenderer::new));
-        registerRenderer(ModStands.THE_WORLD.getEntityType(), ClientUtil.logException(TheWorldRenderer::new));
-        registerRenderer(ModStands.HIEROPHANT_GREEN.getEntityType(), ClientUtil.logException(HierophantGreenRenderer::new));
-        registerRenderer(ModStands.SILVER_CHARIOT.getEntityType(), ClientUtil.logException(SilverChariotRenderer::new));
-        registerRenderer(ModStands.MAGICIANS_RED.getEntityType(), ClientUtil.logException(MagiciansRedRenderer::new));
-        registerRenderer(ModStands.CRAZY_DIAMOND.getEntityType(), ClientUtil.logException(CrazyDiamondRenderer::new));
-        registerRenderer(ModStands.GOLD_EXPERIENCE.getEntityType(), ClientUtil.logException(GoldExperienceRenderer::new));
         
         PlayerAnimationHandler.initAnimator();
         

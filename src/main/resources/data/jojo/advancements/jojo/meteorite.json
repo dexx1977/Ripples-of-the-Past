@@ -20,7 +20,7 @@
       "trigger": "minecraft:location",
       "conditions": {
         "location": {
-          "feature": "jojo:meteorite"
+          "structure": "jojo:meteorite"
         }
       }
     }

@@ -124,6 +124,7 @@ public class TimeStopInstancePacket {
                 break;
             case RESUME_TIME:
                 TimeStopHandler.resumeTime(world, msg.instanceId);
+                ShaderEffectApplier.getInstance().setResetShader();
                 break;
             }
         }

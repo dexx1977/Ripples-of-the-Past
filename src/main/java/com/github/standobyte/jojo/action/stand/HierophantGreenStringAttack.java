@@ -40,6 +40,7 @@ public class HierophantGreenStringAttack extends StandEntityAction {
         }
         string.setLifeSpan(getStandActionTicks(userPower, standEntity));
         string.withStandSkin(standEntity.getStandSkin());
+        System.out.println("[DBG-HG] server addProjectile pos=" + string.position() + " ticks=" + string.ticksLifespan() + " shift=" + shift);
         standEntity.addProjectile(string);
     }
     

@@ -20,7 +20,7 @@
       "trigger": "minecraft:location",
       "conditions": {
         "location": {
-          "feature": "jojo:hamon_temple"
+          "structure": "jojo:hamon_temple"
         }
       }
     }

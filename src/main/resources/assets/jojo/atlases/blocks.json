@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "jojo:block/mr_fire_0"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:block/mr_fire_1"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:entity/stand/magicians_red_fire_0"
+    },
+    {
+      "type": "single",
+      "resource": "jojo:entity/stand/magicians_red_fire_1"
+    }
+  ]
+}

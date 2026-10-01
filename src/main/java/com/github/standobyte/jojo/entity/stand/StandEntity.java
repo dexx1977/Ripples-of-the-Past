@@ -786,7 +786,7 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
 
     @Override
     public boolean isInvisible() {
-        return !isVisibleForAll() || underInvisibilityEffect();
+        return underInvisibilityEffect();
     }
 
     public boolean underInvisibilityEffect() {
@@ -1369,9 +1369,15 @@ public class StandEntity extends LivingEntity implements IStandManifestation, IE
         }
         else if (isBeingRetracted()) {
             if (!isCloseToUser()) {
-                setDeltaMovement(user.position().add(taskOffset(user, getDefaultOffsetFromUser(), 
-                        Optional.empty())).subtract(position())
-                        .normalize().scale(getAttributeValue(Attributes.MOVEMENT_SPEED)));
+                Vec3 retractTarget = user.position().add(taskOffset(user, getDefaultOffsetFromUser(), 
+                        Optional.empty()));
+                if (noPhysics) {
+                    setPos(retractTarget);
+                }
+                else {
+                    setDeltaMovement(retractTarget.subtract(position())
+                            .normalize().scale(getAttributeValue(Attributes.MOVEMENT_SPEED)));
+                }
             }
             else {
                 setDeltaMovement(Vec3.ZERO);

@@ -197,13 +197,11 @@ public class MRFlameEntity extends ModdedProjectileEntity {
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         super.writeSpawnData(buffer);
-        boolean hasStartingPos = startingPos != null;
-        buffer.writeBoolean(hasStartingPos);
-        if (hasStartingPos) {
-            buffer.writeDouble(startingPos.x);
-            buffer.writeDouble(startingPos.y);
-            buffer.writeDouble(startingPos.z);
-        }
+        Vec3 pos = startingPos != null ? startingPos : position();
+        buffer.writeBoolean(true);
+        buffer.writeDouble(pos.x);
+        buffer.writeDouble(pos.y);
+        buffer.writeDouble(pos.z);
     }
 
     @Override

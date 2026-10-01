@@ -61,6 +61,11 @@ public class AfterimageEntity extends Entity implements IEntityAdditionalSpawnDa
     public void setMinSpeed(double speed) {
         this.speedLowerLimit = speed;
     }
+
+    /** debug helper */
+    public double getSpeedLowerLimitForDebug() {
+        return speedLowerLimit;
+    }
     
     public boolean shouldRender() {
         return originEntity != null && originEntity.getAttributeValue(Attributes.MOVEMENT_SPEED) >= speedLowerLimit;

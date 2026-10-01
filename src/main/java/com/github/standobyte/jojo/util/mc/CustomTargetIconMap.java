@@ -102,6 +102,34 @@ public class CustomTargetIconMap {
         private static final String ICON_PATH_PREFIX = "jojoicon_";
         public final String data;
 
+        public static void replaceWithCustomIcons(java.util.Map<String, MapDecoration> icons) {
+            boolean hasExplorerMapTarget = false;
+            for (Map.Entry<String, MapDecoration> entry : icons.entrySet()) {
+                MapDecoration originalIcon = entry.getValue();
+                if (originalIcon.getName() instanceof Component) {
+                    String data = ((Component) originalIcon.getName()).getString();
+                    if (data.startsWith(ICON_PATH_PREFIX)) {
+                        String iconPath = data.substring(ICON_PATH_PREFIX.length());
+                        entry.setValue(new CustomIconMapDecoration(originalIcon.getType(), 
+                                originalIcon.getX(), originalIcon.getY(), originalIcon.getRot(), 
+                                iconPath));
+                        hasExplorerMapTarget = true;
+                    }
+                }
+            }
+            
+            if (hasExplorerMapTarget) { // removes the TARGET_POINT triangle icon
+                for (Map.Entry<String, MapDecoration> entry : icons.entrySet()) {
+                    MapDecoration originalIcon = entry.getValue();
+                    if (originalIcon.getType() == MapDecoration.Type.TARGET_POINT) {
+                        entry.setValue(new DummyMapDecoration(originalIcon.getType(), 
+                                originalIcon.getX(), originalIcon.getY(), originalIcon.getRot(), 
+                                originalIcon.getName()));
+                    }
+                }
+            }
+        }
+
         public static void replaceWithCustomIcons(MapDecoration[] icons) {
             boolean hasExplorerMapTarget = false;
             for (int i = 0; i < icons.length; i++) {

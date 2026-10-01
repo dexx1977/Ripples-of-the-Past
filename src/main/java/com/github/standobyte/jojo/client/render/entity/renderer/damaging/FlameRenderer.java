@@ -30,8 +30,15 @@ public abstract class FlameRenderer<T extends Entity> extends EntityRenderer<T> 
             PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         if (!entity.isInvisible() || !entity.isInvisibleTo(Minecraft.getInstance().player)) {
             Vec3 pos = entity.getPosition(partialTick);
-            Vec3 vec = getStartingPos(entity).subtract(pos);
+            Vec3 start = getStartingPos(entity);
+            if (start == null) {
+                start = pos;
+            }
+            Vec3 vec = start.subtract(pos);
             double length = vec.length();
+            if (length <= 0) {
+                return;
+            }
             Vec3 step = vec.scale(STEP_LENGTH / length);
             for (int i = Mth.floor(length / STEP_LENGTH); i > 0; i--) {
                 entity.level.addAlwaysVisibleParticle(ModParticles.FLAME_ONE_TICK.get(), true, pos.x, pos.y, pos.z, 0, 0, 0);

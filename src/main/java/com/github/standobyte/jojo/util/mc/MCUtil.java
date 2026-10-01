@@ -871,7 +871,9 @@ public class MCUtil {
             SoundEvent sound, SoundSource category, float volume, float pitch, Predicate<Player> condition) {
         if (!world.isClientSide()) {
             net.minecraft.core.Holder<SoundEvent> soundHolder = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound);
-            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtEntity(null, soundHolder, category, volume, pitch);
+            // 1.20.1's onPlaySoundAtEntity requires a non-null entity; the mod always
+            // played positional sounds at (x, y, z), so use the position variant.
+            PlayLevelSoundEvent event = ForgeEventFactory.onPlaySoundAtPosition(world, x, y, z, soundHolder, category, volume, pitch);
             if (event.isCanceled() || event.getSound() == null) return;
             soundHolder = event.getSound();
             category = event.getSource();

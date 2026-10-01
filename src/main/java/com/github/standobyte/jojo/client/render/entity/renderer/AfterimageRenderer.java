@@ -25,6 +25,9 @@ public class AfterimageRenderer<T extends AfterimageEntity> extends EntityRender
     @Override
     public void render(T entity, float yRotation, float partialTick, PoseStack matrixStack, MultiBufferSource buffer, int packedLight) {
         Entity originEntity = entity.getOriginEntity();
+        if (entity.tickCount % 20 == 0) {
+            System.out.println("[DBG-AFT] render id=" + entity.getId() + " origin=" + originEntity + " shouldRender=" + (originEntity != null && entity.shouldRender()) + " speedLower=" + entity.getSpeedLowerLimitForDebug());
+        }
         if (originEntity != null) {
             Minecraft mc = Minecraft.getInstance();
             if (!entity.shouldRender() || originEntity == mc.getCameraEntity() && mc.options.getCameraType().isFirstPerson()) {

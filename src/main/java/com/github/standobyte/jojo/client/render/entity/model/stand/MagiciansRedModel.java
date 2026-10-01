@@ -26,8 +26,11 @@ import com.mojang.math.Axis;
 public class MagiciansRedModel extends HumanoidStandModel<MagiciansRedEntity> {
     // 1.20.1 has no ModelBase, so the texture size the parts are baked
     // against is declared here (as vanilla 1.20.1 models pass it to LayerDefinition).
-    protected int texWidth = 64;
-    protected int texHeight = 64;
+    // The UVs of this model are laid out for a 128x128 texture (texOffs go up to 118),
+    // so the declared size must be 128 - declaring 64 makes ModelPart normalize the
+    // UVs by 64, sampling outside the texture and rendering the stand as a garbled mess.
+    protected int texWidth = 128;
+    protected int texHeight = 128;
 
     private ModelPart beakUpper;
     private ModelPart beakLower;
